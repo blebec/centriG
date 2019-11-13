@@ -3,13 +3,28 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
-os.chdir(os.path.expanduser('~/ownCloud/cgFiguresSrc/figures'))
+os.chdir(os.path.expanduser('~/pg/chrisPg/centriG'))
 
+#%% colors
+
+
+stdColors = {
+        'rouge' : [x/256 for x in [229, 51, 51]],
+        'vert' : [x/256 for x in [127,	 204, 56]],
+        'bleu' :	[x/256 for x in [0, 125, 218]],
+        'jaune' :	[x/256 for x in [238, 181, 0]],
+        'violet' : [x/256 for x in [255, 0, 255]]
+            }
+speedColors ={
+        'orangeFonce' :     [x/256 for x in [252, 98, 48]],
+        'orange' : [x/256 for x in [253, 174, 74]],
+        'jaune' : [x/256 for x in [254, 226, 137]]
+        }
 #%% define the font to be used
 from matplotlib import rc
 #rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
 rc('font',**{'family':'serif','serif':['Times']})
-rc('text', usetex=True)
+rc('text', usetex=False)
 
 
 #%% show the fonts available:
@@ -50,7 +65,7 @@ def plotFig2():
     df.index = df.index - middle
     df.index = df.index/10
     cols = df.columns
-    colors = ['k', 'r']
+    colors = ['k', stdColors['rouge']]
     alpha = [0.5, 0.5]
 
     fig = plt.figure(figsize=(8,8))
@@ -142,7 +157,7 @@ def plotFig2B():
     axes = [ax1, ax2]
 
     for i, ax in enumerate(axes):
-        axes[i].bar(rankDf.index, rankDf[cols[i]], color='r', label=cols[i], 
+        axes[i].bar(rankDf.index, rankDf[cols[i]], color=stdColors['rouge'], label=cols[i], 
             alpha = 0.7, width=0.8)
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
@@ -171,7 +186,8 @@ def plotFig3():
     df.index = df.index/10
     cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
     df.columns = cols
-    colors = ['k', 'r', 'g', 'y', 'b']
+    colors = ['k', stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.5, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(8,4))
@@ -216,8 +232,9 @@ def plotFig4():
     df.index = df.index/10
     cols = ['centerOnly', '100%', '70%', '80%', '50%']
     df.columns = cols
-    colors = ['k', 'r', 'r', 'r', 'r']
-    alpha = [0.5, 1, 0.5, 0.4, 0.2]
+    colors = ['k', stdColors['rouge'], speedColors['orangeFonce'], 
+              speedColors['orange'], speedColors['jaune']]
+    alpha = [0.5, 1, 0.8, 0.8, 1]
 
     fig = plt.figure(figsize=(8,4))
     fig.suptitle(os.path.basename(filename))
@@ -264,7 +281,8 @@ def plotFig5():
     df.index = df.index/10
     cols = df.columns
     colors = ['k', 'r', 'b', 'g']
-    alpha = [0.5, 0.5, 0.5, 0.5]
+    colors = ['k', stdColors['rouge'], stdColors['bleu'], stdColors['vert']]
+    alpha = [0.5, 0.7, 0.8, 0.8]
 
     fig = plt.figure(figsize=(6,8))
     fig.suptitle(os.path.basename(filename))
@@ -321,8 +339,15 @@ def plotFig6():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    cols = df.columns
+    cols = ['center only', 'surround then center', 'surround only', 
+                   'sdUp', 'sdDown', 'linear prediction']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+#    cols = df.columns
+    df.colums = cols
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
+    colors = ['k', stdColors['rouge'], stdColors['bleu'], 
+              stdColors['violet'], stdColors['violet'], stdColors['violet']]
     alpha = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
 
     fig = plt.figure(figsize=(12,6))
@@ -331,17 +356,23 @@ def plotFig6():
     for i, col in enumerate(cols[:3]):
         ax1.plot(df[col], color=colors[i], alpha=alpha[i], 
                label = col)
-
+    
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2,5]:
+        print('i=', i, colors[i]), 
         ax2.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i], 
                label = df.columns[i])
-    ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]], color='b',
-                     alpha=0.3)
+    ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]], 
+                     color=colors[2],alpha=0.2)
     
     ax1.set_ylabel ('normalized membrane potential (mV)')
-
     for ax in fig.get_axes():
+        leg = ax.legend(loc='upper left', markerscale=None, frameon = False, 
+                        handlelength=0)
+        # colored text
+        for line,text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())
+
         ax.set_xlim(-150, 150)
         ax.set_xlabel ('relative time (ms)')
         for loc in ['top', 'right']:
