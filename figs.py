@@ -3,6 +3,7 @@
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 os.chdir(os.path.expanduser('~/pg/chrisPg/centriG'))
 
 #%% colors
@@ -55,7 +56,7 @@ def align_yaxis(ax1, v1, ax2, v2):
     ax2.set_ylim(miny+dy, maxy+dy)
    
 #%%
-#plt.close('all')
+plt.close('all')
 
 def plotFig2():
     filename = 'fig2.xlsx'
@@ -113,6 +114,24 @@ def plotFig2():
     ax4.set_ylabel ('normalized \n firing rate')
     ax4.set_xlabel('relative time (ms)')
     
+    # stimulations
+    step = 20
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    locs = [0, -20, -40, -60, -80, -100]
+    dico = dict(zip(names, locs))
+    for key in dico.keys():
+        # names
+        ax3.annotate(key, xy=(dico[key]+3,-3), alpha=0.6, fontsize='small')
+        # stim
+        rect = Rectangle(xy=(dico[key],-4), width=step, height=1, fill=True,
+                     alpha=0.6, edgecolor='w', facecolor='r')
+        ax3.add_patch(rect)
+        #center
+    rect = Rectangle(xy=(0,-5), width=step, height=1, fill=True,
+                     alpha=0.6, edgecolor='w', facecolor='k')
+    ax3.add_patch(rect)
+
+    
     
     for ax in fig.get_axes():
         ax.set_title(retrieve_name(ax)) # for working purposes
@@ -124,10 +143,11 @@ def plotFig2():
             ax.hlines(0, lims[0], lims[1], alpha =0.2)
     for ax in [ax1, ax3]:
         lims = ax.get_ylim()
-#TODO : adjust the locations
+#TODO : adjust the locations    see annotation _clip = False
 #TDOD : append the stim bar chart
         for dloc in [-20, -40, -60, -80, -100]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
+    
     
     # align zero between plots
     align_yaxis(ax1, 0, ax2, 0)
@@ -138,7 +158,7 @@ def plotFig2():
     
     return fig        
 
-plotFig2()
+fig = plotFig2()
 #%%
     
 def plotFig2B():
@@ -267,10 +287,10 @@ def plotFig4():
    
     return fig
 
-plotFig4()                
+fig = plotFig4()                
 
 #%%
-#plt.lose('all')
+plt.close('all')
     
 def plotFig5():
     filename = 'fig5.xlsx'
@@ -279,11 +299,16 @@ def plotFig5():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
+    # rename columns
     cols = df.columns
-    colors = ['k', 'r', 'b', 'g']
+    cols = ['center only', 'surround then center', 'surround only', 
+                    'resting activity']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    # color parameters
     colors = ['k', stdColors['rouge'], stdColors['bleu'], stdColors['vert']]
     alpha = [0.5, 0.7, 0.8, 0.8]
-
+    #plotting
     fig = plt.figure(figsize=(6,8))
     fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(211)
@@ -292,6 +317,7 @@ def plotFig5():
                label = col)
     ax1.spines['bottom'].set_visible(False)
     ax1.axes.get_xaxis().set_visible(False)
+    
 
     ax2 = fig.add_subplot(212, sharex=ax1, sharey = ax1)
     for i, col in enumerate(cols):
@@ -299,9 +325,70 @@ def plotFig5():
                label = col)
 
     ax2.set_xlabel ('time (ms)')
-        
+    #adjust plot    
     ax1.set_xlim(-120, 200)
+    
+    # stims
+    step = 20
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    locs = [0, -20, -40, -60, -80, -100]
+    vlocs = [-0.7, -1, -1.3, -1.6]
+    dico = dict(zip(names, locs))
+        
+    #ax1
+    for key in dico.keys():
+        # names
+        ax1.annotate(key, xy=(dico[key]+3,vlocs[0]), alpha=0.6, fontsize='small',
+                     annotation_clip = False)
+        #stim1
+        rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
+                 alpha=0.6, edgecolor='w', facecolor='r')
+        ax1.add_patch(rect)       
+    #center
+    rect = Rectangle(xy=(0,vlocs[2]), width=step, height=0.3, fill=True,
+                     alpha=0.6, edgecolor='w', facecolor='k')
+    ax1.add_patch(rect)
+    
+    st = 'surround then center'
+    ax1.annotate(st, xy=(30,vlocs[1]), color=colors[1], annotation_clip = False)
+    st = 'center only'
+    ax1.annotate(st, xy=(30,vlocs[2]), color=colors[0], annotation_clip = False)
+        # see annotation_clip = False
+
+    #ax2
+    for key in dico.keys():
+        # names
+        ax2.annotate(key, xy=(dico[key]+3,vlocs[0]), alpha=0.6, fontsize='small',
+                     annotation_clip = False)
+        # stim1
+        rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
+                alpha=0.6, edgecolor='w', facecolor=colors[2])
+        if key == 'D0':
+            rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
+                 alpha=0.6, edgecolor='w', facecolor='w')
+        ax2.add_patch(rect)
+        # stim2
+        rect = Rectangle(xy=(dico[key],vlocs[2]), width=step, height=0.3, fill=True,
+                 alpha=0.6, edgecolor='w', facecolor=colors[1])
+        ax2.add_patch(rect)
+     # center
+    rect = Rectangle(xy=(0,vlocs[3]), width=step, height=0.3, fill=True,
+                     alpha=0.6, edgecolor='w', facecolor=colors[0])
+    ax2.add_patch(rect)
+
+    st = 'surround then only'
+    ax2.annotate(st, xy=(30,vlocs[1]), color=colors[2], annotation_clip = False)
+    st = 'surround then center'
+    ax2.annotate(st, xy=(30,vlocs[2]), color=colors[1], annotation_clip = False)
+    st = 'center only'
+    ax2.annotate(st, xy=(30,vlocs[3]), color=colors[0], annotation_clip = False)
+    
     for ax in fig.get_axes():
+        leg = ax.legend(loc='upper right', markerscale=None, frameon = False, 
+                        handlelength=0)
+        # colored text
+        for line,text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())
         ax.set_ylabel ('membrane potential (mV)')
         for loc in ['top', 'right']:
            ax.spines[loc].set_visible(False)
@@ -316,21 +403,6 @@ def plotFig5():
 
 fig = plotFig5()
 
-ls#%%
-plt.close('all')
-
-##alignement to be performed
-##see https://stackoverflow.com/questions/10481990/matplotlib-axis-with-two-scales-shared-origin/10482477#10482477
-#
-#def align_yaxis(ax1, v1, ax2, v2):
-#    """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
-#    _, y1 = ax1.transData.transform((0, v1))
-#    _, y2 = ax2.transData.transform((0, v2))
-#    inv = ax2.transData.inverted()
-#    _, dy = inv.transform((0, 0)) - inv.transform((0, y1-y2))
-#    miny, maxy = ax2.get_ylim()
-#    ax2.set_ylim(miny+dy, maxy+dy)
-
 #%%
 def plotFig6():
     filename = 'fig6.xlsx'
@@ -339,12 +411,11 @@ def plotFig6():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    cols = ['center only', 'surround then center', 'surround only', 
-                   'sdUp', 'sdDown', 'linear prediction']
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly', 
+                   'sdUp', 'sdDown', 'linearPrediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
-#    cols = df.columns
-    df.colums = cols
+    cols = df.columns
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
     colors = ['k', stdColors['rouge'], stdColors['bleu'], 
               stdColors['violet'], stdColors['violet'], stdColors['violet']]
@@ -384,6 +455,27 @@ def plotFig6():
     # align zero between subplots
     align_yaxis(ax1, 0, ax2, 0)
     fig.tight_layout()
+    
+    # add ref
+    ref = (0, df.loc[0, ['centerOnly']])
+    
     return fig                
 
-plotFig6()
+fig = plotFig6()
+
+#%% test bubbl
+
+import matplotlib.pyplot as plt
+fig = plt.figure()
+ax = fig.add_subplot(111)
+fig.patch(xy=(0,0), width = 5, height=5, fill=True, alpha=0.5, color='r') 
+         edgecolor='k')
+
+from matplotlib.patches import Rectangle
+rect = Rectangle(xy=(-0,-0.2), width=0.3, height=0.3, color='b')
+ax.add_patch(rect)
+
+fig.patches.extend([rect]) # to add a new rectangle
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(df[df.columns[1]])
