@@ -243,7 +243,7 @@ fig = plotFig3()
 #%%
 #plt.close('all')
 def plotFig4():
-#TODO : adjust the colors
+    """ speed """
     filename = 'fig4.xlsx'
     df = pd.read_excel(filename)
     #centering
@@ -463,19 +463,4 @@ def plotFig6():
 
 fig = plotFig6()
 
-#%% test bubbl
-
-import matplotlib.pyplot as plt
-fig = plt.figure()
-ax = fig.add_subplot(111)
-fig.patch(xy=(0,0), width = 5, height=5, fill=True, alpha=0.5, color='r') 
-         edgecolor='k')
-
-from matplotlib.patches import Rectangle
-rect = Rectangle(xy=(-0,-0.2), width=0.3, height=0.3, color='b')
-ax.add_patch(rect)
-
-fig.patches.extend([rect]) # to add a new rectangle
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(df[df.columns[1]])
+#%% 
