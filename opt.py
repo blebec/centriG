@@ -1,7 +1,18 @@
 
 
+import platform
 import os
-os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+import getpass
+osname = platform.system()
+username = getpass.getuser()
+
+if osname == 'Windows'and username == 'Benoit':
+    os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
+if osname == 'Linux' and username == 'benoit':
+    os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+if osname == 'macosx' and username == 'chris':
+    os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -83,3 +94,48 @@ for line,text in zip(leg.get_lines(), leg.get_texts()):
     text.set_color(line.get_color())   
 
 fig.tight_layout()
+#%%
+plt.close('all')
+
+fig, axes = plt.subplots(nrows=5, ncols=1, figsize = (8,8), sharex='col', sharey='col')
+
+for i, ax in enumerate(axes.flatten()):
+    ax.plot(df.index, df[df.columns[i]], color= 'black', scalex =False, scaley=False)
+    ax.fill_between(df.index, df[df.columns[i]], color= colors[i])        
+    
+ax.yaxis.set_ticks(np.arange(-0.15,0.25,0.1))    
+ax.set_xlim(-140,40)    
+ax.set_ylim(-0.15,0.25)    
+ax.set_xlabel('Relative time to center-only onset (ms)')    
+axes[2].set_ylabel('Normalized Membrane potential')
+
+for ax in fig.get_axes():
+    for loca in ['top', 'right']:
+        ax.spines[loca].set_visible(False)
+    for loca in ['left']:
+        ax.spines[loca].set_visible(True)    
+    ax.yaxis.set_visible(True)
+#%%    
+plt.close('all')    
+
+fig = plt.figure(figsize=(12,8))
+ax1 = fig.add_subplot(122)#, sharey= 'none')
+ax1.set
+for i, col in enumerate(df.columns):
+    ax1.plot(df.loc[40:100,[col]], color=colors[i], linewidth = 2, label=col)#alpha[i])
+    #response max
+    max = float(df.loc[30:200,[col]].max())
+    ax1.hlines(max, 40, 50, linewidth = 1.5,color=colors[i])
+
+ax1.set_ylim(-0.15, 1.05)
+for ax in fig.get_axes():
+    
+    for loca in ['top', 'right']:
+        ax.spines[loca].set_visible(False)
+    for loca in ['left']:
+        ax.spines[loca].set_visible(True)    
+    ax.yaxis.set_visible(True)
+    ax.set_xlabel('Relative time to center-only onset (ms)')
+
+fig.tight_layout()
+plt.rcParams.update({'font.size':12})
