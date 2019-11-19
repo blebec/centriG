@@ -1,10 +1,20 @@
 
 
+import platform
 import os
+import getpass
+osname = platform.system()
+username = getpass.getuser()
+
+if osname == 'Windows'and username == 'Benoit':
+    os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
+if osname == 'Linux' and username == 'benoit':
+    os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+if osname == 'posix' and username == 'cdesbois':
+    os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-os.chdir(os.path.expanduser('~/pg/chrisPg/centriG'))
 
 #%% colors
 
@@ -302,7 +312,7 @@ def plotFig5():
     # rename columns
     cols = df.columns
     cols = ['center only', 'surround then center', 'surround only', 
-                    'resting activity']
+                    'static linear prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
@@ -376,7 +386,7 @@ def plotFig5():
                      alpha=0.6, edgecolor='w', facecolor=colors[0])
     ax2.add_patch(rect)
 
-    st = 'surround then only'
+    st = 'surround only'
     ax2.annotate(st, xy=(30,vlocs[1]), color=colors[2], annotation_clip = False)
     st = 'surround then center'
     ax2.annotate(st, xy=(30,vlocs[2]), color=colors[1], annotation_clip = False)

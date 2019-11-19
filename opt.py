@@ -124,7 +124,8 @@ def plotSpeedMultigraph():
         ax.set_ylim(-0.15,0.25)    
         #    ax.legend()    
     left_axes[2].set_ylabel('Normalized Membrane potential')
-    left_axes[-1].set_xlabel('Relative time to center-only onset (ms)')           
+    left_axes[-1].set_xlabel('Relative time to center-only onset (ms)')
+    left_axes[-1].xaxis.set_ticks(np.arange(-140,41,20))           
     #plot right    
     for i, col in enumerate(df.columns):
         right_ax.plot(df.loc[40:100,[col]], color=colors[i], label=col, alpha = alpha[i])
