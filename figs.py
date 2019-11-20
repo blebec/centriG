@@ -38,7 +38,8 @@ speedColors ={
 #%% define the font to be used
 from matplotlib import rc
 #rc('font',**{'family':'sans-serif','sans-serif':['Helvetica']})
-rc('font',**{'family':'serif','serif':['Times']})
+#rc('font',**{'family':'serif','serif':['Times']})
+rc('font',**{'family':'sans-serif','sans-serif':['Arial']})
 rc('text', usetex=False)
 
 
@@ -90,7 +91,8 @@ def plotFig2():
     for i, col in enumerate(cols[:2]):
         ax1.plot(df[col], color=colors[i], alpha=alpha[i], 
                label = col)
-    ax1.set_ylabel ('membrane potential (mV)')
+    #fontname and size of labels
+    ax1.set_ylabel ('membrane potential (mV)', fontname = 'Arial', fontsize = 14)
     ax1.set_xlim(-200, 150)
     ax1.spines['bottom'].set_visible(False)
     ax1.axes.get_xaxis().set_visible(False)
@@ -102,16 +104,18 @@ def plotFig2():
     for i, col in enumerate(columns):
         ax3.fill_between(df.index, df[col], color=colors[::-1][i], alpha=0.7, 
                label = col)
-    ax3.set_ylabel('firing rate (spikes/s)')
-    ax3.set_xlabel('time (ms)')
-        
+    #fontname and size of labels    
+    ax3.set_ylabel('firing rate (spikes/s)', fontname = 'Arial', fontsize = 14)
+    ax3.set_xlabel('time (ms)', fontname = 'Arial', fontsize = 14)
+    
     ax2 = fig.add_subplot(222)
     for i, col in enumerate(cols[4:6]):
         ax2.plot(df[col], color=colors[i], alpha=alpha[i], 
                label = col)
+    #fontname and size of annotations
     ax2.annotate("n=37", xy=(0.2, 0.8), 
-                xycoords="axes fraction", ha='center')
-    ax2.set_ylabel ('normalized \n membrane potential')
+                xycoords="axes fraction", ha='center', fontname ='Arial', fontsize = 14)
+    ax2.set_ylabel ('normalized \n membrane potential', fontname = 'Arial', fontsize = 14)
     ax2.spines['bottom'].set_visible(False)
     ax2.axes.get_xaxis().set_visible(False)
 
@@ -123,10 +127,11 @@ def plotFig2():
         ax4.fill_between(df.index, df[col], color=colors[::-1][i], alpha=0.7, 
                label = col)
     ax4.set_xlim(-30, 35)
+    #fontname and size of annotations    
     ax4.annotate("n=20", xy=(0.2, 0.8), 
-                xycoords="axes fraction", ha='center')
-    ax4.set_ylabel ('normalized \n firing rate')
-    ax4.set_xlabel('relative time (ms)')
+                xycoords="axes fraction", ha='center', fontname ='Arial', fontsize = 14)
+    ax4.set_ylabel ('normalized \n firing rate', fontname = 'Arial', fontsize = 14)
+    ax4.set_xlabel('relative time (ms)', fontname = 'Arial', fontsize = 14)
     
     # stimulations
     step = 20
@@ -134,8 +139,8 @@ def plotFig2():
     locs = [0, -20, -40, -60, -80, -100]
     dico = dict(zip(names, locs))
     for key in dico.keys():
-        # names
-        ax3.annotate(key, xy=(dico[key]+3,-3), alpha=0.6, fontsize='small')
+        # names + fontname and size of annotations
+        ax3.annotate(key, xy=(dico[key]+3,-3), alpha=0.6, fontname = 'Arial', fontsize='small')
         # stim
         rect = Rectangle(xy=(dico[key],-4), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='r')
@@ -155,6 +160,10 @@ def plotFig2():
             ax.vlines(0, lims[0], lims[1], alpha =0.2)
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha =0.2)
+    ## set fontname and fontsize for x and yticks
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
     for ax in [ax1, ax3]:
         lims = ax.get_ylim()
 #TODO : adjust the locations    see annotation _clip = False
@@ -193,17 +202,23 @@ def plotFig2B():
     for i, ax in enumerate(axes):
         axes[i].bar(rankDf.index, rankDf[cols[i]], color=stdColors['rouge'], label=cols[i], 
             alpha = 0.7, width=0.8)
-        ax.set_xlabel('cell rank')
+        ax.set_xlabel('cell rank', fontname = 'Arial', fontsize = 14)
+        
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [rankDf.index.min(), rankDf.index.max()]
         ax.set_xticks(ticks)
-    ax1.set_ylabel('phase advance (ms)')
-    ax2.set_ylabel('delta response')
-
-
+    ax1.set_ylabel('phase advance (ms)', fontname ='Arial', fontsize = 14)
+    ax2.set_ylabel('delta response'    , fontname ='Arial', fontsize = 14)
+    
+    ## set fontname and fontsize for x and yticks
+    for ax in fig.get_axes():
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
+        
     fig.tight_layout()
     return fig
 
@@ -224,14 +239,15 @@ def plotFig3():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.5, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8,4))
+    fig = plt.figure(figsize=(8,4))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces 
     fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alpha[i], 
                label = col)
-    ax.set_ylabel ('normalized membrane potential')
-    ax.set_xlabel ('relative time (ms)')
+    # fontname and size of labels    
+    ax.set_ylabel ('normalized membrane potential', fontname = 'Arial', fontsize = 14)
+    ax.set_xlabel ('relative time (ms)', fontname = 'Arial', fontsize = 14)
 
     for ax in fig.get_axes():
        for loc in ['top', 'right']:
@@ -246,9 +262,17 @@ def plotFig3():
                    handlelength=0)
     for line,text in zip(leg.get_lines(), leg.get_texts()):
            text.set_color(line.get_color())   
-       
+    
+    # fontname and size of annotations
     ax.annotate("n=37", xy=(0.1, 0.8), 
-                xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center', fontname ='Arial', fontsize = 14 )
+    
+    ## set fontname and fontsize for x and yticks
+    for ax in fig.get_axes():
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]    
+    
     fig.tight_layout()
     return fig              
 
@@ -261,7 +285,7 @@ def plotFig4():
     filename = 'fig4.xlsx'
     df = pd.read_excel(filename)
     #centering
-    middle = (df.index.max() - df.index.min())/2
+    middle = (df.index.max() - df.index.min())/2   #OBSERVATION bottom raw 0 baseline has been decentered by police and ticks size changes
     df.index = df.index - middle
     df.index = df.index/10
     cols = ['centerOnly', '100%', '70%', '80%', '50%']
@@ -276,8 +300,9 @@ def plotFig4():
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alpha[i], 
                    label = col)
-    ax.set_ylabel ('normalized membrane potential')
-    ax.set_xlabel ('relative time (ms)')
+    # set fontname and fontsize for labels
+    ax.set_ylabel ('normalized membrane potential', fontname = 'Arial', fontsize = 14)
+    ax.set_xlabel ('relative time (ms)', fontname = 'Arial', fontsize = 14)
            
     for ax in fig.get_axes():
         for loc in ['top', 'right']:
@@ -295,9 +320,15 @@ def plotFig4():
                     handlelength=0)
     for line,text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
-   
+    
+    # set fontname and fontsize for annotations
     ax.annotate("population average \n (n=12)", xy=(0.2, 0.8), 
-                xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center', fontname = 'Arial', fontsize = 14)
+    ## set fontname and fontsize for x and yticks
+    for ax in fig.get_axes():
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
    
     return fig
 
@@ -323,7 +354,7 @@ def plotFig5():
     colors = ['k', stdColors['rouge'], stdColors['bleu'], stdColors['vert']]
     alpha = [0.5, 0.7, 0.8, 0.8]
     #plotting
-    fig = plt.figure(figsize=(6,8))
+    fig = plt.figure(figsize=(6,8))             # SUGGESTION increase a bit y dimension or subplots height
     fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
@@ -338,7 +369,8 @@ def plotFig5():
         ax2.plot(df[col], color=colors[i], alpha=alpha[i], 
                label = col)
 
-    ax2.set_xlabel ('time (ms)')
+    # set fontname and fontsize for x labels 
+    ax2.set_xlabel ('time (ms)', fontname= 'Arial', fontsize = 14)
     #adjust plot    
     ax1.set_xlim(-120, 200)
     
@@ -351,8 +383,8 @@ def plotFig5():
         
     #ax1
     for key in dico.keys():
-        # names
-        ax1.annotate(key, xy=(dico[key]+3,vlocs[0]), alpha=0.6, fontsize='small',
+        # names and fontname and size of annotations 
+        ax1.annotate(key, xy=(dico[key]+3,vlocs[0]), alpha=0.6, fontname = 'Arial', fontsize='small',
                      annotation_clip = False)
         #stim1
         rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
@@ -389,13 +421,14 @@ def plotFig5():
     rect = Rectangle(xy=(0,vlocs[3]), width=step, height=0.3, fill=True,
                      alpha=0.6, edgecolor='w', facecolor=colors[0])
     ax2.add_patch(rect)
-
+    
+    # set fontname and fontsize for annotations 
     st = 'surround only'
-    ax2.annotate(st, xy=(30,vlocs[1]), color=colors[2], annotation_clip = False)
+    ax2.annotate(st, xy=(30,vlocs[1]), color=colors[2], annotation_clip = False, fontname = 'Arial', fontsize = 13)
     st = 'surround then center'
-    ax2.annotate(st, xy=(30,vlocs[2]), color=colors[1], annotation_clip = False)
+    ax2.annotate(st, xy=(30,vlocs[2]), color=colors[1], annotation_clip = False, fontname = 'Arial', fontsize = 13)
     st = 'center only'
-    ax2.annotate(st, xy=(30,vlocs[3]), color=colors[0], annotation_clip = False)
+    ax2.annotate(st, xy=(30,vlocs[3]), color=colors[0], annotation_clip = False, fontname = 'Arial', fontsize = 13)
     
     for ax in fig.get_axes():
         leg = ax.legend(loc='upper right', markerscale=None, frameon = False, 
@@ -403,7 +436,8 @@ def plotFig5():
         # colored text
         for line,text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
-        ax.set_ylabel ('membrane potential (mV)')
+        # set fontname and fontsize for x labels 
+        ax.set_ylabel ('membrane potential (mV)', fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
            ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
@@ -412,6 +446,11 @@ def plotFig5():
         ax.vlines(0, lims[0], lims[1], alpha =0.2)
         for dloc in [-20, -40, -60, -80, -100]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
+         ## set fontname and fontsize for x and yticks
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
+    
     fig.tight_layout()
     return fig                
 
@@ -450,7 +489,8 @@ def plotFig6():
     ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]], 
                      color=colors[2],alpha=0.2)
     
-    ax1.set_ylabel ('normalized membrane potential (mV)')
+    # set fontname and fontsize for y label
+    ax1.set_ylabel ('normalized membrane potential (mV)', fontname = 'Arial', fontsize = 14)
     for ax in fig.get_axes():
         leg = ax.legend(loc='upper left', markerscale=None, frameon = False, 
                         handlelength=0)
@@ -459,16 +499,26 @@ def plotFig6():
             text.set_color(line.get_color())
 
         ax.set_xlim(-150, 150)
-        ax.set_xlabel ('relative time (ms)')
+        # set fontname and fontsize for x label        
+        ax.set_xlabel ('relative time (ms)', fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
            ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha =0.2)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha =0.2)
+        
+         ## set fontname and fontsize for x and yticks
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
+    
+    
     # align zero between subplots
     align_yaxis(ax1, 0, ax2, 0)
     fig.tight_layout()
+    
+        
     
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
