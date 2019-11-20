@@ -3,15 +3,19 @@
 import platform
 import os
 import getpass
-osname = platform.system()
-username = getpass.getuser()
 
-if osname == 'Windows'and username == 'Benoit':
-    os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
-elif osname == 'Linux' and username == 'benoit':
-    os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
-elif osname == 'Darwin' and username == 'cdesbois':
-    os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+def goToDir():
+    osname = platform.system()
+    username = getpass.getuser()
+
+    if osname == 'Windows'and username == 'Benoit':
+        os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
+    elif osname == 'Linux' and username == 'benoit':
+        os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+    elif osname == 'Darwin' and username == 'cdesbois':
+        os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+    return(True)
+goToDir()
 
 import numpy as np
 import pandas as pd

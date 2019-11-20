@@ -3,21 +3,25 @@
 import platform
 import os
 import getpass
-osname = platform.system()
-username = getpass.getuser()
 
-if osname == 'Windows'and username == 'Benoit':
-    os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
-if osname == 'Linux' and username == 'benoit':
-    os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
-if osname == 'posix' and username == 'cdesbois':
-    os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+def goToDir():
+    osname = platform.system()
+    username = getpass.getuser()
+
+    if osname == 'Windows'and username == 'Benoit':
+        os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
+    elif osname == 'Linux' and username == 'benoit':
+        os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+    elif osname == 'Darwin' and username == 'cdesbois':
+        os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
+    return(True)
+goToDir()
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 #%% colors
-
 
 stdColors = {
         'rouge' : [x/256 for x in [229, 51, 51]],
@@ -154,7 +158,7 @@ def plotFig2():
     for ax in [ax1, ax3]:
         lims = ax.get_ylim()
 #TODO : adjust the locations    see annotation _clip = False
-#TDOD : append the stim bar chart
+#TDOD : adjust the stim bar chart locations
         for dloc in [-20, -40, -60, -80, -100]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
     
