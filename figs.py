@@ -134,9 +134,14 @@ def plotFig2():
     ax4.set_xlabel('relative time (ms)', fontname = 'Arial', fontsize = 14)
     
     # stimulations
-    step = 20
+    
+    #step = 20
+    # real stepsize 
+    step = 28     
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    locs = [0, -20, -40, -60, -80, -100]
+    #locs = [0, -20, -40, -60, -80, -100]
+    #real Locs
+    locs = [0, -28, -56, -84, -112, -140]    
     dico = dict(zip(names, locs))
     for key in dico.keys():
         # names + fontname and size of annotations
@@ -166,9 +171,9 @@ def plotFig2():
         [label.set_fontsize(13) for label in labels]
     for ax in [ax1, ax3]:
         lims = ax.get_ylim()
-#TODO : adjust the locations    see annotation _clip = False
-#TDOD : adjust the stim bar chart locations
-        for dloc in [-20, -40, -60, -80, -100]:
+#TODO : adjust the locations    see annotation _clip = False #DONE
+#TDOD : adjust the stim bar chart locations                  #DONE
+        for dloc in [0, -28, -56, -84, -112, -140]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
     
     
@@ -377,7 +382,9 @@ def plotFig5():
     # stims
     step = 20
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    locs = [0, -20, -40, -60, -80, -100]
+    #locs = [0, -20, -40, -60, -80, -100]
+    #real Locs    
+    locs = [0, -21, -42, -63, -84, -105]    
     vlocs = [-0.7, -1, -1.3, -1.6]
     dico = dict(zip(names, locs))
         
