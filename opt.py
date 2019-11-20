@@ -8,9 +8,9 @@ username = getpass.getuser()
 
 if osname == 'Windows'and username == 'Benoit':
     os.chdir('D:\\travail\sourcecode\developing\paper\centriG')
-if osname == 'Linux' and username == 'benoit':
+elif osname == 'Linux' and username == 'benoit':
     os.chdir('/media/benoit/data/travail/sourcecode/developing/paper/centriG')
-if osname == 'posix' and username == 'cdesbois':
+elif osname == 'Darwin' and username == 'cdesbois':
     os.chdir('/Users/cdesbois/pg/chrisPg/centriG')
 
 import numpy as np
@@ -90,7 +90,7 @@ def plotSpeedSD(df):
         ax.set_xlabel('time (ms)')
 
 
-    leg = ax1.legend(loc='upper right', markerscale=None, 
+    leg = ax1.legend(loc='center right', markerscale=None, 
              handlelength=0, framealpha=1)
     for line,text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())   
@@ -104,15 +104,24 @@ fig = plotSpeedSD(df)
 plt.close('all')
 
 def plotSpeedMultigraph():
-
+    """
+    plot the speed effect of centirgabor protocol
+    """
     fig = plt.figure(figsize=(12,8))
+    fig.suptitle('aligned on Center-Only stimulus onset (t = 0)')
     # build grid
     gs = fig.add_gridspec(5,2)
     left_axes = []
     for i in range(5):
         ax = fig.add_subplot(gs[i,0])
         left_axes.append(ax)
-    right_ax = fig.add_subplot(gs[:,1])    
+    right_ax = fig.add_subplot(gs[:,1])
+    # to identify the plots (uncomment to use)
+#    for i, ax in enumerate(left_axes):
+#        st = str('ax {}'.format(i))
+#        ax.annotate(st, (0.5, 0.5))
+    #(manipulate the left_axes list to reorder the traces if required)
+
     #plot left
     cols = df.columns
     for i, ax in enumerate(left_axes):
@@ -122,7 +131,7 @@ def plotSpeedMultigraph():
         ax.yaxis.set_ticks(np.arange(-0.15,0.25,0.1))    
         ax.set_xlim(-140,40)    
         ax.set_ylim(-0.15,0.25)    
-        #    ax.legend()    
+    #add labels
     left_axes[2].set_ylabel('Normalized Membrane potential')
     left_axes[-1].set_xlabel('Relative time to center-only onset (ms)')
     left_axes[-1].xaxis.set_ticks(np.arange(-140,41,20))           
@@ -141,7 +150,9 @@ def plotSpeedMultigraph():
         ax.vlines(0, lims[0], lims[1], alpha=0.5)
     # adjust spacing
     gs.update(wspace=0.2, hspace=0.05)
-
+    # add ticks to the top
+    right_ax.tick_params(axis='x', bottom =True, top = True)
+    #legend
     leg = right_ax.legend(loc='lower right', markerscale=None, 
                           handlelength=0, framealpha=1)
     for line,text in zip(leg.get_lines(), leg.get_texts()):
