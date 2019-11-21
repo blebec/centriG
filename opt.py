@@ -124,7 +124,7 @@ def plotSpeedMultigraph():
 #    for i, ax in enumerate(left_axes):
 #        st = str('ax {}'.format(i))
 #        ax.annotate(st, (0.5, 0.5))
-    #(manipulate the left_axes list to reorder the traces if required)
+    #(manipulate the left_axes list to reorder the plots if required)
 
     #plot left
     cols = df.columns
