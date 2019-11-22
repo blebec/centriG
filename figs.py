@@ -353,12 +353,23 @@ def plotFig5():
 
     ax2.set_xlabel ('time (ms)')
     # stims
+<<<<<<< HEAD
     step = 20
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     vlocs = np.linspace(-0.7, -1.6, 4)
 #    vlocs = [-0.7, -1, -1.3, -1.6]
     dico = dict(zip(names, hlocs))        
+=======
+    step = 21
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    #locs = [0, -20, -40, -60, -80, -100]
+    #real Locs    
+    locs = [0, -21, -42, -63, -84, -105]    
+    vlocs = [-0.7, -1, -1.3, -1.6]
+    dico = dict(zip(names, locs))
+    
+>>>>>>> a520309c0771e69576949c632c2742d63d20a370
     #ax1
     for key in dico.keys():
         #name
@@ -393,9 +404,14 @@ def plotFig5():
                          fill=True, alpha=0.6, edgecolor='w', 
                          facecolor=colors[2])
         if key == 'D0':
+<<<<<<< HEAD
             rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, 
                              fill=True, alpha=0.6, edgecolor='w', 
                              facecolor='w')
+=======
+            rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
+                 alpha=0.6, edgecolor=colors[2], facecolor='w')
+>>>>>>> a520309c0771e69576949c632c2742d63d20a370
         ax2.add_patch(rect)
         # stim2
         rect = Rectangle(xy=(dico[key],vlocs[2]), width=step, height=0.3, 
@@ -422,8 +438,18 @@ def plotFig5():
         ax.hlines(0, lims[0], lims[1], alpha =0.2)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha =0.2)
+<<<<<<< HEAD
         for dloc in [-20, -40, -60, -80, -100]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)    
+=======
+        for dloc in [-21, -42, -63, -84, -105]:
+            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
+         ## set fontname and fontsize for x and yticks
+        labels = ax.get_xticklabels() + ax.get_yticklabels()
+        [label.set_fontname('Arial') for label in labels]
+        [label.set_fontsize(13) for label in labels]
+    
+>>>>>>> a520309c0771e69576949c632c2742d63d20a370
     fig.tight_layout()
     return fig                
 
