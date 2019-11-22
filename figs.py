@@ -378,14 +378,14 @@ def plotFig5():
     ax1.set_xlim(-120, 200)
     
     # stims
-    step = 20
+    step = 21
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     #locs = [0, -20, -40, -60, -80, -100]
     #real Locs    
     locs = [0, -21, -42, -63, -84, -105]    
     vlocs = [-0.7, -1, -1.3, -1.6]
     dico = dict(zip(names, locs))
-        
+    
     #ax1
     for key in dico.keys():
         # names and fontname and size of annotations 
@@ -417,7 +417,7 @@ def plotFig5():
                 alpha=0.6, edgecolor='w', facecolor=colors[2])
         if key == 'D0':
             rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, fill=True,
-                 alpha=0.6, edgecolor='w', facecolor='w')
+                 alpha=0.6, edgecolor=colors[2], facecolor='w')
         ax2.add_patch(rect)
         # stim2
         rect = Rectangle(xy=(dico[key],vlocs[2]), width=step, height=0.3, fill=True,
@@ -453,7 +453,7 @@ def plotFig5():
         ax.hlines(0, lims[0], lims[1], alpha =0.2)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha =0.2)
-        for dloc in [-20, -40, -60, -80, -100]:
+        for dloc in [-21, -42, -63, -84, -105]:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)
          ## set fontname and fontsize for x and yticks
         labels = ax.get_xticklabels() + ax.get_yticklabels()
