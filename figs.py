@@ -152,7 +152,7 @@ def plotFig2():
     ax4.set_ylim(0,1)
     # stimulations
     step = 28
-    xlocs = np.arange(0, -150, -28)
+    xlocs = np.arange(0, -150, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     dico = dict(zip(names, xlocs))
     #lines
@@ -353,12 +353,15 @@ def plotFig5():
 
     ax2.set_xlabel ('time (ms)')
     # stims
-    step = 20
+    step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     vlocs = np.linspace(-0.7, -1.6, 4)
 #    vlocs = [-0.7, -1, -1.3, -1.6]
     dico = dict(zip(names, hlocs))        
+    
+        
+    
     #ax1
     for key in dico.keys():
         #name
@@ -394,7 +397,7 @@ def plotFig5():
                          facecolor=colors[2])
         if key == 'D0':
             rect = Rectangle(xy=(dico[key],vlocs[1]), width=step, height=0.3, 
-                             fill=True, alpha=0.6, edgecolor='w', 
+                             fill=True, alpha=0.6, edgecolor=colors[2], 
                              facecolor='w')
         ax2.add_patch(rect)
         # stim2
@@ -422,7 +425,7 @@ def plotFig5():
         ax.hlines(0, lims[0], lims[1], alpha =0.2)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha =0.2)
-        for dloc in [-20, -40, -60, -80, -100]:
+        for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha =0.2)    
     fig.tight_layout()
     return fig                
