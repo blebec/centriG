@@ -583,3 +583,35 @@ def plot_speed_multigraph():
     return fig
 
 fig = plot_speed_multigraph()
+
+
+#%% test to analyse with x(t) = x(t) - x(t-1)
+colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
+          speedColors['orange'], speedColors['jaune']]
+alpha = [0.8, 1, 0.8, 0.8, 1]
+
+df = pd.read_excel('figOpt.xlsx')
+df.set_index('time', inplace=True)
+# perform shift (x(t) <- x[t) - x(t-1]
+for col in df.columns:
+    df[col] = df[col] - df[col].shift(1)
+#%%    
+fig = plt.figure()
+ax = fig.add_subplot(111)
+cols = df.columns.to_list()
+cols = cols[::-1]
+for j, col in enumerate(cols):
+        i = len(cols) - j -1
+        print(i, j)
+#        ax.plot(df.loc[-140:100, [cols[i]]], color='black', scalex=False,
+#                scaley=False, label=cols[i])
+        xvals = df.loc[-140:100].index
+        yvals = df.loc[-140:100, [cols[i]]].values[:,0]
+        print(i, cols[i])
+        ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j], 
+                        label = cols[i])
+
+lims = ax.get_ylim()
+ax.vlines(0, lims[0], lims[1], alpha=0.2)
+
+fig.legend()
