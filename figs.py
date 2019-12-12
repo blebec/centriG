@@ -101,7 +101,7 @@ def fig_properties(fig):
 
 #%%
 plt.close('all')
-
+#TODO dupliquer avec significatives er dupliquer avec non signifiactives
 def plot_figure2():
     """
     plot_figure2
@@ -207,6 +207,8 @@ def plot_figure2():
 
 fig = plot_figure2()
 #%%
+
+#TODO indiquer les non significatives
 def plot_figure2B():
     """
     plot_figure2B
@@ -243,6 +245,7 @@ plot_figure2B()
 #%%
 #plt.close('all')
 
+#dupliquer acec significatives et dupliquer non significatives
 def plot_figure3():
     """
     plot_figure3
@@ -523,6 +526,8 @@ alpha = [0.8, 1, 0.8, 0.8, 1]
 df = pd.read_excel('figOpt.xlsx')
 df.set_index('time', inplace=True)
 
+
+#TODO centre seul en dernier (panel de G)
 def plot_speed_multigraph():
     """
     plot the speed effect of centirgabor protocol
