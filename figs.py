@@ -102,43 +102,63 @@ def fig_properties(fig):
 #%%
 plt.close('all')
 #TODO dupliquer avec significatives er dupliquer avec non signifiactives
+
+colsdict = {
+            'individual' : 
+                ['indiVmctr', 'indiVmscpIsoStc', 'indiSpkCtr', 'indiSpkscpIsoStc'],
+            'pop' : ['popVmCtr', 'popVmscpIsoStc', 
+                     'popSpkCtr', 'popSpkscpIsoStc'], 
+            'popsig': ['popVmCtrSig', 'popVmscpIsoStcSig',
+                       'popSpkCtrSig', 'popSpkscpIsoStcSig'],
+            'popsig_sd' : ['popVmCtrSeUpSig', 'popVmCtrSeDwSig',
+                          'popVmscpIsoStcSeDwSig', 'popSpkCtrSeUpSig', 
+                          'popSpkCtrSeDwSig', 'popVmscpIsoStcSeUpSig', 
+                          'popSpkscpIsoStcSeUpSig'],
+            'popnonsig' : ['popSpkscpIsoStcSeDwSig', 'popVmCtrNSig', 
+                           'popVmCtrSeUpNSig', 'popVmCtrSeDwNSig', 
+                           'popVmscpIsoStcNSig', 'popVmscpIsoStcSeUpNSig',
+                           'popVmscpIsoStcSeDwNSig', 'popSpkCtrNSig', 
+                           'popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig', 
+                           'popSpkscpIsoStcNSig', 'popSpkscpIsoStcSeUpNSig',
+                           'popSpkscpIsoStcSeDwNSig'],
+            'popnonsig_sd' : [],
+            'other' : ['popVmscpIsolatg', 'popVmscpIsoAmpg'],            
+            'sorted': ['lagIndiSig', 'ampIndiSig'],
+            }
+
 def plot_figure2():
     """
     plot_figure2
     """
     filename = 'fig2.xlsx'
-    df = pd.read_excel(filename)
+    data = pd.read_excel(filename)
     #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = df.columns
+    middle = (data.index.max() - data.index.min())/2
+    data.index = (data.index - middle)/10
+    data = data.loc[-200:150]
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
-
+    
     fig = plt.figure(figsize=(8, 8))
-    #fig.suptitle(os.path.basename(filename))
-    ax1 = fig.add_subplot(221)
-    for i, col in enumerate(cols[:2]):
-        ax1.plot(df.loc[-200:150, [col]], color=colors[i], alpha=alpha[i],
+    # individual vm
+    df = data[colsdict['individual'][:2]]
+    ax1 = fig.add_subplot(221)        
+    for i, col in enumerate(df.columns):
+        ax1.plot(df[col], color=colors[i], alpha=alpha[i],
                  label=col)
-    ax1.set_ylabel('membrane potential (mV)')
-    ax1.spines['bottom'].set_visible(False)
-    ax1.axes.get_xaxis().set_visible(False)
-
+    #individual spike
+    df = data[colsdict['individual'][2:]]
     ax3 = fig.add_subplot(223, sharex=ax1)
-    # NB plotting as to in the reverse order (ie red before black)
-    columns = cols[2:4][::-1]
-    for i, col in enumerate(columns):
-        ax3.plot(df.loc[-200:150][col], color=colors[::-1][i],
+    for i, col in enumerate(df.columns[::-1]):
+        ax3.plot(df[col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
-        ax3.fill_between(df.loc[-200:150].index, df.loc[-200:150][col],
+        ax3.fill_between(df.index, df[col],
                          color=colors[::-1][i], alpha=0.5, label=col)
-    ax3.set_ylabel('firing rate (spikes/s)')
-    ax3.set_xlabel('time (ms)')
-
+    # pop vm
+    df = data[colsdict['pop'][:2]]
+    df = data[colsdict['popsig'][:2]]
     ax2 = fig.add_subplot(222)
-    for i, col in enumerate(cols[4:6]):
+    for i, col in enumerate(df.columns):
         ax2.plot(df.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
                  label=col)
     ax2.annotate("n=37", xy=(0.2, 0.8),
@@ -147,17 +167,27 @@ def plot_figure2():
     ax2.spines['bottom'].set_visible(False)
     ax2.axes.get_xaxis().set_visible(False)
     ax2.set_ylim(0, 1)
-
+    #pop spike
+    df = data[colsdict['pop'][2:]]    
+    df = data[colsdict['popsig'][2:]]    
     ax4 = fig.add_subplot(224, sharex=ax2)
-    # NB plotting as to in the reverse order (ie red before black)
-    columns = list(cols[6:8])[::-1]
-    for i, col in enumerate(columns):
+    for i, col in enumerate(df.columns[::-1]):
         ax4.plot(df.loc[-30:35][col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
         ax4.fill_between(df.loc[-30:35].index, df.loc[-30:35][col],
                          color=colors[::-1][i], alpha=0.5, label=col)
     ax4.annotate("n=20", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
+    
+    #labels
+    ax1.set_ylabel('membrane potential (mV)')
+    ax1.spines['bottom'].set_visible(False)
+    ax1.axes.get_xaxis().set_visible(False)
+    ax3.set_ylabel('firing rate (spikes/s)')
+    ax3.set_xlabel('time (ms)')
+    ax2.set_ylabel('normalized membrane potential')
+    ax2.spines['bottom'].set_visible(False)
+    ax2.axes.get_xaxis().set_visible(False)
     ax4.set_ylabel('normalized firing rate')
     ax4.set_xlabel('relative time (ms)')
     ax4.set_ylim(0, 1)
@@ -184,7 +214,6 @@ def plot_figure2():
     ax3.add_patch(rect)
     # clean axes
     for ax in fig.get_axes():
-#        ax.set_title(retrieve_name(ax)) # for working purposes
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_ylim()
