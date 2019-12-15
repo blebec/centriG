@@ -178,13 +178,11 @@ def plot_figure2():
     ax4.annotate("n=20", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
     
-    
-    
     #Work in progress
     
     df1 = data[colsdict['popsig'][:2]]    
     df2 = data[colsdict['popsig_sd'][:4]]    
-    ax5 = fig.add_subplot(243)
+    ax5 = fig.add_subplot(243, sharex=ax2)
     for i, col in enumerate(df1.columns):
         ax5.plot(df1.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
                  label=col)
@@ -207,20 +205,75 @@ def plot_figure2():
     ax5.spines['bottom'].set_visible(False)
     ax5.axes.get_xaxis().set_visible(False)
     #pop spike
-    df = data[colsdict['popsig'][2:]]    
-    ax6 = fig.add_subplot(247, sharex=ax5)
-    for i, col in enumerate(df.columns[::-1]):
-        ax6.plot(df.loc[-30:35][col], color=colors[::-1][i],
+    df1 = data[colsdict['popsig'][2:]]    
+    df2 = data[colsdict['popsig_sd'][4:]]    
+    ax6 = fig.add_subplot(247, sharex=ax4)
+    for i, col in enumerate(df1.columns[::-1]):
+        ax6.plot(df1.loc[-30:35][col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
-        ax6.fill_between(df.loc[-30:35].index, df.loc[-30:35][col],
+        ax6.fill_between(df1.loc[-30:35].index, df1.loc[-30:35][col],
                          color=colors[::-1][i], alpha=0.5, label=col)
+    
+    for j, col in enumerate(df2.columns):             
+        if j == 0 :
+                color1=colors[j]
+        else:
+            if (j > 0) and (j < 3): 
+                    color1=colors[round(j-1)]
+            else:
+                if (j == 3):
+                        color1=colors[round(j-2)]
+        ax6.plot(df2.loc[-30:35, [col]], color=color1, alpha=alpha[i],
+              label=col, linewidth=0.5)
     ax6.annotate("n=5", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
     
+    df1 = data[colsdict['popnonsig'][:2]]    
+    df2 = data[colsdict['popnonsig_sd'][:4]]    
+    ax7 = fig.add_subplot(244, sharex=ax5)
+    for i, col in enumerate(df1.columns):
+        ax7.plot(df1.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
+                 label=col)
+    for j, col in enumerate(df2.columns):         
+            if j == 0 :
+                color1=colors[j]
+            else:
+                if (j > 0) and (j < 3): 
+                    color1=colors[round(j-1)]
+                else:
+                    if (j == 3):
+                        color1=colors[round(j-2)]
+            ax7.plot(df2.loc[-30:35, [col]], color=color1, alpha=alpha[i],
+                 label=col, linewidth=0.5)
+    ax7.annotate("n=27", xy=(0.2, 0.8),
+                  xycoords="axes fraction", ha='center')
+    ax7.spines['bottom'].set_visible(False)
+    ax7.axes.get_xaxis().set_visible(False)
+    #pop spike
+    df1 = data[colsdict['popnonsig'][2:]]    
+    df2 = data[colsdict['popnonsig_sd'][4:]]
+    ax8 = fig.add_subplot(248, sharex=ax5)
+    for i, col in enumerate(df1.columns[::-1]):
+        ax8.plot(df1.loc[-30:35][col], color=colors[::-1][i],
+                 alpha=1, label=col, linewidth=1)
+        ax8.fill_between(df1.loc[-30:35].index, df1.loc[-30:35][col],
+                         color=colors[::-1][i], alpha=0.5, label=col)
+    for j, col in enumerate(df2.columns):             
+        if j == 0 :
+                color1=colors[j]
+        else:
+            if (j > 0) and (j < 3): 
+                    color1=colors[round(j-1)]
+            else:
+                if (j == 3):
+                        color1=colors[round(j-2)]
+        ax8.plot(df2.loc[-30:35, [col]], color=color1, alpha=alpha[i],
+              label=col, linewidth=0.5)
+                     
+    ax8.annotate("n=15", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
     
-    # TO DO replicate work in progress for ax7 and ax8, set y lim below, align at 0 ax5 and ax7 and ax6 and ax8, include the corresponding change in amplitude    
-    
-    #labels
+    #labels and lims
     ax1.set_ylabel('membrane potential (mV)')
     ax1.spines['bottom'].set_visible(False)
     ax1.axes.get_xaxis().set_visible(False)
@@ -234,8 +287,11 @@ def plot_figure2():
     ax4.set_xlabel('relative time (ms)')
     ax4.set_ylim(0, 1.3)
     ax5.set_ylim(0, 1.1)    
+    ax6.set_xlabel('relative time (ms)')
     ax6.set_ylim(0, 1.3)
-    
+    ax7.set_ylim(0, 1.1)
+    ax8.set_xlabel('relative time (ms)')
+    ax8.set_ylim(0, 1.3)
     # stimulations
     step = 28
     xlocs = np.arange(0, -150, -step)
@@ -270,6 +326,8 @@ def plot_figure2():
     align_yaxis(ax3, 0, ax4, 0)
     align_yaxis(ax2, 0, ax5, 0)
     align_yaxis(ax4, 0, ax6, 0)
+    align_yaxis(ax5, 0, ax7, 0)
+    align_yaxis(ax6, 0, ax8, 0)
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
@@ -280,6 +338,8 @@ def plot_figure2():
     change_plot_trace_amplitude(ax4, 0.7)
     change_plot_trace_amplitude(ax5, 0.7)    
     change_plot_trace_amplitude(ax6, 0.7)
+    change_plot_trace_amplitude(ax7, 0.7)
+    change_plot_trace_amplitude(ax8, 0.7)
     return fig
 
 fig = plot_figure2()
@@ -339,7 +399,7 @@ def plot_figure3():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.5, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8, 6))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -365,7 +425,98 @@ def plot_figure3():
     return fig
 
 fig = plot_figure3()
+#%%
+#plt.close('all')
 
+#dupliquer acec significatives et dupliquer non significatives
+def plot_figure3bis1():
+    """
+    plot_figure3
+    """
+    filename = 'fig3bis1.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+    df.columns = cols
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+#    fig.suptitle(os.path.basename(filename))
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+    ax.set_ylabel('normalized membrane potential')
+    ax.set_xlabel('relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    ax.set_xlim(-15, 30)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+
+    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+                    handlelength=0)
+    for line, text in zip(leg.get_lines(), leg.get_texts()):
+        text.set_color(line.get_color())
+    ax.annotate("n=10", xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
+    fig.tight_layout()
+    return fig
+
+fig = plot_figure3bis1()
+#%%
+#plt.close('all')
+
+#dupliquer acec significatives et dupliquer non significatives
+def plot_figure3bis2():
+    """
+    plot_figure3
+    """
+    filename = 'fig3bis2.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+    df.columns = cols
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+#    fig.suptitle(os.path.basename(filename))
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+    ax.set_ylabel('normalized membrane potential')
+    ax.set_xlabel('relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    ax.set_xlim(-15, 30)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+
+    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+                    handlelength=0)
+    for line, text in zip(leg.get_lines(), leg.get_texts()):
+        text.set_color(line.get_color())
+    ax.annotate("n=27", xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
+    fig.tight_layout()
+    return fig
+
+fig = plot_figure3bis2()
 #%%
 #plt.close('all')
 def plot_figure4():
