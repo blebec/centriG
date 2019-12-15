@@ -384,7 +384,7 @@ def plot_figure3():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.5, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8, 6))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -410,7 +410,98 @@ def plot_figure3():
     return fig
 
 fig = plot_figure3()
+#%%
+#plt.close('all')
 
+#dupliquer acec significatives et dupliquer non significatives
+def plot_figure3bis1():
+    """
+    plot_figure3
+    """
+    filename = 'fig3bis1.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+    df.columns = cols
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+#    fig.suptitle(os.path.basename(filename))
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+    ax.set_ylabel('normalized membrane potential')
+    ax.set_xlabel('relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    ax.set_xlim(-15, 30)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+
+    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+                    handlelength=0)
+    for line, text in zip(leg.get_lines(), leg.get_texts()):
+        text.set_color(line.get_color())
+    ax.annotate("n=10", xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
+    fig.tight_layout()
+    return fig
+
+fig = plot_figure3bis1()
+#%%
+#plt.close('all')
+
+#dupliquer acec significatives et dupliquer non significatives
+def plot_figure3bis2():
+    """
+    plot_figure3
+    """
+    filename = 'fig3bis2.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+    df.columns = cols
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+
+    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+#    fig.suptitle(os.path.basename(filename))
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+    ax.set_ylabel('normalized membrane potential')
+    ax.set_xlabel('relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    ax.set_xlim(-15, 30)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+
+    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+                    handlelength=0)
+    for line, text in zip(leg.get_lines(), leg.get_texts()):
+        text.set_color(line.get_color())
+    ax.annotate("n=27", xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
+    fig.tight_layout()
+    return fig
+
+fig = plot_figure3bis2()
 #%%
 #plt.close('all')
 def plot_figure4():
