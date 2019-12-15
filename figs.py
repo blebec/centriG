@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import math
 
 def go_to_dir():
     """
@@ -111,17 +112,15 @@ colsdict = {
             'popsig': ['popVmCtrSig', 'popVmscpIsoStcSig',
                        'popSpkCtrSig', 'popSpkscpIsoStcSig'],
             'popsig_sd' : ['popVmCtrSeUpSig', 'popVmCtrSeDwSig',
-                          'popVmscpIsoStcSeDwSig', 'popSpkCtrSeUpSig', 
-                          'popSpkCtrSeDwSig', 'popVmscpIsoStcSeUpSig', 
-                          'popSpkscpIsoStcSeUpSig'],
-            'popnonsig' : ['popSpkscpIsoStcSeDwSig', 'popVmCtrNSig', 
-                           'popVmCtrSeUpNSig', 'popVmCtrSeDwNSig', 
-                           'popVmscpIsoStcNSig', 'popVmscpIsoStcSeUpNSig',
-                           'popVmscpIsoStcSeDwNSig', 'popSpkCtrNSig', 
-                           'popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig', 
-                           'popSpkscpIsoStcNSig', 'popSpkscpIsoStcSeUpNSig',
-                           'popSpkscpIsoStcSeDwNSig'],
-            'popnonsig_sd' : [],
+                          'popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig',
+                          'popSpkCtrSeUpSig', 'popSpkCtrSeDwSig',  
+                          'popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig' ],
+            'popnonsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                           'popSpkCtrNSig', 'popSpkscpIsoStcNSig'],                           
+            'popnonsig_sd' : ['popVmCtrSeUpNSig', 'popVmCtrSeDwNSig',
+                              'popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig',  
+                              'popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig',
+                              'popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig'],
             'other' : ['popVmscpIsolatg', 'popVmscpIsoAmpg'],            
             'sorted': ['lagIndiSig', 'ampIndiSig'],
             }
@@ -139,16 +138,16 @@ def plot_figure2():
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
     
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(14, 8)) #fig = plt.figure(figsize=(8, 8))
     # individual vm
     df = data[colsdict['individual'][:2]]
-    ax1 = fig.add_subplot(221)        
+    ax1 = fig.add_subplot(241)        
     for i, col in enumerate(df.columns):
         ax1.plot(df[col], color=colors[i], alpha=alpha[i],
                  label=col)
     #individual spike
     df = data[colsdict['individual'][2:]]
-    ax3 = fig.add_subplot(223, sharex=ax1)
+    ax3 = fig.add_subplot(245, sharex=ax1)
     for i, col in enumerate(df.columns[::-1]):
         ax3.plot(df[col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
@@ -156,8 +155,8 @@ def plot_figure2():
                          color=colors[::-1][i], alpha=0.5, label=col)
     # pop vm
     df = data[colsdict['pop'][:2]]
-    df = data[colsdict['popsig'][:2]]
-    ax2 = fig.add_subplot(222)
+    #df = data[colsdict['popsig'][:2]]
+    ax2 = fig.add_subplot(242)
     for i, col in enumerate(df.columns):
         ax2.plot(df.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
                  label=col)
@@ -166,11 +165,11 @@ def plot_figure2():
     ax2.set_ylabel('normalized membrane potential')
     ax2.spines['bottom'].set_visible(False)
     ax2.axes.get_xaxis().set_visible(False)
-    ax2.set_ylim(0, 1)
+    #ax2.set_ylim(0, 1.1)
     #pop spike
     df = data[colsdict['pop'][2:]]    
-    df = data[colsdict['popsig'][2:]]    
-    ax4 = fig.add_subplot(224, sharex=ax2)
+    #df = data[colsdict['popsig'][2:]]    
+    ax4 = fig.add_subplot(246, sharex=ax2)
     for i, col in enumerate(df.columns[::-1]):
         ax4.plot(df.loc[-30:35][col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
@@ -178,6 +177,48 @@ def plot_figure2():
                          color=colors[::-1][i], alpha=0.5, label=col)
     ax4.annotate("n=20", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
+    
+    
+    
+    #Work in progress
+    
+    df1 = data[colsdict['popsig'][:2]]    
+    df2 = data[colsdict['popsig_sd'][:4]]    
+    ax5 = fig.add_subplot(243)
+    for i, col in enumerate(df1.columns):
+        ax5.plot(df1.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
+                 label=col)
+    
+    for j, col in enumerate(df2.columns):         
+            if j == 0 :
+                color1=colors[j]
+            else:
+                if (j > 0) and (j < 3): 
+                    color1=colors[round(j-1)]
+                else:
+                    if (j == 3):
+                        color1=colors[round(j-2)]
+            ax5.plot(df2.loc[-30:35, [col]], color=color1, alpha=alpha[i],
+                 label=col, linewidth=0.5)
+    
+    ax5.annotate("n=10", xy=(0.2, 0.8),
+                  xycoords="axes fraction", ha='center')
+    #ax5.set_ylabel('normalized membrane potential')
+    ax5.spines['bottom'].set_visible(False)
+    ax5.axes.get_xaxis().set_visible(False)
+    #pop spike
+    df = data[colsdict['popsig'][2:]]    
+    ax6 = fig.add_subplot(247, sharex=ax5)
+    for i, col in enumerate(df.columns[::-1]):
+        ax6.plot(df.loc[-30:35][col], color=colors[::-1][i],
+                 alpha=1, label=col, linewidth=1)
+        ax6.fill_between(df.loc[-30:35].index, df.loc[-30:35][col],
+                         color=colors[::-1][i], alpha=0.5, label=col)
+    ax6.annotate("n=5", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
+    
+    
+    # TO DO replicate work in progress for ax7 and ax8, set y lim below, align at 0 ax5 and ax7 and ax6 and ax8, include the corresponding change in amplitude    
     
     #labels
     ax1.set_ylabel('membrane potential (mV)')
@@ -188,9 +229,13 @@ def plot_figure2():
     ax2.set_ylabel('normalized membrane potential')
     ax2.spines['bottom'].set_visible(False)
     ax2.axes.get_xaxis().set_visible(False)
+    ax2.set_ylim(0, 1.1)    
     ax4.set_ylabel('normalized firing rate')
     ax4.set_xlabel('relative time (ms)')
-    ax4.set_ylim(0, 1)
+    ax4.set_ylim(0, 1.3)
+    ax5.set_ylim(0, 1.1)    
+    ax6.set_ylim(0, 1.3)
+    
     # stimulations
     step = 28
     xlocs = np.arange(0, -150, -step)
@@ -223,15 +268,18 @@ def plot_figure2():
     # align zero between plots
     align_yaxis(ax1, 0, ax2, 0)
     align_yaxis(ax3, 0, ax4, 0)
+    align_yaxis(ax2, 0, ax5, 0)
+    align_yaxis(ax4, 0, ax6, 0)
     fig.tight_layout()
     # remove the space between plots
-    fig.subplots_adjust(hspace=0.02)
+    fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     # adjust amplitude (without moving the zero
     change_plot_trace_amplitude(ax1, 1.1)
     change_plot_trace_amplitude(ax2, 0.7)
     change_plot_trace_amplitude(ax3, 1)
     change_plot_trace_amplitude(ax4, 0.7)
-
+    change_plot_trace_amplitude(ax5, 0.7)    
+    change_plot_trace_amplitude(ax6, 0.7)
     return fig
 
 fig = plot_figure2()
