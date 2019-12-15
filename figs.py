@@ -104,31 +104,32 @@ def fig_properties(fig):
 plt.close('all')
 #TODO dupliquer avec significatives er dupliquer avec non signifiactives
 
+
+# nb dico : key + [values] or key + [values, (stdUp, stdDown)]
 colsdict = {
-            'individual' : 
-                ['indiVmctr', 'indiVmscpIsoStc', 'indiSpkCtr', 'indiSpkscpIsoStc'],
-            'pop' : ['popVmCtr', 'popVmscpIsoStc', 
-                     'popSpkCtr', 'popSpkscpIsoStc'], 
-            'popsig': ['popVmCtrSig', 'popVmscpIsoStcSig',
-                       'popSpkCtrSig', 'popSpkscpIsoStcSig'],
-            'popsig_sd' : ['popVmCtrSeUpSig', 'popVmCtrSeDwSig',
-                          'popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig',
-                          'popSpkCtrSeUpSig', 'popSpkCtrSeDwSig',  
-                          'popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig' ],
-            'popnonsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                           'popSpkCtrNSig', 'popSpkscpIsoStcNSig'],                           
-            'popnonsig_sd' : ['popVmCtrSeUpNSig', 'popVmCtrSeDwNSig',
-                              'popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig',  
-                              'popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig',
-                              'popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig'],
-            'other' : ['popVmscpIsolatg', 'popVmscpIsoAmpg'],            
-            'sorted': ['lagIndiSig', 'ampIndiSig'],
+            'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
+            'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
+            'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
+            'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
+            'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig', 
+                          ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+                          ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+            'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+                           ('popSpkCtrSeUpSig','popSpkCtrSeDwSig'),
+                           ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+            'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                           ('popVmCtrSeUpNSig','popVmCtrSeDwNSig'),
+                           ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+            'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+                            ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+                            ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
             }
 
 def plot_figure2():
     """
     plot_figure2
     """
+    #____data
     filename = 'fig2.xlsx'
     data = pd.read_excel(filename)
     #centering
@@ -139,150 +140,194 @@ def plot_figure2():
     alpha = [0.8, 0.8]
     
     fig = plt.figure(figsize=(14, 8)) #fig = plt.figure(figsize=(8, 8))
+    axes = []
+    for i in range(8):
+        axes.append(fig.add_subplot(2,4,i+1))
+        vmaxes = [x for x in axes[:4]]      # vm axes = top row
+        spkaxes = [x for x in axes[4:]]     # spikes axes = bottom row
+    #____ plots individuals (first column)
     # individual vm
-    df = data[colsdict['individual'][:2]]
-    ax1 = fig.add_subplot(241)        
-    for i, col in enumerate(df.columns):
-        ax1.plot(df[col], color=colors[i], alpha=alpha[i],
+    cols =  colsdict['indVm']
+    ax = vmaxes[0]
+    for i, col in enumerate(cols):
+        ax.plot(data[col], color=colors[i], alpha=alpha[i],
                  label=col)
     #individual spike
-    df = data[colsdict['individual'][2:]]
-    ax3 = fig.add_subplot(245, sharex=ax1)
-    for i, col in enumerate(df.columns[::-1]):
-        ax3.plot(df[col], color=colors[::-1][i],
+    cols = colsdict['indSpk']
+    ax = spkaxes[0]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(data[col], color=colors[::-1][i],
                  alpha=1, label=col, linewidth=1)
-        ax3.fill_between(df.index, df[col],
+        ax.fill_between(data.index, data[col],
                          color=colors[::-1][i], alpha=0.5, label=col)
+    #____ plots pop (column 1-3)
+    df = data.loc[-30:35]       # limit xscale
     # pop vm
-    df = data[colsdict['pop'][:2]]
-    #df = data[colsdict['popsig'][:2]]
-    ax2 = fig.add_subplot(242)
-    for i, col in enumerate(df.columns):
-        ax2.plot(df.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
+    cols = colsdict['popVm']
+    ax = vmaxes[1]
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
                  label=col)
-    ax2.annotate("n=37", xy=(0.2, 0.8),
+    ax.annotate("n=37", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
-    ax2.set_ylabel('normalized membrane potential')
-    ax2.spines['bottom'].set_visible(False)
-    ax2.axes.get_xaxis().set_visible(False)
-    #ax2.set_ylim(0, 1.1)
-    #pop spike
-    df = data[colsdict['pop'][2:]]    
-    #df = data[colsdict['popsig'][2:]]    
-    ax4 = fig.add_subplot(246, sharex=ax2)
-    for i, col in enumerate(df.columns[::-1]):
-        ax4.plot(df.loc[-30:35][col], color=colors[::-1][i],
-                 alpha=1, label=col, linewidth=1)
-        ax4.fill_between(df.loc[-30:35].index, df.loc[-30:35][col],
-                         color=colors[::-1][i], alpha=0.5, label=col)
-    ax4.annotate("n=20", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
-    
-    
-    
-    #Work in progress
-    
-    df1 = data[colsdict['popsig'][:2]]    
-    df2 = data[colsdict['popsig_sd'][:4]]    
-    ax5 = fig.add_subplot(243)
-    for i, col in enumerate(df1.columns):
-        ax5.plot(df1.loc[-30:35, [col]], color=colors[i], alpha=alpha[i],
+    #popVmSig
+    cols = colsdict['popVmSig']
+    ax = vmaxes[2]
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
                  label=col)
-    
-    for j, col in enumerate(df2.columns):         
-            if j == 0 :
-                color1=colors[j]
-            else:
-                if (j > 0) and (j < 3): 
-                    color1=colors[round(j-1)]
-                else:
-                    if (j == 3):
-                        color1=colors[round(j-2)]
-            ax5.plot(df2.loc[-30:35, [col]], color=color1, alpha=alpha[i],
-                 label=col, linewidth=0.5)
-    
-    ax5.annotate("n=10", xy=(0.2, 0.8),
-                  xycoords="axes fraction", ha='center')
-    #ax5.set_ylabel('normalized membrane potential')
-    ax5.spines['bottom'].set_visible(False)
-    ax5.axes.get_xaxis().set_visible(False)
-    #pop spike
-    df = data[colsdict['popsig'][2:]]    
-    ax6 = fig.add_subplot(247, sharex=ax5)
-    for i, col in enumerate(df.columns[::-1]):
-        ax6.plot(df.loc[-30:35][col], color=colors[::-1][i],
-                 alpha=1, label=col, linewidth=1)
-        ax6.fill_between(df.loc[-30:35].index, df.loc[-30:35][col],
-                         color=colors[::-1][i], alpha=0.5, label=col)
-    ax6.annotate("n=5", xy=(0.2, 0.8),
+        #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        for j in [0,1]:
+            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                 label=col, linewidth=0.5)        
+    ax.annotate("n=10", xy=(0.2, 0.8),
                  xycoords="axes fraction", ha='center')
-    
-    
-    # TO DO replicate work in progress for ax7 and ax8, set y lim below, align at 0 ax5 and ax7 and ax6 and ax8, include the corresponding change in amplitude    
+    #popVmNsig
+    cols = colsdict['popVmNsig']
+    ax = vmaxes[3]
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+                 label=col)
+    #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        for j in [0,1]:
+            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                 label=col, linewidth=0.5)        
+    ax.annotate("n=5", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
+    #pop spike
+    cols = colsdict['popSpk']
+    ax = spkaxes[1]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(df[col], color=colors[::-1][i],
+                 alpha=1, label=col, linewidth=1)
+        ax.fill_between(df.index, df[col],
+                         color=colors[::-1][i], alpha=0.5, label=col)
+    ax.annotate("n=20", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
+    #popSpkSig
+    cols = colsdict['popSpkSig']
+    ax = spkaxes[2]
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+                 label=col)
+    #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        for j in [0,1]:
+            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                 label=col, linewidth=0.5)        
+    ax.annotate("n=20", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
+    #popSpkNsig
+    cols = colsdict['popSpkNsig']
+    ax = spkaxes[3]
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+                 label=col)
+    #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        for j in [0,1]:
+            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                       label=col, linewidth=0.5)        
+    ax.annotate("n=?", xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
     
     #labels
-    ax1.set_ylabel('membrane potential (mV)')
-    ax1.spines['bottom'].set_visible(False)
-    ax1.axes.get_xaxis().set_visible(False)
-    ax3.set_ylabel('firing rate (spikes/s)')
-    ax3.set_xlabel('time (ms)')
-    ax2.set_ylabel('normalized membrane potential')
-    ax2.spines['bottom'].set_visible(False)
-    ax2.axes.get_xaxis().set_visible(False)
-    ax2.set_ylim(0, 1.1)    
-    ax4.set_ylabel('normalized firing rate')
-    ax4.set_xlabel('relative time (ms)')
-    ax4.set_ylim(0, 1.3)
-    ax5.set_ylim(0, 1.1)    
-    ax6.set_ylim(0, 1.3)
+    for ax in axes:
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+    ylabels = ['membrane potential (mV)', 
+                'normalized membrane potential',
+                '', '']
+    for i, ax in enumerate(vmaxes):
+        ax.axes.get_xaxis().set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.set_ylabel(ylabels[i])
+    ylabels = ['firing rate (spikes/s)', 
+                'normalized firing rate', 
+                '', '']
+    for i, ax in enumerate(spkaxes):
+        ax.set_ylabel(ylabels[i])
+        ax.set_xlabel('time (ms)')
     
+    for ax in vmaxes[1:]:
+        ax.set_ylim(-0.10, 1.2)
+    for ax in spkaxes[1:]:
+        ax.set_ylim(-0.10, 1.3)
+        ax.set_xlabel('relative time (ms)')
+
     # stimulations
     step = 28
     xlocs = np.arange(0, -150, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     dico = dict(zip(names, xlocs))
     #lines
-    for ax in [ax1, ax3]:
+    for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     # stim location
+    ax = spkaxes[0]
     for key in dico.keys():
-        ax3.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
+        ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
         # stim
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
                          alpha=0.6, edgecolor='w', facecolor='r')
-        ax3.add_patch(rect)
+        ax.add_patch(rect)
         #center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
-    ax3.add_patch(rect)
+    ax.add_patch(rect)
     # clean axes
-    for ax in fig.get_axes():
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
+    for ax in axes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    # align zero between plots
-    align_yaxis(ax1, 0, ax2, 0)
-    align_yaxis(ax3, 0, ax4, 0)
-    align_yaxis(ax2, 0, ax5, 0)
-    align_yaxis(ax4, 0, ax6, 0)
+    # align zero between plots  NB ref = first plot
+    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    change_plot_trace_amplitude(vmaxes[1], 0.7)
+    align_yaxis(vmaxes[1], 0, vmaxes[2], 0)
+    align_yaxis(vmaxes[1], 0, vmaxes[3], 0)
+    align_yaxis(spkaxes[1],0, spkaxes[2], 0)
+    align_yaxis(spkaxes[3],0, spkaxes[1], 0)
+#TODO fix the scales to have all the zero at the same level and all traces
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+  
     # adjust amplitude (without moving the zero
-    change_plot_trace_amplitude(ax1, 1.1)
-    change_plot_trace_amplitude(ax2, 0.7)
-    change_plot_trace_amplitude(ax3, 1)
-    change_plot_trace_amplitude(ax4, 0.7)
-    change_plot_trace_amplitude(ax5, 0.7)    
-    change_plot_trace_amplitude(ax6, 0.7)
+#    change_plot_trace_amplitude(ax1, 1.1)
+#    change_plot_trace_amplitude(ax2, 0.7)
+#    change_plot_trace_amplitude(ax3, 1)
+##    change_plot_trace_amplitude(ax4, 0.7)
+#    change_plot_trace_amplitude(ax5, 0.7)    
+#    change_plot_trace_amplitude(ax6, 0.7)
     return fig
 
 fig = plot_figure2()
+
+
+
+#%%
+plt.close('all')
+fig = plt.figure()
+axes = []
+for i in range(8):
+    axes.append(fig.add_subplot(2,4,i+1))
+vmaxes = [x for x in axes[:4]]
+spkaxes = [x for x in axes[4:]]
+for i, ax in enumerate(spkaxes):
+    label = 'ax nb= ' + str(i)
+    ax.annotate(label, xy=(0.2, 0.8),
+                 xycoords="axes fraction", ha='center')
+
+
 #%%
 
 #TODO indiquer les non significatives
