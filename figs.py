@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-import math
+#import math
 
 def go_to_dir():
     """
@@ -104,9 +104,20 @@ def fig_properties(fig):
 plt.close('all')
 #TODO dupliquer avec significatives er dupliquer avec non signifiactives
 
-
-# nb dico : key + [values] or key + [values, (stdUp, stdDown)]
-colsdict = {
+def load2():
+    """ 
+    import the datafile
+    return a pandasDataframe and a dictionary of contents
+    """
+    #____data
+    filename = 'fig2.xlsx'
+    data = pd.read_excel(filename)
+    #centering
+    middle = (data.index.max() - data.index.min())/2
+    data.index = (data.index - middle)/10
+    data = data.loc[-200:150]
+    # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
+    colsdict = {
             'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
             'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
             'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
@@ -124,27 +135,35 @@ colsdict = {
                             ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
                             ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
             }
+    return data, colsdict
 
-def plot_figure2():
+
+def plot_figure2(data, colsdict):
     """
     plot_figure2
     """
-    #____data
-    filename = 'fig2.xlsx'
-    data = pd.read_excel(filename)
-    #centering
-    middle = (data.index.max() - data.index.min())/2
-    data.index = (data.index - middle)/10
-    data = data.loc[-200:150]
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
     
     fig = plt.figure(figsize=(14, 8)) #fig = plt.figure(figsize=(8, 8))
     axes = []
-    for i in range(8):
-        axes.append(fig.add_subplot(2,4,i+1))
-        vmaxes = [x for x in axes[:4]]      # vm axes = top row
-        spkaxes = [x for x in axes[4:]]     # spikes axes = bottom row
+    axL = fig.add_subplot(2,4,1)
+    axes.append(axL)
+    ax = fig.add_subplot(2,4,2)
+    axes.append(ax)
+    axes.append(fig.add_subplot(2,4,3, sharex = ax, sharey=ax))
+    axes.append(fig.add_subplot(2,4,4, sharex = ax, sharey=ax))
+    axes.append(fig.add_subplot(2,4,5, sharex=axL))    
+    ax = fig.add_subplot(2,4,6)
+    axes.append(ax)
+    axes.append(fig.add_subplot(2,4,7, sharex=ax, sharey=ax))
+    axes.append(fig.add_subplot(2,4,8, sharex=ax, sharey=ax))
+    
+#    for i in range(8):
+#        axes.append(fig.add_subplot(2,4,i+1))
+    
+    vmaxes = [x for x in axes[:4]]      # vm axes = top row
+    spkaxes = [x for x in axes[4:]]     # spikes axes = bottom row
     #____ plots individuals (first column)
     # individual vm
     cols =  colsdict['indVm']
@@ -283,19 +302,19 @@ def plot_figure2():
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
-    # clean axes
+    # align zero between plots  NB ref = first plot
+    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    align_yaxis(spkaxes[0],0, spkaxes[1], 0)
+    # zerolines
     for ax in axes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    # align zero between plots  NB ref = first plot
-    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    change_plot_trace_amplitude(vmaxes[1], 0.7)
-    align_yaxis(vmaxes[1], 0, vmaxes[2], 0)
-    align_yaxis(vmaxes[1], 0, vmaxes[3], 0)
-    align_yaxis(spkaxes[1],0, spkaxes[2], 0)
-    align_yaxis(spkaxes[3],0, spkaxes[1], 0)
+    # adjust amplitude (without moving the zero
+    change_plot_trace_amplitude(vmaxes[1], 0.85)
+    change_plot_trace_amplitude(spkaxes[1], 0.9)
+
 #TODO fix the scales to have all the zero at the same level and all traces
     fig.tight_layout()
     # remove the space between plots
@@ -310,9 +329,8 @@ def plot_figure2():
 #    change_plot_trace_amplitude(ax6, 0.7)
     return fig
 
-fig = plot_figure2()
-
-
+data, content = load2()
+fig = plot_figure2(data, content)
 
 #%%
 plt.close('all')
