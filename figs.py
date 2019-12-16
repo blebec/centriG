@@ -303,31 +303,24 @@ def plot_figure2(data, colsdict):
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
+    #fis individual example
+    vmaxes[0].set_ylim(-4, 13)
+    spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
     align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     align_yaxis(spkaxes[0],0, spkaxes[1], 0)
+    # adjust amplitude (without moving the zero)
+    change_plot_trace_amplitude(vmaxes[1], 0.85)
+    change_plot_trace_amplitude(spkaxes[1], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    # adjust amplitude (without moving the zero
-    change_plot_trace_amplitude(vmaxes[1], 0.85)
-    change_plot_trace_amplitude(spkaxes[1], 0.9)
-
-#TODO fix the scales to have all the zero at the same level and all traces
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-  
-    # adjust amplitude (without moving the zero
-#    change_plot_trace_amplitude(ax1, 1.1)
-#    change_plot_trace_amplitude(ax2, 0.7)
-#    change_plot_trace_amplitude(ax3, 1)
-##    change_plot_trace_amplitude(ax4, 0.7)
-#    change_plot_trace_amplitude(ax5, 0.7)    
-#    change_plot_trace_amplitude(ax6, 0.7)
     return fig
 
 data, content = load2()
