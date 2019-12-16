@@ -338,29 +338,26 @@ fig = plot_figure2(data, content)
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
 
-#TODO indiquer les non significatives
 def plot_figure2B():
     """
-    plot_figure2B
+    plot_figure2B : ranked phase advance and delta response
     """
     filename = 'fig2cells.xlsx'
     df = pd.read_excel(filename)
-#    df = pd.read_excel(filename, usecol=content['sort']).dropna()
     cols = df.columns[:2]
-    # select the rank data
-#    rank_df = df[df.columns[-2:]].dropna().reset_index()
-#    del rank_df['index']
-#    rank_df.index += 1 # cells = 1 to 36
+    signs= df.columns[2:]
     df.index += 1 # cells = 1 to 37
 
     fig = plt.figure(figsize=(8, 2))
+    #build axes
     axes = []
     for i in range(2):
         axes.append(fig.add_subplot(1, 2, i+1))
-        
+    color_dic = {0 :'w', 1 : stdColors['rouge']}     
     for i, ax in enumerate(axes):
-        axes[i].bar(df.index, df[cols[i]], color=stdColors['rouge'],
-                    label=cols[i], alpha=0.8, width=0.8)
+        colors = [color_dic[x] for x in df[signs[i]]]
+        axes[i].bar(df.index, df[cols[i]], edgecolor =stdColors['rouge'],
+                    color=colors, label=cols[i], alpha=0.8, width=0.8)
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
@@ -392,13 +389,13 @@ def plot_figure3():
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+    alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
     ax.set_ylabel('normalized membrane potential')
     ax.set_xlabel('relative time (ms)')
     for ax in fig.get_axes():
@@ -438,13 +435,14 @@ def plot_figure3bis1():
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+    alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, 
+                linewidth=2)
     ax.set_ylabel('normalized membrane potential')
     ax.set_xlabel('relative time (ms)')
     for ax in fig.get_axes():
@@ -484,13 +482,14 @@ def plot_figure3bis2():
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.5, 0.5, 1, 0.6]
+    alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col)
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col,
+                linewidth=2)
     ax.set_ylabel('normalized membrane potential')
     ax.set_xlabel('relative time (ms)')
     for ax in fig.get_axes():
@@ -756,21 +755,22 @@ def plot_speed_multigraph():
     plot the speed effect of centirgabor protocol
     """
     fig = plt.figure(figsize=(12, 8))
-    fig.suptitle('aligned on Center-Only stimulus onset (t = 0)')
+    fig.suptitle('aligned on Center-Only stimulus onset (t=0)')
     # build grid
     gs = fig.add_gridspec(5, 2)
     left_axes = []
-    for i in range(5):
-        ax = fig.add_subplot(gs[i, 0])
-        left_axes.append(ax)
+    left_axes.append(fig.add_subplot(gs[4, 0]))
+    for i in range(4):
+        left_axes.append(fig.add_subplot(gs[i, 0]))
     right_ax = fig.add_subplot(gs[:, 1])
     # to identify the plots (uncomment to use)
-#    for i, ax in enumerate(left_axes):
-#        st = str('ax {}'.format(i))
-#        ax.annotate(st, (0.5, 0.5))
+    for i, ax in enumerate(left_axes):
+        st = str('ax {}'.format(i))
+        ax.annotate(st, (0.5, 0.5))
     #(manipulate the left_axes list to reorder the plots if required)
 
     #plot left
+#    axes = axes[1:].append(axes[0])   # ctrl at the bottom
     cols = df.columns
     for i, ax in enumerate(left_axes):
         ax.plot(df.loc[-140:40, [cols[i]]], color='black', scalex=False,
