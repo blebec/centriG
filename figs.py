@@ -110,7 +110,7 @@ def load2():
     return a pandasDataframe and a dictionary of contents
     """
     #____data
-    filename = 'fig2traces.xlsx'
+    filename = 'data/fig2traces.xlsx'
     data = pd.read_excel(filename)
     #centering
     middle = (data.index.max() - data.index.min())/2
@@ -342,7 +342,7 @@ def plot_figure2B():
     """
     plot_figure2B : ranked phase advance and delta response
     """
-    filename = 'fig2cells.xlsx'
+    filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
     cols = df.columns[:2]
     signs= df.columns[2:]
@@ -379,7 +379,7 @@ def plot_figure3():
     """
     plot_figure3
     """
-    filename = 'fig3.xlsx'
+    filename = 'data/fig3.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -425,7 +425,7 @@ def plot_figure3bis1():
     """
     plot_figure3
     """
-    filename = 'fig3bis1.xlsx'
+    filename = 'data/fig3bis1.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -472,7 +472,7 @@ def plot_figure3bis2():
     """
     plot_figure3
     """
-    filename = 'fig3bis2.xlsx'
+    filename = 'data/fig3bis2.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -515,7 +515,7 @@ fig = plot_figure3bis2()
 #plt.close('all')
 def plot_figure4():
     """ speed """
-    filename = 'fig4.xlsx'
+    filename = 'data/fig4.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -565,7 +565,7 @@ def plot_figure5():
     """
     plot_figure5
     """
-    filename = 'fig5.xlsx'
+    filename = 'data/fig5.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -680,7 +680,7 @@ def plot_figure6():
     """
     plot_figure6
     """
-    filename = 'fig6.xlsx'
+    filename = 'data/fig6.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -745,7 +745,7 @@ colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
           speedColors['orange'], speedColors['jaune']]
 alpha = [0.8, 1, 0.8, 0.8, 1]
 
-df = pd.read_excel('figOpt.xlsx')
+df = pd.read_excel('data/figOpt.xlsx')
 df.set_index('time', inplace=True)
 
 
@@ -820,7 +820,7 @@ def plotSpeeddiff():
               speedColors['orange'], speedColors['jaune']]
     alpha = [0.5, 1, 0.8, 0.8, 1]
 
-    df = pd.read_excel('figOpt.xlsx')
+    df = pd.read_excel('data/figOpt.xlsx')
     df.set_index('time', inplace=True)
     # perform shift (x(t) <- x[t) - x(t-1]
     for col in df.columns:
