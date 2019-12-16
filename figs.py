@@ -225,6 +225,10 @@ def plot_figure2(data, colsdict):
                         color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+    
+    #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
+    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels 
+    #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
     #popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
