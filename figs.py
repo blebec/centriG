@@ -363,13 +363,23 @@ def plot_figure2B():
 plot_figure2B()
 #%%
 #plt.close('all')
-
+                    
 #dupliquer acec significatives et dupliquer non significatives
-def plot_figure3():
+def plot_figure3(filename):
     """
     plot_figure3
     """
-    filename = 'data/fig3.xlsx'
+    #samplesize
+    #filename =''
+    if (filename == 'data/fig3.xlsx'):
+        ncells = 37
+    else:
+        if (filename == 'data/fig3bis1.xlsx'):
+            ncells = 10
+        else:
+            if (filename == 'data/fig3bis2.xlsx'):
+                ncells = 27
+    
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -402,108 +412,15 @@ def plot_figure3():
                     handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
-    ax.annotate("n=37", xy=(0.1, 0.8),
+    ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
     fig.tight_layout()
     return fig
 
-fig = plot_figure3()
-#%%
-#plt.close('all')
-
-#dupliquer acec significatives et dupliquer non significatives
-def plot_figure3bis1():
-    """
-    plot_figure3
-    """
-    filename = 'data/fig3bis1.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
-    df.columns = cols
-    colors = ['k', stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.6, 0.5, 1, 0.6]
-
-    fig = plt.figure(figsize=(8, 7))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-#    fig.suptitle(os.path.basename(filename))
-    ax = fig.add_subplot(111)
-    for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col,
-                linewidth=2)
-    ax.set_ylabel('normalized membrane potential')
-    ax.set_xlabel('relative time (ms)')
-    for ax in fig.get_axes():
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-    ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
-
-    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-                    handlelength=0)
-    for line, text in zip(leg.get_lines(), leg.get_texts()):
-        text.set_color(line.get_color())
-    ax.annotate("n=10", xy=(0.1, 0.8),
-                xycoords="axes fraction", ha='center')
-    fig.tight_layout()
-    return fig
-
-fig = plot_figure3bis1()
-#%%
-#plt.close('all')
-
-#dupliquer acec significatives et dupliquer non significatives
-def plot_figure3bis2():
-    """
-    plot_figure3
-    """
-    filename = 'data/fig3bis2.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
-    df.columns = cols
-    colors = ['k', stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.6, 0.5, 1, 0.6]
-
-    fig = plt.figure(figsize=(8, 7))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-#    fig.suptitle(os.path.basename(filename))
-    ax = fig.add_subplot(111)
-    for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col,
-                linewidth=2)
-    ax.set_ylabel('normalized membrane potential')
-    ax.set_xlabel('relative time (ms)')
-    for ax in fig.get_axes():
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-    ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
-
-    leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-                    handlelength=0)
-    for line, text in zip(leg.get_lines(), leg.get_texts()):
-        text.set_color(line.get_color())
-    ax.annotate("n=27", xy=(0.1, 0.8),
-                xycoords="axes fraction", ha='center')
-    fig.tight_layout()
-    return fig
-
-fig = plot_figure3bis2()
+filename = 'data/fig3.xlsx'       # entire population
+#filename = 'data/fig3bis1.xlsx'   # individually significant subpopulation
+#filename = 'data/fig3bis2.xlsx'   # individually non significant subpopulation
+fig = plot_figure3(filename)
 #%%
 #plt.close('all')
 def plot_figure4():
