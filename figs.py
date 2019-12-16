@@ -213,7 +213,7 @@ def plot_figure2(data, colsdict):
         for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                     label=col, linewidth=0.5)
-    ax.annotate("n=5", xy=(0.2, 0.8),
+    ax.annotate("n=27", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #pop spike
     cols = colsdict['popSpk']
@@ -237,7 +237,7 @@ def plot_figure2(data, colsdict):
         for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                     label=col, linewidth=0.5)
-    ax.annotate("n=20", xy=(0.2, 0.8),
+    ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #popSpkNsig
     cols = colsdict['popSpkNsig']
@@ -251,7 +251,7 @@ def plot_figure2(data, colsdict):
         for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                     label=col, linewidth=0.5)
-    ax.annotate("n=?", xy=(0.2, 0.8),
+    ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
     #labels
