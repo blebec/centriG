@@ -38,7 +38,7 @@ stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
 speedColors = {'orangeFonce' :     [x/256 for x in [252, 98, 48]],
                'orange' : [x/256 for x in [253, 174, 74]],
                'jaune' : [x/256 for x in [254, 226, 137]]}
-#%% define the font size to be used
+# define the font size to be used
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
           'legend.fontsize': 'small',
@@ -59,7 +59,7 @@ def retrieve_name(var):
     return [var_name for var_name, var_val in callers_local_vars if var_val is var]
 
 
-#%% adjust the y scale to allign plot for a value (use zero here)
+# adjust the y scale to allign plot for a value (use zero here)
 
 #alignement to be performed
 #see https://stackoverflow.com/questions/10481990/matplotlib-axis-with-two-scales-shared-origin/10482477#10482477
@@ -80,7 +80,7 @@ def change_plot_trace_amplitude(ax, gain=1):
     lims = ax.get_ylim()
     new_lims = (lims[0]/gain, lims[1]/gain)
     ax.set_ylim(new_lims)
-#%%
+#
 def properties(ax):
     """
     print size and attributes of an axe
@@ -110,7 +110,7 @@ def load2():
     return a pandasDataframe and a dictionary of contents
     """
     #____data
-    filename = 'fig2.xlsx'
+    filename = 'fig2traces.xlsx'
     data = pd.read_excel(filename)
     #centering
     middle = (data.index.max() - data.index.min())/2
@@ -134,9 +134,10 @@ def load2():
             'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
                             ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
                             ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+            'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg', 
+                      'lagIndiSig', 'ampIndiSig']
             }
     return data, colsdict
-
 
 def plot_figure2(data, colsdict):
     """
@@ -332,52 +333,43 @@ def plot_figure2(data, colsdict):
 data, content = load2()
 fig = plot_figure2(data, content)
 
-#%%
-plt.close('all')
-fig = plt.figure()
-axes = []
-for i in range(8):
-    axes.append(fig.add_subplot(2,4,i+1))
-vmaxes = [x for x in axes[:4]]
-spkaxes = [x for x in axes[4:]]
-for i, ax in enumerate(spkaxes):
-    label = 'ax nb= ' + str(i)
-    ax.annotate(label, xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
 
-
-#%%
+#%% NB the length of the sorted data are not the same compared to the other traces
+#filename = 'fig2cells.xlsx'
+#df = pd.read_excel(filename)
 
 #TODO indiquer les non significatives
 def plot_figure2B():
     """
     plot_figure2B
     """
-    filename = 'fig2.xlsx'
+    filename = 'fig2cells.xlsx'
     df = pd.read_excel(filename)
-    cols = df.columns[-2:]
+#    df = pd.read_excel(filename, usecol=content['sort']).dropna()
+    cols = df.columns[:2]
     # select the rank data
-    rank_df = df[df.columns[-2:]].dropna().reset_index()
-    del rank_df['index']
-    rank_df.index += 1 # cells = 1 to 36
+#    rank_df = df[df.columns[-2:]].dropna().reset_index()
+#    del rank_df['index']
+#    rank_df.index += 1 # cells = 1 to 36
+    df.index += 1 # cells = 1 to 37
 
     fig = plt.figure(figsize=(8, 2))
-    ax1 = fig.add_subplot(121)
-    ax2 = fig.add_subplot(122)
-    axes = [ax1, ax2]
-
+    axes = []
+    for i in range(2):
+        axes.append(fig.add_subplot(1, 2, i+1))
+        
     for i, ax in enumerate(axes):
-        axes[i].bar(rank_df.index, rank_df[cols[i]], color=stdColors['rouge'],
+        axes[i].bar(df.index, df[cols[i]], color=stdColors['rouge'],
                     label=cols[i], alpha=0.8, width=0.8)
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        ticks = [rank_df.index.min(), rank_df.index.max()]
+        ticks = [df.index.min(), df.index.max()]
         ax.set_xticks(ticks)
-    ax1.set_ylabel('phase advance (ms)')
-    ax2.set_ylabel('delta response')
+    axes[0].set_ylabel('phase advance (ms)')
+    axes[1].set_ylabel('delta response')
     fig.tight_layout()
     return fig
 
