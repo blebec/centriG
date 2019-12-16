@@ -102,10 +102,9 @@ def fig_properties(fig):
 
 #%%
 plt.close('all')
-#TODO dupliquer avec significatives er dupliquer avec non signifiactives
 
 def load2():
-    """ 
+    """
     import the datafile
     return a pandasDataframe and a dictionary of contents
     """
@@ -118,24 +117,24 @@ def load2():
     data = data.loc[-200:150]
     # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
     colsdict = {
-            'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
-            'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
-            'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
-            'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
-            'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig', 
-                          ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                          ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-            'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                           ('popSpkCtrSeUpSig','popSpkCtrSeDwSig'),
-                           ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-            'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                           ('popVmCtrSeUpNSig','popVmCtrSeDwNSig'),
-                           ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-            'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                            ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                            ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-            'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg', 
-                      'lagIndiSig', 'ampIndiSig']
+        'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
+        'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
+        'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
+        'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
+        'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig',
+                      ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+                      ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+        'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+                       ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
+                       ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+        'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                       ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
+                       ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+        'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+                        ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+                        ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+        'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg',
+                  'lagIndiSig', 'ampIndiSig']
             }
     return data, colsdict
 
@@ -145,41 +144,39 @@ def plot_figure2(data, colsdict):
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
-    
+
     fig = plt.figure(figsize=(14, 8)) #fig = plt.figure(figsize=(8, 8))
+    #build axes with sharex and sharey
     axes = []
-    axL = fig.add_subplot(2,4,1)
+    axL = fig.add_subplot(2, 4, 1)
     axes.append(axL)
-    ax = fig.add_subplot(2,4,2)
+    ax = fig.add_subplot(2, 4, 2)
     axes.append(ax)
-    axes.append(fig.add_subplot(2,4,3, sharex = ax, sharey=ax))
-    axes.append(fig.add_subplot(2,4,4, sharex = ax, sharey=ax))
-    axes.append(fig.add_subplot(2,4,5, sharex=axL))    
-    ax = fig.add_subplot(2,4,6)
+    axes.append(fig.add_subplot(2, 4, 3, sharex=ax, sharey=ax))
+    axes.append(fig.add_subplot(2, 4, 4, sharex=ax, sharey=ax))
+    axes.append(fig.add_subplot(2, 4, 5, sharex=axL))
+    ax = fig.add_subplot(2, 4, 6)
     axes.append(ax)
-    axes.append(fig.add_subplot(2,4,7, sharex=ax, sharey=ax))
-    axes.append(fig.add_subplot(2,4,8, sharex=ax, sharey=ax))
-    
-#    for i in range(8):
-#        axes.append(fig.add_subplot(2,4,i+1))
-    
-    vmaxes = [x for x in axes[:4]]      # vm axes = top row
-    spkaxes = [x for x in axes[4:]]     # spikes axes = bottom row
+    axes.append(fig.add_subplot(2, 4, 7, sharex=ax, sharey=ax))
+    axes.append(fig.add_subplot(2, 4, 8, sharex=ax, sharey=ax))
+    # axes list
+    vmaxes = axes[:4]      # vm axes = top row
+    spkaxes = axes[4:]     # spikes axes = bottom row
     #____ plots individuals (first column)
     # individual vm
-    cols =  colsdict['indVm']
+    cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
         ax.plot(data[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
     #individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
     for i, col in enumerate(cols[::-1]):
         ax.plot(data[col], color=colors[::-1][i],
-                 alpha=1, label=col, linewidth=1)
+                alpha=1, label=col, linewidth=1)
         ax.fill_between(data.index, data[col],
-                         color=colors[::-1][i], alpha=0.5, label=col)
+                        color=colors[::-1][i], alpha=0.5, label=col)
     #____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
@@ -187,94 +184,94 @@ def plot_figure2(data, colsdict):
     ax = vmaxes[1]
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center')
     #popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
         #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0,1]:
+        for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                 label=col, linewidth=0.5)        
+                    label=col, linewidth=0.5)
     ax.annotate("n=10", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center')
     #popVmNsig
     cols = colsdict['popVmNsig']
     ax = vmaxes[3]
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0,1]:
+        for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                 label=col, linewidth=0.5)        
+                    label=col, linewidth=0.5)
     ax.annotate("n=5", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center')
     #pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=colors[::-1][i],
-                 alpha=1, label=col, linewidth=1)
+                alpha=1, label=col, linewidth=1)
         ax.fill_between(df.index, df[col],
-                         color=colors[::-1][i], alpha=0.5, label=col)
+                        color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center')
     #popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0,1]:
+        for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                 label=col, linewidth=0.5)        
+                    label=col, linewidth=0.5)
     ax.annotate("n=20", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='center')
     #popSpkNsig
     cols = colsdict['popSpkNsig']
     ax = spkaxes[3]
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+                label=col)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0,1]:
+        for j in [0, 1]:
             ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                       label=col, linewidth=0.5)        
+                    label=col, linewidth=0.5)
     ax.annotate("n=?", xy=(0.2, 0.8),
-                 xycoords="axes fraction", ha='center')
-    
+                xycoords="axes fraction", ha='center')
+
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    ylabels = ['membrane potential (mV)', 
-                'normalized membrane potential',
-                '', '']
+    ylabels = ['membrane potential (mV)',
+               'normalized membrane potential',
+               '', '']
     for i, ax in enumerate(vmaxes):
         ax.axes.get_xaxis().set_visible(False)
         ax.spines['bottom'].set_visible(False)
         ax.set_ylabel(ylabels[i])
-    ylabels = ['firing rate (spikes/s)', 
-                'normalized firing rate', 
-                '', '']
+    ylabels = ['firing rate (spikes/s)',
+               'normalized firing rate',
+               '', '']
     for i, ax in enumerate(spkaxes):
         ax.set_ylabel(ylabels[i])
         ax.set_xlabel('time (ms)')
-    
+
     for ax in vmaxes[1:]:
         ax.set_ylim(-0.10, 1.2)
     for ax in spkaxes[1:]:
@@ -308,7 +305,7 @@ def plot_figure2(data, colsdict):
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
     align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    align_yaxis(spkaxes[0],0, spkaxes[1], 0)
+    align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     # adjust amplitude (without moving the zero)
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
@@ -338,7 +335,7 @@ def plot_figure2B():
     filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
     cols = df.columns[:2]
-    signs= df.columns[2:]
+    signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
 
     fig = plt.figure(figsize=(8, 2))
@@ -346,10 +343,10 @@ def plot_figure2B():
     axes = []
     for i in range(2):
         axes.append(fig.add_subplot(1, 2, i+1))
-    color_dic = {0 :'w', 1 : stdColors['rouge']}     
+    color_dic = {0 :'w', 1 : stdColors['rouge']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
-        axes[i].bar(df.index, df[cols[i]], edgecolor =stdColors['rouge'],
+        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                     color=colors, label=cols[i], alpha=0.8, width=0.8)
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
@@ -384,7 +381,8 @@ def plot_figure3():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    fig = plt.figure(figsize=(8, 7))
+##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -430,11 +428,12 @@ def plot_figure3bis1():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    fig = plt.figure(figsize=(8, 7))
+##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, 
+        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col,
                 linewidth=2)
     ax.set_ylabel('normalized membrane potential')
     ax.set_xlabel('relative time (ms)')
@@ -477,7 +476,8 @@ def plot_figure3bis2():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.5, 0.6, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(8, 7))       ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    fig = plt.figure(figsize=(8, 7))
+##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -742,7 +742,6 @@ df = pd.read_excel('data/figOpt.xlsx')
 df.set_index('time', inplace=True)
 
 
-#TODO centre seul en dernier (panel de G)
 def plot_speed_multigraph():
     """
     plot the speed effect of centirgabor protocol
@@ -807,7 +806,7 @@ fig = plot_speed_multigraph()
 
 
 #%% test to analyse with x(t) = x(t) - x(t-1)
-    
+
 def plotSpeeddiff():
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
@@ -826,14 +825,14 @@ def plotSpeeddiff():
     cols = df.columns.to_list()
     cols = cols[::-1]
     for j, col in enumerate(cols):
-            i = len(cols) - j -1
-            print(i, j)
-            xvals = df.loc[-140:100].index
-            yvals = df.loc[-140:100, [cols[i]]].values[:,0]
-            # replace negative values <-> negative slope by 0
-            yvals = yvals.clip(0)
-            ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j],
-                            label = cols[i], alpha=alpha[j])
+        i = len(cols) - j -1
+        print(i, j)
+        xvals = df.loc[-140:100].index
+        yvals = df.loc[-140:100, [cols[i]]].values[:, 0]
+        # replace negative values <-> negative slope by 0
+        yvals = yvals.clip(0)
+        ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j],
+                        label=cols[i], alpha=alpha[j])
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     for loca in ['left', 'top', 'right']:
@@ -842,5 +841,5 @@ def plotSpeeddiff():
     fig.legend()
     fig.tight_layout()
     return fig
-    
+
 fig = plotSpeeddiff()
