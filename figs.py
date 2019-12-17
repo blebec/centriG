@@ -368,7 +368,9 @@ plot_figure2B()
 #%%
 #plt.close('all')
                     
-#dupliquer acec significatives et dupliquer non significatives
+#define datasource
+targetdata = ['data/fig3.xlsx', 'data/fig3bis1.xlsx', 'data/fig3bis2.xlsx']
+
 def plot_figure3(filename):
     """
     plot_figure3
@@ -421,9 +423,8 @@ def plot_figure3(filename):
     fig.tight_layout()
     return fig
 
-filename = 'data/fig3.xlsx'       # entire population
-#filename = 'data/fig3bis1.xlsx'   # individually significant subpopulation
-#filename = 'data/fig3bis2.xlsx'   # individually non significant subpopulation
+# 0 = entire population, 1 = individually significant subpopulation, 2 = individually non significant subpopulation
+filename = targetdata[0] 
 fig = plot_figure3(filename)
 #%%
 #plt.close('all')
