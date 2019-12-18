@@ -571,6 +571,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     #popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[-2]
+    ax.set_title('significative population')
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
@@ -590,6 +591,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     #popVmNsig
     cols = colsdict['popVmNsig']
     ax = vmaxes[-1]
+    ax.set_title('non significative population')
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
@@ -731,9 +733,10 @@ plot_signonsig_figure2(data, content)
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
 
-def plot_figure2B():
+def plot_figure2B(sig=True):
     """
     plot_figure2B : ranked phase advance and delta response
+    sig=boolan : true <-> shown cell signification
     """
     filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
@@ -749,8 +752,13 @@ def plot_figure2B():
     color_dic = {0 :'w', 1 : stdColors['rouge']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
-        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
+        if sig :
+            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                     color=colors, label=cols[i], alpha=0.8, width=0.8)
+        else:
+            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
+                    color=stdColors['rouge'], label=cols[i], 
+                    alpha=0.8, width=0.8)            
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
@@ -768,25 +776,22 @@ plot_figure2B()
 #%%
 #plt.close('all')
                     
-#define datasource
-targetdata = ['data/fig3.xlsx', 'data/fig3bis1.xlsx', 'data/fig3bis2.xlsx']
-
-def plot_figure3(filename):
+def plot_figure3(kind):
     """
     plot_figure3
+    input : kind in ['pop': whole population, 'sig': individually significants 
+    cells, 'nonsig': non significant cells]
     """
+    filenames = {'pop' : 'data/fig3.xlsx', 
+              'sig': 'data/fig3bis1.xlsx',
+              'nonsig': 'data/fig3bis2.xlsx'}
+    titles = {'pop' : 'recorded cells',
+              'sig': 'individually significant cells',
+              'nonsig': 'individually non significants cells'}
     #samplesize
-    #filename =''
-    if (filename == 'data/fig3.xlsx'):
-        ncells = 37
-    else:
-        if (filename == 'data/fig3bis1.xlsx'):
-            ncells = 10
-        else:
-            if (filename == 'data/fig3bis2.xlsx'):
-                ncells = 27
-    
-    df = pd.read_excel(filename)
+    cellnumbers= {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    ncells = cellnumbers[kind]
+    df = pd.read_excel(filenames[kind])
     #centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
@@ -795,11 +800,11 @@ def plot_figure3(filename):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.5, 0.6, 0.5, 1, 0.6]
+    alpha = [0.6, 0.8, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(8, 7))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-#    fig.suptitle(os.path.basename(filename))
+    fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
@@ -823,9 +828,72 @@ def plot_figure3(filename):
     fig.tight_layout()
     return fig
 
-# 0 = entire population, 1 = individually significant subpopulation, 2 = individually non significant subpopulation
-filename = targetdata[0] 
-fig = plot_figure3(filename)
+
+fig = plot_figure3('pop')
+fig = plot_figure3('sig')
+fig = plot_figure3('nonsig')
+
+
+#%% grouped sig and non sig
+
+def plot_figure3_signonsig():
+    """
+    plot_figure3
+    with individually significants and non significant cells
+    """
+    filenames = {'pop' : 'data/fig3.xlsx', 
+              'sig': 'data/fig3bis1.xlsx',
+              'nonsig': 'data/fig3bis2.xlsx'}
+    titles = {'pop' : 'recorded cells',
+              'sig': 'individually significant cells',
+              'nonsig': 'individually non significants cells'}
+    #samplesize
+    cellnumbers= {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alpha = [0.6, 0.8, 0.5, 1, 0.6]
+
+    fig = plt.figure(figsize=(12, 6))
+    axes = []
+    for i in range(2):
+        axes.append(fig.add_subplot(1, 2, i+1))
+    for i, kind in enumerate(['sig', 'nonsig']):
+        ncells = cellnumbers[kind]
+        df = pd.read_excel(filenames[kind])
+        #centering
+        middle = (df.index.max() - df.index.min())/2
+        df.index = (df.index - middle)/10
+        df = df.loc[-15:30]
+        cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+        df.columns = cols
+        
+        ax = axes[i]
+        ax.set_title(titles[kind])
+        ncells = cellnumbers[kind]
+        for j, col in enumerate(cols):
+            ax.plot(df[col], color=colors[j], alpha=alpha[j], 
+                    label=col, linewidth=2)
+            ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+                        xycoords="axes fraction", ha='center')
+        leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
+                        handlelength=0)
+        for line, text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())    
+    axes[0].set_ylabel('normalized membrane potential')
+    for ax in axes:
+        ax.set_ylim(-0.1, 1.1)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+        ax.set_xlabel('relative time (ms)')
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+
+    fig.tight_layout()
+    return fig
+
+plot_figure3_signonsig()
 #%%
 #plt.close('all')
 def plot_figure4():
