@@ -135,7 +135,7 @@ def load2():
                         ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
         'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg',
                   'lagIndiSig', 'ampIndiSig']
-            }
+                }
     return data, colsdict
 
 def plot_figure2(data, colsdict):
@@ -225,9 +225,9 @@ def plot_figure2(data, colsdict):
                         color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    
+
     #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
-    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels 
+    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
     #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
     #popSpkSig
     cols = colsdict['popSpkSig']
@@ -330,311 +330,172 @@ fig = plot_figure2(data, content)
 #%%
 plt.close('all')
 
-def load2():
-    """
-    import the datafile
-    return a pandasDataframe and a dictionary of contents
-    """
-    #____data
-    filename = 'data/fig2traces.xlsx'
-    data = pd.read_excel(filename)
-    #centering
-    middle = (data.index.max() - data.index.min())/2
-    data.index = (data.index - middle)/10
-    data = data.loc[-200:150]
-    # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
-    colsdict = {
-        'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
-        'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
-        'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
-        'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
-        'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig',
-                      ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                      ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-        'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                       ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
-                       ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-        'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                       ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
-                       ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-        'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                        ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                        ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-        'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg',
-                  'lagIndiSig', 'ampIndiSig']
-            }
-    return data, colsdict
-
-def plot_mode(pltmode):
-    global mode, xsize, ysize, nrow, ncol, nax, nvmax, nspkax 
-    if (pltmode == 1):
-        mode = pltmode
-        xsize = 14
-        ysize = 8
-        nrow = 2
-        ncol = 4
-        nax = 8
-        nvmax = 4
-        nspkax = 4
-    else:
-        if (pltmode == 2) or (pltmode == 3) :
-            mode = pltmode            
-            xsize = 8
-            ysize = 8
-            nrow = 2
-            ncol = 2
-            nax = 4
-            nvmax = 2
-            nspkax = 2
-    
-
-def plot_figure2(data, colsdict):
+def plot_alf_figure2(data, colsdict):
     """
     plot_figure2
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
-    
-    fig = plt.figure(figsize=(xsize, ysize)) #fig = plt.figure(figsize=(8, 8))
+
+    fig = plt.figure(figsize=(8, 8)) 
     #build axes with sharex and sharey
     axes = []
-    axL = fig.add_subplot(nrow, ncol, 1)
-    if (mode == 1) or (mode == 2):
-        axL = fig.add_subplot(nrow, ncol, 1)
-        axes.append(axL)
-        ax = fig.add_subplot(nrow, ncol, 2)
-        axes.append(ax)
-    else:
-        if (mode == 3):
-            axL = fig.add_subplot(nrow, ncol, 1)
-            axes.append(axL)
-            ax = fig.add_subplot(nrow, ncol, 2, sharex=axL, sharey=axL)
-            axes.append(ax)
-    
-        
-    if (mode == 1):
-        axes.append(fig.add_subplot(nrow, ncol, 3, sharex=ax, sharey=ax))
-        axes.append(fig.add_subplot(nrow, ncol, 4, sharex=ax, sharey=ax))
-    else:
-        if (mode == 2):
-            axes.append(fig.add_subplot(nrow, ncol, 3))
-            axes.append(fig.add_subplot(nrow, ncol, 4))
-        else:
-            if (mode == 3):
-                axes.append(fig.add_subplot(nrow, ncol, 3, sharex=ax, sharey=ax))
-                axes.append(fig.add_subplot(nrow, ncol, 4, sharex=ax, sharey=ax))
-    if (mode == 1):
-        axes.append(fig.add_subplot(nrow, ncol, 5, sharex=axL))
-        ax = fig.add_subplot(nrow, ncol, 6)
-        axes.append(ax)
-        axes.append(fig.add_subplot(nrow, ncol, 7, sharex=ax, sharey=ax))
-        axes.append(fig.add_subplot(nrow, ncol, 8, sharex=ax, sharey=ax))
-        # axes list
-    vmaxes = axes[:nvmax]      # vm axes = top row
-    spkaxes = axes[nspkax:]     # spikes axes = bottom row
-        #____ plots individuals (first column)
+    for i in range(4):
+        axes.append(fig.add_subplot(2, 2, i+1))
+    # axes list
+    vmaxes = axes[:2]      # vm axes = top row
+    spkaxes = axes[2:]     # spikes axes = bottom row
+    #____ plots individuals (first column)
     # individual vm
-    if (mode == 1) or (mode == 2):
-        cols = colsdict['indVm']
-        ax = vmaxes[0]
-        for i, col in enumerate(cols):
-            ax.plot(data[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-        #individual spike
-        cols = colsdict['indSpk']
-        ax = spkaxes[0]
-        for i, col in enumerate(cols[::-1]):
-            ax.plot(data[col], color=colors[::-1][i],
-                    alpha=1, label=col, linewidth=1)
-            ax.fill_between(data.index, data[col],
-                            color=colors[::-1][i], alpha=0.5, label=col)
-         #____ plots pop (column 1-3)
-        df = data.loc[-30:35]       # limit xscale
-        # pop vm
-        cols = colsdict['popVm']
-        ax = vmaxes[1]
-        for i, col in enumerate(cols):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-            ax.annotate("n=37", xy=(0.2, 0.8),
-                        xycoords="axes fraction", ha='center')
-    #popVmSig 
-    if (mode == 1) or (mode == 3):
-        df = data.loc[-30:35]
-        cols = colsdict['popVmSig']
-    if (mode == 1):    
-         ax = vmaxes[2]
-    else:
-        if (mode == 3):
-            ax = vmaxes[0]
-    if (mode == 1) or (mode == 3):        
-        #traces
-        for i, col in enumerate(cols[:2]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-        #errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            for j in [0, 1]:
-                ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                        label=col, linewidth=0.5)
-        ax.annotate("n=10", xy=(0.2, 0.8),
-                    xycoords="axes fraction", ha='center')
-    #popVmNsig
-    if (mode == 1) or (mode == 3):
-        cols = colsdict['popVmNsig']
-    if (mode == 1):
-        ax = vmaxes[3]
-    else:
-        if (mode == 3):
-            ax = vmaxes[1]
-    if (mode == 1) or (mode == 3):        
-        #traces
-        for i, col in enumerate(cols[:2]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-        #errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            for j in [0, 1]:
-                ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                        label=col, linewidth=0.5)
-        ax.annotate("n=27", xy=(0.2, 0.8),
-                    xycoords="axes fraction", ha='center')
+    cols = colsdict['indVm']
+    ax = vmaxes[0]
+    for i, col in enumerate(cols):
+        ax.plot(data[col], color=colors[i], alpha=alpha[i],
+                label=col)
+    #individual spike
+    cols = colsdict['indSpk']
+    ax = spkaxes[0]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(data[col], color=colors[::-1][i],
+                alpha=1, label=col, linewidth=1)
+        ax.fill_between(data.index, data[col],
+                        color=colors[::-1][i], alpha=0.5, label=col)
+    #____ plots pop (column 1-3)
+    df = data.loc[-30:35]       # limit xscale
+    # pop vm
+    cols = colsdict['popVm']
+    ax = vmaxes[1]
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+                label=col)
+    ax.annotate("n=37", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
+#    #popVmSig
+#    cols = colsdict['popVmSig']
+#    ax = vmaxes[2]
+#    #traces
+#    for i, col in enumerate(cols[:2]):
+#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                label=col)
+#        #errors : iterate on tuples
+#    for i, col in enumerate(cols[2:]):
+#        for j in [0, 1]:
+#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                    label=col, linewidth=0.5)
+#    ax.annotate("n=10", xy=(0.2, 0.8),
+#                xycoords="axes fraction", ha='center')
+#    #popVmNsig
+#    cols = colsdict['popVmNsig']
+#    ax = vmaxes[3]
+#    #traces
+#    for i, col in enumerate(cols[:2]):
+#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                label=col)
+#    #errors : iterate on tuples
+#    for i, col in enumerate(cols[2:]):
+#        for j in [0, 1]:
+#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                    label=col, linewidth=0.5)
+#    ax.annotate("n=27", xy=(0.2, 0.8),
+#                xycoords="axes fraction", ha='center')
     #pop spike
-    if (mode == 1) or (mode == 2):
-        cols = colsdict['popSpk']
-        ax = spkaxes[1]
-        for i, col in enumerate(cols[::-1]):
-            ax.plot(df[col], color=colors[::-1][i],
-                    alpha=1, label=col, linewidth=1)
-            ax.fill_between(df.index, df[col],
-                            color=colors[::-1][i], alpha=0.5, label=col)
-        ax.annotate("n=20", xy=(0.2, 0.8),
-                    xycoords="axes fraction", ha='center')
-    
+    cols = colsdict['popSpk']
+    ax = spkaxes[1]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(df[col], color=colors[::-1][i],
+                alpha=1, label=col, linewidth=1)
+        ax.fill_between(df.index, df[col],
+                        color=colors[::-1][i], alpha=0.5, label=col)
+    ax.annotate("n=20", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
+
     #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
-    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels 
+    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
     #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
-    #popSpkSig
-    if (mode == 1) or (mode == 3):
-        cols = colsdict['popSpkSig']
-    if (mode == 1):
-        ax = spkaxes[2]
-    else:
-        if (mode == 3):
-            ax = spkaxes[0]
-    if (mode == 1) or (mode == 3):
-        #traces
-        for i, col in enumerate(cols[:2]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-        #errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            for j in [0, 1]:
-                ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                        label=col, linewidth=0.5)
-        ax.annotate("n=5", xy=(0.2, 0.8),
-                    xycoords="axes fraction", ha='center')
-    #popSpkNsig
-    if (mode == 1) or (mode == 3):
-        cols = colsdict['popSpkNsig']
-    if (mode == 1):
-        ax = spkaxes[3]
-    else:
-        if (mode == 3):
-            ax = spkaxes[1]
-    if (mode == 1) or (mode == 3):
-        #traces
-        for i, col in enumerate(cols[:2]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                    label=col)
-        #errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            for j in [0, 1]:
-                ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                        label=col, linewidth=0.5)
-        ax.annotate("n=15", xy=(0.2, 0.8),
-                    xycoords="axes fraction", ha='center')
+#    #popSpkSig
+#    cols = colsdict['popSpkSig']
+#    ax = spkaxes[2]
+#    #traces
+#    for i, col in enumerate(cols[:2]):
+#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                label=col)
+#    #errors : iterate on tuples
+#    for i, col in enumerate(cols[2:]):
+#        for j in [0, 1]:
+#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                    label=col, linewidth=0.5)
+#    ax.annotate("n=5", xy=(0.2, 0.8),
+#                xycoords="axes fraction", ha='center')
+#    #popSpkNsig
+#    cols = colsdict['popSpkNsig']
+#    ax = spkaxes[3]
+#    #traces
+#    for i, col in enumerate(cols[:2]):
+#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                label=col)
+#    #errors : iterate on tuples
+#    for i, col in enumerate(cols[2:]):
+#        for j in [0, 1]:
+#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                    label=col, linewidth=0.5)
+#    ax.annotate("n=15", xy=(0.2, 0.8),
+#                xycoords="axes fraction", ha='center')
 
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    if (mode == 1):
-        ylabels = ['membrane potential (mV)',
-                   'normalized membrane potential',
-                   '', '']
-    else:
-        if (mode == 2):
-            ylabels = ['membrane potential (mV)',
-                       'normalized membrane potential']
-                       
-        else:
-            if (mode == 3):
-                ylabels = ['normalized membrane potential',
-                           '']
-               
+    ylabels = ['membrane potential (mV)',
+               'normalized membrane potential',
+               '', '']
     for i, ax in enumerate(vmaxes):
         ax.axes.get_xaxis().set_visible(False)
         ax.spines['bottom'].set_visible(False)
         ax.set_ylabel(ylabels[i])
-    if (mode == 1):
-        ylabels = ['firing rate (spikes/s)',
-                   'normalized firing rate',
-                   '', '']
-    else:
-        if (mode == 2):
-            ylabels = ['firing rate (spikes/s)',
-                       'normalized firing rate']
-        else:
-            if (mode == 3):
-                ylabels = ['normalized firing rate',
-                           '']
-            
-               
+    ylabels = ['firing rate (spikes/s)',
+               'normalized firing rate',
+               '', '']
     for i, ax in enumerate(spkaxes):
         ax.set_ylabel(ylabels[i])
         ax.set_xlabel('time (ms)')
 
-    for ax in vmaxes[1:nvmax]:
+    for ax in vmaxes[1:]:
         ax.set_ylim(-0.10, 1.2)
-    for ax in spkaxes[1:nspkax]:
+    for ax in spkaxes[1:]:
         ax.set_ylim(-0.10, 1.3)
         ax.set_xlabel('relative time (ms)')
 
-    if (mode == 1) or (mode == 2):
-
-        # stimulations
-        step = 28
-        xlocs = np.arange(0, -150, -step)
-        names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-        dico = dict(zip(names, xlocs))
-        #lines
-        for ax in [vmaxes[0], spkaxes[0]]:
-            lims = ax.get_ylim()
-            for dloc in xlocs:
-                ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
-        # stim location
-        ax = spkaxes[0]
-        for key in dico.keys():
-            ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
+    # stimulations
+    step = 28
+    xlocs = np.arange(0, -150, -step)
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    dico = dict(zip(names, xlocs))
+    #lines
+    for ax in [vmaxes[0], spkaxes[0]]:
+        lims = ax.get_ylim()
+        for dloc in xlocs:
+            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
+    # stim location
+    ax = spkaxes[0]
+    for key in dico.keys():
+        ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
         # stim
-            rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                                 alpha=0.6, edgecolor='w', facecolor='r')
-            ax.add_patch(rect)
-        #center
-        rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor='k')
+        rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor='r')
         ax.add_patch(rect)
-        #fis individual example
-        vmaxes[0].set_ylim(-4, 13)
-        spkaxes[0].set_ylim(-5.5, 20)
-        # adjust amplitude (without moving the zero)
-        change_plot_trace_amplitude(vmaxes[1], 0.85)
-        change_plot_trace_amplitude(spkaxes[1], 0.8)        
+        #center
+    rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
+                     alpha=0.6, edgecolor='w', facecolor='k')
+    ax.add_patch(rect)
+    #fit individual example
+    vmaxes[0].set_ylim(-4, 13)
+    spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
     align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
-    
+    # adjust amplitude (without moving the zero)
+    change_plot_trace_amplitude(vmaxes[1], 0.85)
+    change_plot_trace_amplitude(spkaxes[1], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -646,9 +507,333 @@ def plot_figure2(data, colsdict):
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     return fig
 
-data, content = load2()
-plot_mode(1)
-fig = plot_figure2(data, content)
+
+
+
+
+
+
+
+# =============================================================================
+# benoit attempt to involve keys to build plots
+# def load2():
+#     """
+#     import the datafile
+#     return a pandasDataframe and a dictionary of contents
+#     """
+#     #____data
+#     filename = 'data/fig2traces.xlsx'
+#     data = pd.read_excel(filename)
+#     #centering
+#     middle = (data.index.max() - data.index.min())/2
+#     data.index = (data.index - middle)/10
+#     data = data.loc[-200:150]
+#     # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
+#     colsdict = {
+#         'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
+#         'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
+#         'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
+#         'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
+#         'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig',
+#                       ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+#                       ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+#         'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+#                        ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
+#                        ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+#         'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+#                        ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
+#                        ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+#         'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+#                         ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+#                         ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+#         'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg',
+#                   'lagIndiSig', 'ampIndiSig']
+#                 }
+#     return data, colsdict
+# 
+# def plot_mode(pltmode):
+#     global mode, xsize, ysize, nrow, ncol, nax, nvmax, nspkax
+#     if pltmode == 1:
+#         mode = pltmode
+#         xsize = 14
+#         ysize = 8
+#         nrow = 2
+#         ncol = 4
+#         nax = 8
+#         nvmax = 4
+#         nspkax = 4
+#     else:
+#         if (pltmode == 2) or (pltmode == 3):
+#             mode = pltmode
+#             xsize = 8
+#             ysize = 8
+#             nrow = 2
+#             ncol = 2
+#             nax = 4
+#             nvmax = 2
+#             nspkax = 2
+# 
+# 
+# def plot_figure2(data, colsdict):
+#     """
+#     plot_figure2
+#     """
+#     colors = ['k', stdColors['rouge']]
+#     alpha = [0.8, 0.8]
+# 
+#     fig = plt.figure(figsize=(xsize, ysize)) #fig = plt.figure(figsize=(8, 8))
+#     #build axes with sharex and sharey
+#     axes = []
+#     axL = fig.add_subplot(nrow, ncol, 1)
+#     if (mode == 1) or (mode == 2):
+#         axL = fig.add_subplot(nrow, ncol, 1)
+#         axes.append(axL)
+#         ax = fig.add_subplot(nrow, ncol, 2)
+#         axes.append(ax)
+#     else:
+#         if mode == 3:
+#             axL = fig.add_subplot(nrow, ncol, 1)
+#             axes.append(axL)
+#             ax = fig.add_subplot(nrow, ncol, 2, sharex=axL, sharey=axL)
+#             axes.append(ax)
+#     if mode == 1:
+#         axes.append(fig.add_subplot(nrow, ncol, 3, sharex=ax, sharey=ax))
+#         axes.append(fig.add_subplot(nrow, ncol, 4, sharex=ax, sharey=ax))
+#     else:
+#         if mode == 2:
+#             axes.append(fig.add_subplot(nrow, ncol, 3))
+#             axes.append(fig.add_subplot(nrow, ncol, 4))
+#         else:
+#             if mode == 3:
+#                 axes.append(fig.add_subplot(nrow, ncol, 3, sharex=ax, sharey=ax))
+#                 axes.append(fig.add_subplot(nrow, ncol, 4, sharex=ax, sharey=ax))
+#     if mode == 1:
+#         axes.append(fig.add_subplot(nrow, ncol, 5, sharex=axL))
+#         ax = fig.add_subplot(nrow, ncol, 6)
+#         axes.append(ax)
+#         axes.append(fig.add_subplot(nrow, ncol, 7, sharex=ax, sharey=ax))
+#         axes.append(fig.add_subplot(nrow, ncol, 8, sharex=ax, sharey=ax))
+#         # axes list
+#     vmaxes = axes[:nvmax]      # vm axes = top row
+#     spkaxes = axes[nspkax:]     # spikes axes = bottom row
+#         #____ plots individuals (first column)
+#     # individual vm
+#     if (mode == 1) or (mode == 2):
+#         cols = colsdict['indVm']
+#         ax = vmaxes[0]
+#         for i, col in enumerate(cols):
+#             ax.plot(data[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#         #individual spike
+#         cols = colsdict['indSpk']
+#         ax = spkaxes[0]
+#         for i, col in enumerate(cols[::-1]):
+#             ax.plot(data[col], color=colors[::-1][i],
+#                     alpha=1, label=col, linewidth=1)
+#             ax.fill_between(data.index, data[col],
+#                             color=colors[::-1][i], alpha=0.5, label=col)
+#          #____ plots pop (column 1-3)
+#         df = data.loc[-30:35]       # limit xscale
+#         # pop vm
+#         cols = colsdict['popVm']
+#         ax = vmaxes[1]
+#         for i, col in enumerate(cols):
+#             ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#             ax.annotate("n=37", xy=(0.2, 0.8),
+#                         xycoords="axes fraction", ha='center')
+#     #popVmSig
+#     if mode == 1 or mode == 3:
+#         df = data.loc[-30:35]
+#         cols = colsdict['popVmSig']
+#     if mode == 1:
+#          ax = vmaxes[2]
+#     else:
+#         if mode == 3:
+#             ax = vmaxes[0]
+#     if (mode == 1) or (mode == 3):
+#         #traces
+#         for i, col in enumerate(cols[:2]):
+#             ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#         #errors : iterate on tuples
+#         for i, col in enumerate(cols[2:]):
+#             for j in [0, 1]:
+#                 ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                         label=col, linewidth=0.5)
+#         ax.annotate("n=10", xy=(0.2, 0.8),
+#                     xycoords="axes fraction", ha='center')
+#     #popVmNsig
+#     if mode == 1 or mode == 3:
+#         cols = colsdict['popVmNsig']
+#     if mode == 1:
+#         ax = vmaxes[3]
+#     else:
+#         if mode == 3:
+#             ax = vmaxes[1]
+#     if mode == 1 or mode == 3:
+#         #traces
+#         for i, col in enumerate(cols[:2]):
+#             ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#         #errors : iterate on tuples
+#         for i, col in enumerate(cols[2:]):
+#             for j in [0, 1]:
+#                 ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                         label=col, linewidth=0.5)
+#         ax.annotate("n=27", xy=(0.2, 0.8),
+#                     xycoords="axes fraction", ha='center')
+#     #pop spike
+#     if (mode == 1) or (mode == 2):
+#         cols = colsdict['popSpk']
+#         ax = spkaxes[1]
+#         for i, col in enumerate(cols[::-1]):
+#             ax.plot(df[col], color=colors[::-1][i],
+#                     alpha=1, label=col, linewidth=1)
+#             ax.fill_between(df.index, df[col],
+#                             color=colors[::-1][i], alpha=0.5, label=col)
+#         ax.annotate("n=20", xy=(0.2, 0.8),
+#                     xycoords="axes fraction", ha='center')
+#     
+#     #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
+#     #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels 
+#     #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
+#     #popSpkSig
+#     if (mode == 1) or (mode == 3):
+#         cols = colsdict['popSpkSig']
+#     if (mode == 1):
+#         ax = spkaxes[2]
+#     else:
+#         if (mode == 3):
+#             ax = spkaxes[0]
+#     if (mode == 1) or (mode == 3):
+#         #traces
+#         for i, col in enumerate(cols[:2]):
+#             ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#         #errors : iterate on tuples
+#         for i, col in enumerate(cols[2:]):
+#             for j in [0, 1]:
+#                 ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                         label=col, linewidth=0.5)
+#         ax.annotate("n=5", xy=(0.2, 0.8),
+#                     xycoords="axes fraction", ha='center')
+#     #popSpkNsig
+#     if (mode == 1) or (mode == 3):
+#         cols = colsdict['popSpkNsig']
+#     if (mode == 1):
+#         ax = spkaxes[3]
+#     else:
+#         if (mode == 3):
+#             ax = spkaxes[1]
+#     if (mode == 1) or (mode == 3):
+#         #traces
+#         for i, col in enumerate(cols[:2]):
+#             ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                     label=col)
+#         #errors : iterate on tuples
+#         for i, col in enumerate(cols[2:]):
+#             for j in [0, 1]:
+#                 ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                         label=col, linewidth=0.5)
+#         ax.annotate("n=15", xy=(0.2, 0.8),
+#                     xycoords="axes fraction", ha='center')
+# 
+#     #labels
+#     for ax in axes:
+#         for loca in ['top', 'right']:
+#             ax.spines[loca].set_visible(False)
+#     if (mode == 1):
+#         ylabels = ['membrane potential (mV)',
+#                    'normalized membrane potential',
+#                    '', '']
+#     else:
+#         if (mode == 2):
+#             ylabels = ['membrane potential (mV)',
+#                        'normalized membrane potential']
+#                        
+#         else:
+#             if (mode == 3):
+#                 ylabels = ['normalized membrane potential',
+#                            '']
+#                
+#     for i, ax in enumerate(vmaxes):
+#         ax.axes.get_xaxis().set_visible(False)
+#         ax.spines['bottom'].set_visible(False)
+#         ax.set_ylabel(ylabels[i])
+#     if (mode == 1):
+#         ylabels = ['firing rate (spikes/s)',
+#                    'normalized firing rate',
+#                    '', '']
+#     else:
+#         if (mode == 2):
+#             ylabels = ['firing rate (spikes/s)',
+#                        'normalized firing rate']
+#         else:
+#             if (mode == 3):
+#                 ylabels = ['normalized firing rate',
+#                            '']
+#             
+#                
+#     for i, ax in enumerate(spkaxes):
+#         ax.set_ylabel(ylabels[i])
+#         ax.set_xlabel('time (ms)')
+# 
+#     for ax in vmaxes[1:nvmax]:
+#         ax.set_ylim(-0.10, 1.2)
+#     for ax in spkaxes[1:nspkax]:
+#         ax.set_ylim(-0.10, 1.3)
+#         ax.set_xlabel('relative time (ms)')
+# 
+#     if (mode == 1) or (mode == 2):
+# 
+#         # stimulations
+#         step = 28
+#         xlocs = np.arange(0, -150, -step)
+#         names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+#         dico = dict(zip(names, xlocs))
+#         #lines
+#         for ax in [vmaxes[0], spkaxes[0]]:
+#             lims = ax.get_ylim()
+#             for dloc in xlocs:
+#                 ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
+#         # stim location
+#         ax = spkaxes[0]
+#         for key in dico.keys():
+#             ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
+#         # stim
+#             rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
+#                                  alpha=0.6, edgecolor='w', facecolor='r')
+#             ax.add_patch(rect)
+#         #center
+#         rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
+#                          alpha=0.6, edgecolor='w', facecolor='k')
+#         ax.add_patch(rect)
+#         #fis individual example
+#         vmaxes[0].set_ylim(-4, 13)
+#         spkaxes[0].set_ylim(-5.5, 20)
+#         # adjust amplitude (without moving the zero)
+#         change_plot_trace_amplitude(vmaxes[1], 0.85)
+#         change_plot_trace_amplitude(spkaxes[1], 0.8)        
+#     # align zero between plots  NB ref = first plot
+#     align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+#     align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+#     
+#     # zerolines
+#     for ax in axes:
+#         lims = ax.get_ylim()
+#         ax.vlines(0, lims[0], lims[1], alpha=0.2)
+#         lims = ax.get_xlim()
+#         ax.hlines(0, lims[0], lims[1], alpha=0.2)
+#     fig.tight_layout()
+#     # remove the space between plots
+#     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+#     return fig
+# 
+# data, content = load2()
+# plot_mode(1)
+# fig = plot_figure2(data, content)
+# =============================================================================
 #%% NB the length of the sorted data are not the same compared to the other traces
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
