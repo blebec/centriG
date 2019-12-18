@@ -171,7 +171,7 @@ def plot_figure2(data, colsdict, fill=True):
                 label=col)
     # invert the plot order for spikes
     inv_colors = colors[::-1]
-    inv_alpha = alpha[::-1]    
+    inv_alpha = alpha[::-1]
     #individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -200,8 +200,8 @@ def plot_figure2(data, colsdict, fill=True):
         #errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             if fill:
-                ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i], 
-                                alpha=alpha[i]/2) 
+                ax.fill_between(df.index, df[col[0]], df[col[1]],
+                                color=colors[i], alpha=alpha[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
@@ -219,8 +219,8 @@ def plot_figure2(data, colsdict, fill=True):
         #errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             if fill:
-                ax.fill_between(df.index, df[col[0]], df[col[1]], 
-                                color=colors[i], alpha=alpha[i]/2) 
+                ax.fill_between(df.index, df[col[0]], df[col[1]],
+                                color=colors[i], alpha=alpha[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
@@ -239,22 +239,20 @@ def plot_figure2(data, colsdict, fill=True):
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
-    #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
-    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
-    #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
+#TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
     #popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i], 
-                            alpha=inv_alpha[i]/2) 
+        ax.fill_between(df.index, df[col], color=inv_colors[i],
+                        alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i], 
+            ax.plot(df[col[j]], color=colors[i],
                     alpha=1, label=col, linewidth=0.5)
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -263,14 +261,14 @@ def plot_figure2(data, colsdict, fill=True):
     ax = spkaxes[3]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i], 
-                            alpha=inv_alpha[i]/2) 
+        ax.fill_between(df.index, df[col], color=inv_colors[i],
+                        alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i], 
+            ax.plot(df[col[j]], color=colors[i],
                     alpha=1, label=col, linewidth=0.5)
     #labels
     for ax in axes:
@@ -351,7 +349,7 @@ def plot_half_figure2(data, colsdict):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(8, 8)) 
+    fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(4):
@@ -579,8 +577,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
         #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         if fill:
-            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i], 
-                            alpha=alpha[i]/2) 
+            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                            alpha=alpha[i]/2)
         else:
             for i, col in enumerate(cols[2:]):
                 for j in [0, 1]:
@@ -599,8 +597,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         if fill:
-            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i], 
-                            alpha=alpha[i]/2) 
+            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                            alpha=alpha[i]/2)
         else:
             for i, col in enumerate(cols[2:]):
                 for j in [0, 1]:
@@ -622,24 +620,24 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
     #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
     #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
-   
+
     #NB for spiking response, the control should be plotted last,
     # ie revert the order
     inv_colors = colors[::-1]
-    inv_alpha = alpha[::-1]    
+    inv_alpha = alpha[::-1]
     #popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[-2]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i], 
-                            alpha=inv_alpha[i]/2) 
+        ax.fill_between(df.index, df[col], color=inv_colors[i],
+                        alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i], 
+            ax.plot(df[col[j]], color=colors[i],
                     alpha=1, label=col, linewidth=0.5)
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -650,12 +648,12 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for i, col in enumerate(cols[:2][::-1]):
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
-        ax.fill_between(df.index, df[col], color=inv_colors[i], 
-                            alpha=inv_alpha[i]/2) 
+        ax.fill_between(df.index, df[col], color=inv_colors[i],
+                        alpha=inv_alpha[i]/2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i], 
+            ax.plot(df[col[j]], color=colors[i],
                     alpha=1, label=col, linewidth=0.5)
     ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -752,13 +750,13 @@ def plot_figure2B(sig=True):
     color_dic = {0 :'w', 1 : stdColors['rouge']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
-        if sig :
+        if sig:
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-                    color=colors, label=cols[i], alpha=0.8, width=0.8)
+                        color=colors, label=cols[i], alpha=0.8, width=0.8)
         else:
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-                    color=stdColors['rouge'], label=cols[i], 
-                    alpha=0.8, width=0.8)            
+                        color=stdColors['rouge'], label=cols[i],
+                        alpha=0.8, width=0.8)
         ax.set_xlabel('cell rank')
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
@@ -775,21 +773,21 @@ plot_figure2B()
 
 #%%
 #plt.close('all')
-                    
+
 def plot_figure3(kind):
     """
     plot_figure3
-    input : kind in ['pop': whole population, 'sig': individually significants 
+    input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = {'pop' : 'data/fig3.xlsx', 
-              'sig': 'data/fig3bis1.xlsx',
-              'nonsig': 'data/fig3bis2.xlsx'}
+    filenames = {'pop' : 'data/fig3.xlsx',
+                 'sig': 'data/fig3bis1.xlsx',
+                 'nonsig': 'data/fig3bis2.xlsx'}
     titles = {'pop' : 'recorded cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
     #samplesize
-    cellnumbers= {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     ncells = cellnumbers[kind]
     df = pd.read_excel(filenames[kind])
     #centering
@@ -841,14 +839,14 @@ def plot_figure3_signonsig():
     plot_figure3
     with individually significants and non significant cells
     """
-    filenames = {'pop' : 'data/fig3.xlsx', 
-              'sig': 'data/fig3bis1.xlsx',
-              'nonsig': 'data/fig3bis2.xlsx'}
+    filenames = {'pop' : 'data/fig3.xlsx',
+                 'sig': 'data/fig3bis1.xlsx',
+                 'nonsig': 'data/fig3bis2.xlsx'}
     titles = {'pop' : 'recorded cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
     #samplesize
-    cellnumbers= {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.6, 0.8, 0.5, 1, 0.6]
@@ -866,19 +864,19 @@ def plot_figure3_signonsig():
         df = df.loc[-15:30]
         cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
         df.columns = cols
-        
+
         ax = axes[i]
         ax.set_title(titles[kind])
         ncells = cellnumbers[kind]
         for j, col in enumerate(cols):
-            ax.plot(df[col], color=colors[j], alpha=alpha[j], 
+            ax.plot(df[col], color=colors[j], alpha=alpha[j],
                     label=col, linewidth=2)
             ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                         xycoords="axes fraction", ha='center')
         leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
                         handlelength=0)
         for line, text in zip(leg.get_lines(), leg.get_texts()):
-            text.set_color(line.get_color())    
+            text.set_color(line.get_color())
     axes[0].set_ylabel('normalized membrane potential')
     for ax in axes:
         ax.set_ylim(-0.1, 1.1)
