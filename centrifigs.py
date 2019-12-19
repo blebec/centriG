@@ -12,6 +12,8 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+from datetime import datetime
+
 #import math
 
 def go_to_dir():
@@ -334,6 +336,12 @@ def plot_figure2(data, colsdict, fill=True):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
     return fig
 
 data, content = load2()
@@ -517,6 +525,12 @@ def plot_half_figure2(data, colsdict):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 
@@ -724,6 +738,13 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    
     return fig
 
 plot_signonsig_figure2(data, content)
@@ -767,6 +788,12 @@ def plot_figure2B(sig=True):
     axes[0].set_ylabel('phase advance (ms)')
     axes[1].set_ylabel('delta response')
     fig.tight_layout()
+    
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
     return fig
 
 plot_figure2B()
@@ -824,6 +851,12 @@ def plot_figure3(kind):
     ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
     fig.tight_layout()
+    
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 
@@ -889,6 +922,12 @@ def plot_figure3_signonsig():
             ax.spines[loc].set_visible(False)
 
     fig.tight_layout()
+   
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3_signonsig',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 plot_figure3_signonsig()
@@ -935,6 +974,12 @@ def plot_figure4():
         text.set_color(line.get_color())
     ax.annotate("population average \n (n=12)", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4', 
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 fig = plot_figure4()
@@ -1052,6 +1097,12 @@ def plot_figure5():
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     fig.tight_layout()
+   
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
     return fig
 
 fig = plot_figure5()
@@ -1116,6 +1167,11 @@ def plot_figure6():
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
+
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1190,6 +1246,11 @@ def plot_speed_multigraph():
     fig.tight_layout()
     return fig
 
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_speed_multigraph', 
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
 fig = plot_speed_multigraph()
 
 
@@ -1228,6 +1289,12 @@ def plotSpeeddiff():
     ax.yaxis.set_visible(False)
     fig.legend()
     fig.tight_layout()
+
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plotSpeeddiff',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 fig = plotSpeeddiff()
