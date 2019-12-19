@@ -942,7 +942,7 @@ def plot_figure4():
     #OBSERVATION bottom raw 0 baseline has been decentered by police and ticks size changes
     df.index = df.index - middle
     df.index = df.index/10
-    cols = ['centerOnly', '100%', '70%', '80%', '50%']
+    cols = ['centerOnly', '100%', '70%', '50%', '30%']
     df.columns = cols
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
