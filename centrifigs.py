@@ -203,7 +203,7 @@ def plot_figure2(data, colsdict, fill=True):
         for i, col in enumerate(cols[2:]):
             if fill:
                 ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=alpha[i]/2)
+                                color=colors[i], alpha=0.2)#alpha[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
@@ -222,7 +222,7 @@ def plot_figure2(data, colsdict, fill=True):
         for i, col in enumerate(cols[2:]):
             if fill:
                 ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=alpha[i]/2)
+                                color=colors[i], alpha=0.2)#alpha[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
@@ -810,7 +810,7 @@ def plot_figure3(kind):
     filenames = {'pop' : 'data/fig3.xlsx',
                  'sig': 'data/fig3bis1.xlsx',
                  'nonsig': 'data/fig3bis2.xlsx'}
-    titles = {'pop' : 'recorded cells',
+    titles = {'pop' : 'all cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
     #samplesize
@@ -864,7 +864,7 @@ fig = plot_figure3('pop')
 fig = plot_figure3('sig')
 fig = plot_figure3('nonsig')
 
-
+#pop all cells
 #%% grouped sig and non sig
 
 def plot_figure3_signonsig():
@@ -946,9 +946,9 @@ def plot_figure4():
     df.columns = cols
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
-    alpha = [0.5, 1, 0.8, 0.8, 1]
+    alpha = [0.8, 1, 0.8, 0.8, 1]
 
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(8, 6))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -968,12 +968,12 @@ def plot_figure4():
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
+    leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
                     handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
     ax.annotate("population average \n (n=12)", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center')
+                xycoords="axes fraction", ha='left')
 
     date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4', 
@@ -983,7 +983,7 @@ def plot_figure4():
     return fig
 
 fig = plot_figure4()
-
+## alpha = 0.8, figsize = 8,6, ha = 'left'
 #%%
 plt.close('all')
 
@@ -1126,7 +1126,7 @@ def plot_figure6():
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
     colors = ['k', stdColors['rouge'], stdColors['bleu'],
               stdColors['violet'], stdColors['violet'], stdColors['violet']]
-    alpha = [0.5, 0.5, 0.5, 0.5, 0.5, 0.5]
+    alpha = [0.5, 0.5, 0.7, 0.5, 0.5, 0.5]
 
     fig = plt.figure(figsize=(12, 6))
    # fig.suptitle(os.path.basename(filename))
@@ -1203,8 +1203,9 @@ def plot_speed_multigraph():
     for i, ax in enumerate(left_axes):
         st = str('ax {}'.format(i))
         ax.annotate(st, (0.5, 0.5))
+        #ax.set_xtickslabels('', minor=False)    
     #(manipulate the left_axes list to reorder the plots if required)
-
+    #axes.set_xticklabels(labels, fontdict=None, minor=False)
     #plot left
 #    axes = axes[1:].append(axes[0])   # ctrl at the bottom
     cols = df.columns
@@ -1216,9 +1217,14 @@ def plot_speed_multigraph():
         ax.set_xlim(-140, 40)
         ax.set_ylim(-0.15, 0.25)
     #add labels
-    left_axes[2].set_ylabel('Normalized Membrane potential')
-    left_axes[-1].set_xlabel('Relative time to center-only onset (ms)')
-    left_axes[-1].xaxis.set_ticks(np.arange(-140, 41, 20))
+    left_axes[3].set_ylabel('Normalized Membrane potential')
+    left_axes[0].set_xlabel('Relative time to center-only onset (ms)')
+    left_axes[0].xaxis.set_ticks(np.arange(-140, 41, 20))
+    ticks = np.arange(-140,41,20)    
+    for i, ax in enumerate (left_axes[1:]):
+        ax.set_xticks(ticks, minor=False)
+        ax.tick_params(axis='x',labelsize=0)
+    
     #plot right
     for i, col in enumerate(df.columns):
         right_ax.plot(df.loc[40:100, [col]], color=colors[i],
