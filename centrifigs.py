@@ -927,6 +927,77 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     return fig
 
 plot_signonsig_figure2(data, content)
+#%% sigNonsig
+def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
+    """
+    plot_figure2
+    """
+    colors = ['k', stdColors['rouge']]
+    alpha = [0.8, 0.8]
+    # no individual : focus on initial response
+    df = data.loc[-30:35]
+
+    fig = plt.figure(figsize=(4, 4)) #fig = plt.figure(figsize=(8, 8))
+    #build axes with sharex and sharey
+    vmaxes = []
+    
+    vmaxes.append(fig.add_subplot(1, 1, 1))
+    # axes list
+    
+    cols = colsdict['popVmSig']
+    ax = vmaxes[0]
+    #ax.set_title('significative population')
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+                label=col)
+        #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        if fill:
+            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                            alpha=alpha[i]/2)
+        else:
+            for i, col in enumerate(cols[2:]):
+                for j in [0, 1]:
+                    ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                            label=col, linewidth=0.5)
+    #ax.annotate("n=10", xy=(0.2, 0.8),
+    #            xycoords="axes fraction", ha='center')
+    ylabels = ['normalized membrane potential']
+    for ax in vmaxes:
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+            
+    
+    ylabels = ylabels[0:]   # no individual exemple
+    for i, ax in enumerate(vmaxes):
+        ax.axes.get_xaxis().set_visible(True)
+        ax.spines['bottom'].set_visible(True)
+        ax.set_ylabel(ylabels[i])
+        
+    for ax in vmaxes:
+        ax.set_ylim(-0.10, 1.2)
+        ax.set_xlabel('Relative time (ms)')
+
+#    
+    for ax in vmaxes:
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    fig.tight_layout()
+    # remove the space between plots
+    #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    
+    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    #fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
+    #         ha='right', va='bottom', alpha=0.4)
+    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    
+    return fig
+
+plot_sigvm_figure2(data, content)
 #%% NB the length of the sorted data are not the same compared to the other traces
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
