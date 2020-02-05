@@ -50,7 +50,6 @@ params = {'font.sans-serif': ['Arial'],
           'axes.titlesize':'large',
           'xtick.labelsize':'large',
           'ytick.labelsize':'large',
-          'text.labelsize': 'large',
           'axes.xmargin': 0}
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
@@ -1816,7 +1815,7 @@ def plot_figSup1(kind):
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)    
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.2, 1.1)    
+    ax.set_ylim(-0.1, 1.1)    
     
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -1835,13 +1834,13 @@ def plot_figSup1(kind):
     return fig
 
 
-#fig = plot_figSup1('pop')
-#fig = plot_figSup1('sig')
+fig = plot_figSup1('pop')
+fig = plot_figSup1('sig')
 fig = plot_figSup1('nonsig')
 
 #pop all cells
 #%%
-#plt.close('all')
+plt.close('all')
 
 def plot_figSup2(kind):
     """
@@ -1894,10 +1893,7 @@ def plot_figSup2(kind):
     ax2.set_ylim(-0.2, 1.1)
     ax2.set_xlabel('Relative time (ms)')        
     
-    axes = []
-    for ax in fig.get_axes():
-        axes.append(ax)
-    
+#    axes = list(fig.get_axes())    
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
         #leg = ax.legend(loc=2, markerscale=None, frameon=False,
         #                handlelength=0)
@@ -1905,39 +1901,33 @@ def plot_figSup2(kind):
         #    text.set_color(line.get_color())
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
-    
-    for ax in axes:
+  
+    for ax in fig.get_axes():
+        ax.set_xlim(-15, 30)
+        ax.set_ylim(-0.2, 1.1)     
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.1)
         lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.1)
-   
-    for ax in fig.get_axes():
+        ax.hlines(0, lims[0], lims[1], alpha=0.1)    
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-            ax.set_xlim(-15, 30)
-            lims = ax.get_ylim()
-            ax.vlines(0, lims[0], lims[1], alpha=0.1)
-            lims = ax.get_xlim()
-            ax.hlines(0, lims[0], lims[1], alpha=0.1)    
-            ax.hlines(0, lims[0], lims[1], alpha=0.1)
-            ax.set_ylim(-0.2, 1.1)     
     
     fig.tight_layout()
     fig.text(-0.04, 0.6, 'Normalized membrane potential', fontsize = 16, va= 'center', rotation = 'vertical')        
     # remove the space between plots
     fig.subplots_adjust(hspace=0.1)
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
-
 
 fig = plot_figSup2('pop')
 #fig = plot_figSup2('sig')
 #fig = plot_figSup2('nonsig')
 #%%
+plt.close('all')
+
 def plot_figSup4(kind, stimmode):
     """
     plot_figure Sup 4
@@ -1988,8 +1978,7 @@ def plot_figSup4(kind, stimmode):
     #ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)    
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.2, 1.1)    
+    ax.set_ylim(-0.1, 1.1)    
     
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -1999,10 +1988,10 @@ def plot_figSup4(kind, stimmode):
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
     fig.tight_layout()
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
