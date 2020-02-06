@@ -1640,7 +1640,7 @@ df.set_index('time', inplace=True)
 
 def plot_speed_multigraph():
     """
-    plot the speed effect of centirgabor protocol
+    plot the speed effect of centrigabor protocol
     """
     fig = plt.figure(figsize=(12, 8))
     fig.suptitle('Aligned on Center-Only stimulus onset (t=0 ms)')
@@ -1762,7 +1762,7 @@ fig = plotSpeeddiff()
 
 def plot_figSup1(kind):
     """
-    plot_figure3
+    plot supplementary figure 1 : Vm with random Sector control
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
@@ -1836,7 +1836,7 @@ plt.close('all')
 
 def plot_figSup2(kind):
     """
-    plot_figuresup2
+    plot supplementary figure 2: Vm all conditions of FULL stimulation
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
@@ -1921,13 +1921,13 @@ fig = plot_figSup2('pop')
 #%%
 plt.close('all')
 
-def plot_figSup4(kind, stimmode):
+def plot_figSup5(kind, stimmode):
     """
-    plot_figure Sup 4
+    plot supplementary figure 4: All conditions spiking responses of Sector and Full stimulations 
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = {'pop' : 'data/figSup4Spk.xlsx'}#,
+    filenames = {'pop' : 'data/figSup5Spk.xlsx'}#,
                  #'sig': 'data/figSup1bis.xlsx',
                  #'nonsig': 'data/figSup1bis2.xlsx'}
     titles = {'pop' : 'all cells'}#,
@@ -1991,7 +1991,7 @@ def plot_figSup4(kind, stimmode):
 
 
 #fig = plot_figSup4('pop', 'sec')
-fig = plot_figSup4('pop', 'ful')
+fig = plot_figSup5('pop', 'ful')
 
 #fig = plot_figSup1('sig')
 #fig = plot_figSup1('nonsig')
