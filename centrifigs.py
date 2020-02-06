@@ -16,6 +16,12 @@ from datetime import datetime
 
 #import math
 
+#===========================
+# global setup
+font_size = 'medium' # large, medium
+anot = True         # to draw the date and name on the bottom of the plot
+#============================
+
 def go_to_dir():
     """
     to go to the pg and file directory (spyder use)
@@ -41,15 +47,15 @@ stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
 speedColors = {'orangeFonce' :     [x/256 for x in [252, 98, 48]],
                'orange' : [x/256 for x in [253, 174, 74]],
                'jaune' : [x/256 for x in [254, 226, 137]]}
-# define the font size to be used
+
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
-          'legend.fontsize': 'large',
+          'legend.fontsize': font_size,
           'figure.figsize': (15, 5),
-          'axes.labelsize': 'large',
-          'axes.titlesize':'large',
-          'xtick.labelsize':'large',
-          'ytick.labelsize':'large',
+          'axes.labelsize': font_size,
+          'axes.titlesize': font_size,
+          'xtick.labelsize': font_size,
+          'ytick.labelsize': font_size,
           'axes.xmargin': 0}
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
@@ -337,12 +343,11 @@ def plot_figure2(data, colsdict, fill=True):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 data, content = load2()
@@ -526,15 +531,14 @@ def plot_half_figure2(data, colsdict):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
-
-
 
 fig = plot_half_figure2(data, content)
 #%%
@@ -571,19 +575,17 @@ def plot_1quarter_figure2(data, colsdict):
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
     #____ plots pop (column 1-3)
-    
-    
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     ylabels = ['Membrane potential (mV)']
-    
+
     vmaxes.axes.get_xaxis().set_visible(False)
     vmaxes.spines['bottom'].set_visible(False)
     vmaxes.set_ylabel(ylabels[0])
     ylabels = ['Firing rate (spikes/s)']
-    
+
     spkaxes.set_ylabel(ylabels[0])
     spkaxes.set_xlabel('Time (ms)')
 
@@ -612,8 +614,6 @@ def plot_1quarter_figure2(data, colsdict):
     #fit individual example
     vmaxes.set_ylim(-3, 12)
     spkaxes.set_ylim(-5.5, 17.5)
-    
-    
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -623,14 +623,14 @@ def plot_1quarter_figure2(data, colsdict):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_1quarter_figure2',
-             #ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_1quarter_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
-
 
 
 fig = plot_1quarter_figure2(data, content)
@@ -652,9 +652,9 @@ def plot_2quarter_figure2(data, colsdict):
     # axes list
     vmaxes = axes[0]      # vm axes = top row
     spkaxes = axes[1]     # spikes axes = bottom row
-    
+
     #____ plots pop (column 1-3)
-    
+
     df = data.loc[-30:35]       # limit xscale
     # pop vm
     cols = colsdict['popVm']
@@ -663,8 +663,8 @@ def plot_2quarter_figure2(data, colsdict):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center', fontsize ='large')
-#    
+                xycoords="axes fraction", ha='center', fontsize='large')
+
     #pop spike
     cols = colsdict['popSpk']
     ax = spkaxes
@@ -674,21 +674,20 @@ def plot_2quarter_figure2(data, colsdict):
         ax.fill_between(df.index, df[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center', fontsize ='large')
+                xycoords="axes fraction", ha='center', fontsize='large')
 
-    
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     ylabels = ['Normalized membrane potential',
                'Normalized firing rate']
-               
+
     vmaxes.axes.get_xaxis().set_visible(False)
     vmaxes.spines['bottom'].set_visible(False)
     vmaxes.set_ylabel(ylabels[0])
     spkaxes.set_ylabel(ylabels[1])
-    
+
     vmaxes.set_ylim(-0.1, 1)
     spkaxes.set_ylim(-0.1, 1)
     spkaxes.set_xlabel('Relative time')
@@ -705,11 +704,12 @@ def plot_2quarter_figure2(data, colsdict):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -917,13 +917,13 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
-    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 plot_signonsig_figure2(data, content)
@@ -940,10 +940,10 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
     fig = plt.figure(figsize=(4, 4)) #fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     vmaxes = []
-    
+
     vmaxes.append(fig.add_subplot(1, 1, 1))
     # axes list
-    
+
     cols = colsdict['popVmSig']
     ax = vmaxes[0]
     #ax.set_title('significative population')
@@ -964,23 +964,13 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
     #ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     ylabels = ['normalized membrane potential']
-    for ax in vmaxes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-            
-    
-    ylabels = ylabels[0:]   # no individual exemple
     for i, ax in enumerate(vmaxes):
+        for loca in ['top', 'right', 'bottom']:
+            ax.spines[loca].set_visible(False)
         ax.axes.get_xaxis().set_visible(True)
-        ax.spines['bottom'].set_visible(True)
         ax.set_ylabel(ylabels[i])
-        
-    for ax in vmaxes:
         ax.set_ylim(-0.10, 1.2)
         ax.set_xlabel('Relative time (ms)')
-
-#    
-    for ax in vmaxes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
@@ -988,13 +978,11 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
     fig.tight_layout()
     # remove the space between plots
     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 plot_sigvm_figure2(data, content)
@@ -1002,7 +990,7 @@ plot_sigvm_figure2(data, content)
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
 
-def plot_figure2B(pltmode,sig=True):
+def plot_figure2B(pltmode, sig=True):
     """
     plot_figure2B : ranked phase advance and delta response
     sig=boolan : true <-> shown cell signification
@@ -1013,10 +1001,10 @@ def plot_figure2B(pltmode,sig=True):
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
 
-    if (pltmode == 'horizontal'):
+    if pltmode == 'horizontal':
         fig = plt.figure(figsize=(8, 3))
     else:
-        if (pltmode == 'vertical'):
+        if pltmode == 'vertical':
             fig = plt.figure(figsize=(6, 6))
     #build axes
     axes = []
@@ -1024,12 +1012,11 @@ def plot_figure2B(pltmode,sig=True):
         if pltmode == 'horizontal':
             axes.append(fig.add_subplot(1, 2, i+1))
         else:
-            if pltmode =='vertical':
+            if pltmode == 'vertical':
                 axes.append(fig.add_subplot(2, 1, i+1))
-                
+
     color_dic = {0 :'w', 1 : stdColors['rouge']}
     for i, ax in enumerate(axes):
-        
         colors = [color_dic[x] for x in df[signs[i]]]
         if sig:
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
@@ -1038,13 +1025,13 @@ def plot_figure2B(pltmode,sig=True):
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                         color=stdColors['rouge'], label=cols[i],
                         alpha=0.8, width=0.8)
-        if (pltmode == 'horizontal'):
+        if pltmode == 'horizontal':
             ax.set_xlabel('cell rank')
         else:
-            if (pltmode == 'vertical'):
-                if (i == 1):
+            if pltmode == 'vertical':
+                if i == 1:
                     ax.set_xlabel('cell rank')
-        axes[i].set_xlim(1,37.7)            
+        axes[i].set_xlim(1, 37.7)
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
         lims = ax.get_xlim()
@@ -1054,12 +1041,13 @@ def plot_figure2B(pltmode,sig=True):
     axes[0].set_ylabel('phase advance (ms)')
     axes[1].set_ylabel('delta response')
     fig.tight_layout()
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    if (pltmode == 'vertical'):
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    if pltmode == 'vertical':
         fig.align_ylabels(axes[0:])
     return fig
 
@@ -1099,7 +1087,7 @@ def plot_figure3(kind):
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        #if (i == 0) or (i == 4):        
+        #if (i == 0) or (i == 4):
             #ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
         ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
@@ -1112,23 +1100,23 @@ def plot_figure3(kind):
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     #ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)    
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.2, 1.1)    
-    
+    ax.set_ylim(-0.2, 1.1)
+
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                handlelength=0)
+                    handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
     fig.tight_layout()
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1195,11 +1183,12 @@ def plot_figure3_signonsig():
             ax.spines[loc].set_visible(False)
 
     fig.tight_layout()
-   
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3_signonsig',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3_signonsig',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1248,10 +1237,11 @@ def plot_figure4():
     ax.annotate("population average \n (n=12)", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='left')
 
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4', 
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1370,12 +1360,13 @@ def plot_figure5():
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     fig.tight_layout()
-   
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 fig = plot_figure5()
@@ -1413,7 +1404,7 @@ def plot_figure5half1():
     ax1.spines['bottom'].set_visible(True)
     ax1.axes.get_xaxis().set_visible(True)
     ax1.set_xlabel('Time (ms)')
-    
+
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
@@ -1439,14 +1430,13 @@ def plot_figure5half1():
 
     st = 'Surround then center'
     ax1.annotate(st, xy=(30, vlocs[1]), color=colors[1],
-                 annotation_clip=False, fontsize='small', alpha = 1)
+                 annotation_clip=False, fontsize='small', alpha=1)
     st = 'Center only'
     ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0],
-                 annotation_clip=False, fontsize='small', alpha = 1)
+                 annotation_clip=False, fontsize='small', alpha=1)
         # see annotation_clip=False
     ax1.set_ylim(-1.8, 4.5)
 
-    
     for ax in fig.get_axes():
         leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
                         handlelength=0)
@@ -1464,12 +1454,13 @@ def plot_figure5half1():
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.5)
     fig.tight_layout()
-   
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5half1',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 fig = plot_figure5half1()
@@ -1495,14 +1486,14 @@ def plot_figure5half2():
     # color parameters
     colors = ['k', stdColors['rouge'], stdColors['rouge'], stdColors['vertSombre']]
     alpha = [0.5, 0.5, 1, 1]
-    linewidth = [2,2,4,1]
+    linewidth = [2, 2, 4, 1]
     #plotting
     fig = plt.figure(figsize=(9, 12))
-    
+
     ax2 = fig.add_subplot(211)#, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
         ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                 label=col, linewidth = linewidth[i])
+                 label=col, linewidth=linewidth[i])
 
     ax2.set_xlabel('Time (ms)')
     # stims
@@ -1537,11 +1528,9 @@ def plot_figure5half2():
                      alpha=0.5, edgecolor='w', facecolor=colors[0])
     ax2.add_patch(rect)
     for i, st in enumerate(['Surround only', 'Surround then center', 'Center only']):
-        ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i], alpha = alpha[2-i],
+        ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i], alpha=alpha[2-i],
                      annotation_clip=False, fontsize='small')
-                     
     ax2.set_ylim(-1.8, 4.5)
-    
     for ax in fig.get_axes():
         leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
                         handlelength=0)
@@ -1559,12 +1548,13 @@ def plot_figure5half2():
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.5)
     fig.tight_layout()
-   
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5half2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
     return fig
 
 fig = plot_figure5half2()
@@ -1629,10 +1619,11 @@ def plot_figure6():
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
 
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1664,7 +1655,7 @@ def plot_speed_multigraph():
     for i, ax in enumerate(left_axes):
         st = str('ax {}'.format(i))
         ax.annotate(st, (0.5, 0.5))
-        #ax.set_xtickslabels('', minor=False)    
+        #ax.set_xtickslabels('', minor=False)
     #(manipulate the left_axes list to reorder the plots if required)
     #axes.set_xticklabels(labels, fontdict=None, minor=False)
     #plot left
@@ -1681,11 +1672,11 @@ def plot_speed_multigraph():
     left_axes[3].set_ylabel('Normalized Membrane potential')
     left_axes[0].set_xlabel('Relative time to center-only onset (ms)')
     left_axes[0].xaxis.set_ticks(np.arange(-140, 41, 40))
-    ticks = np.arange(-140,41,20)    
-    for i, ax in enumerate (left_axes[1:]):
+    ticks = np.arange(-140, 41, 20)
+    for i, ax in enumerate(left_axes[1:]):
         ax.set_xticks(ticks, minor=False)
-        ax.tick_params(axis='x',labelsize=0)
-    
+        ax.tick_params(axis='x', labelsize=0)
+
     #plot right
     for i, col in enumerate(df.columns):
         right_ax.plot(df.loc[40:100, [col]], color=colors[i],
@@ -1713,13 +1704,13 @@ def plot_speed_multigraph():
     fig.tight_layout()
     return fig
 
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_speed_multigraph', 
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_speed_multigraph',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
 fig = plot_speed_multigraph()
-
 
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
@@ -1757,11 +1748,11 @@ def plotSpeeddiff():
     fig.legend()
     fig.tight_layout()
 
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plotSpeeddiff',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plotSpeeddiff',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 fig = plotSpeeddiff()
@@ -1800,7 +1791,7 @@ def plot_figSup1(kind):
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        #if (i == 0) or (i == 4):        
+        #if (i == 0) or (i == 4):
             #ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
         ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
@@ -1813,23 +1804,24 @@ def plot_figSup1(kind):
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     #ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)    
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.1, 1.1)    
-    
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax.set_ylim(-0.1, 1.1)
+
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                handlelength=0)
+                    handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
     fig.tight_layout()
-    
-    #date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    #fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-    #         ha='right', va='bottom', alpha=0.4)
-    #fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup1',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1867,33 +1859,31 @@ def plot_figSup2(kind):
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
- 
+
     fig = plt.figure(figsize=(6, 10))
     #fig.suptitle(titles[kind])
     #fig, ax = plt.subplots(nrows = 2, ncols = 1, sharex = True, sharey = True, figsize = (8,7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols):
-        if (i == 0) or (i == 1) or (i == 4):        
+        if i in (0, 1, 4):
             ax1.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-    
     ax1.axes.get_xaxis().set_visible(False)
     ax1.spines['bottom'].set_visible(False)
     #ax1.set_ylabel('Normalized membrane potential')
-    ax1.set_ylim(-0.2, 1.1)    
-    
-    
-    ax2 = fig.add_subplot(212, sharex = ax1, sharey = ax1)
+    ax1.set_ylim(-0.2, 1.1)
+
+    ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
-        if (i == 0) or (i == 1) or (i == 3):        
+        if i in (0, 1, 3):
             ax2.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-    
+
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
     #ax2.set_ylabel('Normalized membrane potential')
     ax2.set_ylim(-0.2, 1.1)
-    ax2.set_xlabel('Relative time (ms)')        
-    
-#    axes = list(fig.get_axes())    
+    ax2.set_xlabel('Relative time (ms)')
+
+#    axes = list(fig.get_axes())
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
         #leg = ax.legend(loc=2, markerscale=None, frameon=False,
         #                handlelength=0)
@@ -1901,25 +1891,28 @@ def plot_figSup2(kind):
         #    text.set_color(line.get_color())
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
-  
+
     for ax in fig.get_axes():
         ax.set_xlim(-15, 30)
-        ax.set_ylim(-0.2, 1.1)     
+        ax.set_ylim(-0.2, 1.1)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.1)
         lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.1)    
+        ax.hlines(0, lims[0], lims[1], alpha=0.1)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-    
+
     fig.tight_layout()
-    fig.text(-0.04, 0.6, 'Normalized membrane potential', fontsize = 16, va= 'center', rotation = 'vertical')        
+    fig.text(-0.04, 0.6, 'Normalized membrane potential', fontsize=16,
+             va='center', rotation='vertical')
     # remove the space between plots
     fig.subplots_adjust(hspace=0.1)
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 fig = plot_figSup2('pop')
@@ -1959,14 +1952,14 @@ def plot_figSup4(kind, stimmode):
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
-    if (stimmode == 'sec'):
+    if stimmode == 'sec':
         for i, col in enumerate(cols[:5]):
             ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
     else:
-        if (stimmode == 'ful'):
+        if stimmode == 'ful':
             for i, col in enumerate(cols[5:]):
                 ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-        
+
     ax.set_ylabel('Normalized firing rate')
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
@@ -1977,21 +1970,22 @@ def plot_figSup4(kind, stimmode):
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     #ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)    
-    ax.set_ylim(-0.1, 1.1)    
-    
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax.set_ylim(-0.1, 1.1)
+
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                handlelength=0)
+                    handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
     #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
     fig.tight_layout()
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
