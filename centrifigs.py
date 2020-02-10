@@ -1995,3 +1995,48 @@ fig = plot_figSup5('pop', 'ful')
 
 #fig = plot_figSup1('sig')
 #fig = plot_figSup1('nonsig')
+
+
+#%% fig supp3 bars
+def convert_to_snake(camel_str):
+    temp_list = []
+    for letter in camel_str:
+        if letter.islower():
+            temp_list.append(letter)
+        elif letter.isdigit():
+            temp_list.append(letter)            
+        else:
+            temp_list.append('_')
+            temp_list.append(letter)
+    result = "".join(temp_list)
+    return result.lower()
+
+def print_keys(alist):
+    keys = []
+    for item in alist:
+        for key in item.split('_'):
+            if key not in keys:
+                keys.append(key)
+    print(keys)
+    
+def build_keys_list(alist):
+    # build a list of keys
+    keys = []
+    for i in range(7):
+        keys.append([])
+    for item in alist:
+        for i, key in enumerate(item.split('_')):
+            if key not in keys[i]:
+                keys[i].append(key)
+    print(keys)
+    return keys
+
+filename = 'data/figSup34Spk.xlsx'
+df = pd.read_excel(filename)
+df.set_index('Neuron', inplace=True)
+cols = df.columns
+conditions = [convert_to_snake(item) for item in cols]
+conditions = [item.replace('vms', 'vm_s_') for item in conditions]
+conditions = [item.replace('vmf', 'vm_f_') for item in conditions]
+print_keys(conditions)
+build_keys_list(conditions)
