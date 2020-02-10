@@ -2091,52 +2091,74 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
         leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
         res_dico[leg_cond] = [pop_num, signi_num, percent]
     return res_dico
-    
-fig = plt.figure()
-ax = fig.add_subplot(221)
-ax.set_title('latency advance')
-stim = 's'
-mes='lat'
-res_dico = extract_values(df, stim, mes) 
-x = [str(res_dico[item][1]) for item in res_dico.keys()]
-x = res_dico.keys()
-height = [res_dico[item][-1] for item in res_dico.keys()]
-colors = colors
-ax.bar(x, height, color=colors, width=0.9)
-ax.set_ylabel('SECTOR')
 
-ax = fig.add_subplot(222)
-ax.set_title('delta response')
-stim = 's'
-mes='gain'
-res_dico = extract_values(df, stim, mes) 
-x = [str(res_dico[item][1]) for item in res_dico.keys()]
-height = [res_dico[item][-1] for item in res_dico.keys()]
-colors = colors
-ax.bar(x, height, color=colors, width=0.9)
+def autolabel(rects):
+    # attach some text labels
+    for rect in rects:
+        height = rect.get_height()
+        ax.text(rect.get_x() + rect.get_width()/2., 1.05*height,
+                '%d' % int(height) + '%' ,
+                ha='center', va='bottom')
 
-ax = fig.add_subplot(223)
-stim = 'f'
-mes='lat'
-res_dico = extract_values(df, stim, mes) 
-x = [str(res_dico[item][1]) for item in res_dico.keys()]
-height = [res_dico[item][-1] for item in res_dico.keys()]
-colors = colors
-ax.bar(x, height, color=colors, width=0.9)
-ax.set_ylabel('FULL')
+def plot_cell_contribution(df):
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    fig = plt.figure(figsize=(8,8))
+    ax = fig.add_subplot(221)
+    ax.set_title('latency advance (nb cells)')
+    stim = 's'
+    mes='lat'
+    res_dico = extract_values(df, stim, mes) 
+    x = [str(res_dico[item][1]) for item in res_dico.keys()]
+    x = res_dico.keys()
+    height = [res_dico[item][-1] for item in res_dico.keys()]
+    colors = colors
+    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
+    autolabel(bar)
+    ax.set_ylabel('SECTOR')
+    ax.xaxis.set_visible(False)
 
-ax = fig.add_subplot(224)
-stim = 'f'
-mes='gain'
-res_dico = extract_values(df, stim, mes) 
-x = [str(res_dico[item][1]) for item in res_dico.keys()]
-x = res_dico.keys()
-height = [res_dico[item][-1] for item in res_dico.keys()]
-colors = colors
-ax.bar(x, height, color=colors, width=0.9)
+    ax = fig.add_subplot(222)
+    ax.set_title('delta response (nb cells)')
+    stim = 's'
+    mes='gain'
+    res_dico = extract_values(df, stim, mes) 
+    x = [str(res_dico[item][1]) for item in res_dico.keys()]
+    x = res_dico.keys()
+    height = [res_dico[item][-1] for item in res_dico.keys()]
+    colors = colors
+    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
+    autolabel(bar)
+    ax.xaxis.set_visible(False)
 
+    ax = fig.add_subplot(223)
+    stim = 'f'
+    mes='lat'
+    res_dico = extract_values(df, stim, mes) 
+    x = [str(res_dico[item][1]) for item in res_dico.keys()]
+    x = res_dico.keys()
+    height = [res_dico[item][-1] for item in res_dico.keys()]
+    colors = colors
+    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
+    autolabel(bar)
+    ax.set_ylabel('FULL')
 
-for ax in fig.get_axes():
-    for loca in ['left', 'top', 'right']:
-        ax.spines[loca].set_visible(False)
-    ax.yaxis.set_visible(False)
+    ax = fig.add_subplot(224)
+    stim = 'f'
+    mes='gain'
+    res_dico = extract_values(df, stim, mes) 
+    x = [str(res_dico[item][1]) for item in res_dico.keys()]
+    x = res_dico.keys()
+    height = [res_dico[item][-1] for item in res_dico.keys()]
+    colors = colors
+    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
+    autolabel(bar)
+    for ax in fig.get_axes():
+        for loca in ['left', 'top', 'right']:
+            ax.spines[loca].set_visible(False)
+            ax.tick_params(axis='x', labelrotation=45)
+            ax.yaxis.set_ticklabels([])
+            ax.tick_params(axis = 'y', length=0)
+    fig.tight_layout()
+
+plot_cell_contribution(df)
