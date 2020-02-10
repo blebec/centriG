@@ -2080,7 +2080,7 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
     restricted_list = [item for item in cols if stim in item and mes in item]
     adf = df[restricted_list]
     #compute values
-    records = [item for item in sec_lat if 'indisig' not in item]
+    records = [item for item in restricted_list if 'indisig' not in item]
     res_dico = {} 
     for cond in records:
         #cond = rec[0]
@@ -2099,9 +2099,42 @@ stim = 's'
 mes='lat'
 res_dico = extract_values(df, stim, mes) 
 x = [str(res_dico[item][1]) for item in res_dico.keys()]
+x = res_dico.keys()
 height = [res_dico[item][-1] for item in res_dico.keys()]
 colors = colors
 ax.bar(x, height, color=colors, width=0.9)
+ax.set_ylabel('SECTOR')
+
+ax = fig.add_subplot(222)
+ax.set_title('delta response')
+stim = 's'
+mes='gain'
+res_dico = extract_values(df, stim, mes) 
+x = [str(res_dico[item][1]) for item in res_dico.keys()]
+height = [res_dico[item][-1] for item in res_dico.keys()]
+colors = colors
+ax.bar(x, height, color=colors, width=0.9)
+
+ax = fig.add_subplot(223)
+stim = 'f'
+mes='lat'
+res_dico = extract_values(df, stim, mes) 
+x = [str(res_dico[item][1]) for item in res_dico.keys()]
+height = [res_dico[item][-1] for item in res_dico.keys()]
+colors = colors
+ax.bar(x, height, color=colors, width=0.9)
+ax.set_ylabel('FULL')
+
+ax = fig.add_subplot(224)
+stim = 'f'
+mes='gain'
+res_dico = extract_values(df, stim, mes) 
+x = [str(res_dico[item][1]) for item in res_dico.keys()]
+x = res_dico.keys()
+height = [res_dico[item][-1] for item in res_dico.keys()]
+colors = colors
+ax.bar(x, height, color=colors, width=0.9)
+
 
 for ax in fig.get_axes():
     for loca in ['left', 'top', 'right']:
