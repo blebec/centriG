@@ -2032,11 +2032,14 @@ def build_keys_list(alist):
     return keys
 
 filename = 'data/figSup34Spk.xlsx'
+filename = 'data/figSup34Vm.xlsx'
 df = pd.read_excel(filename)
 df.set_index('Neuron', inplace=True)
 cols = df.columns
 conditions = [convert_to_snake(item) for item in cols]
 conditions = [item.replace('vms', 'vm_s_') for item in conditions]
 conditions = [item.replace('vmf', 'vm_f_') for item in conditions]
+conditions = [item.replace('spks', 'spk_s_') for item in conditions]
+conditions = [item.replace('spkf', 'spk_f_') for item in conditions]
 print_keys(conditions)
 build_keys_list(conditions)
