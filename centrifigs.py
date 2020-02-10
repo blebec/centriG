@@ -1916,14 +1916,12 @@ def plot_figSup2(kind):
     return fig
 
 fig = plot_figSup2('pop')
-#fig = plot_figSup2('sig')
-#fig = plot_figSup2('nonsig')
 #%%
 plt.close('all')
 
 def plot_figSup5(kind, stimmode):
     """
-    plot supplementary figure 4: All conditions spiking responses of Sector and Full stimulations 
+    plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations 
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
@@ -1995,7 +1993,140 @@ fig = plot_figSup5('pop', 'ful')
 
 #fig = plot_figSup1('sig')
 #fig = plot_figSup1('nonsig')
+#%%
+plt.close('all')
 
+def plot_figSup6(kind):
+    """
+    plot supplementary figure 6: Vm all conditions of surround-only stimulation CP-ISO sig
+    input : kind in ['minus': Surround-then-center - Center Only Vs Surround-Only,
+    'plus': Surround-Only + Center only Vs Surround-then-center]
+    """
+    filenames = {'minus' : 'data/figSup6.xlsx',
+                 'plus': 'data/figSup6Alt.xlsx'}
+                 
+    titles = {'minus': 'Surround-then-center minus center only',
+              'plus'  : 'Surround-only plus center-only'} 
+              
+    
+    yliminf = {'minus': -0.15,
+               'plus': -0.08}
+    ylimsup = {'minus': 0.4,
+               'plus' : 1.14}          
+    
+    #samplesize
+    cellnumbers = {'minus' : 12, 'plus': 12} 
+    ncells = cellnumbers[kind]
+    ylimtinf = yliminf[kind]
+    ylimtsup = ylimsup[kind]
+    df = pd.read_excel(filenames[kind])
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CP-Iso-Stc', 'CP-Iso-Stc-SeUp', 'CP-Iso-Stc-SeDw', 'CP-Iso-Stc-Dlp',
+            'CF-Iso-Stc', 'CF-Iso-Stc-SeUp', 'CF-Iso-Stc-SeDw', 'CF-Iso-Stc-Dlp',
+            'CP-Cross-Stc', 'CP-Cross-Stc-SeUp', 'CP-Cross-Stc-SeDw', 'CP-Cross-Stc-Dlp',
+            'RND-Iso-Stc', 'RND-Iso-Stc-SeUp', 'RND-Iso-Stc-SeDw', 'RND-Iso-Stc-Dlp']
+    df.columns = cols
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns    
+    
+    colors = [stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+             
+    stdColors1 = {'dark_rouge' : [x/256 for x in [115, 0, 34]],
+                  'dark_vert' : [x/256 for x in [10, 146, 13]],
+                  'dark_jaune' :	[x/256 for x in [163, 133, 16]],  
+                  'dark_bleu' :	[x/256 for x in [14, 73, 118]]}
+    colors1 = [stdColors1['dark_rouge'], stdColors1['dark_vert'],
+               stdColors1['dark_jaune'], stdColors1['dark_bleu']]
+    alpha = [0.7, 0, 0, 0.7]
+
+    fig = plt.figure(figsize=(6, 16))
+    
+    j = int
+    ax1 = fig.add_subplot(411)
+    for i in [0,1,2]:
+        ax1.plot(df[df.columns[i]], color= colors[i], alpha=alpha[i], label=df.columns[i], linewidth=2)
+    for i in [3]:
+        ax1.plot(df[df.columns[i]], color= colors1[i-i], alpha=alpha[i-i], label=df.columns[i], linewidth=2)
+    ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
+                     color=colors[0], alpha=0.2)
+   
+    x = [4,5,6]
+    y = [0,1,2]
+    zipped = zip(x,y)
+    ax2 = fig.add_subplot(412)
+    for i,j in zipped:
+        ax2.plot(df[df.columns[i]], color= colors[i-i+1], alpha=alpha[j], label=df.columns[i], linewidth=2)
+    for i in [7]:
+        ax2.plot(df[df.columns[i]], color= colors1[i-i+1], alpha=alpha[0], label=df.columns[i], linewidth=2)
+    ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
+                     color=colors[1], alpha=0.2)    
+    
+    x = [8,9,10]
+    y = [0,1,2]
+    zipped = zip (x,y)
+    ax3 = fig.add_subplot(413)
+    for i,j in zipped:
+        ax3.plot(df[df.columns[i]], color= colors[i-i+2], alpha=alpha[j], label=df.columns[i], linewidth=2)
+    for i in [11]:
+        ax3.plot(df[df.columns[i]], color= colors1[i-i+2], alpha=alpha[0], label=df.columns[i], linewidth=2)
+    ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
+                     color=colors[2], alpha=0.2)    
+    
+    x = [12,13,14]
+    zipped = zip (x,y)
+    ax4 = fig.add_subplot(414)
+    for i,j in zipped:
+        ax4.plot(df[df.columns[i]], color= colors[i-i+3], alpha=alpha[j], label=df.columns[i], linewidth=2)
+    for i in [15]:
+        ax4.plot(df[df.columns[i]], color= colors1[i-i+3], alpha=alpha[0], label=df.columns[i], linewidth=2)
+    ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
+                     color=colors[3], alpha=0.2)    
+    
+    
+    for ax in fig.get_axes():
+        ax.set_xlim(-150, 150)
+        ax.set_ylim(ylimtinf, ylimtsup)
+        ax.get_xaxis().set_visible(False)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.1)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.1)
+        for loc in ['top', 'bottom', 'right']:
+            ax.spines[loc].set_visible(False)
+   
+    ax4.axes.get_xaxis().set_visible(True)   
+    ax4.spines['bottom'].set_visible(True)
+    ax4.set_xlabel('Relative time (ms)')
+    
+    ##axes = list(fig.get_axes())
+    ##leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+        ##leg = ax.legend(loc=2, markerscale=None, frameon=False,
+        ##                handlelength=0)
+        ##for line, text in zip(leg.get_lines(), leg.get_texts()):
+        ##    text.set_color(line.get_color())
+    ##ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    ##            xycoords="axes fraction", ha='center')
+
+    fig.tight_layout()
+    fig.text(-0.04, 0.5, 'Normalized membrane potential', fontsize=16,
+             va='center', rotation='vertical')
+    # remove the space between plots
+    fig.subplots_adjust(hspace=0.1)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup6',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig = plot_figSup6('minus')
+fig = plot_figSup6('plus')
 
 #%% fig supp3 bars
 
