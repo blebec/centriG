@@ -1998,20 +1998,30 @@ fig = plot_figSup5('pop', 'ful')
 
 
 #%% fig supp3 bars
-def convert_to_snake(camel_str):
-    temp_list = []
-    for letter in camel_str:
-        if letter.islower():
-            temp_list.append(letter)
-        elif letter.isdigit():
-            temp_list.append(letter)            
-        else:
-            temp_list.append('_')
-            temp_list.append(letter)
-    result = "".join(temp_list)
-    return result.lower()
+
+def new_columns_names(cols):
+    def convert_to_snake(camel_str):
+        """ camel case to snake case """
+        temp_list = []
+        for letter in camel_str:
+            if letter.islower():
+                temp_list.append(letter)
+            elif letter.isdigit():
+                temp_list.append(letter)            
+            else:
+                temp_list.append('_')
+                temp_list.append(letter)
+        result = "".join(temp_list)
+        return result.lower()
+    newcols = [convert_to_snake(item) for item in cols]
+    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
+    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
+    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
+    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
+    return newcols
 
 def print_keys(alist):
+    """ build a list of the keys defining a stimulation """
     keys = []
     for item in alist:
         for key in item.split('_'):
@@ -2020,7 +2030,10 @@ def print_keys(alist):
     print(keys)
     
 def build_keys_list(alist):
-    # build a list of keys
+    """ 
+    build a list to use the name of the file:
+       [[vm, spk], [s, f], [], [] ...]
+    """
     keys = []
     for i in range(7):
         keys.append([])
@@ -2028,18 +2041,69 @@ def build_keys_list(alist):
         for i, key in enumerate(item.split('_')):
             if key not in keys[i]:
                 keys[i].append(key)
-    print(keys)
     return keys
+
 
 filename = 'data/figSup34Spk.xlsx'
 filename = 'data/figSup34Vm.xlsx'
+
 df = pd.read_excel(filename)
 df.set_index('Neuron', inplace=True)
-cols = df.columns
-conditions = [convert_to_snake(item) for item in cols]
-conditions = [item.replace('vms', 'vm_s_') for item in conditions]
-conditions = [item.replace('vmf', 'vm_f_') for item in conditions]
-conditions = [item.replace('spks', 'spk_s_') for item in conditions]
-conditions = [item.replace('spkf', 'spk_f_') for item in conditions]
-print_keys(conditions)
-build_keys_list(conditions)
+#rename using snake_case
+cols = new_columns_names(df.columns)
+df.columns = cols
+#check stimulations
+print_keys(cols)
+# build key listing
+# ex [['vm'],['s', 'f'],['cp', 'cf', 'rnd'],['iso', 'cross'],['stc'],
+#['dlat50', 'dgain50'],['indisig']]
+keys = build_keys_list(cols)
+
+#%%
+#latency advance
+sec_lat = [item for item in cols if '_s_' in item and '_dlat50' in item]
+adf = df[sec_lat]
+
+# retriving the numbers:
+# latency cpiso
+cond = 'vm_s_cp_iso_stc_dlat50'
+signi = cond + '_indisig'
+mean = adf.loc[adf[signi] > 0, cond].mean()
+std = adf.loc[adf[signi] > 0, cond].std()
+print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
+# !!! doesnt suit with the figure !!!
+#%%
+def extract_values(df, stim_kind = 's', measure= 'lat'):
+    stim = '_' + stim_kind + '_'
+    mes = '_d' + measure + '50'
+    # restrict df
+    restricted_list = [item for item in cols if stim in item and mes in item]
+    adf = df[restricted_list]
+    #compute values
+    records = [item for item in sec_lat if 'indisig' not in item]
+    res_dico = {} 
+    for cond in records:
+        #cond = rec[0]
+        signi = cond + '_indisig'
+        pop_num = len(adf)
+        signi_num = len(adf.loc[adf[signi]>0, cond])
+        percent = round((signi_num / pop_num) * 100)
+        leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
+        res_dico[leg_cond] = [pop_num, signi_num, percent]
+    return res_dico
+    
+fig = plt.figure()
+ax = fig.add_subplot(221)
+ax.set_title('latency advance')
+stim = 's'
+mes='lat'
+res_dico = extract_values(df, stim, mes) 
+x = [str(res_dico[item][1]) for item in res_dico.keys()]
+height = [res_dico[item][-1] for item in res_dico.keys()]
+colors = colors
+ax.bar(x, height, color=colors, width=0.9)
+
+for ax in fig.get_axes():
+    for loca in ['left', 'top', 'right']:
+        ax.spines[loca].set_visible(False)
+    ax.yaxis.set_visible(False)
