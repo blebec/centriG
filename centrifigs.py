@@ -2092,7 +2092,7 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
         res_dico[leg_cond] = [pop_num, signi_num, percent]
     return res_dico
 
-def autolabel(rects):
+def autolabel(ax, rects):
     # attach some text labels
     for rect in rects:
         height = rect.get_height()
@@ -2114,7 +2114,7 @@ def plot_cell_contribution(df):
     height = [res_dico[item][-1] for item in res_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(bar)
+    autolabel(ax, bar)
     ax.set_ylabel('SECTOR')
     ax.xaxis.set_visible(False)
 
@@ -2128,7 +2128,7 @@ def plot_cell_contribution(df):
     height = [res_dico[item][-1] for item in res_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(bar)
+    autolabel(ax, bar)
     ax.xaxis.set_visible(False)
 
     ax = fig.add_subplot(223)
@@ -2140,7 +2140,7 @@ def plot_cell_contribution(df):
     height = [res_dico[item][-1] for item in res_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(bar)
+    autolabel(ax, bar)
     ax.set_ylabel('FULL')
 
     ax = fig.add_subplot(224)
@@ -2152,7 +2152,7 @@ def plot_cell_contribution(df):
     height = [res_dico[item][-1] for item in res_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(bar)
+    autolabel(ax, bar)
     for ax in fig.get_axes():
         for loca in ['left', 'top', 'right']:
             ax.spines[loca].set_visible(False)
