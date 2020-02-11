@@ -2128,6 +2128,97 @@ def plot_figSup6(kind):
 fig = plot_figSup6('minus')
 fig = plot_figSup6('plus')
 
+#%%
+plt.close('all')
+
+def plot_figSup7():
+    """
+    plot supplementary figure 2: Vm all conditions of FULL stimulation
+    input : kind in ['pop': whole population, 'sig': individually significants
+    cells, 'nonsig': non significant cells]
+    """
+    filenames = ['data/figSup7a.xlsx', 'data/figSup7b.xlsx'] 
+    titles = ['High speed', 'Low speed']
+              
+    
+    filename = filenames[0]
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
+           # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
+    df.columns = cols
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns        
+        
+    colors = [stdColors['rouge'], stdColors['jaune']]
+    
+    alpha = [0.7, 0.7]
+
+    fig = plt.figure(figsize=(6, 10))
+    ax1 = fig.add_subplot(211)
+    for i, col in enumerate (cols[:2]):
+        ax1.fill_between(df.index, df[col], color=colors[i],  alpha=alpha[i], linewidth=2)         
+   
+    ax1.axes.get_xaxis().set_visible(False)
+    ax1.spines['bottom'].set_visible(False)
+    ax1.set_ylim(0, 5.5)
+    
+    
+    filename = filenames[1]
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
+    df.columns = cols
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns        
+    colors = [stdColors['jaune'], stdColors['rouge']]
+    
+    ax2 = fig.add_subplot(212)
+    for i, col in enumerate (cols[:2]):
+        ax2.fill_between(df.index, df[col], color=colors[i],  alpha=alpha[i], linewidth=2)
+    
+    ax2.axes.get_xaxis().set_visible(True)
+    ax2.spines['bottom'].set_visible(True)
+    ax2.set_ylim(0, 11.5)
+    ax2.set_xlabel('Relative time (ms)')
+   
+    ax1.annotate('High speed : 100°/s', xy=(0.2, 0.95),
+                xycoords="axes fraction", ha='center')
+
+    ax2.annotate('Low speed : 5°/s', xy=(0.2, 0.95),
+                 xycoords="axes fraction", ha='center')
+
+    for ax in fig.get_axes():
+        ax.set_xlim(-300, 300)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.1)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.1)
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+
+    fig.tight_layout()
+    fig.text(-0.04, 0.5, 'Normalized membrane potential', fontsize=16,
+             va='center', rotation='vertical')
+    # remove the space between plots
+    fig.subplots_adjust(hspace=0.1)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig = plot_figSup7()
 #%% fig supp3 bars
 
 def new_columns_names(cols):
@@ -2221,6 +2312,7 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
         percent = round((signi_num / pop_num) * 100)
         leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
         res_dico[leg_cond] = [pop_num, signi_num, percent]
+        
     return res_dico
 
 def autolabel(ax, rects):
