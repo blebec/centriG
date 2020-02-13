@@ -2049,9 +2049,11 @@ def plot_figSup6(kind):
     j = int
     ax1 = fig.add_subplot(411)
     for i in [0,1,2]:
-        ax1.plot(df[df.columns[i]], color= colors[i], alpha=alpha[i], label=df.columns[i], linewidth=2)
+        ax1.plot(df[df.columns[i]], color= colors[i], alpha=alpha[i], 
+                 label=df.columns[i], linewidth=2)
     for i in [3]:
-        ax1.plot(df[df.columns[i]], color= colors1[i-i], alpha=alpha[i-i], label=df.columns[i], linewidth=2)
+        ax1.plot(df[df.columns[i]], color= colors1[i-i], alpha=alpha[i-i],
+                 label=df.columns[i], linewidth=2)
     ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
                      color=colors[0], alpha=0.2)
    
@@ -2060,9 +2062,11 @@ def plot_figSup6(kind):
     zipped = zip(x,y)
     ax2 = fig.add_subplot(412)
     for i,j in zipped:
-        ax2.plot(df[df.columns[i]], color= colors[i-i+1], alpha=alpha[j], label=df.columns[i], linewidth=2)
+        ax2.plot(df[df.columns[i]], color= colors[i-i+1], alpha=alpha[j],
+                 label=df.columns[i], linewidth=2)
     for i in [7]:
-        ax2.plot(df[df.columns[i]], color= colors1[i-i+1], alpha=alpha[0], label=df.columns[i], linewidth=2)
+        ax2.plot(df[df.columns[i]], color= colors1[i-i+1], alpha=alpha[0],
+                 label=df.columns[i], linewidth=2)
     ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
                      color=colors[1], alpha=0.2)    
     
@@ -2071,9 +2075,11 @@ def plot_figSup6(kind):
     zipped = zip (x,y)
     ax3 = fig.add_subplot(413)
     for i,j in zipped:
-        ax3.plot(df[df.columns[i]], color= colors[i-i+2], alpha=alpha[j], label=df.columns[i], linewidth=2)
+        ax3.plot(df[df.columns[i]], color= colors[i-i+2], alpha=alpha[j],
+                 label=df.columns[i], linewidth=2)
     for i in [11]:
-        ax3.plot(df[df.columns[i]], color= colors1[i-i+2], alpha=alpha[0], label=df.columns[i], linewidth=2)
+        ax3.plot(df[df.columns[i]], color= colors1[i-i+2], alpha=alpha[0],
+                 label=df.columns[i], linewidth=2)
     ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
                      color=colors[2], alpha=0.2)    
     
@@ -2081,9 +2087,11 @@ def plot_figSup6(kind):
     zipped = zip (x,y)
     ax4 = fig.add_subplot(414)
     for i,j in zipped:
-        ax4.plot(df[df.columns[i]], color= colors[i-i+3], alpha=alpha[j], label=df.columns[i], linewidth=2)
+        ax4.plot(df[df.columns[i]], color= colors[i-i+3], alpha=alpha[j],
+                 label=df.columns[i], linewidth=2)
     for i in [15]:
-        ax4.plot(df[df.columns[i]], color= colors1[i-i+3], alpha=alpha[0], label=df.columns[i], linewidth=2)
+        ax4.plot(df[df.columns[i]], color= colors1[i-i+3], alpha=alpha[0],
+                 label=df.columns[i], linewidth=2)
     ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
                      color=colors[3], alpha=0.2)    
     
@@ -2295,7 +2303,7 @@ std = adf.loc[adf[signi] > 0, cond].std()
 print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
 # !!! doesnt suit with the figure !!!
 #%%
-def extract_values(df, stim_kind = 's', measure= 'lat'):
+def extract_values(df, stim_kind='s', measure='lat'):
     stim = '_' + stim_kind + '_'
     mes = '_d' + measure + '50'
     # restrict df
@@ -2303,7 +2311,8 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
     adf = df[restricted_list]
     #compute values
     records = [item for item in restricted_list if 'indisig' not in item]
-    res_dico = {} 
+    pop_dico = {}
+    resp_dico = {} 
     for cond in records:
         #cond = rec[0]
         signi = cond + '_indisig'
@@ -2311,9 +2320,12 @@ def extract_values(df, stim_kind = 's', measure= 'lat'):
         signi_num = len(adf.loc[adf[signi]>0, cond])
         percent = round((signi_num / pop_num) * 100)
         leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
-        res_dico[leg_cond] = [pop_num, signi_num, percent]
-        
-    return res_dico
+        pop_dico[leg_cond] = [pop_num, signi_num, percent]
+        # descr
+        moy = adf.loc[adf[signi]>0, cond].mean()
+        stdm = adf.loc[adf[signi]>0, cond].sem()
+        resp_dico[leg_cond] = [moy, moy+stdm, moy-stdm]
+    return pop_dico, resp_dico
 
 def autolabel(ax, rects):
     # attach some text labels
@@ -2331,51 +2343,61 @@ def plot_cell_contribution(df):
     ax.set_title('latency advance (nb cells)')
     stim = 's'
     mes='lat'
-    res_dico = extract_values(df, stim, mes) 
-    x = [str(res_dico[item][1]) for item in res_dico.keys()]
-    x = res_dico.keys()
-    height = [res_dico[item][-1] for item in res_dico.keys()]
+    pop_dico, resp_dico = extract_values(df, stim, mes) 
+    x = pop_dico.keys()
+    height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
     autolabel(ax, bar)
     ax.set_ylabel('SECTOR')
     ax.xaxis.set_visible(False)
+    axt = ax.twinx()
+    height = [resp_dico[item][0] for item in resp_dico.keys()]
+    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1,1,1,0))
+    
 
-    ax = fig.add_subplot(222)
+    ax = fig.add_subplot(222, sharey=ax)
     ax.set_title('delta response (nb cells)')
     stim = 's'
     mes='gain'
-    res_dico = extract_values(df, stim, mes) 
-    x = [str(res_dico[item][1]) for item in res_dico.keys()]
-    x = res_dico.keys()
-    height = [res_dico[item][-1] for item in res_dico.keys()]
+    pop_dico, resp_dico = extract_values(df, stim, mes)
+    x = pop_dico.keys()
+    height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
     autolabel(ax, bar)
     ax.xaxis.set_visible(False)
+    axt = ax.twinx()
+    height = [resp_dico[item][0] for item in resp_dico.keys()]
+    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1,1,1,0))
 
     ax = fig.add_subplot(223)
     stim = 'f'
     mes='lat'
-    res_dico = extract_values(df, stim, mes) 
-    x = [str(res_dico[item][1]) for item in res_dico.keys()]
-    x = res_dico.keys()
-    height = [res_dico[item][-1] for item in res_dico.keys()]
+    pop_dico, resp_dico = extract_values(df, stim, mes)
+    x = pop_dico.keys()
+    height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
     autolabel(ax, bar)
     ax.set_ylabel('FULL')
+    axt = ax.twinx()
+    height = [resp_dico[item][0] for item in resp_dico.keys()]
+    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1,1,1,0))
 
-    ax = fig.add_subplot(224)
+    ax = fig.add_subplot(224, sharey=ax)
     stim = 'f'
     mes='gain'
-    res_dico = extract_values(df, stim, mes) 
-    x = [str(res_dico[item][1]) for item in res_dico.keys()]
-    x = res_dico.keys()
-    height = [res_dico[item][-1] for item in res_dico.keys()]
+    pop_dico, resp_dico = extract_values(df, stim, mes)
+    x = pop_dico.keys()
+    height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
     autolabel(ax, bar)
+    axt = ax.twinx()
+    height = [resp_dico[item][0] for item in resp_dico.keys()]
+    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1,1,1,0))
+
     for ax in fig.get_axes():
         for loca in ['left', 'top', 'right']:
             ax.spines[loca].set_visible(False)
