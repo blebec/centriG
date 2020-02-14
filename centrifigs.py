@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import matplotlib.patches as patches
 from datetime import datetime
 
 #import math
@@ -2056,7 +2057,9 @@ def plot_figSup6(kind):
                  label=df.columns[i], linewidth=2)
     ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
                      color=colors[0], alpha=0.2)
-   
+    r1 = patches.Rectangle((0,0),50, 40, color='grey', alpha= 0.05)
+    ax1.add_patch(r1)
+    
     x = [4,5,6]
     y = [0,1,2]
     zipped = zip(x,y)
@@ -2069,6 +2072,8 @@ def plot_figSup6(kind):
                  label=df.columns[i], linewidth=2)
     ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
                      color=colors[1], alpha=0.2)    
+    r1 = patches.Rectangle((0,0),50, 40, color='grey', alpha= 0.05)
+    ax2.add_patch(r1)
     
     x = [8,9,10]
     y = [0,1,2]
@@ -2082,6 +2087,8 @@ def plot_figSup6(kind):
                  label=df.columns[i], linewidth=2)
     ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
                      color=colors[2], alpha=0.2)    
+    r1 = patches.Rectangle((0,0),50, 40, color='grey', alpha= 0.05)
+    ax3.add_patch(r1)
     
     x = [12,13,14]
     zipped = zip (x,y)
@@ -2094,7 +2101,8 @@ def plot_figSup6(kind):
                  label=df.columns[i], linewidth=2)
     ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
                      color=colors[3], alpha=0.2)    
-    
+    r1 = patches.Rectangle((0,0),50, 40, color='grey', alpha= 0.05)
+    ax4.add_patch(r1)
     
     for ax in fig.get_axes():
         ax.set_xlim(-150, 150)
@@ -2371,7 +2379,7 @@ def plot_cell_contribution(df):
     height = [resp_dico[item][0] for item in resp_dico.keys()]
     bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1,1,1,0))
 
-    ax = fig.add_subplot(223)
+    ax = fig.add_subplot(223, sharey=ax)
     stim = 'f'
     mes='lat'
     pop_dico, resp_dico = extract_values(df, stim, mes)
