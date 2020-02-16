@@ -2440,95 +2440,71 @@ def load_cell_contributions(kind='vm'):
     print_keys(cols)
     return df
 
-def plot_ranked_responses(df):
+def plot_ranked_responses(df, dico):
+    # parameter
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    #todo : build name from key
-    name = 'vm_s_cp_iso_stc_dlat50'
-    signame = name + '_indisig'
-    select = df[[name, signame]].sort_values(by=name, ascending=False)
-    
-    # build a dico of colors, key = condtions
-    stdColors['rouge']
-    color_dic = {0 :'w', 1 : stdColors['rouge']}
-    edgeColor = stdColors['rouge']
-    
-    fig = plt.figure(figsize=(12, 6))
-    #to do iterate through conditions
-    ax = fig.add_subplot(111)
-    ax.bar(select.index, select[name], color=barColors, edgecolor=edgeColor,
-           alpha=0.8, width=0.8)
-    
-    
-    
-    return ax
+    #data (call)
+    df = load_cell_contributions(dico['kind'])
+    traces = [item for item in df.columns if (dico['kind']+'_' in item)]    
+    traces = [item for item in df.columns if (dico['spread']+'_' in item[:6])]
+    traces = [item for item in traces if (dico['measure'] in item)]
+    traces = [item for item in traces if ('indisig' not in item)]
+    # text labels
+    if dico['measure'] == 'dgain50':
+        anoty = 'delta response'
+    else:
+        anoty = 'phase advance (ms)'
+    anotx = 'cell rank'
+    #plot
+    fig, axes = plt.subplots(2,2, figsize=(12, 6), sharey=True)
+    axes = axes.flatten()
+    x = range(1, len(df)+1)
+    for i, name in enumerate(traces):
+        signame = name + '_indisig'
+        edgeColor = colors[i]
+        print(i, len(colors))
+        color_dic = {0 :'w', 1 : edgeColor}
+        select = df[[name, signame]].sort_values(by=name, ascending=False)
+        barColors = [color_dic[x] for x in select[signame]]
+        ax = axes[i]
+        ax.set_title(name)
+        ax.bar(range(1, len(df)+1), select[name], color=barColors, edgecolor=edgeColor,
+               alpha=0.8, width=0.8)
+    for i, ax in enumerate(axes):
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        if i in [0, 1]:
+            ax.xaxis.set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+        else:
+            ax.set_xlabel(anotx)
+        if i in [0, 2]:
+            ax.set_ylabel(anoty)
+        # remove the space between plots
+    fig.subplots_adjust(hspace=0.05, wspace=0.05)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_ranked_responses',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
 
+parameter_dico = {
+        'kind' : 'vm',
+        'spread' : 's',
+        'position' : 'cp',
+        'theta' : 'cross',
+        'extra' : 'stc',
+        'measure' : 'dgain50'
+        }
+#fig = plot_ranked_responses(df, parameter_dico)
 
-df = load_cell_contributions(kind='vm')
-keys = build_keys_list(df.columns)
-ax = plot_ranked_responses(df)
-
-
-
-
-#%%
-#def plot_figure2B(pltmode, sig=True):
-#    """
-#    plot_figure2B : ranked phase advance and delta response
-#    sig=boolan : true <-> shown cell signification
-#    """
-#    filename = 'data/fig2cells.xlsx'
-#    df = pd.read_excel(filename)
-#    cols = df.columns[:2]
-#    signs = df.columns[2:]
-#    df.index += 1 # cells = 1 to 37
-#
-#    if pltmode == 'horizontal':
-#        fig = plt.figure(figsize=(8, 3))
-#    else:
-#        if pltmode == 'vertical':
-#            fig = plt.figure(figsize=(6, 6))
-#    #build axes
-#    axes = []
-#    for i in range(2):
-#        if pltmode == 'horizontal':
-#            axes.append(fig.add_subplot(1, 2, i+1))
-#        else:
-#            if pltmode == 'vertical':
-#                axes.append(fig.add_subplot(2, 1, i+1))
-#
-#    color_dic = {0 :'w', 1 : stdColors['rouge']}
-#    for i, ax in enumerate(axes):
-#        colors = [color_dic[x] for x in df[signs[i]]]
-#        if sig:
-#            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-#                        color=colors, label=cols[i], alpha=0.8, width=0.8)
-#        else:
-#            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-#                        color=stdColors['rouge'], label=cols[i],
-#                        alpha=0.8, width=0.8)
-#        if pltmode == 'horizontal':
-#            ax.set_xlabel('cell rank')
-#        else:
-#            if pltmode == 'vertical':
-#                if i == 1:
-#                    ax.set_xlabel('cell rank')
-#        axes[i].set_xlim(1, 37.7)
-#        for loca in ['top', 'right', 'bottom']:
-#            ax.spines[loca].set_visible(False)
-#        lims = ax.get_xlim()
-#        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-#        ticks = [df.index.min(), df.index.max()]
-#        ax.set_xticks(ticks)
-#    axes[0].set_ylabel('phase advance (ms)')
-#    axes[1].set_ylabel('delta response')
-#    fig.tight_layout()
-#
-#    if anot:
-#        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B',
-#                 ha='right', va='bottom', alpha=0.4)
-#        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-#    if pltmode == 'vertical':
-#        fig.align_ylabels(axes[0:])
-#    return fig
+#iterate through conditions
+for kind in ['vm', 'spk']:
+    parameter_dico['kind'] = kind
+    for spread in ['s', 'f']:
+        parameter_dico['spread'] = spread
+        for measure in ['dlat50', 'dgain50']:
+            parameter_dico['measure'] = measure
+            fig = plot_ranked_responses(df, parameter_dico)
