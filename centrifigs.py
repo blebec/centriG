@@ -2425,6 +2425,7 @@ plot_cell_contribution(df)
 plt.close('all')
 
 def load_cell_contributions(kind='vm'):
+    """ load the corresonding xcel file """
     if kind == 'vm':
         filename = 'data/figSup34Vm.xlsx'
     elif kind == 'spk':
@@ -2436,11 +2437,15 @@ def load_cell_contributions(kind='vm'):
     #rename using snake_case
     cols = new_columns_names(df.columns)
     df.columns = cols
-    #check stimulations
-    print_keys(cols)
     return df
 
-def plot_ranked_responses(df, dico):
+
+def plot_ranked_responses(dico):
+    """
+    plot the ranked cell responses 
+    input = conditions parameters
+    
+    """
     # parameter
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
@@ -2451,27 +2456,35 @@ def plot_ranked_responses(df, dico):
     traces = [item for item in traces if (dico['measure'] in item)]
     traces = [item for item in traces if ('indisig' not in item)]
     # text labels
+    title_dico = {
+            'spk' : 'spikes',
+            'vm' : 'vm',
+            'f' : 'full',
+            's' : 'sector'
+            }
+    title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
     if dico['measure'] == 'dgain50':
         anoty = 'delta response'
     else:
         anoty = 'phase advance (ms)'
     anotx = 'cell rank'
     #plot
-    fig, axes = plt.subplots(2,2, figsize=(12, 6), sharey=True)
+    fig, axes = plt.subplots(2,2, figsize=(12, 6), sharey=True, sharex=True)
+    fig.suptitle(title)
     axes = axes.flatten()
     x = range(1, len(df)+1)
     for i, name in enumerate(traces):
         signame = name + '_indisig'
         edgeColor = colors[i]
-        print(i, len(colors))
         color_dic = {0 :'w', 1 : edgeColor}
         select = df[[name, signame]].sort_values(by=name, ascending=False)
         barColors = [color_dic[x] for x in select[signame]]
         ax = axes[i]
         ax.set_title(name)
-        ax.bar(range(1, len(df)+1), select[name], color=barColors, edgecolor=edgeColor,
-               alpha=0.8, width=0.8)
+        ax.bar(range(1, len(df)+1), select[name], color=barColors, 
+               edgecolor=edgeColor, alpha=0.8, width=0.8)
     for i, ax in enumerate(axes):
+        ax.ticklabel_format(useOffset=True)
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
         if i in [0, 1]:
@@ -2479,6 +2492,7 @@ def plot_ranked_responses(df, dico):
             ax.spines['bottom'].set_visible(False)
         else:
             ax.set_xlabel(anotx)
+            ax.set_xticks([1, len(df)])
         if i in [0, 2]:
             ax.set_ylabel(anoty)
         # remove the space between plots
@@ -2488,6 +2502,8 @@ def plot_ranked_responses(df, dico):
         fig.text(0.99, 0.01, 'centrifigs.py:plot_ranked_responses',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
+    fig.tight_layout()
     return fig
 
 parameter_dico = {
@@ -2498,13 +2514,13 @@ parameter_dico = {
         'extra' : 'stc',
         'measure' : 'dgain50'
         }
-#fig = plot_ranked_responses(df, parameter_dico)
 
-#iterate through conditions
+#fig = plot_ranked_responses(parameter_dico)
+#iterate through conditions for plotting
 for kind in ['vm', 'spk']:
     parameter_dico['kind'] = kind
     for spread in ['s', 'f']:
         parameter_dico['spread'] = spread
         for measure in ['dlat50', 'dgain50']:
             parameter_dico['measure'] = measure
-            fig = plot_ranked_responses(df, parameter_dico)
+            fig = plot_ranked_responses(parameter_dico)
