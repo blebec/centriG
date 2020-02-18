@@ -91,7 +91,8 @@ def change_plot_trace_amplitude(ax, gain=1):
     lims = ax.get_ylim()
     new_lims = (lims[0]/gain, lims[1]/gain)
     ax.set_ylim(new_lims)
-#
+
+
 def properties(ax):
     """
     print size and attributes of an axe
@@ -2474,6 +2475,7 @@ def plot_ranked_responses(dico):
     axes = axes.flatten()
     x = range(1, len(df)+1)
     for i, name in enumerate(traces):
+        print(traces)
         signame = name + '_indisig'
         edgeColor = colors[i]
         color_dic = {0 :'w', 1 : edgeColor}
@@ -2524,3 +2526,112 @@ for kind in ['vm', 'spk']:
         for measure in ['dlat50', 'dgain50']:
             parameter_dico['measure'] = measure
             fig = plot_ranked_responses(parameter_dico)
+#%%
+plt.close('all')
+
+def load_cell_contributions(kind='vm'):
+    """ load the corresonding xcel file """
+    if kind == 'vm':
+        filename = 'data/figSup34Vm.xlsx'
+    elif kind == 'spk':
+        filename = 'data/figSup34Spk.xlsx'
+    else:
+        print('kind should be vm or spk')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+    #rename using snake_case
+    cols = new_columns_names(df.columns)
+    df.columns = cols
+    return df
+
+# TODO: in first figure, 1st condition latency advance of CP-ISO
+# plot and fill the actual 10 and 11th df.index significant cell row 
+# before the actual actual 9th
+def plot_ranked_responses(dico):
+    """
+    plot the ranked cell responses 
+    input = conditions parameters
+    
+    """
+    # parameter
+    colors = [stdColors['rouge'], stdColors['rouge'],
+              stdColors['vert'], stdColors['vert'],
+              stdColors['jaune'], stdColors['jaune'],
+              stdColors['bleu'], stdColors['bleu']]
+    #data (call)
+    df = load_cell_contributions(dico['kind'])
+    traces = [item for item in df.columns if (dico['kind']+'_' in item)]    
+    traces = [item for item in df.columns if (dico['spread']+'_' in item[:7])]
+    #one level higher, plot without measure
+    #traces = [item for item in traces if (dico['measure'] in item)]
+    traces = [item for item in traces if ('indisig' not in item)]
+    # text labels
+    title_dico = {
+            'spk' : 'spikes',
+            'vm' : 'vm',
+            'f' : 'full',
+            's' : 'sector'
+            }
+    title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
+    anotx = 'Cell rank'
+    #plot
+    fig, axes = plt.subplots(4,2, figsize=(12, 16), sharex=True, sharey= 'col', squeeze=False)#•sharey=True,
+    fig.suptitle(title)
+    axes = axes.flatten()
+    x = range(1, len(df)+1)
+    for i, name in enumerate(traces):
+        signame = name + '_indisig'
+        edgeColor = colors[i]
+        color_dic = {0 :'w', 1 : edgeColor}
+        select = df[[name, signame]].sort_values(by=name, ascending=False)
+        barColors = [color_dic[x] for x in select[signame]]
+        ax = axes[i]
+        #ax.set_title(name)
+        ax.bar(range(1, len(df)+1), select[name], color=barColors, 
+               edgecolor=edgeColor, alpha=0.8, width=0.8)
+    for i, ax in enumerate(axes):
+        ax.ticklabel_format(useOffset=True)
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        if i in [0, 1, 2, 3, 4, 5]:
+            ax.xaxis.set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+        else:
+            ax.set_xlabel(anotx, fontsize=16)
+            ax.set_xticks([1, len(df)])
+            ax.set_xlim(0.55, len(df)+2)
+    
+    #align each row yaxis on zero between subplots 
+    align_yaxis(axes[0], 0, axes[1], 0)
+    #keep data range whithout distortion, preserve 0 alignment
+    change_plot_trace_amplitude(axes[1], 0.80)
+    # remove the space between plots
+    fig.subplots_adjust(hspace=0.05, wspace=0.05)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_ranked_responses',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
+    fig.text(-0.02, 0.5, 'Phase gain (ms)', fontsize=16,
+             va='center', rotation='vertical')
+    fig.text(0.47, 0.5, 'Amplitude gain', fontsize=16,
+             va='center', rotation='vertical')
+    fig.tight_layout()
+    return fig
+
+parameter_dico = {
+        'kind' : 'vm',
+        'spread' : 's',
+        'position' : 'cp',
+        'theta' : 'cross',
+        'extra' : 'stc'
+        }
+
+#fig = plot_ranked_responses(parameter_dico)
+#iterate through conditions for plotting
+for kind in ['vm', 'spk']:
+    parameter_dico['kind'] = kind
+    for spread in ['s', 'f']:
+        parameter_dico['spread'] = spread
+        fig = plot_ranked_responses(parameter_dico)
