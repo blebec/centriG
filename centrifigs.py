@@ -2473,7 +2473,6 @@ def plot_ranked_responses(dico):
     axes = axes.flatten()
     x = range(1, len(df)+1)
     for i, name in enumerate(traces):
-        print(traces)
         signame = name + '_indisig'
         edgeColor = colors[i]
         color_dic = {0 :'w', 1 : edgeColor}
@@ -2548,12 +2547,12 @@ def plot_ranked_responses_lat_gain(dico):
                   's' : 'sector'
                   }
     title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
-    ylabel_dico = {'dgain50' : 'delta response',
-                   'dlat50' : 'phase advance (ms)'}
+    ylabel_dico = {'dgain50' : 'Amplitude Gain',
+                   'dlat50' : 'Phase Gain (ms)'}
     anotx = 'cell rank'
     #plot
-    fig, axes = plt.subplots(4, 2, figsize=(8, 6), sharex=True)
-    fig.suptitle(title)
+    fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True)
+    #fig.suptitle(title)
     axes = axes.T
     # share y
     for i in range(len(axes)):
@@ -2575,9 +2574,14 @@ def plot_ranked_responses_lat_gain(dico):
             ax = axes[pos][i]
 #            ax.set_title(name)
             if i == 0:
-                ax.set_title(anoty)
-            ax.bar(range(1, len(df)+1), select[name], color=barColors,
+                ax.set_title(anoty, fontsize=16)
+            ax.bar(x, select[name], color=barColors,
                    edgecolor=edgeColor, alpha=0.8, width=0.8)
+            if (pos == 1):
+                #align each row yaxis on zero between subplots
+                align_yaxis(axes[0][i], 0, axes[pos][i], 0)
+                #keep data range whithout distortion, preserve 0 alignment
+                change_plot_trace_amplitude(axes[pos][i], 0.80)
     for i, ax in enumerate(axes.flatten()):
         ax.ticklabel_format(useOffset=True)
         for loca in ['top', 'right']:
@@ -2586,9 +2590,9 @@ def plot_ranked_responses_lat_gain(dico):
             ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
         else:
-            ax.set_xlabel(anotx)
+            ax.set_xlabel(anotx, fontsize=16)
             ax.set_xticks([1, len(df)])
-            ax.set_xlim(0.4, len(df)+0.5)
+            ax.set_xlim(0.55, len(df)+0.5)
     fig.subplots_adjust(hspace=0.01, wspace=0.01)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2645,29 +2649,35 @@ def plot_ranked_responses2Ben(dico):
     #traces = [item for item in traces if (dico['measure'] in item)]
     traces = [item for item in traces if ('indisig' not in item)]
     # text labels
-    title_dico = {'spk' : 'spikes',
-                  'vm' : 'vm',
-                  'f' : 'full',
-                  's' : 'sector'
+    title_dico = {'spk' : 'Spikes',
+                  'vm' : 'Vm',
+                  'f' : 'Full',
+                  's' : 'Sector'
                   }
-    title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
+    #.title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
+    title = title_dico[dico['kind']]
     anotx = 'Cell rank'
+    anoty = ['Phase gain (ms)', 'Amplitude gain (fraction of Center-only response)']
     #plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True, 
                              sharey='col', squeeze=False)#•sharey=True,
-    fig.suptitle(title)
+    #fig.suptitle(title, fontsize=16)
     axes = axes.flatten()
     x = range(1, len(df)+1)
     for i, name in enumerate(traces):
         signame = name + '_indisig'
         edgeColor = colors[i]
         color_dic = {0 :'w', 1 : edgeColor}
-        select = df[[name, signame]].sort_values(by=name, ascending=False)
+        select = df[[name, signame]].sort_values(by=[name,signame], ascending=False)
         barColors = [color_dic[x] for x in select[signame]]
         ax = axes[i]
         #ax.set_title(name)
         ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
                alpha=0.8, width=0.8)
+        if (i == 0):
+                ax.set_title(anoty[i], fontsize=16)
+        if (i == 1):
+                ax.set_title(anoty[i], fontsize=16)           
     for i, ax in enumerate(axes):
         ax.ticklabel_format(useOffset=True)
         for loca in ['top', 'right']:
@@ -2692,10 +2702,13 @@ def plot_ranked_responses2Ben(dico):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
-    fig.text(-0.02, 0.5, 'Phase gain (ms)', fontsize=16,
-             va='center', rotation='vertical')
-    fig.text(0.47, 0.5, 'Amplitude gain', fontsize=16,
-             va='center', rotation='vertical')
+    #fig.text(-0.02, 0.5, 'Phase gain (ms)', fontsize=16,
+    #         va='center', rotation='vertical')
+    #fig.text(0.47, 0.5, 'Amplitude gain', fontsize=16,
+    #         va='center', rotation='vertical')
+    fig.text(0.48, 1.01, title,
+                 ha='center', va='top', 
+                 fontsize=18)
     fig.tight_layout()
     return fig
 
