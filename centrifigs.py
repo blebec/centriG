@@ -33,6 +33,8 @@ def go_to_dir():
         os.chdir(r'D:\\travail\sourcecode\developing\paper\centriG')
     elif osname == 'Linux' and username == 'benoit':
         os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+    elif osname == 'Windows'and username == 'marc':
+        os.chdir(r'H:/pg/centriG')
     elif osname == 'Darwin' and username == 'cdesbois':
         os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
     return True
@@ -60,7 +62,8 @@ params = {'font.sans-serif': ['Arial'],
           'axes.xmargin': 0}
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
-#%%
+
+#% general functions
 def retrieve_name(var):
     """
     to retrieve the string value of a variable
