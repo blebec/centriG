@@ -34,7 +34,7 @@ def go_to_dir():
     elif osname == 'Linux' and username == 'benoit':
         os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
     elif osname == 'Windows'and username == 'marc':
-        os.chdir(r'H:/pg/centriG')
+        os.chdir(r'H:/pg/centriG')    
     elif osname == 'Darwin' and username == 'cdesbois':
         os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
     return True
@@ -1833,8 +1833,8 @@ def plot_figSup1(kind):
 
 
 fig = plot_figSup1('pop')
-fig = plot_figSup1('sig')
-fig = plot_figSup1('nonsig')
+#fig = plot_figSup1('sig')
+#fig = plot_figSup1('nonsig')
 
 #pop all cells
 #%%
@@ -2208,7 +2208,7 @@ def plot_figSup7():
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
     ax2.set_ylim(0, 11.5)
-    ax2.set_xlabel('Relative time (ms)')
+    ax2.set_xlabel('Time (ms)', fontsize=16)
 
     ax1.annotate('High speed : 100°/s', xy=(0.2, 0.95),
                  xycoords="axes fraction", ha='center')
@@ -2226,7 +2226,7 @@ def plot_figSup7():
             ax.spines[loc].set_visible(False)
 
     fig.tight_layout()
-    fig.text(-0.04, 0.5, 'Normalized membrane potential', fontsize=16,
+    fig.text(-0.04, 0.5, ' Firing rate (spk/s)', fontsize=16,
              va='center', rotation='vertical')
     # remove the space between plots
     fig.subplots_adjust(hspace=0.1)
@@ -2355,7 +2355,7 @@ def plot_cell_contribution(df):
               stdColors['jaune'], stdColors['bleu']]
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(221)
-    ax.set_title('latency advance (nb cells)')
+    ax.set_title('Phase gain (% significant cells)')
     stim = 's'
     mes = 'lat'
     pop_dico, resp_dico = extract_values(df, stim, mes)
@@ -2368,11 +2368,11 @@ def plot_cell_contribution(df):
     ax.xaxis.set_visible(False)
     axt = ax.twinx()
     height = [resp_dico[item][0] for item in resp_dico.keys()]
-    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
+    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
 
 
     ax = fig.add_subplot(222, sharey=ax)
-    ax.set_title('delta response (nb cells)')
+    ax.set_title('Amplitude gain (% significant cells)')
     stim = 's'
     mes = 'gain'
     pop_dico, resp_dico = extract_values(df, stim, mes)
@@ -2384,8 +2384,9 @@ def plot_cell_contribution(df):
     ax.xaxis.set_visible(False)
     axt = ax.twinx()
     height = [resp_dico[item][0] for item in resp_dico.keys()]
-    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
-
+    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
+    #ax.set_ylim(0,30)#32)
+    
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'f'
     mes = 'lat'
@@ -2398,7 +2399,7 @@ def plot_cell_contribution(df):
     ax.set_ylabel('FULL')
     axt = ax.twinx()
     height = [resp_dico[item][0] for item in resp_dico.keys()]
-    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
+    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
 
     ax = fig.add_subplot(224, sharey=ax)
     stim = 'f'
@@ -2411,7 +2412,7 @@ def plot_cell_contribution(df):
     autolabel(ax, bar)
     axt = ax.twinx()
     height = [resp_dico[item][0] for item in resp_dico.keys()]
-    bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
+    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
 
     for ax in fig.get_axes():
         for loca in ['left', 'top', 'right']:
@@ -2419,6 +2420,16 @@ def plot_cell_contribution(df):
             ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
+    
+    if (filename == 'data/figSup34Spk.xlsx'):
+        fig.text(0.5, 1.01, 'Spikes',
+                 ha='center', va='top', 
+                 fontsize=18)
+    else:
+        fig.text(0.5, 1.01, 'Vm',
+                 ha='center', va='top', 
+                 fontsize=18)
+    
     fig.tight_layout()
 
 plot_cell_contribution(df)
