@@ -13,7 +13,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
-from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
 #import math
@@ -726,6 +725,8 @@ fig = plot_2quarter_figure2(data, content)
 #%%
 plt.close('all')
 
+from matplotlib.ticker import StrMethodFormatter
+
 def plot_3quarter_figure2(data, colsdict, fill=True):
     """
     plot_3/4 of figure2
@@ -868,7 +869,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.add_patch(rect)
     #fit individual example
     vmaxes[0].set_ylim(-3, 12)
-    spkaxes[0].set_ylim(-5, 18)
+    spkaxes[0].set_ylim(-5.5, 18)
     # align zero between plots  NB ref = first plot
     for i in [0,1]:
         align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
@@ -883,15 +884,17 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-                
+        #1 decimal place
+        #https://stackoverflow.com/questions/29188757/matplotlib-specify-format-of-floats-for-tick-lables
+        #https://matplotlib.org/3.1.1/gallery/ticks_and_spines/tick-formatters.html
+        #plt.gca().ticklabel_format(axis='both', style='plain', useOffset=False)
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+        
     fig.tight_layout()
     # remove the space between plots
-    fig.subplots_adjust(hspace=0.06, wspace=0.45) 
+    fig.subplots_adjust(hspace=0.06, wspace=0.4) 
     #align ylabels
     fig.align_ylabels()
-    #ax.set_major_locator(ticker.MaxNlocator(integer=True))
-    #plt.locator_params(axis='both', integer=True, tight=True)
-    plt.gca().yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}')) # 1 decimal places
     
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
