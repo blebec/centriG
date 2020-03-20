@@ -13,6 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
+from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
 #import math
@@ -20,7 +21,7 @@ from datetime import datetime
 #===========================
 # global setup
 font_size = 'medium' # large, medium
-anot = True         # to draw the date and name on the bottom of the plot
+anot = False         # to draw the date and name on the bottom of the plot
 #============================
 
 def go_to_dir():
@@ -46,7 +47,13 @@ stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
              'bleu' :	[x/256 for x in [0, 125, 218]],
              'jaune' :	[x/256 for x in [238, 181, 0]],
              'violet' : [x/256 for x in [255, 0, 255]],
-             'vertSombre': [x/256 for x in [0, 150, 68]]}
+             'vertSombre': [x/256 for x in [0, 150, 68]],
+             'orangeFonce' : [x/256 for x in [252, 98, 48]],
+             'bleuViolet': [x/256 for x in [138,43,226]],
+             'dark_rouge': [x/256 for x in [115, 0, 34]],
+             'dark_vert': [x/256 for x in [10, 146, 13]],
+             'dark_jaune': [x/256 for x in [163, 133, 16]],
+             'dark_bleu': [x/256 for x in [14, 73, 118]]}
 speedColors = {'orangeFonce' :     [x/256 for x in [252, 98, 48]],
                'orange' : [x/256 for x in [253, 174, 74]],
                'jaune' : [x/256 for x in [254, 226, 137]]}
@@ -475,27 +482,28 @@ def plot_half_figure2(data, colsdict):
 
     #labels
     for ax in axes:
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    ylabels = ['membrane potential (mV)',
-               'normalized membrane potential',
+    ylabels = ['Membrane potential (mV)',
+               'Normalized membrane potential',
                '', '']
     for i, ax in enumerate(vmaxes):
         ax.axes.get_xaxis().set_visible(False)
         ax.spines['bottom'].set_visible(False)
         ax.set_ylabel(ylabels[i])
-    ylabels = ['firing rate (spikes/s)',
-               'normalized firing rate',
+    ylabels = ['Firing rate (spikes/s)',
+               'Normalized firing rate',
                '', '']
     for i, ax in enumerate(spkaxes):
         ax.set_ylabel(ylabels[i])
-        ax.set_xlabel('time (ms)')
+        ax.set_xlabel('Time (ms)')
 
     for ax in vmaxes[1:]:
         ax.set_ylim(-0.10, 1.2)
     for ax in spkaxes[1:]:
         ax.set_ylim(-0.10, 1.3)
-        ax.set_xlabel('relative time (ms)')
+        ax.set_xlabel('Relative time (ms)')
 
     # stimulations
     step = 28
@@ -725,7 +733,58 @@ fig = plot_2quarter_figure2(data, content)
 #%%
 plt.close('all')
 
-from matplotlib.ticker import StrMethodFormatter
+def plot_2ndhalf_2ndquarter_figure2(data, colsdict):
+    """
+    plot_figure2 2nd quarter
+    """
+    colors = ['k', stdColors['rouge']]
+    alpha = [0.8, 0.8]
+
+    fig = plt.figure(figsize=(5, 5))
+    spkaxes = fig.add_subplot(111)
+    
+    df = data.loc[-30:35]       # limit xscale
+    
+    #pop spike
+    cols = colsdict['popSpk']
+    ax = spkaxes
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(df[col], color=colors[::-1][i],
+                alpha=1, label=col, linewidth=1)
+        ax.fill_between(df.index, df[col],
+                        color=colors[::-1][i], alpha=0.5, label=col)
+    ax.annotate("n=20", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center', fontsize='large')
+
+    #labels
+    for loca in ['top', 'right']:
+        spkaxes.spines[loca].set_visible(False)
+    ylabels = ['Normalized firing rate']
+
+    
+    spkaxes.set_ylabel(ylabels[0])
+    spkaxes.set_ylim(-0.1, 1)
+    spkaxes.set_xlabel('Relative time')
+        
+    lims = spkaxes.get_ylim()
+    spkaxes.vlines(0, lims[0], lims[1], alpha=0.3)
+    lims = spkaxes.get_xlim()
+    spkaxes.hlines(0, lims[0], lims[1], alpha=0.3)
+    fig.tight_layout()
+    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+
+
+fig = plot_2ndhalf_2ndquarter_figure2(data, content)
+#%%
+plt.close('all')
+
 
 def plot_3quarter_figure2(data, colsdict, fill=True):
     """
@@ -1191,7 +1250,7 @@ def plot_figure2B(pltmode, sig=True):
     df.index += 1 # cells = 1 to 37
 
     if pltmode == 'horizontal':
-        fig = plt.figure(figsize=(8, 3))
+        fig = plt.figure(figsize=(10, 4))
     else:
         if pltmode == 'vertical':
             fig = plt.figure(figsize=(6, 6))
@@ -1215,20 +1274,23 @@ def plot_figure2B(pltmode, sig=True):
                         color=stdColors['rouge'], label=cols[i],
                         alpha=0.8, width=0.8)
         if pltmode == 'horizontal':
-            ax.set_xlabel('cell rank')
+            ax.set_xlabel('Cell rank')
         else:
             if pltmode == 'vertical':
                 if i == 1:
                     ax.set_xlabel('cell rank')
-        axes[i].set_xlim(1, 37.7)
+        axes[i].set_xlim(0.42, 37.7)
         for loca in ['top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [df.index.min(), df.index.max()]
         ax.set_xticks(ticks)
-    axes[0].set_ylabel('phase advance (ms)')
-    axes[1].set_ylabel('delta response')
+    axes[0].set_ylabel('Phase advance (ms)')
+    axes[1].set_ylabel('Delta response')
+    if pltmode == 'horizontal':
+        align_yaxis(axes[0], 0, axes[1], 0)
+        change_plot_trace_amplitude(axes[1], 0.75)
     fig.tight_layout()
 
     if anot:
@@ -1240,8 +1302,8 @@ def plot_figure2B(pltmode, sig=True):
         fig.align_ylabels(axes[0:])
     return fig
 
-#plot_figure2B('horizontal')
-plot_figure2B('vertical')
+plot_figure2B('horizontal')
+#plot_figure2B('vertical')
 #%%
 #plt.close('all')
 
@@ -1293,12 +1355,12 @@ def plot_figure3(kind):
     ax.set_ylim(-0.2, 1.1)
 
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-    leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                    handlelength=0)
-    for line, text in zip(leg.get_lines(), leg.get_texts()):
-        text.set_color(line.get_color())
-    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    #leg = ax.legend(loc=2, markerscale=None, frameon=False,
+                    #handlelength=0)
+    #for line, text in zip(leg.get_lines(), leg.get_texts()):
+        #text.set_color(line.get_color())
+    ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
     fig.tight_layout()
 
     if anot:
@@ -1310,9 +1372,9 @@ def plot_figure3(kind):
     return fig
 
 
-#fig = plot_figure3('pop')
+fig = plot_figure3('pop')
 #fig = plot_figure3('sig')
-fig = plot_figure3('nonsig')
+#fig = plot_figure3('nonsig')
 
 #pop all cells
 #%% grouped sig and non sig
@@ -1405,9 +1467,9 @@ def plot_figure4():
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
                 label=col)
-    ax.set_ylabel('normalized membrane potential')
+    ax.set_ylabel('Normalized membrane potential')
     #, fontname = 'Arial', fontsize = 14)
-    ax.set_xlabel('relative time (ms)')
+    ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
@@ -1419,12 +1481,12 @@ def plot_figure4():
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
-                    handlelength=0)
-    for line, text in zip(leg.get_lines(), leg.get_texts()):
-        text.set_color(line.get_color())
-    ax.annotate("population average \n (n=12)", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='left')
+    #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+    #                handlelength=0)
+    #for line, text in zip(leg.get_lines(), leg.get_texts()):
+    #    text.set_color(line.get_color())
+    ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
+                xycoords="axes fraction", ha='center')
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -1451,13 +1513,13 @@ def plot_figure5():
     df.index = df.index/10
     # rename columns
     cols = df.columns
-    cols = ['center only', 'surround then center', 'surround only',
-            'static linear prediction']
+    cols = ['Center-Only', 'Surround-then-Center', 'Surround-Only',
+            'Static linear prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['bleu'], stdColors['vert']]
-    alpha = [0.5, 0.7, 0.8, 0.8]
+    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'], stdColors['vertSombre']]
+    alpha = [0.5, 0.7, 1, 0.6]
     #plotting
     fig = plt.figure(figsize=(6, 8))
     # SUGGESTION increase a bit y dimension or subplots height
@@ -1471,10 +1533,14 @@ def plot_figure5():
 
     ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
-        ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                 label=col)
+        if (i == 2):
+            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+                     linewidth= 3, label=col)
+        else:
+            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+                     label=col)
 
-    ax2.set_xlabel('time (ms)')
+    ax2.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
@@ -1491,18 +1557,18 @@ def plot_figure5():
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
-                         facecolor='r')
+                         facecolor=colors[1])
         ax1.add_patch(rect)
     #center
     rect = Rectangle(xy=(0, vlocs[2]), width=step, height=0.3, fill=True,
-                     alpha=0.6, edgecolor='w', facecolor='k')
+                     alpha=0.6, edgecolor='w', facecolor=colors[0])#'k')
     ax1.add_patch(rect)
 
-    st = 'surround then center'
-    ax1.annotate(st, xy=(30, vlocs[1]), color=colors[1],
+    st = 'Surround-then-Center'
+    ax1.annotate(st, xy=(30, vlocs[1]), color=colors[1], alpha = 1,
                  annotation_clip=False, fontsize='small')
-    st = 'center only'
-    ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0],
+    st = 'Center-Only'
+    ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0], alpha = 1,
                  annotation_clip=False, fontsize='small')
         # see annotation_clip=False
     ax1.set_ylim(-1.8, 4.5)
@@ -1514,11 +1580,11 @@ def plot_figure5():
                      annotation_clip=False, fontsize='small')
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
-                         fill=True, alpha=0.6, edgecolor='w',
+                         fill=True, alpha=1, edgecolor='w',
                          facecolor=colors[2])
         if key == 'D0':
             rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
-                             fill=True, alpha=0.6, edgecolor=colors[2],
+                             fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax2.add_patch(rect)
         #stim2
@@ -1530,7 +1596,7 @@ def plot_figure5():
     rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
                      alpha=0.6, edgecolor='w', facecolor=colors[0])
     ax2.add_patch(rect)
-    for i, st in enumerate(['surround only', 'surround then center', 'center only']):
+    for i, st in enumerate(['Surround-Only', 'Surround-then-Center', 'Center-Only']):
         ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
                      annotation_clip=False, fontsize='small')
     for ax in fig.get_axes():
@@ -1539,7 +1605,7 @@ def plot_figure5():
         # colored text
         #for line, text in zip(leg.get_lines(), leg.get_texts()):
             #text.set_color(line.get_color())
-        ax.set_ylabel('membrane potential (mV)')
+        ax.set_ylabel('Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
@@ -1673,7 +1739,7 @@ def plot_figure5half2():
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['rouge'], stdColors['vertSombre']]
+    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'], stdColors['vertSombre']]
     alpha = [0.5, 0.5, 1, 1]
     linewidth = [2, 2, 4, 1]
     #plotting
@@ -1758,22 +1824,26 @@ def plot_figure6():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly',
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sdUp', 'sdDown', 'linearPrediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['rouge'], stdColors['bleu'],
-              stdColors['violet'], stdColors['violet'], stdColors['violet']]
-    alpha = [0.5, 0.5, 0.7, 0.5, 0.5, 0.5]
+    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'],
+              stdColors['dark_rouge'], stdColors['dark_rouge'], stdColors['dark_rouge']]
+    alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     fig = plt.figure(figsize=(12, 6))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(121)
     for i, col in enumerate(cols[:3]):
-        ax1.plot(df[col], color=colors[i], alpha=alpha[i],
-                 label=col)
+        if (i == 2):
+            ax1.plot(df[col], color=colors[i], alpha=alpha[i],
+                     linewidth= 3, label=col)
+        else:
+            ax1.plot(df[col], color=colors[i], alpha=alpha[i],
+                     label=col)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -1782,19 +1852,20 @@ def plot_figure6():
                  label=df.columns[i])
     ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
                      color=colors[2], alpha=0.2)
-
+    #ax2.set_ylim(-0.2, 0.3)
     # set fontname and fontsize for y label
-    ax1.set_ylabel('normalized membrane potential (mV)')
-    #, fontname = 'Arial', fontsize = 14)
+    ax1.set_ylabel('Normalized membrane potential (mV)')
+    ax1.annotate("n=12", xy=(0.1, 0.8),
+                xycoords="axes fraction", ha='center')
     for ax in fig.get_axes():
-        leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
-                        handlelength=0)
+        #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+        #                handlelength=0)
         # colored text
-        for line, text in zip(leg.get_lines(), leg.get_texts()):
-            text.set_color(line.get_color())
+        #for line, text in zip(leg.get_lines(), leg.get_texts()):
+        #    text.set_color(line.get_color())
         ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
-        ax.set_xlabel('relative time (ms)')
+        ax.set_xlabel('Relative time (ms)')
         #, fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
@@ -1804,6 +1875,7 @@ def plot_figure6():
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # align zero between subplots
     align_yaxis(ax1, 0, ax2, 0)
+    change_plot_trace_amplitude(ax2, 1.35)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
@@ -1817,6 +1889,69 @@ def plot_figure6():
     return fig
 
 fig = plot_figure6()
+#%%
+def plot_1half_figure6():
+    """
+    plot_figure6
+    """
+    filename = 'data/fig6.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+            'sdUp', 'sdDown', 'linearPrediction']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+    colors = ['k', stdColors['rouge'], stdColors['rouge'],
+              stdColors['rouge'], stdColors['rouge'], stdColors['rouge']]
+    alpha = [0.5, 0.7, 1, 0.6, 0.6, 0.6]
+
+    fig = plt.figure(figsize=(6, 5))
+   # fig.suptitle(os.path.basename(filename))
+    
+    ax2 = fig.add_subplot(111)
+    for i in [2]:
+        print('i=', i, colors[i])
+        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
+                 linewidth=2, label=df.columns[i])
+    ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
+                     color=colors[2], alpha=0.2)
+    ax2.set_ylim(-0.1, 0.4)
+    ax2.set_ylabel('Normalized membrane potential')
+    ax2.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction",
+                 ha='center')
+    
+    for ax in fig.get_axes():
+        #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+        #                handlelength=0)
+        # colored text
+        #for line, text in zip(leg.get_lines(), leg.get_texts()):
+        #    text.set_color(line.get_color())
+        ax.set_xlim(-150, 150)
+        # set fontname and fontsize for x label
+        ax.set_xlabel('Relative time (ms)')
+        #, fontname = 'Arial', fontsize = 14)
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    
+    fig.tight_layout()
+    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+fig = plot_1half_figure6()
 
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
