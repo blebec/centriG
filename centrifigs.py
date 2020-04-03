@@ -201,7 +201,7 @@ def plot_figure2(data, colsdict, fill=True):
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
         ax.plot(data[col], color=inv_colors[i],
-                alpha=1, label=col, linewidth=1)
+                alpha=1, label=col)#, linewidth=1)
     #____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
@@ -255,7 +255,7 @@ def plot_figure2(data, colsdict, fill=True):
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=inv_colors[i],
-                alpha=1, label=col, linewidth=1)
+                alpha=1, label=col)#, linewidth=1)
         # ax.fill_between(df.index, df[col],
         #                 color=inv_colors[i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
@@ -446,9 +446,9 @@ def plot_half_figure2(data, colsdict):
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col, linewidth=1)
-        ax.fill_between(df.index, df[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
+                alpha=1, label=col)#, linewidth=1)
+        # ax.fill_between(df.index, df[col],
+        #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
@@ -589,7 +589,7 @@ def plot_1quarter_figure2(data, colsdict):
     ax = spkaxes
     for i, col in enumerate(cols[::-1]):
         ax.plot(data[col], color=colors[::-1][i],
-                alpha=1, label=col, linewidth=1)
+                alpha=1, label=col)#, linewidth=1)
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
     #____ plots pop (column 1-3)
@@ -688,9 +688,9 @@ def plot_2quarter_figure2(data, colsdict):
     ax = spkaxes
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col, linewidth=1)
-        ax.fill_between(df.index, df[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
+                alpha=1, label=col)#, linewidth=1)
+        # ax.fill_between(df.index, df[col],
+        #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center', fontsize='large')
 
@@ -754,9 +754,9 @@ def plot_2ndhalf_2ndquarter_figure2(data, colsdict):
     ax = spkaxes
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col, linewidth=1)
-        ax.fill_between(df.index, df[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
+                alpha=1, label=col)#, linewidth=1)
+        # ax.fill_between(df.index, df[col],
+        #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center', fontsize='large')
 
@@ -862,9 +862,9 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col, linewidth=1)
-        ax.fill_between(df.index, df[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
+                alpha=1, label=col)#, linewidth=1)
+        # ax.fill_between(df.index, df[col],
+        #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
@@ -874,13 +874,11 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax = spkaxes[2]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col],
-                        color=inv_colors[i], alpha=0.5, label=col) 
+        ax.plot(df[col], color=inv_colors[i], alpha=1, label=col) 
     #errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            for j in [0, 1]:
-                ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                        label=col, linewidth=0.5)
+    for i, col in enumerate(cols[2:]):
+        ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                    alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)  
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
@@ -1075,15 +1073,17 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     ax = spkaxes[-2]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i],
-                        alpha=inv_alpha[i]/2)
+        # ax.fill_between(df.index, df[col], color=inv_colors[i],
+        #                 alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i],
-                    alpha=1, label=col, linewidth=0.5)
+        ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                        alpha=alpha[i]/2, label=col)
+        # for j in [0, 1]:
+        #     ax.plot(df[col[j]], color=colors[i],
+        #             alpha=1, label=col, linewidth=0.5)
     #ax.annotate("n=5", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     #popSpkNsig
@@ -1093,16 +1093,17 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for i, col in enumerate(cols[:2][::-1]):
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
-        ax.fill_between(df.index, df[col], color=inv_colors[i],
-                        alpha=inv_alpha[i]/2)
+        # ax.fill_between(df.index, df[col], color=inv_colors[i],
+        #                 alpha=inv_alpha[i]/2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i],
-                    alpha=1, label=col, linewidth=0.5)
+        ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                        alpha=alpha[i]/2)
+        # for j in [0, 1]:
+        #     ax.plot(df[col[j]], color=colors[i],
+        #             alpha=1, label=col, linewidth=0.5)
     #ax.annotate("n=15", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
-
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
