@@ -21,7 +21,7 @@ from datetime import datetime
 #===========================
 # global setup
 font_size = 'medium' # large, medium
-anot = False         # to draw the date and name on the bottom of the plot
+anot = True         # to draw the date and name on the bottom of the plot
 #============================
 
 def go_to_dir():
@@ -256,8 +256,8 @@ def plot_figure2(data, colsdict, fill=True):
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=inv_colors[i],
                 alpha=1, label=col, linewidth=1)
-        ax.fill_between(df.index, df[col],
-                        color=inv_colors[i], alpha=0.5, label=col)
+        # ax.fill_between(df.index, df[col],
+        #                 color=inv_colors[i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
@@ -267,15 +267,17 @@ def plot_figure2(data, colsdict, fill=True):
     ax = spkaxes[2]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i],
-                        alpha=inv_alpha[i]/2)
+        # ax.fill_between(df.index, df[col], color=inv_colors[i],
+        #                 alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i],
-                    alpha=1, label=col, linewidth=0.5)
+        ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                    alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)        
+        # for j in [0, 1]:
+        #     ax.plot(df[col[j]], color=colors[i],
+        #             alpha=1, label=col, linewidth=0.5)
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #popSpkNsig
@@ -283,15 +285,17 @@ def plot_figure2(data, colsdict, fill=True):
     ax = spkaxes[3]
     #traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.fill_between(df.index, df[col], color=inv_colors[i],
-                        alpha=inv_alpha[i]/2)
+        # ax.fill_between(df.index, df[col[0]], df[col[1]], color=inv_colors[i],
+        #                 alpha=inv_alpha[i]/2)
         ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
                 label=col, linewidth=2)
     #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        for j in [0, 1]:
-            ax.plot(df[col[j]], color=colors[i],
-                    alpha=1, label=col, linewidth=0.5)
+        ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                    alpha=alpha[i]/2)#, label=col, linewidth=0.5)
+        # for j in [0, 1]:
+        #     ax.plot(df[col[j]], color=colors[i],
+        #             alpha=1, label=col, linewidth=0.5)
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
