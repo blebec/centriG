@@ -1,29 +1,36 @@
 Stimulations:
 
-Figure 1:
+Marc : Figure 1:
 remplacer la couleur des flêches de proche en proche actuellement en bleu par du gris
 réinstroduire dans les schémas des configurations FULL-ISO et FULL-CROSS les flêches des couleurs correspondantes
+
+QUESTION : color blind-reader
+
 
 Résultats:
 
 Figure 2:
+Question : 3 ou 4 colonnes ?
+Done : Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
+        et 4ème (sous-pop CP-ISO non-significative et Center-Only) collonnes, en haut et an bas (vm et spikes)
+        en trait plein pour la moyenne et colored shaded area +/- SEM
 
-Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
-et 4ème (sous-pop CP-ISO non-significative et Center-Only) collonnes, en haut et an bas (vm et spikes)
-en trait plein pour la moyenne et colored shaded area +/- SEM
-
-Faire apparaître le point bleu indiquant le temps t ou la réponse center-only devient significative
-i) pour la cellule individuelle (colonne de gauche)
-ii) pour les 3 autres colonnes à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir
+TODO : Faire apparaître le point bleu indiquant le temps t ou la réponse center-only devient significative
+        i) pour la cellule individuelle (colonne de gauche) 
+        ii) pour les 3 autres colonnes à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir
 
 Figure 3: 
-
-Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir
+Done:
+    Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)     avec la trace Center-only en noir
 
 Figure 4:
-Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir
+Done : Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)
+        avec la trace Center-only en noir
 
 Figure 5:
+Question : 
+    extraire les valeurs (point bleu)
+    lila ?
 Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)
 
 Figure 6:

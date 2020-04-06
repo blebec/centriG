@@ -1,3 +1,5 @@
+see https://www.jneurosci.org/content/information-authors#submitting_a_manuscript
+
 Figures must be submitted as separate files in TIFF or EPS format 
 and be submitted at the size they are to appear: 
 1 column (maximum width 8.5 cm), 
@@ -12,3 +14,8 @@ Grayscale must be supplied at a minimum of 300 dpi.
 For figures in vector-based format, 
 all fonts should be converted to outlines 
 and saved as EPS files to ensure that they are reproduced correctly."
+
+gag with dpi and point size with matplotlib 
+(see https://stackoverflow.com/questions/47633546/relationship-between-dpi-and-figure-size)
+
+color adjusted for color-blind readers 

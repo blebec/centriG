@@ -40,6 +40,7 @@ def go_to_dir():
         os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
     return True
 go_to_dir()
+savePath = '/Users/cdesbois/ownCloud/cgFigures'
 
 #colors
 stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
@@ -58,10 +59,13 @@ speedColors = {'orangeFonce' :     [x/256 for x in [252, 98, 48]],
                'orange' : [x/256 for x in [253, 174, 74]],
                'jaune' : [x/256 for x in [254, 226, 137]]}
 
+
+#NB fig size : 8.5, 11.6 or 17.6 cm 
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
           'legend.fontsize': font_size,
-          'figure.figsize': (15, 5),
+          'figure.figsize': (11.6, 5),
+          'figure.dpi'    : 100, 
           'axes.labelsize': font_size,
           'axes.titlesize': font_size,
           'xtick.labelsize': font_size,
@@ -167,7 +171,7 @@ def plot_figure2(data, colsdict, fill=True):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(14, 8)) #fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(17.6, 8)) #fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     axes = []
     axL = fig.add_subplot(2, 4, 1)
@@ -380,7 +384,7 @@ def plot_half_figure2(data, colsdict):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(8.5, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(4):
@@ -569,7 +573,7 @@ def plot_1quarter_figure2(data, colsdict):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(6, 10))
+    fig = plt.figure(figsize=(8.5, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(2):
@@ -662,7 +666,7 @@ def plot_2quarter_figure2(data, colsdict):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(6, 10))
+    fig = plt.figure(figsize=(8.5, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(2):
@@ -744,7 +748,7 @@ def plot_2ndhalf_2ndquarter_figure2(data, colsdict):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(5, 5))
+    fig = plt.figure(figsize=(8.5, 5))
     spkaxes = fig.add_subplot(111)
     
     df = data.loc[-30:35]       # limit xscale
@@ -800,7 +804,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     inv_alpha = alpha[::-1]
     
     
-    fig = plt.figure(figsize=(10, 8))
+    fig = plt.figure(figsize=(11.6, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(6):
@@ -976,7 +980,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     # no individual : focus on initial response
     df = data.loc[-30:35]
 
-    fig = plt.figure(figsize=(8, 8)) #fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(8.5, 8)) #fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     axes = []
     for i in range(4):
@@ -1255,7 +1259,7 @@ def plot_figure2B(pltmode, sig=True):
     df.index += 1 # cells = 1 to 37
 
     if pltmode == 'horizontal':
-        fig = plt.figure(figsize=(10, 4))
+        fig = plt.figure(figsize=(11.6, 4))
     else:
         if pltmode == 'vertical':
             fig = plt.figure(figsize=(6, 6))
@@ -1338,7 +1342,8 @@ def plot_figure3(kind):
               stdColors['jaune'], stdColors['bleu']]
     #alpha = [0.5, 0.8, 0.5, 1, 0.6]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
-    fig = plt.figure(figsize=(8, 7))
+    
+    fig = plt.figure(figsize=(8.5, 7))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
@@ -1358,7 +1363,9 @@ def plot_figure3(kind):
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
-
+    
+    # bluePoint
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1] )
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     #leg = ax.legend(loc=2, markerscale=None, frameon=False,
                     #handlelength=0)
@@ -1401,7 +1408,7 @@ def plot_figure3_signonsig():
               stdColors['jaune'], stdColors['bleu']]
     alpha = [0.6, 0.8, 0.5, 1, 0.6]
 
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(11.6, 6))
     axes = []
     for i in range(2):
         axes.append(fig.add_subplot(1, 2, i+1))
@@ -1427,6 +1434,9 @@ def plot_figure3_signonsig():
                         handlelength=0)
         for line, text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
+        # point bleu
+        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['bleu'] )
+
     axes[0].set_ylabel('normalized membrane potential')
     for ax in axes:
         ax.set_ylim(-0.1, 1.1)
@@ -1437,7 +1447,6 @@ def plot_figure3_signonsig():
         ax.set_xlabel('relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-
     fig.tight_layout()
 
     if anot:
@@ -1466,7 +1475,7 @@ def plot_figure4():
               speedColors['orange'], speedColors['jaune']]
     alpha = [0.8, 1, 0.8, 0.8, 1]
 
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(8.5, 6))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -1492,6 +1501,8 @@ def plot_figure4():
     #    text.set_color(line.get_color())
     ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
                 xycoords="axes fraction", ha='center')
+    # bluePoint
+    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=stdColors['bleu'])
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -1526,7 +1537,7 @@ def plot_figure5():
     colors = ['k', stdColors['rouge'], stdColors['orangeFonce'], stdColors['vertSombre']]
     alpha = [0.5, 0.7, 1, 0.6]
     #plotting
-    fig = plt.figure(figsize=(6, 8))
+    fig = plt.figure(figsize=(8.5, 8))
     # SUGGESTION increase a bit y dimension or subplots height
 #    fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(211)
