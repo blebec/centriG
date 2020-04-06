@@ -1534,8 +1534,8 @@ def plot_figure5():
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'], stdColors['vertSombre']]
-    alpha = [0.5, 0.7, 1, 0.6]
+    colors = ['k', stdColors['rouge'], stdColors['bleuViolet'], stdColors['vertSombre']]
+    alpha = [0.6, 0.8, 0.8, 0.8]
     #plotting
     fig = plt.figure(figsize=(8.5, 8))
     # SUGGESTION increase a bit y dimension or subplots height
@@ -1589,7 +1589,7 @@ def plot_figure5():
         # see annotation_clip=False
     ax1.set_ylim(-1.8, 4.5)
 
-    ax2
+    #ax2
     for key in dico.keys():
         # names
         ax2.annotate(key, xy=(dico[key]+3, vlocs[0]), alpha=0.6,
@@ -1846,7 +1846,7 @@ def plot_figure6():
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'],
+    colors = ['k', stdColors['rouge'], stdColors['bleuViolet'],
               stdColors['dark_rouge'], stdColors['dark_rouge'], stdColors['dark_rouge']]
     alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
