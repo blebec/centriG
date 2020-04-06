@@ -8,6 +8,5 @@
 
   lines 273 and 294 : changed the fill between arguments
 
-  
+- adjusted the other versions of the figure 2
 
-  
