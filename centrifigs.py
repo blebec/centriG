@@ -166,7 +166,7 @@ def load2():
 
 def plot_figure2(data, colsdict, fill=True):
     """
-    plot_figure2
+    plot_figure2 (individual + moy + sig + nonsig)
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -379,7 +379,7 @@ plt.close('all')
 
 def plot_half_figure2(data, colsdict):
     """
-    plot_figure2
+    plot_figure2 individual + pop
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -568,7 +568,7 @@ plt.close('all')
 
 def plot_1quarter_figure2(data, colsdict):
     """
-    plot_figure2 1st quarter
+    plot_figure2 individual
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -661,7 +661,7 @@ plt.close('all')
 
 def plot_2quarter_figure2(data, colsdict):
     """
-    plot_figure2 2nd quarter
+    plot_figure2 (pop only)
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -743,7 +743,7 @@ plt.close('all')
 
 def plot_2ndhalf_2ndquarter_figure2(data, colsdict):
     """
-    plot_figure2 2nd quarter
+    plot_figure2 'spiking pop only'
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -796,7 +796,7 @@ plt.close('all')
 
 def plot_3quarter_figure2(data, colsdict, fill=True):
     """
-    plot_3/4 of figure2
+    figure2 (individual + pop + sig)
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -807,8 +807,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     fig = plt.figure(figsize=(11.6, 8))
     #build axes with sharex and sharey
     axes = []
-    for i in range(6):
-        axes.append(fig.add_subplot(2, 3, i+1))
+    for i in range(1,7):
+        axes.append(fig.add_subplot(2, 3, i))
         
     # axes list
     vmaxes = axes[:3]      # vm axes = top row
@@ -838,8 +838,6 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-
-
     #popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
@@ -857,9 +855,20 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                     for j in [0, 1]:
                         ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                                 label=col, linewidth=0.5)
+    
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-
+    adv = str(x0 - x1)
+    ax.annotate("mean advance " +  adv, xy= (0.3, 0.8), ha='center')
     
     #pop spike
     cols = colsdict['popSpk']
@@ -883,8 +892,19 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                     alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)  
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+    adv = str(x0 - x1)
+    ax.annotate("mean advance " +  adv, xy= (0.3, 0.8), ha='center')
 
     #labels
     for ax in axes:

@@ -10,16 +10,21 @@ QUESTION : color blind-reader
 Résultats:
 
 Figure 2:
-Question : 3 ou 4 colonnes ?
-Done : Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
+delta y  sur n = 10
+Done :  3 colonnes
+        Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
         et 4ème (sous-pop CP-ISO non-significative et Center-Only) collonnes, en haut et an bas (vm et spikes)
         en trait plein pour la moyenne et colored shaded area +/- SEM
 
 TODO : Faire apparaître le point bleu indiquant le temps t ou la réponse center-only devient significative
-        i) pour la cellule individuelle (colonne de gauche) 
-        ii) pour les 3 autres colonnes à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir
+        i) pour la cellule individuelle (colonne de gauche)      vm : x = 41.5, y= 0.047 + ligne verticale   Pike : x = 39.8, y = O.1523 
+        ii) pour les 3 autres colonnes à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir.
+
+ajouter $delta$
 
 Figure 3: 
+
+unique cellules significatives
 Done:
     Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)     avec la trace Center-only en noir
 
@@ -28,8 +33,13 @@ Done : Rajouter un point bleu à l'intersection de l'axe vertical relative time 
         avec la trace Center-only en noir
 
 Figure 5:
+linewidth= 1
+vert en pointillé
+décaler les boîtes vers le bas
+déplacer les D1, D4, ...
 Question : 
     extraire les valeurs (point bleu)
+    centerOnly x = 41 ms, y = 0.1
     lila ?
 Done :Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)
 
@@ -41,7 +51,7 @@ ii)à droite (comparaison avec la prédiction linéaire dynamique) +/- SEM de la
 
 Figure 7:
 
-A obtenir
+A obtenir (Cyril)
 
 Figure 8:
 
