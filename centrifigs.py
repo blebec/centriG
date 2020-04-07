@@ -1507,7 +1507,7 @@ def plot_figure3_signonsig():
 
     return fig
 
-plot_figure3_signonsig()
+#plot_figure3_signonsig()
 #%%
 #plt.close('all')
 def plot_figure4():
@@ -1784,7 +1784,7 @@ def plot_figure5half1():
 
     return fig
 
-fig = plot_figure5half1()
+#fig = plot_figure5half1()
 #%%
 plt.close('all')
 
@@ -1878,7 +1878,7 @@ def plot_figure5half2():
 
     return fig
 
-fig = plot_figure5half2()
+#fig = plot_figure5half2()
 #%%
 def plot_figure6():
     """

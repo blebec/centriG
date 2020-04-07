@@ -27,7 +27,7 @@ ajouter $delta$
 
 Figure 3: 
 
-unique cellules significatives
+~~unique cellules significatives
 Done:
     ~~Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)     avec la trace Center-only en noir~~
 
