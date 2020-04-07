@@ -1344,7 +1344,9 @@ def plot_figure2B(pltmode, sig=True):
         ticks = [df.index.min(), df.index.max()]
         ax.set_xticks(ticks)
     axes[0].set_ylabel('Phase advance (ms)')
-    axes[1].set_ylabel('Delta response')
+    txt = r'$\Delta$ response'
+    axes[1].set_ylabel(txt)
+#    axes[1].set_ylabel('Delta response')
     if pltmode == 'horizontal':
         align_yaxis(axes[0], 0, axes[1], 0)
         change_plot_trace_amplitude(axes[1], 0.75)
