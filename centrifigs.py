@@ -1493,9 +1493,9 @@ fig = plot_figure4()
 #%%
 plt.close('all')
 
-def plot_figure5():
+def plot_figure6():
     """
-    plot_figure5
+    plot_figure6
     """
     filename = 'data/fig5.xlsx'
     df = pd.read_excel(filename)
@@ -1525,26 +1525,25 @@ def plot_figure5():
 
     ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
-        if (i == 2):
+        if (i == 3):
             ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                     linewidth= 3, label=col)
+                     label=col, linestyle='--', linewidth=1.5)
         else:
             ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
                      label=col)
-
     ax2.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    vlocs = np.linspace(-0.7, -1.6, 4)
+    vlocs = np.linspace(-0.7, -1.7, 4)
 #    vlocs = [-0.7, -1, -1.3, -1.6]
     dico = dict(zip(names, hlocs))
 
     #ax1
     for key in dico.keys():
         #name
-        ax1.annotate(key, xy=(dico[key]+3, vlocs[0]), alpha=0.6,
+        ax1.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
@@ -1568,7 +1567,7 @@ def plot_figure5():
     #ax2
     for key in dico.keys():
         # names
-        ax2.annotate(key, xy=(dico[key]+3, vlocs[0]), alpha=0.6,
+        ax2.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
@@ -1604,211 +1603,31 @@ def plot_figure5():
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
+        # response start
+        x = 41
+        y = df['Center-Only'].loc[x]
+        ax.plot(x, y, 'o', color= stdColors['bleu'])
+        ax.vlines(x, -0.5, lims[1], color= stdColors['bleu'], alpha=0.6)
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     fig.tight_layout()
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
-fig = plot_figure5()
+fig = plot_figure6()
+
 #%%
 plt.close('all')
 
-def plot_figure5half1():
+def plot_figure7():
     """
-    plot_figure5
-    """
-    filename = 'data/fig5.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    # rename columns
-    cols = df.columns
-    cols = ['Center only', 'Surround then center', 'Surround only',
-            'Static linear prediction']
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['bleu'], stdColors['vert']]
-    #alpha = [0.5, 0.7, 0.8, 0.8]
-    alpha = [1, 1, 1, 1]
-    #plotting
-    fig = plt.figure(figsize=(9, 12))
-    # SUGGESTION increase a bit y dimension or subplots height
-#    fig.suptitle(os.path.basename(filename))
-    ax1 = fig.add_subplot(211)
-    for i, col in enumerate(cols[:2]):
-        ax1.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                 label=col)
-    ax1.spines['bottom'].set_visible(True)
-    ax1.axes.get_xaxis().set_visible(True)
-    ax1.set_xlabel('Time (ms)')
-
-    # stims
-    step = 21
-    hlocs = np.arange(0, -110, -step)
-    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    vlocs = np.linspace(-0.7, -1.6, 4)
-#    vlocs = [-0.7, -1, -1.3, -1.6]
-    dico = dict(zip(names, hlocs))
-
-    #ax1
-    for key in dico.keys():
-        #name
-        ax1.annotate(key, xy=(dico[key]+3, vlocs[0]), alpha=1,
-                     annotation_clip=False, fontsize='small')
-        #stim1
-        rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
-                         fill=True, alpha=1, edgecolor='w',
-                         facecolor='r')
-        ax1.add_patch(rect)
-    #center
-    rect = Rectangle(xy=(0, vlocs[2]), width=step, height=0.3, fill=True,
-                     alpha=1, edgecolor='w', facecolor='k')
-    ax1.add_patch(rect)
-
-    st = 'Surround then center'
-    ax1.annotate(st, xy=(30, vlocs[1]), color=colors[1],
-                 annotation_clip=False, fontsize='small', alpha=1)
-    st = 'Center only'
-    ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0],
-                 annotation_clip=False, fontsize='small', alpha=1)
-        # see annotation_clip=False
-    ax1.set_ylim(-1.8, 4.5)
-
-    for ax in fig.get_axes():
-        leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
-                        handlelength=0)
-        # colored text
-        for line, text in zip(leg.get_lines(), leg.get_texts()):
-            text.set_color(line.get_color())
-            text.set_alpha(1)
-        ax.set_ylabel('membrane potential (mV)')
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-        for dloc in hlocs:
-            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.5)
-    fig.tight_layout()
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5half1',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-#fig = plot_figure5half1()
-#%%
-plt.close('all')
-
-def plot_figure5half2():
-    """
-    plot_figure5
-    """
-    filename = 'data/fig5.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    # rename columns
-    cols = df.columns
-    cols = ['Center only', 'Surround then center', 'Surround only',
-            'Static linear prediction']
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['orangeFonce'], stdColors['vertSombre']]
-    alpha = [0.5, 0.5, 1, 1]
-    linewidth = [2, 2, 4, 1]
-    #plotting
-    fig = plt.figure(figsize=(9, 12))
-
-    ax2 = fig.add_subplot(211)#, sharex=ax1, sharey=ax1)
-    for i, col in enumerate(cols):
-        ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                 label=col, linewidth=linewidth[i])
-
-    ax2.set_xlabel('Time (ms)')
-    # stims
-    step = 21
-    hlocs = np.arange(0, -110, -step)
-    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    vlocs = np.linspace(-0.7, -1.6, 4)
-#    vlocs = [-0.7, -1, -1.3, -1.6]
-    dico = dict(zip(names, hlocs))
-
-    #ax2
-    for key in dico.keys():
-        #names
-        ax2.annotate(key, xy=(dico[key]+3, vlocs[0]), alpha=1,
-                     annotation_clip=False, fontsize='small')
-        # stim1
-        rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
-                         fill=True, alpha=1, edgecolor='w',
-                         facecolor=colors[2])
-        if key == 'D0':
-            rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
-                             fill=True, alpha=1, edgecolor=colors[2],
-                             facecolor='w')
-        ax2.add_patch(rect)
-        # stim2
-        rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
-                         fill=True, alpha=0.5, edgecolor='w',
-                         facecolor=colors[1])
-        ax2.add_patch(rect)
-    # center
-    rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
-                     alpha=0.5, edgecolor='w', facecolor=colors[0])
-    ax2.add_patch(rect)
-    for i, st in enumerate(['Surround only', 'Surround then center', 'Center only']):
-        ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i], alpha=alpha[2-i],
-                     annotation_clip=False, fontsize='small')
-    ax2.set_ylim(-1.8, 4.5)
-    for ax in fig.get_axes():
-        leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
-                        handlelength=0)
-        # colored text
-        for line, text in zip(leg.get_lines(), leg.get_texts()):
-            text.set_color(line.get_color())
-            text.set_alpha(line.get_alpha())
-        ax.set_ylabel('membrane potential (mV)')
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-        for dloc in hlocs:
-            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.5)
-    fig.tight_layout()
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure5half2',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-#fig = plot_figure5half2()
-#%%
-def plot_figure6():
-    """
-    plot_figure6
+    plot_figure7
     """
     filename = 'data/fig6.xlsx'
     df = pd.read_excel(filename)
@@ -1832,10 +1651,13 @@ def plot_figure6():
     for i, col in enumerate(cols[:3]):
         if (i == 2):
             ax1.plot(df[col], color=colors[i], alpha=alpha[i],
-                     linewidth= 3, label=col)
+                     linewidth= 2, label=col)
         else:
             ax1.plot(df[col], color=colors[i], alpha=alpha[i],
                      label=col)
+    x = 0
+    y = df.centerOnly.loc[0]
+    ax1.plot(x, y, 'o', stdColors['bleu'])
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -1874,13 +1696,13 @@ def plot_figure6():
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
-fig = plot_figure6()
+fig = plot_figure7()
 #%%
 def plot_1half_figure6():
     """

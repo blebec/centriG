@@ -64,10 +64,10 @@ Done :~~Remplacer la couleur de la trace Filling-in actuellement en orange par d
 
 Figure 7:
 
-Done ; Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)
+Done ; ~~Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)~~
 i) à gauche (superposition avec les traces Surround-then-Center) 
 ii)à droite (comparaison avec la prédiction linéaire dynamique) +/- SEM de la même couleur
-NR TO DO rajouter le point bleu à l'intersection Vertical axis t = 0 ms (relative time) et Center only sur le panel de gauche 
+~~NR TO DO rajouter le point bleu à l'intersection Vertical axis t = 0 ms (relative time) et Center only sur le panel de gauche~~
 
 
 Figure 8:
