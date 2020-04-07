@@ -1427,15 +1427,15 @@ def plot_figure3(kind):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
 
-fig = plot_figure3('pop')
-#fig = plot_figure3('sig')
+#fig = plot_figure3('pop')
+fig = plot_figure3('sig')
 #fig = plot_figure3('nonsig')
 
 #pop all cells
