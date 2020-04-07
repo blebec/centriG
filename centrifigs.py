@@ -195,6 +195,12 @@ def plot_figure2(data, colsdict, fill=True):
     for i, col in enumerate(cols):
         ax.plot(data[col], color=colors[i], alpha=alpha[i],
                 label=col)
+    #start point
+    x = 41.5
+    y = data.indiVmctr.loc[x]
+    ax.plot(x, y, 'o', color= stdColors['bleu'])
+    lims = ax.get_ylim()
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
     # invert the plot order for spikes
     inv_colors = colors[::-1]
     inv_alpha = alpha[::-1]
@@ -206,6 +212,12 @@ def plot_figure2(data, colsdict, fill=True):
                         color=colors[::-1][i], alpha=0.5, label=col)
         ax.plot(data[col], color=inv_colors[i],
                 alpha=1, label=col)#, linewidth=1)
+#    ax.plot(39.8, 0.1523, 'o', color= stdColors['bleu'])
+    x = 39.8
+    y = data.indiSpkCtr.loc[x]
+    ax.plot(x, y, 'o', color= stdColors['bleu'])
+    lims = ax.get_ylim()
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
     #____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
@@ -820,6 +832,12 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     for i, col in enumerate(cols):
         ax.plot(data[col], color=colors[i], alpha=alpha[i],
                 label=col)
+    #start point
+    x = 41.5
+    y = data.indiVmctr.loc[x]
+    ax.plot(x, y, 'o', color= stdColors['bleu'])
+    lims = ax.get_ylim()
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
     #individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -828,6 +846,16 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                 alpha=1, label=col, linewidth=1)
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
+    #start point
+    x = 39.8
+    y = data.indiSpkCtr.loc[x]
+    ax.plot(x, y, 'o', color= stdColors['bleu'])
+    lims = ax.get_ylim()
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
+    #individual spike
+    cols = colsdict['indSpk']
+    ax = spkaxes[0]
+
     #____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
