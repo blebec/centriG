@@ -245,6 +245,15 @@ def plot_figure2(data, colsdict, fill=True):
                     for j in [0, 1]:
                         ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                                 label=col, linewidth=0.5)
+    #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #popVmNsig
@@ -294,6 +303,16 @@ def plot_figure2(data, colsdict, fill=True):
         # for j in [0, 1]:
         #     ax.plot(df[col[j]], color=colors[i],
         #             alpha=1, label=col, linewidth=0.5)
+    #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #popSpkNsig
@@ -358,7 +377,7 @@ def plot_figure2(data, colsdict, fill=True):
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
-    #fis individual example
+    #fit individual example
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
@@ -373,6 +392,7 @@ def plot_figure2(data, colsdict, fill=True):
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
+        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
@@ -391,7 +411,7 @@ plt.close('all')
 
 def plot_half_figure2(data, colsdict):
     """
-    plot_figure2 individual + pop
+    plot_figure2 indiv + pop
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -429,34 +449,6 @@ def plot_half_figure2(data, colsdict):
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-#    #popVmSig
-#    cols = colsdict['popVmSig']
-#    ax = vmaxes[2]
-#    #traces
-#    for i, col in enumerate(cols[:2]):
-#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-#                label=col)
-#        #errors : iterate on tuples
-#    for i, col in enumerate(cols[2:]):
-#        for j in [0, 1]:
-#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-#                    label=col, linewidth=0.5)
-#    ax.annotate("n=10", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
-#    #popVmNsig
-#    cols = colsdict['popVmNsig']
-#    ax = vmaxes[3]
-#    #traces
-#    for i, col in enumerate(cols[:2]):
-#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-#                label=col)
-#    #errors : iterate on tuples
-#    for i, col in enumerate(cols[2:]):
-#        for j in [0, 1]:
-#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-#                    label=col, linewidth=0.5)
-#    ax.annotate("n=27", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
     #pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
@@ -467,39 +459,6 @@ def plot_half_figure2(data, colsdict):
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-
-    #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
-    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
-    #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
-#    #popSpkSig
-#    cols = colsdict['popSpkSig']
-#    ax = spkaxes[2]
-#    #traces
-#    for i, col in enumerate(cols[:2]):
-#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-#                label=col)
-#    #errors : iterate on tuples
-#    for i, col in enumerate(cols[2:]):
-#        for j in [0, 1]:
-#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-#                    label=col, linewidth=0.5)
-#    ax.annotate("n=5", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
-#    #popSpkNsig
-#    cols = colsdict['popSpkNsig']
-#    ax = spkaxes[3]
-#    #traces
-#    for i, col in enumerate(cols[:2]):
-#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-#                label=col)
-#    #errors : iterate on tuples
-#    for i, col in enumerate(cols[2:]):
-#        for j in [0, 1]:
-#            ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-#                    label=col, linewidth=0.5)
-#    ax.annotate("n=15", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
-
     #labels
     for ax in axes:
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
@@ -884,6 +843,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                         ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                                 label=col, linewidth=0.5)
     
+    #advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -920,6 +880,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                     alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)  
+    #advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -928,7 +889,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
     ax.plot(x1, y, '|', color=stdColors['bleu'])
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
-
+    
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     adv = str(x0 - x1)
@@ -1079,7 +1040,16 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
                 for j in [0, 1]:
                     ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                             label=col, linewidth=0.5)
-    #ax.annotate("n=10", xy=(0.2, 0.8),
+    #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+#ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     #popVmNsig
     cols = colsdict['popVmNsig']
@@ -1101,21 +1071,6 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
                             label=col, linewidth=0.5)
     #ax.annotate("n=27", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
-#    #pop spike
-#    cols = colsdict['popSpk']
-#    ax = spkaxes[1]
-#    for i, col in enumerate(cols[::-1]):
-#        ax.plot(df[col], color=colors[::-1][i],
-#                alpha=1, label=col, linewidth=1)
-#        ax.fill_between(df.index, df[col],
-#                        color=colors[::-1][i], alpha=0.5, label=col)
-#    ax.annotate("n=20", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
-
-    #TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
-    #TODO extract 1)rows[:2],cols[:2] pannels of fig2 as original pannels
-    #             2)rows[:2],cols[3:4] pannels of fig2 as independent pannels  of new fig
-
     #NB for spiking response, the control should be plotted last,
     # ie revert the order
     inv_colors = colors[::-1]
@@ -1133,9 +1088,15 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                         alpha=alpha[i]/2, label=col)
-        # for j in [0, 1]:
-        #     ax.plot(df[col[j]], color=colors[i],
-        #             alpha=1, label=col, linewidth=0.5)
+    #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
     #ax.annotate("n=5", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     #popSpkNsig
@@ -1151,9 +1112,6 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                         alpha=alpha[i]/2)
-        # for j in [0, 1]:
-        #     ax.plot(df[col[j]], color=colors[i],
-        #             alpha=1, label=col, linewidth=0.5)
     #ax.annotate("n=15", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     #labels
@@ -1181,38 +1139,6 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for ax in spkaxes:
         ax.set_ylim(-0.10, 1.3)
         ax.set_xlabel('Relative time (ms)')
-
-#    # stimulations
-#    step = 28
-#    xlocs = np.arange(0, -150, -step)
-#    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-#    dico = dict(zip(names, xlocs))
-#    #lines
-#    for ax in [vmaxes[0], spkaxes[0]]:
-#        lims = ax.get_ylim()
-#        for dloc in xlocs:
-#            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
-#    # stim location
-#    ax = spkaxes[0]
-#    for key in dico.keys():
-#        ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
-#        # stim
-#        rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-#                         alpha=0.6, edgecolor='w', facecolor='r')
-#        ax.add_patch(rect)
-#        #center
-#    rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
-#                     alpha=0.6, edgecolor='w', facecolor='k')
-#    ax.add_patch(rect)
-#    #fis individual example
-#    vmaxes[0].set_ylim(-4, 13)
-#    spkaxes[0].set_ylim(-5.5, 20)
-#    # align zero between plots  NB ref = first plot
-#    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-#    align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
-#    # adjust amplitude (without moving the zero)
-#    change_plot_trace_amplitude(vmaxes[1], 0.85)
-#    change_plot_trace_amplitude(spkaxes[1], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()

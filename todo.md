@@ -1,4 +1,4 @@
-Stimulations:
+wifion	Stimulations:
 
 Marc : Figure 1:
 remplacer la couleur des flêches de proche en proche actuellement en bleu par du gris
@@ -53,15 +53,14 @@ Pannel C: (voir si la proposition est intéressante)
 	ii) pour le jaune un patch de Gabor lui aussi horizontal mais en Haut et en bas 
 
 Figure 6 (old figure 5):
-linewidth= 1
-vert en pointillé
-décaler les boîtes vers le bas
-déplacer les D1, D4, ...
+~~linewidth~~
+~~vert en pointillé~~
+~~décaler les boîtes vers le bas~~
+~~déplacer les D1, D4, ...~~
 Question : 
-    extraire les valeurs (point bleu)
-    centerOnly x = 41 ms, y = 0.1
-    lila ?
-Done :Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)
+    ~~extraire les valeurs (point bleu)~~
+    ~~centerOnly x = 41 ms, y = 0.1~~
+Done :~~Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)~~
 
 Figure 7:
 
