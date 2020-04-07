@@ -1,4 +1,4 @@
-wifion	Stimulations:
+Stimulations:
 
 Marc : Figure 1:
 remplacer la couleur des flêches de proche en proche actuellement en bleu par du gris

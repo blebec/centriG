@@ -406,6 +406,7 @@ def plot_figure2(data, colsdict, fill=True):
 data, content = load2()
 fig = plot_figure2(data, content)
 
+
 #%%
 plt.close('all')
 
@@ -794,7 +795,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     #start point
     x = 41.5
     y = data.indiVmctr.loc[x]
-    ax.plot(x, y, 'o', color= stdColors['bleu'])
+    ax.plot(x, y, 'o', color=stdColors['bleu'])
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
     #individual spike
@@ -1192,6 +1193,15 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
                 for j in [0, 1]:
                     ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                             label=col, linewidth=0.5)
+        #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.plot(x1, y, '|', color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'])
     #ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     ylabels = ['normalized membrane potential']
@@ -1211,7 +1221,7 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_signonsig_figure2',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_sigvm_figure2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -1289,6 +1299,37 @@ def plot_figure2B(pltmode, sig=True):
 
 plot_figure2B('horizontal')
 #plot_figure2B('vertical')
+
+#%% stacked plot
+plt.close('all')
+
+def plot_9D():
+    filename = 'data/fig2cells.xlsx'
+    df = pd.read_excel(filename)
+#    cols = df.columns[:2]
+#    signs = df.columns[2:]
+    df.index += 1 # cells = 1 to 37
+
+    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
+    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
+
+    fig = plt.figure(figsize=(7,6))
+    ax = fig.add_subplot(111)
+    #ax.hist([nsig, sig], stacked=True, color=['r', 'r'], fill=[False, True])
+    ax.hist([sig, nsig], stacked=True, color=['r', 'None'], edgecolor='r')
+    for loca in ['top', 'right']:
+        ax.spines[loca].set_visible(False)
+        ax.set_ylabel('nb of cells')
+        ax.set_xlabel('latency advance (ms)')
+        fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_9D',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+plot_9D()
+
 #%%
 #plt.close('all')
 
@@ -1657,7 +1698,8 @@ def plot_figure7():
                      label=col)
     x = 0
     y = df.centerOnly.loc[0]
-    ax1.plot(x, y, 'o', stdColors['bleu'])
+    ax1.plot(x, y, 'o', color=stdColors['bleu'])
+    ax1.hlines(y, -150, 10, colors=stdColors['bleu'], alpha=0.5)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -1703,69 +1745,6 @@ def plot_figure7():
     return fig
 
 fig = plot_figure7()
-#%%
-def plot_1half_figure6():
-    """
-    plot_figure6
-    """
-    filename = 'data/fig6.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
-            'sdUp', 'sdDown', 'linearPrediction']
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-    colors = ['k', stdColors['rouge'], stdColors['rouge'],
-              stdColors['rouge'], stdColors['rouge'], stdColors['rouge']]
-    alpha = [0.5, 0.7, 1, 0.6, 0.6, 0.6]
-
-    fig = plt.figure(figsize=(6, 5))
-   # fig.suptitle(os.path.basename(filename))
-    
-    ax2 = fig.add_subplot(111)
-    for i in [2]:
-        print('i=', i, colors[i])
-        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
-                 linewidth=2, label=df.columns[i])
-    ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                     color=colors[2], alpha=0.2)
-    ax2.set_ylim(-0.1, 0.4)
-    ax2.set_ylabel('Normalized membrane potential')
-    ax2.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction",
-                 ha='center')
-    
-    for ax in fig.get_axes():
-        #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
-        #                handlelength=0)
-        # colored text
-        #for line, text in zip(leg.get_lines(), leg.get_texts()):
-        #    text.set_color(line.get_color())
-        ax.set_xlim(-150, 150)
-        # set fontname and fontsize for x label
-        ax.set_xlabel('Relative time (ms)')
-        #, fontname = 'Arial', fontsize = 14)
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    
-    fig.tight_layout()
-    
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-fig = plot_1half_figure6()
 
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
