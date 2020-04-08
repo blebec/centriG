@@ -10,7 +10,7 @@ Nouvelle Remarque (NR) 6 avril: A voir une vois les figures modifiées obtenues
 Résultats:
 
 Figure 2:
-delta y  sur n = 10
+~~delta y  sur n = 10~~
 Done :  ~~3 colonnes~~
         ~~Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
         et 4ème (sous-pop CP-ISO non-significative et Center-Only) collonnes, en haut et an bas (vm et spikes)
@@ -19,11 +19,11 @@ Done :  ~~3 colonnes~~
  ~~Faire apparaître le point bleu indiquant le temps t ou la réponse center-only devient significative
         i) pour la cellule individuelle (colonne de gauche)      vm : x = 41.5, y= 0.047 + ligne verticale   Spikes : x = 39.8, y = O.1523~~
 
-NB pb = vm : (41.5, 0.53), et spikes : (39.8, 1.6)
+~~NB pb = vm : (41.5, 0.53), et spikes : (39.8, 1.6)~~
 
 ​        ~~ii) NR: pour la colonne de la sous pop individuellement significative  (non plus toutes les autres colonnes)  à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir~~
 
-ajouter $delta$
+~~ajouter $delta$~~
 
 Figure 3: 
 
@@ -46,6 +46,7 @@ iii) Enlever le texte High speed en haut et Low speed en bas, élargir la police
 
 Graphiquement (dessin)
 Pannel C: (voir si la proposition est intéressante)
+
  - Réduire la taille de la flêche rouge et en ajouter 2 plus fines sur les cotés pour représenter le secteur angulaire du champ d'association
  - Transformer les flêches jaunes en Triangle aboutissant par la flêche actuelle 
  - Ajouter aux extrémités de ces axes respectifs 
@@ -80,6 +81,7 @@ Remplacer les traces PSTH des panels
 i) C: par les réponses Vm de la sous-population CP-ISO significative à gauche (n=10)
 ii)D: par un histrogramme de distribution d'avance de latence de la toute la population CP-ISO en indiquant les cas significatifs en rempli et non-significatifs vides
 
+attente de réponse de Marc
 
 Figure 10:
 i) Changer de position la matrice de prédiction de Kaplan et al., 2012 pour la placer en dessous de la trace CP-ISO Filling-in

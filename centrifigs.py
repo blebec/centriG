@@ -857,7 +857,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     adv = str(x0 - x1)
-    ax.annotate("mean advance " +  adv, xy= (0.3, 0.8), ha='center')
+    ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+                xycoords="axes fraction", ha='center')
     
     #pop spike
     cols = colsdict['popSpk']
@@ -894,7 +895,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     adv = str(x0 - x1)
-    ax.annotate("mean advance " +  adv, xy= (0.3, 0.8), ha='center')
+    ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+                xycoords="axes fraction", ha='center')
 
     #labels
     for ax in axes:
