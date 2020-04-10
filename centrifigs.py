@@ -857,8 +857,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     adv = str(x0 - x1)
-    ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-                xycoords="axes fraction", ha='center')
+    #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+                #xycoords="axes fraction", ha='center')
     
     #pop spike
     cols = colsdict['popSpk']
@@ -895,8 +895,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     adv = str(x0 - x1)
-    ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-                xycoords="axes fraction", ha='center')
+    #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+                #xycoords="axes fraction", ha='center')
 
     #labels
     for ax in axes:
@@ -1201,9 +1201,9 @@ def plot_sigvm_figure2(data, colsdict, fill=True, fillground=True):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    #ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    #ax.plot(x1, y, '|', color=stdColors['bleu'])
+    #ax.hlines(y, x1, x0, color=stdColors['bleu'])
     #ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     ylabels = ['normalized membrane potential']
@@ -1321,8 +1321,8 @@ def plot_9D():
     ax.hist([sig, nsig], stacked=True, color=['r', 'None'], edgecolor='r')
     for loca in ['top', 'right']:
         ax.spines[loca].set_visible(False)
-        ax.set_ylabel('nb of cells')
-        ax.set_xlabel('latency advance (ms)')
+        ax.set_ylabel('Nb of cells')
+        ax.set_xlabel('Latency advance (ms)')
         fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -1701,7 +1701,7 @@ def plot_figure7():
     x = 0
     y = df.centerOnly.loc[0]
     ax1.plot(x, y, 'o', color=stdColors['bleu'])
-    ax1.hlines(y, -150, 10, colors=stdColors['bleu'], alpha=0.5)
+    #ax1.hlines(y, -150, 10, colors=stdColors['bleu'], alpha=0.5)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -2295,8 +2295,10 @@ def plot_figSup7():
     fig = plt.figure(figsize=(6, 10))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
+        ax1.plot(df[col], color='black',
+                         alpha=1, linewidth=1)
         ax1.fill_between(df.index, df[col], color=colors[i],
-                         alpha=alpha[i], linewidth=2)
+                         alpha=1, linewidth=2)
     ax1.axes.get_xaxis().set_visible(False)
     ax1.spines['bottom'].set_visible(False)
     ax1.set_ylim(0, 5.5)
@@ -2316,17 +2318,19 @@ def plot_figSup7():
 
     ax2 = fig.add_subplot(212)
     for i, col in enumerate(cols[:2]):
+        ax2.plot(df[col], color='black',
+                         alpha=1, linewidth=1)
         ax2.fill_between(df.index, df[col], color=colors[i],
-                         alpha=alpha[i], linewidth=2)
+                         alpha=1, linewidth=2)
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
     ax2.set_ylim(0, 11.5)
     ax2.set_xlabel('Time (ms)', fontsize=16)
 
-    ax1.annotate('High speed : 100°/s', xy=(0.2, 0.95),
+    ax1.annotate('100°/s', xy=(0.2, 0.95),
                  xycoords="axes fraction", ha='center')
 
-    ax2.annotate('Low speed : 5°/s', xy=(0.2, 0.95),
+    ax2.annotate('5°/s', xy=(0.2, 0.95),
                  xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
