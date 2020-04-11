@@ -56,7 +56,7 @@ stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
              'dark_vert': [x/256 for x in [10, 146, 13]],
              'dark_jaune': [x/256 for x in [163, 133, 16]],
              'dark_bleu': [x/256 for x in [14, 73, 118]]}
-speedColors = {'orangeFonce' :     [x/256 for x in [252, 98, 48]],
+speedColors = {'orangeFonce' : [x/256 for x in [252, 98, 48]],
                'orange' : [x/256 for x in [253, 174, 74]],
                'jaune' : [x/256 for x in [254, 226, 137]]}
 
@@ -2295,7 +2295,7 @@ def plot_figSup7():
 
     alpha = [0.7, 0.7]
 
-    fig = plt.figure(figsize=(6, 10))
+    fig = plt.figure(figsize=(4, 6))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
         ax1.plot(df[col], color='black',
@@ -2328,7 +2328,7 @@ def plot_figSup7():
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
     ax2.set_ylim(0, 11.5)
-    ax2.set_xlabel('Time (ms)', fontsize=16)
+    ax2.set_xlabel('Time (ms)')
 
     ax1.annotate('100°/s', xy=(0.2, 0.95),
                  xycoords="axes fraction", ha='center')
@@ -2346,7 +2346,7 @@ def plot_figSup7():
             ax.spines[loc].set_visible(False)
 
     fig.tight_layout()
-    fig.text(-0.04, 0.5, ' Firing rate (spk/s)', fontsize=16,
+    fig.text(0.02, 0.5, 'Firing rate (spk/s)',
              va='center', rotation='vertical')
     # remove the space between plots
     fig.subplots_adjust(hspace=0.1)

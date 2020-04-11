@@ -26,16 +26,27 @@ Figure 3:
 
 Police légende "Normalized Membrane potential + "Relative time (ms)" en plus grand"
 
+>  ???? taille 
+
 Figure 4:
 Pannel police listant les vitesse lettrage "speed": contour noir des lettres rempli par la couleur sélectionnée de la vitesse correspondante
 Pour les lettrages et traces à 30% et 50% augmenter la visibilité des couleurs en foncant la gamme de couleurs utilisées
 Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3) <==> décaler panel B vers la droite
+
+> taille ???
+>
+> couleur : voir avec Marc
+
+
 
 NR old Figure 5 is now Figure 6
 Figure 5:
 
 Figure 5
 augmenter police des ticks (en x et y) et annotations 100°/s et 5°/s
+
+> non = pb = taille de la figure : à définir
+
 Pannel A, B et C
 Centre du RF fond non en noir mais grisé bien plus faible - permet de voir les zones ON-OFF du RF stimulé 
 CP-CROSS, dans la flêche jaune: Un gabor avec une petite flêche vecteur = mouvement, légende: Hauteur plus faible de la flêche jaune représentant l'intégration latérale plus faiblement étendu dans l'espace le long du width axis à basse vitesse
