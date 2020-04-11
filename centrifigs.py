@@ -13,6 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
+from matplotlib import markers
 from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
@@ -777,7 +778,6 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     
     
     fig = plt.figure(figsize=(11.6, 8))
-    #build axes with sharex and sharey
     axes = []
     for i in range(1,7):
         axes.append(fig.add_subplot(2, 3, i))
@@ -797,7 +797,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     y = data.indiVmctr.loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'],
+              linestyle=':')
     #individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -811,7 +812,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     y = data.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color= stdColors['bleu'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'],
+              linestyle=':')
     #individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -851,12 +853,12 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'], linestyle=':')
 
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    adv = str(x0 - x1)
+    # adv = str(x0 - x1)
     #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
     
@@ -889,12 +891,12 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=stdColors['bleu'])
+    ax.hlines(y, x1, x0, color=stdColors['bleu'], linestyle=':')
     
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    adv = str(x0 - x1)
+    #adv = str(x0 - x1)
     #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
 
@@ -1281,7 +1283,8 @@ def plot_figure2B(pltmode, sig=True):
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [df.index.min(), df.index.max()]
         ax.set_xticks(ticks)
-    axes[0].set_ylabel('Phase advance (ms)')
+    txt = r'$\Delta$ phase (ms)'
+    axes[0].set_ylabel(txt)
     txt = r'$\Delta$ response'
     axes[1].set_ylabel(txt)
 #    axes[1].set_ylabel('Delta response')

@@ -15,12 +15,12 @@ Résultats:
 Figure 2:
 
 - Pannel A
-  Barre bleue verticale en pointillé (vm et spikes)
+  ~~Barre bleue verticale en pointillé (vm et spikes)~~
 - Pannel C
-  Barre bleue horizontale en pointillé et terminant par une flêche (pas un tiret)
-  Vérifier trace noir vm individuel (panel A, en haut à gauche) si l'axe des y négatif n'est pas coupé pour le Vm vers 120 ms
+  ~~Barre bleue horizontale en pointillé et terminant par une flêche (pas un tiret)~~
+  ~~Vérifier trace noir vm individuel (panel A, en haut à gauche) si l'axe des y négatif n'est pas coupé pour le Vm vers 120 ms~~
 - Pannel D et E:
-  Remplacer les légendes par $DELTA$ phase (ms) et $DELTA$ amplitude
+  ~~Remplacer les légendes par $DELTA$ phase (ms) et $DELTA$ amplitude~~
 
 Figure 3: 
 
