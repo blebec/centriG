@@ -4,39 +4,43 @@ Marc : Figure 1:
 remplacer la couleur des flêches de proche en proche actuellement en bleu par du gris
 réinstroduire dans les schémas des configurations FULL-ISO et FULL-CROSS les flêches des couleurs correspondantes
 
+Rajouter les patchs de Gabor manquant pour la stimulation FULL-CP-ISO
+Placer un patch de Gabor de plus faible contraste dans le centre de tous les schémas de stimulations
+
 QUESTION : color blind-reader
 Nouvelle Remarque (NR) 6 avril: A voir une vois les figures modifiées obtenues
 
 Résultats:
 
 Figure 2:
-~~delta y  sur n = 10~~
-Done :  ~~3 colonnes~~
-        ~~Faire apparaître les traces des 3ème (sous-pop CP-ISO significative et center only)
-        et 4ème (sous-pop CP-ISO non-significative et Center-Only) collonnes, en haut et an bas (vm et spikes)
-        en trait plein pour la moyenne et colored shaded area +/- SEM~~
 
- ~~Faire apparaître le point bleu indiquant le temps t ou la réponse center-only devient significative
-        i) pour la cellule individuelle (colonne de gauche)      vm : x = 41.5, y= 0.047 + ligne verticale   Spikes : x = 39.8, y = O.1523~~
-
-~~NB pb = vm : (41.5, 0.53), et spikes : (39.8, 1.6)~~
-
-​        ~~ii) NR: pour la colonne de la sous pop individuellement significative  (non plus toutes les autres colonnes)  à l'intersection de l'axe vertical relative time t = 0 (ms) avec la trace Center-only en noir~~
-
-~~ajouter $delta$~~
+- Pannel A
+  Barre bleue verticale en pointillé (vm et spikes)
+- Pannel C
+  Barre bleue horizontale en pointillé et terminant par une flêche (pas un tiret)
+  Vérifier trace noir vm individuel (panel A, en haut à gauche) si l'axe des y négatif n'est pas coupé pour le Vm vers 120 ms
+- Pannel D et E:
+  Remplacer les légendes par $DELTA$ phase (ms) et $DELTA$ amplitude
 
 Figure 3: 
 
-~~unique cellules significatives
-Done:
-    ~~Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)     avec la trace Center-only en noir~~
+Police légende "Normalized Membrane potential + "Relative time (ms)" en plus grand"
 
 Figure 4:
-Done : ~~Rajouter un point bleu à l'intersection de l'axe vertical relative time t = 0 (ms)
-        avec la trace Center-only en noir~~
+Pannel police listant les vitesse lettrage "speed": contour noir des lettres rempli par la couleur sélectionnée de la vitesse correspondante
+Pour les lettrages et traces à 30% et 50% augmenter la visibilité des couleurs en foncant la gamme de couleurs utilisées
+Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3) <==> décaler panel B vers la droite
 
 NR old Figure 5 is now Figure 6
 Figure 5:
+
+Figure 5
+augmenter police des ticks (en x et y) et annotations 100°/s et 5°/s
+Pannel A, B et C
+Centre du RF fond non en noir mais grisé bien plus faible - permet de voir les zones ON-OFF du RF stimulé 
+CP-CROSS, dans la flêche jaune: Un gabor avec une petite flêche vecteur = mouvement, légende: Hauteur plus faible de la flêche jaune représentant l'intégration latérale plus faiblement étendu dans l'espace le long du width axis à basse vitesse
+CP-ISO rouge: 5 patchs de Gabor non overlappant = intégration longue distance, légende longueur plus grande de la flêche rouge représentant l'intégration latérale plus étendue dans l'espace le long du main axis à haute vitesse
+
 TO DO:
 	
 Bien délimiter les réponses CP-ISO (en rouge) des réponses CP-CROSS (or) en 
@@ -54,39 +58,45 @@ Pannel C: (voir si la proposition est intéressante)
 	ii) pour le jaune un patch de Gabor lui aussi horizontal mais en Haut et en bas 
 
 Figure 6 (old figure 5):
-~~linewidth~~
-~~vert en pointillé~~
-~~décaler les boîtes vers le bas~~
-~~déplacer les D1, D4, ...~~
-Question : 
-    ~~extraire les valeurs (point bleu)~~
-    ~~centerOnly x = 41 ms, y = 0.1~~
-Done :~~Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)~~
+Figure 6:
+Trait bleu en pointillé
+Violet en Vert foncé continu
+Décaler les boxcar de stim à -2 mV
+Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3, figure 4)
 
 Figure 7:
 
-Done ; ~~Remplacer la couleur de la trace Filling-in actuellement en orange par du violet (lilas)~~
-i) à gauche (superposition avec les traces Surround-then-Center) 
-ii)à droite (comparaison avec la prédiction linéaire dynamique) +/- SEM de la même couleur
-~~NR TO DO rajouter le point bleu à l'intersection Vertical axis t = 0 ms (relative time) et Center only sur le panel de gauche~~
-
+Violet remplacé par vert foncé
+Dynamic LP de ocre/marron à violet
+Baisser le relative time (légende x) plus bas
+Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3, figure 4, figure 6)Figure 8:
 
 Figure 8:
-
-A obtenir (Cyril)
+Commentaire des mails
+Figure à générer pour les deux exemples du poster, avec et sans matrice Surround-Only au milieuA obtenir (Cyril)
 
 Figure 9:
 
-Remplacer les traces PSTH des panels 
-i) C: par les réponses Vm de la sous-population CP-ISO significative à gauche (n=10)
-ii)D: par un histrogramme de distribution d'avance de latence de la toute la population CP-ISO en indiquant les cas significatifs en rempli et non-significatifs vides
+- Pannel A:
+  Lettre plus fine de MT, V1 LGN, RetinaRemplacer les traces PSTH des panels 
+  i) C: par les réponses Vm de la sous-population CP-ISO significative à gauche (n=10)
+  ii)D: par un histrogramme de distribution d'avance de latence de la toute la population CP-ISO en indiquant les cas significatifs en rempli et non-significatifs vides
 
-attente de réponse de Marc
+- Panel B
+  Gabor Horizontaux
+  Ajouter le contour grisé du Gabor de droite dans le pannel de gauche et vice versa pour le pannel de droite => indication du mouvement  par Gabor futur/passéFigure 10:
+  i) Changer de position la matrice de prédiction de Kaplan et al., 2012 pour la placer en dessous de la trace CP-ISO Filling-in
+     afin de faciliter la convergence de la flêche de bas en haut 
+  ii) Changer la couleur de la trace Filling-in CP-ISO et de du remplissage +/- SEM en violet (lilas)
 
-Figure 10:
-i) Changer de position la matrice de prédiction de Kaplan et al., 2012 pour la placer en dessous de la trace CP-ISO Filling-in
-   afin de faciliter la convergence de la flêche de bas en haut 
-ii) Changer la couleur de la trace Filling-in CP-ISO et de du remplissage +/- SEM en violet (lilas)
+- pannel D
+  ligne pointillée grisée à 0
+  bin entre -1.5 - 0; 0 - 1.5 etc
+  bins équivalents symmétriques /0  ==> ne pas biaiser la réprésentation vers la droite
+  Ajouter un bin vide à gauche avant le premier bin contenant les avances de latence négatives 
+  Contour en noir de tout l'histogramme, autour du contour en rouge 
+
+
 
 Matériel Supplémentaire:
 
