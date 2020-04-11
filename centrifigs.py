@@ -1350,7 +1350,7 @@ bins  = plot_9D()
 #%%
 def plot_figure9CD(data, colsdict, fill=True, fillground=True):
     """
-    plot_figure2
+    plot_figure9CD
     """
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
@@ -1387,13 +1387,13 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
     #ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
     ylabel = 'normalized membrane potential'
-    ax.set_ylabel(ylabel)
-        ax.set_ylim(-0.10, 1.2)
-        ax.set_xlabel('Relative time (ms)')
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax0.set_ylabel(ylabel)
+    ax0.set_ylim(-0.10, 1.2)
+    ax0.set_xlabel('Relative time (ms)')
+    lims = ax0.get_ylim()
+    ax0.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax0.get_xlim()
+    ax0.hlines(0, lims[0], lims[1], alpha=0.2)
     
     #hist
     ax1 = fig.add_subplot(1, 2, 2)
@@ -1421,14 +1421,14 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
     for ax in fig.get_axes():
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    ax0.spines('bottom').set_visible(False)
+    ax0.spines['bottom'].set_visible(False)
     ax0.axes.get_xaxis().set_visible(True)
     fig.tight_layout()
     # remove the space between plots
     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9C',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9CD',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
