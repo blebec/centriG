@@ -52,12 +52,11 @@ Centre du RF fond non en noir mais grisé bien plus faible - permet de voir les 
 CP-CROSS, dans la flêche jaune: Un gabor avec une petite flêche vecteur = mouvement, légende: Hauteur plus faible de la flêche jaune représentant l'intégration latérale plus faiblement étendu dans l'espace le long du width axis à basse vitesse
 CP-ISO rouge: 5 patchs de Gabor non overlappant = intégration longue distance, légende longueur plus grande de la flêche rouge représentant l'intégration latérale plus étendue dans l'espace le long du main axis à haute vitesse
 
-TO DO:
-	
+~~TO DO:
 Bien délimiter les réponses CP-ISO (en rouge) des réponses CP-CROSS (or) en 
 i)  Supprimant la transparence
 ii) Ajoutant un contour noir à chacun des PSTH pour les panneaux du haut et du bas
-iii) Enlever le texte High speed en haut et Low speed en bas, élargir la police
+iii) Enlever le texte High speed en haut et Low speed en bas, élargir la police~~
 
 Graphiquement (dessin)
 Pannel C: (voir si la proposition est intéressante)
@@ -70,10 +69,12 @@ Pannel C: (voir si la proposition est intéressante)
 
 Figure 6 (old figure 5):
 Figure 6:
-Trait bleu en pointillé
-Violet en Vert foncé continu
-Décaler les boxcar de stim à -2 mV
+~~Trait bleu en pointillé~~
+~~Violet en Vert foncé continu~~
+~~Décaler les boxcar de stim à -2 mV~~
 Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3, figure 4)
+
+> taille : cette approche n'est pas possible 
 
 Figure 7:
 

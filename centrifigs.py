@@ -1556,7 +1556,7 @@ def plot_figure6():
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['bleuViolet'], stdColors['vertSombre']]
+    colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
     alpha = [0.6, 0.8, 0.8, 0.8]
     #plotting
     fig = plt.figure(figsize=(8.5, 8))
@@ -1577,13 +1577,13 @@ def plot_figure6():
         else:
             ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
                      label=col)
-    ax2.set_xlabel('Time (ms)')
+    ax2.set_xlabel('Relative Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    vlocs = np.linspace(-0.7, -1.7, 4)
-#    vlocs = [-0.7, -1, -1.3, -1.6]
+#    vlocs = np.linspace(-0.7, -1.7, 4)
+    vlocs = np.linspace(-1.4, -2.4, 4)   
     dico = dict(zip(names, hlocs))
 
     #ax1
@@ -1608,7 +1608,7 @@ def plot_figure6():
     ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0], alpha = 1,
                  annotation_clip=False, fontsize='small')
         # see annotation_clip=False
-    ax1.set_ylim(-1.8, 4.5)
+    ax1.set_ylim(-2.5, 4.5)
 
     #ax2
     for key in dico.keys():
@@ -1642,7 +1642,7 @@ def plot_figure6():
         # colored text
         #for line, text in zip(leg.get_lines(), leg.get_texts()):
             #text.set_color(line.get_color())
-        ax.set_ylabel('Membrane potential (mV)')
+        ax.set_ylabel('Normalised Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
@@ -1653,7 +1653,8 @@ def plot_figure6():
         x = 41
         y = df['Center-Only'].loc[x]
         ax.plot(x, y, 'o', color= stdColors['bleu'])
-        ax.vlines(x, -0.5, lims[1], color= stdColors['bleu'], alpha=0.6)
+        ax.vlines(x, -0.5, lims[1], color= stdColors['bleu'], 
+                  linestyle=':', alpha=0.8)
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     fig.tight_layout()
