@@ -111,7 +111,7 @@ Figure 9:
   Ajouter un bin vide à gauche avant le premier bin contenant les avances de latence négatives 
   Contour en noir de tout l'histogramme, autour du contour en rouge 
 
-
+merger C et D 
 
 Matériel Supplémentaire:
 
