@@ -1688,8 +1688,9 @@ def plot_figure7():
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['rouge'], stdColors['bleuViolet'],
-              stdColors['dark_rouge'], stdColors['dark_rouge'], stdColors['dark_rouge']]
+    colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
+              stdColors['bleuViolet'], stdColors['bleuViolet'], 
+              stdColors['bleuViolet']]
     alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     fig = plt.figure(figsize=(12, 6))
