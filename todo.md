@@ -105,13 +105,14 @@ Figure 9:
   ii) Changer la couleur de la trace Filling-in CP-ISO et de du remplissage +/- SEM en violet (lilas)
 
 - pannel D
-  ligne pointillée grisée à 0
-  bin entre -1.5 - 0; 0 - 1.5 etc
-  bins équivalents symmétriques /0  ==> ne pas biaiser la réprésentation vers la droite
-  Ajouter un bin vide à gauche avant le premier bin contenant les avances de latence négatives 
-  Contour en noir de tout l'histogramme, autour du contour en rouge 
+  
+  ~~ligne pointillée grisée à 0~~
+  ~~bin entre -1.5 - 0; 0 - 1.5 etc~~
+  ~~bins équivalents symmétriques /0  ==> ne pas biaiser la réprésentation vers la droite
+  Ajouter un bin vide à gauche avant le premier bin contenant les avances de latence négatives~~
+  ~~Contour en noir de tout l'histogramme, autour du contour en rouge~~ 
 
-merger C et D 
+~~merger C et D~~
 
 Matériel Supplémentaire:
 

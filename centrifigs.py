@@ -537,233 +537,7 @@ def plot_half_figure2(data, colsdict):
     return fig
 
 fig = plot_half_figure2(data, content)
-#%%
-plt.close('all')
 
-def plot_1quarter_figure2(data, colsdict):
-    """
-    plot_figure2 individual
-    """
-    colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
-
-    fig = plt.figure(figsize=(8.5, 8))
-    #build axes with sharex and sharey
-    axes = []
-    for i in range(2):
-        axes.append(fig.add_subplot(2, 1, i+1))
-    # axes list
-    vmaxes = axes[0]      # vm axes = top row
-    spkaxes = axes[1]     # spikes axes = bottom row
-    #____ plots individuals (first column)
-    # individual vm
-    cols = colsdict['indVm']
-    ax = vmaxes
-    for i, col in enumerate(cols):
-        ax.plot(data[col], color=colors[i], alpha=alpha[i],
-                label=col)
-    #individual spike
-    cols = colsdict['indSpk']
-    ax = spkaxes
-    for i, col in enumerate(cols[::-1]):
-        ax.plot(data[col], color=colors[::-1][i],
-                alpha=1, label=col)#, linewidth=1)
-        ax.fill_between(data.index, data[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
-    #____ plots pop (column 1-3)
-    #labels
-    for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-    ylabels = ['Membrane potential (mV)']
-
-    vmaxes.axes.get_xaxis().set_visible(False)
-    vmaxes.spines['bottom'].set_visible(False)
-    vmaxes.set_ylabel(ylabels[0])
-    ylabels = ['Firing rate (spikes/s)']
-
-    spkaxes.set_ylabel(ylabels[0])
-    spkaxes.set_xlabel('Time (ms)')
-
-    # stimulations
-    step = 28
-    xlocs = np.arange(0, -150, -step)
-    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-    dico = dict(zip(names, xlocs))
-    #lines
-    for ax in [vmaxes, spkaxes]:
-        lims = ax.get_ylim()
-        for dloc in xlocs:
-            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.5)
-    # stim location
-    ax = spkaxes
-    for key in dico.keys():
-        ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='small')
-        # stim
-        rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor='r')
-        ax.add_patch(rect)
-        #center
-    rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
-                     alpha=0.6, edgecolor='w', facecolor='k')
-    ax.add_patch(rect)
-    #fit individual example
-    vmaxes.set_ylim(-3, 12)
-    spkaxes.set_ylim(-5.5, 17.5)
-    # zerolines
-    for ax in axes:
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.3)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    fig.tight_layout()
-    # remove the space between plots
-    fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_1quarter_figure2',
-                 ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-
-fig = plot_1quarter_figure2(data, content)
-#%%
-plt.close('all')
-
-def plot_2quarter_figure2(data, colsdict):
-    """
-    plot_figure2 (pop only)
-    """
-    colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
-
-    fig = plt.figure(figsize=(8.5, 8))
-    #build axes with sharex and sharey
-    axes = []
-    for i in range(2):
-        axes.append(fig.add_subplot(2, 1, i+1))
-    # axes list
-    vmaxes = axes[0]      # vm axes = top row
-    spkaxes = axes[1]     # spikes axes = bottom row
-
-    #____ plots pop (column 1-3)
-
-    df = data.loc[-30:35]       # limit xscale
-    # pop vm
-    cols = colsdict['popVm']
-    ax = vmaxes
-    for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                label=col)
-    ax.annotate("n=37", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center', fontsize='large')
-
-    #pop spike
-    cols = colsdict['popSpk']
-    ax = spkaxes
-    for i, col in enumerate(cols[::-1]):
-        ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col)#, linewidth=1)
-        # ax.fill_between(df.index, df[col],
-        #                 color=colors[::-1][i], alpha=0.5, label=col)
-    ax.annotate("n=20", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center', fontsize='large')
-
-    #labels
-    for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-    ylabels = ['Normalized membrane potential',
-               'Normalized firing rate']
-
-    vmaxes.axes.get_xaxis().set_visible(False)
-    vmaxes.spines['bottom'].set_visible(False)
-    vmaxes.set_ylabel(ylabels[0])
-    spkaxes.set_ylabel(ylabels[1])
-
-    vmaxes.set_ylim(-0.1, 1)
-    spkaxes.set_ylim(-0.1, 1)
-    spkaxes.set_xlabel('Relative time')
-
-    # adjust amplitude (without moving the zero)
-    #change_plot_trace_amplitude(vmaxes, 0.85)
-    #change_plot_trace_amplitude(spkaxes, 0.8)
-    # zerolines
-    for ax in axes:
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.3)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    fig.tight_layout()
-    # remove the space between plots
-    fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-
-
-fig = plot_2quarter_figure2(data, content)
-#%%
-plt.close('all')
-
-def plot_2ndhalf_2ndquarter_figure2(data, colsdict):
-    """
-    plot_figure2 'spiking pop only'
-    """
-    colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
-
-    fig = plt.figure(figsize=(8.5, 5))
-    spkaxes = fig.add_subplot(111)
-    
-    df = data.loc[-30:35]       # limit xscale
-    
-    #pop spike
-    cols = colsdict['popSpk']
-    ax = spkaxes
-    for i, col in enumerate(cols[::-1]):
-        ax.plot(df[col], color=colors[::-1][i],
-                alpha=1, label=col)#, linewidth=1)
-        # ax.fill_between(df.index, df[col],
-        #                 color=colors[::-1][i], alpha=0.5, label=col)
-    ax.annotate("n=20", xy=(0.2, 0.8),
-                xycoords="axes fraction", ha='center', fontsize='large')
-
-    #labels
-    for loca in ['top', 'right']:
-        spkaxes.spines[loca].set_visible(False)
-    ylabels = ['Normalized firing rate']
-
-    
-    spkaxes.set_ylabel(ylabels[0])
-    spkaxes.set_ylim(-0.1, 1)
-    spkaxes.set_xlabel('Relative time')
-        
-    lims = spkaxes.get_ylim()
-    spkaxes.vlines(0, lims[0], lims[1], alpha=0.3)
-    lims = spkaxes.get_xlim()
-    spkaxes.hlines(0, lims[0], lims[1], alpha=0.3)
-    fig.tight_layout()
-    
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_half_figure2',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
-
-
-
-fig = plot_2ndhalf_2ndquarter_figure2(data, content)
 #%%
 plt.close('all')
 
@@ -1348,7 +1122,9 @@ bins  = plot_9D()
 
 
 #%%
-def plot_figure9CD(data, colsdict, fill=True, fillground=True):
+plt.close('all')
+
+def plot_figure9CD(data, colsdict):
     """
     plot_figure9CD
     """
@@ -1367,14 +1143,8 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
                 label=col)
         #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
-        if fill:
-            ax0.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+        ax0.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                             alpha=alpha[i]/2)
-        else:
-            for i, col in enumerate(cols[2:]):
-                for j in [0, 1]:
-                    ax0.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                            label=col, linewidth=0.5)
         #advance
     x0 = 0
     y = df.loc[x0][cols[0]]
@@ -1386,7 +1156,7 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
     #ax.hlines(y, x1, x0, color=stdColors['bleu'])
     #ax.annotate("n=10", xy=(0.2, 0.8),
     #            xycoords="axes fraction", ha='center')
-    ylabel = 'normalized membrane potential'
+    ylabel = 'Normalized membrane potential'
     ax0.set_ylabel(ylabel)
     ax0.set_ylim(-0.10, 1.2)
     ax0.set_xlabel('Relative time (ms)')
@@ -1407,15 +1177,19 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
     sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
 
     bins = np.arange(-5, 31, 5)
-    #ax.hist([nsig, sig], stacked=True, color=['r', 'r'], fill=[False, True])
     _, bins, _ = ax1.hist([sig, nsig], bins=bins, stacked=True, 
                          color=['r', speedColors['orange']], edgecolor='k',
                          linewidth=1, alpha=0.6)
     ax1.set_xlim(32,-32)
+    #adjust nb of ticks
+#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     lims = ax1.get_ylim()
+    custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
+    ax1.set_yticks(custom_ticks)
+    ax1.set_yticklabels(custom_ticks)    
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
-    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
-    ax1.set_ylabel('Nb of cells')
+#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylabel('Number of cells')
     ax1.set_xlabel('Latency advance (ms)')
     
     for ax in fig.get_axes():
@@ -1433,6 +1207,7 @@ def plot_figure9CD(data, colsdict, fill=True, fillground=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
+plot_figure9CD(data, content)
 
 #%%
 #plt.close('all')
