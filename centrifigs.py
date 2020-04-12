@@ -1013,201 +1013,118 @@ def plot_figure2B(pltmode, sig=True):
 plot_figure2B('horizontal')
 #plot_figure2B('vertical')
 
+# =============================================================================
+#>>> see fig 9
 #%% sigNonsig
-def plot_figure9C(data, colsdict, fill=True, fillground=True):
-    """
-    plot_figure2
-    """
-    colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
-    # no individual : focus on initial response
-    df = data.loc[-30:35]
-
-    fig = plt.figure(figsize=(4, 4)) #fig = plt.figure(figsize=(8, 8))
-    #build axes with sharex and sharey
-    vmaxes = []
-
-    vmaxes.append(fig.add_subplot(1, 1, 1))
-    # axes list
-
-    cols = colsdict['popVmSig']
-    ax = vmaxes[0]
-    #ax.set_title('significative population')
-    #traces
-    for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
-                label=col)
-        #errors : iterate on tuples
-    for i, col in enumerate(cols[2:]):
-        if fill:
-            ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                            alpha=alpha[i]/2)
-        else:
-            for i, col in enumerate(cols[2:]):
-                for j in [0, 1]:
-                    ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-                            label=col, linewidth=0.5)
-        #advance
-    x0 = 0
-    y = df.loc[x0][cols[0]]
-    adf = df.loc[-20:0, [cols[1]]]
-    i1 = (adf - y).abs().values.flatten().argsort()[0]
-    x1 = adf.index[i1]
-    #ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    #ax.plot(x1, y, '|', color=stdColors['bleu'])
-    #ax.hlines(y, x1, x0, color=stdColors['bleu'])
-    #ax.annotate("n=10", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
-    ylabels = ['normalized membrane potential']
-    for i, ax in enumerate(vmaxes):
-        for loca in ['top', 'right', 'bottom']:
-            ax.spines[loca].set_visible(False)
-        ax.axes.get_xaxis().set_visible(True)
-        ax.set_ylabel(ylabels[i])
-        ax.set_ylim(-0.10, 1.2)
-        ax.set_xlabel('Relative time (ms)')
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    fig.tight_layout()
-    # remove the space between plots
-    #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9C',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
-
-plot_figure9C(data, content)
-
-#%% stacked plot
-plt.close('all')
-
-def plot_9D():
-    filename = 'data/fig2cells.xlsx'
-    df = pd.read_excel(filename)
-#    cols = df.columns[:2]
-#    signs = df.columns[2:]
-    df.index += 1 # cells = 1 to 37
-
-    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
-    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
-
-    fig = plt.figure(figsize=(7,6))
-    ax = fig.add_subplot(111)
-    bins = np.arange(-5, 31, 5)
-    #ax.hist([nsig, sig], stacked=True, color=['r', 'r'], fill=[False, True])
-    _, bins, _ = ax.hist([sig, nsig], bins=bins, stacked=True, 
-                         color=['r', speedColors['orange']], edgecolor='k',
-                         linewidth=1, alpha=0.6)
-    ax.set_xlim(32,-32)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], linestyle='--')
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    for loca in ['top', 'right']:
-        ax.spines[loca].set_visible(False)
-        ax.set_ylabel('Nb of cells')
-        ax.set_xlabel('Latency advance (ms)')
-        fig.tight_layout()
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_9D',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return 
-
-bins  = plot_9D()
-
-
-#%%
-plt.close('all')
-
-def plot_figure9CD(data, colsdict):
-    """
-    plot_figure9CD
-    """
-    colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
-    # no individual : focus on initial response
-    df = data.loc[-30:35]
-
-    fig = plt.figure(figsize=(8.5, 4)) #fig = plt.figure(figsize=(8, 8))
-    ax0 = fig.add_subplot(1, 2, 1)
-    cols = colsdict['popVmSig']
-    #ax.set_title('significative population')
-    #traces
-    for i, col in enumerate(cols[:2]):
-        ax0.plot(df[col], color=colors[i], alpha=alpha[i],
-                label=col)
-        #errors : iterate on tuples
-    for i, col in enumerate(cols[2:]):
-        ax0.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                            alpha=alpha[i]/2)
-        #advance
-    x0 = 0
-    y = df.loc[x0][cols[0]]
-    adf = df.loc[-20:0, [cols[1]]]
-    i1 = (adf - y).abs().values.flatten().argsort()[0]
-    x1 = adf.index[i1]
-    #ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    #ax.plot(x1, y, '|', color=stdColors['bleu'])
-    #ax.hlines(y, x1, x0, color=stdColors['bleu'])
-    #ax.annotate("n=10", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
-    ylabel = 'Normalized membrane potential'
-    ax0.set_ylabel(ylabel)
-    ax0.set_ylim(-0.10, 1.2)
-    ax0.set_xlabel('Relative time (ms)')
-    lims = ax0.get_ylim()
-    ax0.vlines(0, lims[0], lims[1], alpha=0.2)
-    lims = ax0.get_xlim()
-    ax0.hlines(0, lims[0], lims[1], alpha=0.2)
-    
-    #hist
-    ax1 = fig.add_subplot(1, 2, 2)
-    filename = 'data/fig2cells.xlsx'
-    df = pd.read_excel(filename)
-#    cols = df.columns[:2]
-#    signs = df.columns[2:]
-    df.index += 1 # cells = 1 to 37
-
-    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
-    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
-
-    bins = np.arange(-5, 31, 5)
-    _, bins, _ = ax1.hist([sig, nsig], bins=bins, stacked=True, 
-                         color=['r', speedColors['orange']], edgecolor='k',
-                         linewidth=1, alpha=0.6)
-    ax1.set_xlim(32,-32)
-    #adjust nb of ticks
-#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
-    lims = ax1.get_ylim()
-    custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
-    ax1.set_yticks(custom_ticks)
-    ax1.set_yticklabels(custom_ticks)    
-    ax1.vlines(0, lims[0], lims[1], linestyle='--')
-#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
-    ax1.set_ylabel('Number of cells')
-    ax1.set_xlabel('Latency advance (ms)')
-    
-    for ax in fig.get_axes():
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-    ax0.spines['bottom'].set_visible(False)
-    ax0.axes.get_xaxis().set_visible(True)
-    fig.tight_layout()
-    # remove the space between plots
-    #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9CD',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
-
-plot_figure9CD(data, content)
+# def plot_figure9C(data, colsdict, fill=True, fillground=True):
+#     """
+#     plot_figure2
+#     """
+#     colors = ['k', stdColors['rouge']]
+#     alpha = [0.8, 0.8]
+#     # no individual : focus on initial response
+#     df = data.loc[-30:35]
+# 
+#     fig = plt.figure(figsize=(4, 4)) #fig = plt.figure(figsize=(8, 8))
+#     #build axes with sharex and sharey
+#     vmaxes = []
+# 
+#     vmaxes.append(fig.add_subplot(1, 1, 1))
+#     # axes list
+# 
+#     cols = colsdict['popVmSig']
+#     ax = vmaxes[0]
+#     #ax.set_title('significative population')
+#     #traces
+#     for i, col in enumerate(cols[:2]):
+#         ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#                 label=col)
+#         #errors : iterate on tuples
+#     for i, col in enumerate(cols[2:]):
+#         if fill:
+#             ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+#                             alpha=alpha[i]/2)
+#         else:
+#             for i, col in enumerate(cols[2:]):
+#                 for j in [0, 1]:
+#                     ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+#                             label=col, linewidth=0.5)
+#         #advance
+#     x0 = 0
+#     y = df.loc[x0][cols[0]]
+#     adf = df.loc[-20:0, [cols[1]]]
+#     i1 = (adf - y).abs().values.flatten().argsort()[0]
+#     x1 = adf.index[i1]
+#     #ax.plot(x0, y, 'o', color=stdColors['bleu'])
+#     #ax.plot(x1, y, '|', color=stdColors['bleu'])
+#     #ax.hlines(y, x1, x0, color=stdColors['bleu'])
+#     #ax.annotate("n=10", xy=(0.2, 0.8),
+#     #            xycoords="axes fraction", ha='center')
+#     ylabels = ['normalized membrane potential']
+#     for i, ax in enumerate(vmaxes):
+#         for loca in ['top', 'right', 'bottom']:
+#             ax.spines[loca].set_visible(False)
+#         ax.axes.get_xaxis().set_visible(True)
+#         ax.set_ylabel(ylabels[i])
+#         ax.set_ylim(-0.10, 1.2)
+#         ax.set_xlabel('Relative time (ms)')
+#         lims = ax.get_ylim()
+#         ax.vlines(0, lims[0], lims[1], alpha=0.2)
+#         lims = ax.get_xlim()
+#         ax.hlines(0, lims[0], lims[1], alpha=0.2)
+#     fig.tight_layout()
+#     # remove the space between plots
+#     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+#     if anot:
+#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9C',
+#                  ha='right', va='bottom', alpha=0.4)
+#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+#     return fig
+# 
+# plot_figure9C(data, content)
+# 
+# #%% stacked plot
+# plt.close('all')
+# 
+# def plot_9D():
+#     filename = 'data/fig2cells.xlsx'
+#     df = pd.read_excel(filename)
+# #    cols = df.columns[:2]
+# #    signs = df.columns[2:]
+#     df.index += 1 # cells = 1 to 37
+# 
+#     nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
+#     sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
+# 
+#     fig = plt.figure(figsize=(7,6))
+#     ax = fig.add_subplot(111)
+#     bins = np.arange(-5, 31, 5)
+#     #ax.hist([nsig, sig], stacked=True, color=['r', 'r'], fill=[False, True])
+#     _, bins, _ = ax.hist([sig, nsig], bins=bins, stacked=True, 
+#                          color=['r', speedColors['orange']], edgecolor='k',
+#                          linewidth=1, alpha=0.6)
+#     ax.set_xlim(32,-32)
+#     lims = ax.get_ylim()
+#     ax.vlines(0, lims[0], lims[1], linestyle='--')
+#     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+#     for loca in ['top', 'right']:
+#         ax.spines[loca].set_visible(False)
+#         ax.set_ylabel('Nb of cells')
+#         ax.set_xlabel('Latency advance (ms)')
+#         fig.tight_layout()
+#     if anot:
+#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         fig.text(0.99, 0.01, 'centrifigs.py:plot_9D',
+#                  ha='right', va='bottom', alpha=0.4)
+#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+#     return 
+# 
+# bins  = plot_9D()
+# 
+# 
+# #%%
+# =============================================================================
 
 #%%
 #plt.close('all')
@@ -1410,7 +1327,103 @@ def plot_figure4():
 
 fig = plot_figure4()
 ## alpha = 0.8, figsize = 8,6, ha = 'left'
+#%% fig 5 <-> sup 7
+
+plt.close('all')
+
+def plot_fig5():
+    """
+    plot supplementary figure 2: Vm all conditions of FULL stimulation
+    input : kind in ['pop': whole population, 'sig': individually significants
+    cells, 'nonsig': non significant cells]
+    """
+    filenames = ['data/figSup7a.xlsx', 'data/figSup7b.xlsx']
+    titles = ['High speed', 'Low speed']
+
+
+    filename = filenames[0]
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
+           # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
+    df.columns = cols
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+
+    colors = [stdColors['rouge'], stdColors['jaune']]
+
+    alpha = [0.7, 0.7]
+
+    fig = plt.figure(figsize=(5.5, 7.5))
+    ax1 = fig.add_subplot(211)
+    for i, col in enumerate(cols[:2]):
+        ax1.plot(df[col], color='black',
+                         alpha=1, linewidth=1)
+        ax1.fill_between(df.index, df[col], color=colors[i],
+                         alpha=1, linewidth=2)
+    ax1.axes.get_xaxis().set_visible(False)
+    ax1.spines['bottom'].set_visible(False)
+    ax1.set_ylim(0, 5.5)
+
+    filename = filenames[1]
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
+    df.columns = cols
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+    colors = [stdColors['jaune'], stdColors['rouge']]
+
+    ax2 = fig.add_subplot(212)
+    for i, col in enumerate(cols[:2]):
+        ax2.plot(df[col], color='black',
+                         alpha=1, linewidth=1)
+        ax2.fill_between(df.index, df[col], color=colors[i],
+                         alpha=1, linewidth=2)
+    ax2.axes.get_xaxis().set_visible(True)
+    ax2.spines['bottom'].set_visible(True)
+    ax2.set_ylim(0, 11.5)
+    ax2.set_xlabel('Time (ms)')
+
+    ax1.annotate('100°/s', xy=(0.2, 0.95),
+                 xycoords="axes fraction", ha='center')
+
+    ax2.annotate('5°/s', xy=(0.2, 0.95),
+                 xycoords="axes fraction", ha='center')
+
+    for ax in fig.get_axes():
+        ax.set_xlim(-300, 300)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.1)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.1)
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+
+    fig.tight_layout()
+    fig.text(0.02, 0.5, 'Firing rate (spk/s)',
+             va='center', rotation='vertical')
+    # remove the space between plots
+    fig.subplots_adjust(hspace=0.1)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig = plot_fig5()
 #%%
+
 plt.close('all')
 
 def plot_figure6():
@@ -1567,7 +1580,7 @@ def plot_figure7():
               stdColors['bleuViolet']]
     alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(11.6, 6))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(121)
     for i, col in enumerate(cols[:3]):
@@ -1626,6 +1639,96 @@ def plot_figure7():
     return fig
 
 fig = plot_figure7()
+
+
+#%% fig 9
+plt.close('all')
+
+def plot_figure9CD(data, colsdict):
+    """
+    plot_figure9CD
+    """
+    colors = ['k', stdColors['rouge']]
+    alpha = [0.8, 0.8]
+    # no individual : focus on initial response
+    df = data.loc[-30:35]
+
+    fig = plt.figure(figsize=(8.5, 4)) #fig = plt.figure(figsize=(8, 8))
+    ax0 = fig.add_subplot(1, 2, 1)
+    cols = colsdict['popVmSig']
+    #ax.set_title('significative population')
+    #traces
+    for i, col in enumerate(cols[:2]):
+        ax0.plot(df[col], color=colors[i], alpha=alpha[i],
+                label=col)
+        #errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        ax0.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+                            alpha=alpha[i]/2)
+        #advance
+    x0 = 0
+    y = df.loc[x0][cols[0]]
+    adf = df.loc[-20:0, [cols[1]]]
+    i1 = (adf - y).abs().values.flatten().argsort()[0]
+    x1 = adf.index[i1]
+    #ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    #ax.plot(x1, y, '|', color=stdColors['bleu'])
+    #ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    #ax.annotate("n=10", xy=(0.2, 0.8),
+    #            xycoords="axes fraction", ha='center')
+    ylabel = 'Normalized membrane potential'
+    ax0.set_ylabel(ylabel)
+    ax0.set_ylim(-0.10, 1.2)
+    ax0.set_xlabel('Relative time (ms)')
+    lims = ax0.get_ylim()
+    ax0.vlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax0.get_xlim()
+    ax0.hlines(0, lims[0], lims[1], alpha=0.2)
+    
+    #hist
+    ax1 = fig.add_subplot(1, 2, 2)
+    filename = 'data/fig2cells.xlsx'
+    df = pd.read_excel(filename)
+#    cols = df.columns[:2]
+#    signs = df.columns[2:]
+    df.index += 1 # cells = 1 to 37
+
+    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
+    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
+
+    bins = np.arange(-5, 31, 5)
+    _, bins, _ = ax1.hist([sig, nsig], bins=bins, stacked=True, 
+                         color=['r', speedColors['orange']], edgecolor='k',
+                         linewidth=1, alpha=0.6)
+    ax1.set_xlim(32,-32)
+    #adjust nb of ticks
+#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    lims = ax1.get_ylim()
+    custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
+    ax1.set_yticks(custom_ticks)
+    ax1.set_yticklabels(custom_ticks)    
+    ax1.vlines(0, lims[0], lims[1], linestyle='--')
+#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
+    ax1.set_ylabel('Number of cells')
+    ax1.set_xlabel('Latency advance (ms)')
+    
+    for ax in fig.get_axes():
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+    ax0.spines['bottom'].set_visible(False)
+    ax0.axes.get_xaxis().set_visible(True)
+    fig.tight_layout()
+    # remove the space between plots
+    #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9CD',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+plot_figure9CD(data, content)
+
 
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
@@ -2141,100 +2244,8 @@ def plot_figSup6(kind):
 fig = plot_figSup6('minus')
 fig = plot_figSup6('plus')
 
-#%%
-plt.close('all')
+#%% sup7 = fig5B
 
-def plot_figSup7():
-    """
-    plot supplementary figure 2: Vm all conditions of FULL stimulation
-    input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nonsig': non significant cells]
-    """
-    filenames = ['data/figSup7a.xlsx', 'data/figSup7b.xlsx']
-    titles = ['High speed', 'Low speed']
-
-
-    filename = filenames[0]
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
-           # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
-    df.columns = cols
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-
-    colors = [stdColors['rouge'], stdColors['jaune']]
-
-    alpha = [0.7, 0.7]
-
-    fig = plt.figure(figsize=(4, 6))
-    ax1 = fig.add_subplot(211)
-    for i, col in enumerate(cols[:2]):
-        ax1.plot(df[col], color='black',
-                         alpha=1, linewidth=1)
-        ax1.fill_between(df.index, df[col], color=colors[i],
-                         alpha=1, linewidth=2)
-    ax1.axes.get_xaxis().set_visible(False)
-    ax1.spines['bottom'].set_visible(False)
-    ax1.set_ylim(0, 5.5)
-
-    filename = filenames[1]
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
-    df.columns = cols
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-    colors = [stdColors['jaune'], stdColors['rouge']]
-
-    ax2 = fig.add_subplot(212)
-    for i, col in enumerate(cols[:2]):
-        ax2.plot(df[col], color='black',
-                         alpha=1, linewidth=1)
-        ax2.fill_between(df.index, df[col], color=colors[i],
-                         alpha=1, linewidth=2)
-    ax2.axes.get_xaxis().set_visible(True)
-    ax2.spines['bottom'].set_visible(True)
-    ax2.set_ylim(0, 11.5)
-    ax2.set_xlabel('Time (ms)')
-
-    ax1.annotate('100°/s', xy=(0.2, 0.95),
-                 xycoords="axes fraction", ha='center')
-
-    ax2.annotate('5°/s', xy=(0.2, 0.95),
-                 xycoords="axes fraction", ha='center')
-
-    for ax in fig.get_axes():
-        ax.set_xlim(-300, 300)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.1)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.1)
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-
-    fig.tight_layout()
-    fig.text(0.02, 0.5, 'Firing rate (spk/s)',
-             va='center', rotation='vertical')
-    # remove the space between plots
-    fig.subplots_adjust(hspace=0.1)
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
-
-fig = plot_figSup7()
 #%% fig supp3 bars
 
 def new_columns_names(cols):
