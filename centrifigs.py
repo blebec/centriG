@@ -1640,6 +1640,82 @@ def plot_figure7():
 
 fig = plot_figure7()
 
+#%%
+plt.close('all')
+
+def plot_9Dplay():
+    filename = 'data/fig2cells.xlsx'
+    df = pd.read_excel(filename)
+    df.index += 1 # cells = 1 to 37
+
+    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
+    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
+
+    fig = plt.figure(figsize=(14,12))
+    fig.suptitle('fig 9 : choose version ...')
+    bins = np.arange(-5, 31, 5)
+
+    #first
+    ax = fig.add_subplot(221)
+    ax.set_title('initial')
+    ax.hist([sig, nsig], bins=bins, stacked=True, 
+            color=['r', 'None'], edgecolor='r',
+            linewidth=1)
+    #ax.set_xlim(-32, 32)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], linestyle='--')
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    #second
+    ax = fig.add_subplot(222)
+    ax.set_title('2')
+    ax.hist([sig, nsig], bins=bins, stacked=True, 
+            color=['r', speedColors['orange']], edgecolor='k',
+            linewidth=1, alpha=0.6)
+    ax.set_xlim(32,-32)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], linestyle='--')
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    #third
+    ax = fig.add_subplot(223)
+    ax.set_title('3')
+    ax.hist([sig, nsig], bins=bins, stacked=True, 
+            color=['r', 'None'], edgecolor='k',
+            linewidth=1)
+    ax.set_xlim(-32, 32)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], linestyle='--')
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+    #fourth
+    ax = fig.add_subplot(224)
+    ax.set_title('4')
+    ax.hist([sig, nsig], bins=bins, stacked=True, 
+            color=['r', 'None'], edgecolor='k',
+            linewidth=1)
+    ax.set_xlim(32, -32)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], linestyle='--')
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+
+    for ax in fig.get_axes():
+        lims = ax.get_ylim()
+        custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
+        ax.set_yticks(custom_ticks)
+        ax.set_yticklabels(custom_ticks)    
+        ax.vlines(0, lims[0], lims[1], linestyle='--')
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+            ax.set_ylabel('Nb of cells')
+            ax.set_xlabel('Latency advance (ms)')
+    fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_9Dplay',
+                  ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return 
+ 
+plot_9Dplay()
+ 
 
 #%% fig 9
 plt.close('all')
