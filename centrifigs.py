@@ -2654,7 +2654,8 @@ def plot_sorted_responses(dico):
     title = title_dico[dico['kind']] + ' (' + title_dico[dico['spread']] + ')'
     #title = title_dico[dico['kind']]
     anotx = 'Cell rank'
-    anoty = ['Phase gain (ms)', 'Amplitude gain (fraction of Center-only response)']
+    anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
+             #(fraction of Center-only response)']
     #plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True, 
                              sharey='col', squeeze=False)#•sharey=True,
@@ -2667,17 +2668,19 @@ def plot_sorted_responses(dico):
         # color : white if non significant, edgecolor otherwise
         edgeColor = colors[i]
         color_dic = {0 : 'w', 1 : edgeColor}
-        select = df[[name, sig_name]].sort_values(by=[name, sig_name],
+        select = df[[name, sig_name]].sort_values(by=[name , sig_name],
                                                  ascending=False)
         barColors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
-        #ax.set_title(name)
+        ax.set_title(name)
         ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
                alpha=0.8, width=0.8)
         if i in [0,1]:
                 ax.set_title(anoty[i])
     for i, ax in enumerate(axes):
         ax.ticklabel_format(useOffset=True)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
         if i in range(6):

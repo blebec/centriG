@@ -121,7 +121,7 @@ Sorted Phase and amplitude gain for all conditions with significant and non-sign
 
 TO DO 
 	i)  Add between the CP-CROSS SECTOR and the RND-ISO SECTOR phase advance and amplitude gain a row containing both measures for the RND-ISO FULL condition
-	ii) Modify the Text Phase Gain and Amplitude gain (fraction of Center-Only response by $DELTA$ phase and $DELTA$ Amplitude 
+	~~ii) Modify the Text Phase Gain and Amplitude gain (fraction of Center-Only response by $DELTA$ phase and $DELTA$ Amplitude~~ 
 
 Supplementary Figure 2: (Function plot_figSup6('minus') line 2359) 
 Average Filling-in responses for all conditions using the the CP-ISO significant subpopulation of cells
