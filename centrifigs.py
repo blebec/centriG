@@ -1464,7 +1464,7 @@ def plot_figure6():
         else:
             ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
                      label=col)
-    ax2.set_xlabel('Relative Time (ms)')
+    ax2.set_xlabel('Relative time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
@@ -2414,7 +2414,10 @@ plot_cell_contribution(df)
 plt.close('all')
 
 def load_cell_contributions(kind='vm'):
-    """ load the corresonding xcel file """
+    """ 
+    load the corresponding xcel file 
+    kind = 'vm' or 'spk'    
+    """
     if kind == 'vm':
         filename = 'data/figSup34Vm.xlsx'
     elif kind == 'spk':
@@ -2428,93 +2431,7 @@ def load_cell_contributions(kind='vm'):
     df.columns = cols
     return df
 
-
-def plot_sorted_responses(dico):
-    """
-    plot the sorted cell responses
-    input = conditions parameters
-
-    """
-    # parameter
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    #data (call)
-    df = load_cell_contributions(dico['kind'])
-    traces = [item for item in df.columns if (dico['kind']+'_' in item)]
-    traces = [item for item in df.columns if (dico['spread']+'_' in item[:6])]
-    traces = [item for item in traces if (dico['measure'] in item)]
-    traces = [item for item in traces if ('indisig' not in item)]
-    # text labels
-    title_dico = {
-                'spk' : 'spikes',
-                'vm' : 'vm',
-                'f' : 'full',
-                's' : 'sector'
-                }
-    title = title_dico[dico['kind']] + ' ' + title_dico[dico['spread']]
-    if dico['measure'] == 'dgain50':
-        anoty = 'delta response'
-    else:
-        anoty = 'phase advance (ms)'
-    anotx = 'cell rank'
-    #plot
-    fig, axes = plt.subplots(2, 2, figsize=(12, 6), sharey=True, sharex=True)
-    fig.suptitle(title)
-    axes = axes.flatten()
-    x = range(1, len(df)+1)
-    for i, name in enumerate(traces):
-        sig_name = name + '_indisig'
-        edgeColor = colors[i]
-        color_dic = {0 :'w', 1 : edgeColor}
-        select = df[[name, sig_name]].sort_values(by=name, ascending=False)
-        barColors = [color_dic[x] for x in select[sig_name]]
-        ax = axes[i]
-        ax.set_title(name)
-        ax.bar(range(1, len(df)+1), select[name], color=barColors,
-               edgecolor=edgeColor, alpha=0.8, width=0.8)
-    for i, ax in enumerate(axes):
-        ax.ticklabel_format(useOffset=True)
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-        if i in [0, 1]:
-            ax.xaxis.set_visible(False)
-            ax.spines['bottom'].set_visible(False)
-        else:
-            ax.set_xlabel(anotx)
-            ax.set_xticks([1, len(df)])
-        if i in [0, 2]:
-            ax.set_ylabel(anoty)
-        # remove the space between plots
-    fig.subplots_adjust(hspace=0.05, wspace=0.05)
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    fig.tight_layout()
-    return fig
-
-parameter_dico = {
-        'kind' : 'vm',
-        'spread' : 's',
-        'position' : 'cp',
-        'theta' : 'cross',
-        'extra' : 'stc',
-        'measure' : 'dgain50'
-        }
-
-#fig = plot_sorted_responses(parameter_dico)
-#iterate through conditions for plotting
-for kind in ['vm', 'spk']:
-    parameter_dico['kind'] = kind
-    for spread in ['s', 'f']:
-        parameter_dico['spread'] = spread
-        for measure in ['dlat50', 'dgain50']:
-            parameter_dico['measure'] = measure
-            fig = plot_sorted_responses(parameter_dico)
-
-#%% plot latency (left) and gain (right
+# plot latency (left) and gain (right
 
 plt.close('all')
 
@@ -2607,11 +2524,11 @@ parameter_dico = {
 
 fig = plot_sorted_responses(parameter_dico)
 # iterate through conditions for plotting
-for kind in ['vm', 'spk']:
-    parameter_dico['kind'] = kind
-    for spread in ['s', 'f']:
-        parameter_dico['spread'] = spread
-        fig = plot_sorted_responses(parameter_dico)
+# for kind in ['vm', 'spk']:
+#     parameter_dico['kind'] = kind
+#     for spread in ['s', 'f']:
+#         parameter_dico['spread'] = spread
+#         fig = plot_sorted_responses(parameter_dico)
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
           speedColors['orange'], speedColors['jaune']]

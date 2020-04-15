@@ -80,7 +80,7 @@ Figure 7:
 
 ~~Violet remplacé par vert foncé~~
 ~~Dynamic LP de ocre/marron à violet~~
-Baisser le relative time (légende x) plus bas (? pareil que pour les autres figures ?) 
+~~Baisser le relative time (légende x) plus bas (? pareil que pour les autres figures ?) ~~
 
 Taille des Légendes (Normalized Membrane potential + Relative time (ms) en plus grand) homogénéiser (Figure 3, figure 4, figure 6)Figure 8:
 
