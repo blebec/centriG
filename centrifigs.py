@@ -173,7 +173,7 @@ def plot_figure2(data, colsdict, fill=True):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(17.6, 8)) #fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(17.6, 12)) #fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     axes = []
     axL = fig.add_subplot(2, 4, 1)
@@ -541,6 +541,7 @@ fig = plot_half_figure2(data, content)
 #%%
 plt.close('all')
 
+#>> that's the figure2
 
 def plot_3quarter_figure2(data, colsdict, fill=True):
     """
@@ -552,7 +553,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     inv_alpha = alpha[::-1]
     
     
-    fig = plt.figure(figsize=(11.6, 8))
+    fig = plt.figure(figsize=(17.6, 12))
     axes = []
     for i in range(1,7):
         axes.append(fig.add_subplot(2, 3, i))
@@ -955,7 +956,7 @@ def plot_figure2B(pltmode, sig=True):
     df.index += 1 # cells = 1 to 37
 
     if pltmode == 'horizontal':
-        fig = plt.figure(figsize=(11.6, 4))
+        fig = plt.figure(figsize=(17.6, 4))
     else:
         if pltmode == 'vertical':
             fig = plt.figure(figsize=(6, 6))
@@ -1156,7 +1157,7 @@ def plot_figure3(kind):
     #alpha = [0.5, 0.8, 0.5, 1, 0.6]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
     
-    fig = plt.figure(figsize=(8.5, 7))
+    fig = plt.figure(figsize=(6.5, 5.5))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
@@ -1197,8 +1198,8 @@ def plot_figure3(kind):
     return fig
 
 
-fig = plot_figure3('pop')
-#fig = plot_figure3('sig')
+#fig = plot_figure3('pop')
+fig = plot_figure3('sig')
 #fig = plot_figure3('nonsig')
 
 #pop all cells
@@ -1288,7 +1289,7 @@ def plot_figure4():
               speedColors['orange'], speedColors['jaune']]
     alpha = [0.8, 1, 0.8, 0.8, 1]
 
-    fig = plt.figure(figsize=(8.5, 6))
+    fig = plt.figure(figsize=(7, 5.5))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -1358,7 +1359,7 @@ def plot_fig5():
 
     alpha = [0.7, 0.7]
 
-    fig = plt.figure(figsize=(5.5, 7.5))
+    fig = plt.figure(figsize=(5, 7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
         ax1.plot(df[col], color='black',
@@ -1580,7 +1581,7 @@ def plot_figure7():
               stdColors['bleuViolet']]
     alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
-    fig = plt.figure(figsize=(11.6, 6))
+    fig = plt.figure(figsize=(11.6, 5))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(121)
     for i, col in enumerate(cols[:3]):
@@ -1729,7 +1730,7 @@ def plot_figure9CD(data, colsdict):
     # no individual : focus on initial response
     df = data.loc[-30:35]
 
-    fig = plt.figure(figsize=(8.5, 4)) #fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(11.6, 5)) #fig = plt.figure(figsize=(8, 8))
     ax0 = fig.add_subplot(1, 2, 1)
     cols = colsdict['popVmSig']
     #ax.set_title('significative population')
