@@ -116,26 +116,26 @@ Figure 9:
 
 Matériel Supplémentaire:
 
-Supplementary Figure 1: (Function plot_ranked_responses2Ben(dico) line  3001 (Function looped for kind in ['vm'] line 3093))
+Supplementary Figure 1: (Functionplot_sorted_responses(dico) line  2441 (Function called with parameter_dico (line 2517)
 Sorted Phase and amplitude gain for all conditions with significant and non-significant cells
 
 TO DO 
-	i)  Add between the CP-CROSS SECTOR and the RND-ISO SECTOR phase advance and amplitude gain a row containing both measures for the RND-ISO FULL condition
+	i)  Add after the RND-ISO SECTOR phase advance and amplitude gain a row containing both measures for the RND-ISO FULL condition
 	~~ii) Modify the Text Phase Gain and Amplitude gain (fraction of Center-Only response by $DELTA$ phase and $DELTA$ Amplitude~~ 
 
-Supplementary Figure 2: (Function plot_figSup6('minus') line 2359) 
+Supplementary Figure 2: (Function plot_figSup2(kind) line 1812) 
 Average Filling-in responses for all conditions using the the CP-ISO significant subpopulation of cells
 
 TO DO
-	i) Add between the CP-CROSS SECTOR and the RND-ISO SECTOR average filling-in response a row the average RND-ISO FULL condition for the same subpopulation 
+	i) ~~Add after the RND-ISO SECTOR average filling-in response a row the average RND-ISO FULL condition for the same subpopulation~~ 
 	ii) Increase ticks and Text size	
 
-Supplementary Figure 3: (Function plot_figSup1('pop') line 2123)
+Supplementary Figure 3: (Function plot_figSup3(kind) line 1980)
 Average response of the entire Vm population (n=37) for each condition 
 
 TO DO
-	i) Replace the continuous blue line of the SECTOR RND-ISO by a dotted blue line
-	ii) Add the FULL RND-ISO average as a continuous blue line
+	i) ~~Replace the continuous blue line of the SECTOR RND-ISO by a dotted blue line~~
+	ii) ~~Add the FULL RND-ISO average as a continuous blue line~~
 
 
 
