@@ -1825,7 +1825,132 @@ def plot_figure9CD(data, colsdict):
 #data, content = load2()
 plot_figure9CD(data, content)
 
+#%%
+plt.close('all')
 
+def new_columns_names(cols):
+    def convert_to_snake(camel_str):
+        """ camel case to snake case """
+        temp_list = []
+        for letter in camel_str:
+            if letter.islower():
+                temp_list.append(letter)
+            elif letter.isdigit():
+                temp_list.append(letter)
+            else:
+                temp_list.append('_')
+                temp_list.append(letter)
+        result = "".join(temp_list)
+        return result.lower()
+    newcols = [convert_to_snake(item) for item in cols]
+    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
+    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
+    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
+    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
+    return newcols
+
+def load_cell_contributions(kind='vm'):
+    """ 
+    load the corresponding xcel file 
+    kind = 'vm' or 'spk'    
+    """
+    if kind == 'vm':
+        filename = 'data/figSup34Vm.xlsx'
+    elif kind == 'spk':
+        filename = 'data/figSup34Spk.xlsx'
+    else:
+        print('kind should be vm or spk')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+    #rename using snake_case
+    cols = new_columns_names(df.columns)
+    df.columns = cols
+    return df
+
+# plot latency (left) and gain (right
+
+plt.close('all')
+
+# TODO: in first figure, 1st condition latency advance of CP-ISO
+# plot and fill the actual 10 and 11th df.index significant cell row
+# before the actual actual 9th
+def plot_sorted_responses_sup1():
+    """
+    plot the sorted cell responses
+    input = conditions parameters
+
+    """
+    # parameter
+    colors = [stdColors['rouge'], stdColors['rouge'],
+              stdColors['vert'], stdColors['vert'],
+              stdColors['jaune'], stdColors['jaune'],
+              stdColors['bleu'], stdColors['bleu'],
+              stdColors['bleu'], stdColors['bleu']]
+    #data (call)
+    df = load_cell_contributions('vm')
+    # extract list of traces : sector vs full
+    traces = [item for item in df.columns if ('s_' in item[:7])]
+    # append full random
+    f_rnd = [item for item in df.columns if ('vm_f_rnd' in item)]
+    for item in f_rnd:
+        traces.append(item)
+    # filter -> only significative cells
+    traces = [item for item in traces if ('indisig' not in item)]
+    # text labels
+    title = 'Vm (sector)'
+    anotx = 'Cell rank'
+    anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
+             #(fraction of Center-only response)']
+    #plot
+    fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True, 
+                             sharey='col', squeeze=False)#•sharey=True,
+    fig.suptitle(title)
+    axes = axes.flatten()
+    x = range(1, len(df)+1)
+    #plot all traces
+    for i, name in enumerate(traces):
+        sig_name = name + '_indisig'
+        # color : white if non significant, edgecolor otherwise
+        edgeColor = colors[i]
+        color_dic = {0 : 'w', 1 : edgeColor}
+        select = df[[name, sig_name]].sort_values(by=[name , sig_name],
+                                                 ascending=False)
+        barColors = [color_dic[x] for x in select[sig_name]]
+        ax = axes[i]
+        # ax.set_title(name)
+        ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
+               alpha=0.8, width=0.8)
+        if i in [0,1]:
+                ax.set_title(anoty[i])
+    for i, ax in enumerate(axes):
+        ax.ticklabel_format(useOffset=True)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        if i not in [8, 9]:
+            ax.xaxis.set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+        else:
+            ax.set_xlabel(anotx)
+            ax.set_xticks([1, len(df)])
+            ax.set_xlim(0.55, len(df)+2)
+    #align each row yaxis on zero between subplots
+    align_yaxis(axes[0], 0, axes[1], 0)
+    #keep data range whithout distortion, preserve 0 alignment
+    change_plot_trace_amplitude(axes[1], 0.80)
+    # remove the space between plots
+    fig.tight_layout()
+
+    fig.subplots_adjust(hspace=0.02, wspace=0.05)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses_sup1',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig = plot_sorted_responses_sup1()
 #%%
 plt.close('all')
 
