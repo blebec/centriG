@@ -57,9 +57,12 @@ stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
              'dark_vert': [x/256 for x in [10, 146, 13]],
              'dark_jaune': [x/256 for x in [163, 133, 16]],
              'dark_bleu': [x/256 for x in [14, 73, 118]]}
-speedColors = {'orangeFonce' : [x/256 for x in [252, 98, 48]],
-               'orange' : [x/256 for x in [253, 174, 74]],
-               'jaune' : [x/256 for x in [254, 226, 137]]}
+# speedColors = {'orangeFonce' : [x/256 for x in [252, 98, 48]],
+#                'orange' : [x/256 for x in [253, 174, 74]],
+#                'jaune' : [x/256 for x in [254, 226, 137]]}
+speedColors = {'orangeFonce' : [x/256 for x in [237, 73, 59]],
+               'orange' : [x/256 for x in [245, 124, 67]],
+               'jaune' : [x/256 for x in [253, 174, 74]]}
 
 
 #NB fig size : 8.5, 11.6 or 17.6 cm 
