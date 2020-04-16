@@ -1014,6 +1014,21 @@ def plot_figure2B(pltmode, sig=True):
 plot_figure2B('horizontal')
 #plot_figure2B('vertical')
 
+def sort_stat():
+    filename = 'data/fig2cells.xlsx'
+    df = pd.read_excel(filename)
+    cols = df.columns[:2]
+    signs = df.columns[2:]
+    df.index += 1 # cells = 1 to 37
+
+    temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
+    temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
+    for temp in [temp1, temp2]:
+        print(len(temp))
+        print(temp.mean())
+        print(temp.std())
+        print(temp.sem())
+sort_stat()
 # =============================================================================
 #>>> see fig 9
 #%% sigNonsig
