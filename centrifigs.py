@@ -1672,7 +1672,8 @@ def plot_9Dplay():
 
     fig = plt.figure(figsize=(14,12))
     fig.suptitle('fig 9 : choose version ...')
-    bins = np.arange(-5, 31, 5)
+#    bins = np.arange(-5, 31, 5)
+    bins = np.arange(-5, 36, 5) - 2.5
 
     #first
     ax = fig.add_subplot(221)
@@ -1791,7 +1792,7 @@ def plot_figure9CD(data, colsdict):
     nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
     sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
 
-    bins = np.arange(-5, 31, 5)
+    bins = np.arange(-5, 36, 5) - 2.5
     ax1.hist([sig, nsig], bins=bins, stacked=True, color=['r', 'None'], 
              edgecolor='k', linewidth=1)
     ax1.set_xlim(-32, 32)
@@ -1804,7 +1805,7 @@ def plot_figure9CD(data, colsdict):
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
 #    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax1.set_ylabel('Number of cells')
-    ax1.set_xlabel('Latency advance (ms)')
+    ax1.set_xlabel('Phase shift (ms)')
     
     for ax in fig.get_axes():
         for loca in ['top', 'right']:
