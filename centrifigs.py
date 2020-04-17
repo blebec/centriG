@@ -61,66 +61,6 @@ speedColors = {'orangeFonce' : [x/256 for x in [237, 73, 59]],
                'orange' : [x/256 for x in [245, 124, 67]],
                'jaune' : [x/256 for x in [253, 174, 74]]}
 
-##########################
-# replace colors for colorBlind:
-#see https://davidmathlogic.com/colorblind/#%23000000-%23E69F00-%2356B4E9-%23009E73-%23F0E442-%230072B2-%23D55E00-%23CC79A7
-# and https://personal.sron.nl/~pault/
-bright = {
-        'blue' : [x/256 for x in [0, 119, 170]],
-        'cyan' : [x/256 for x in [102, 204, 238]],
-        'green' : [x/256 for x in [34, 136, 51]],
-        'yellow' : [x/256 for x in [204, 187, 68]],
-        'red' : [x/256 for x in [238, 103, 119]],
-        'purple' : [x/256 for x in [170, 51, 119]],
-        'grey' : [x/256 for x in [187, 187, 187]]
-        }
-
-vibrant = {
-        'blue' : [x/256 for x in [0, 119, 187]],
-        'cyan' : [x/256 for x in [51, 187, 238]],
-        'teal' : [x/256 for x in [0, 153, 136]],
-        'orange' : [x/256 for x in [238, 119, 51]],
-        'red' : [x/256 for x in [204, 51, 17]],
-        'magenta' : [x/256 for x in [238, 51, 119]],
-        'grey' : [x/256 for x in [187, 197, 187]]
-        }
-
-paleDark = {
-        'paleBlue' : [x/256 for x in [187, 203, 238]],
-        'paleCyan' : [x/256 for x in [204, 238, 255]],
-        'paleGreen' : [x/256 for x in [204, 221, 170]],
-        'paleYellow' : [x/256 for x in [238, 238, 187]],
-        'paleRed' : [x/256 for x in [255, 204, 204]],
-        'paleGrey' : [x/256 for x in [221, 221, 221]],
-        
-        'darkBlue' : [x/256 for x in [34, 34, 85]],
-        'darkCyan' : [x/256 for x in [34, 85, 85]],
-        'darkGreen' : [x/256 for x in [34, 85, 34]],
-        'darkYellow' : [x/256 for x in [102, 102, 51]],
-        'darkRed' : [x/256 for x in [102, 51, 51]],
-        'darkGrey' : [x/256 for x in [85, 85, 85]]
-        }
-
-stdColors['rouge'] = vibrant['red']
-stdColors['vert'] = vibrant['teal']
-stdColors['bleu'] = vibrant['blue']
-stdColors['jaune'] = bright['yellow']
-stdColors['violet'] = bright['purple']
-stdColors['vertSombre'] = paleDark['darkGreen']
-#stdColors['orangeFonce'] = paleDark
-stdColors['bleuViolet'] = paleDark['darkCyan']
-stdColors['dark_rouge'] = paleDark['darkRed']
-stdColors['dark_vert'] = paleDark['darkGreen']
-stdColors['dark_jaune'] = paleDark['darkYellow']
-stdColors['dark_bleu'] = paleDark['darkBlue']
-
-# stdColors['rouge'] = [x/256 for x in [213, 94, 00]]
-# stdColors['vert'] = [x/256 for x in [0, 158, 115]]
-# stdColors['bleu'] =	[x/256 for x in [0, 114, 178]]
-# stdColors['jaune'] = [x/256 for x in [240, 228, 66]]
-
-
-
 ############################
 #NB fig size : 8.5, 11.6 or 17.6 cm 
 params = {'font.sans-serif': ['Arial'],
@@ -783,7 +723,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
     #fit individual example
-    vmaxes[0].set_ylim(-3, 12)
+    vmaxes[0].set_ylim(-3.5, 12)
     spkaxes[0].set_ylim(-5.5, 18)
     # align zero between plots  NB ref = first plot
     for i in [0,1]:
@@ -1852,7 +1792,7 @@ def plot_figure9CD(data, colsdict):
     bins = np.arange(-5, 36, 5) - 2.5
     ax1.hist([sig, nsig], bins=bins, stacked=True, 
              color=[stdColors['rouge'], 'None'], edgecolor='k', linewidth=1)
-    ax1.set_xlim(-32, 32)
+    ax1.set_xlim(-10, 35)
     #adjust nb of ticks
 #    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     lims = ax1.get_ylim()
@@ -1862,13 +1802,11 @@ def plot_figure9CD(data, colsdict):
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
 #    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax1.set_ylabel('Number of cells')
-    ax1.set_xlabel('Phase shift (ms)')
+    ax1.set_xlabel(r'$\Delta$ phase (ms)')
     
     for ax in fig.get_axes():
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    ax0.spines['bottom'].set_visible(False)
-    ax0.axes.get_xaxis().set_visible(True)
     fig.tight_layout()
     # remove the space between plots
     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
@@ -2008,10 +1946,88 @@ def plot_sorted_responses_sup1():
     return fig
 
 fig = plot_sorted_responses_sup1()
+
+
+#%%
+#plt.close('all')
+
+def plot_figSup2(kind):
+    """
+    plot supplementary figure 1 : Vm with random Sector control
+    input : kind in ['pop': whole population, 'sig': individually significants
+    cells, 'nonsig': non significant cells]
+    """
+    filenames = {'pop' : 'data/figSup3.xlsx',
+                 'sig': 'data/figSup3bis.xlsx',
+                 'nonsig': 'data/figSup3bis2.xlsx'}
+    titles = {'pop' : 'all cells',
+              'sig': 'individually significant cells',
+              'nonsig': 'individually non significants cells'}
+    #samplesize
+    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    ncells = cellnumbers[kind]
+    df = pd.read_excel(filenames[kind])
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS',
+            'RND-ISO SECTOR', 'RND-ISO-FULL']
+    df.columns = cols
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu'], stdColors['bleu']]
+    #alpha = [0.5, 0.8, 0.5, 1, 0.6]
+    alpha = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
+    fig = plt.figure(figsize=(8, 7))
+##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    #fig.suptitle(titles[kind])
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        if (i == 4):
+            ax.plot(df[col], linestyle='dotted', color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+        elif (i != 4):
+            ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+    ax.set_ylabel('Normalized membrane potential')
+    ax.set_xlabel('Relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    ax.set_xlim(-15, 30)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    #ax.vlines(0, -0.2, 1.1, alpha=0.2)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax.set_ylim(-0.1, 1.1)
+
+    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+    leg = ax.legend(loc=2, markerscale=None, frameon=False,
+                    handlelength=0)
+    for line, text in zip(leg.get_lines(), leg.get_texts()):
+        text.set_color(line.get_color())
+    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    #            xycoords="axes fraction", ha='center')
+    fig.tight_layout()
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+
+fig = plot_figSup2('pop')
+#fig = plot_figSup2('sig')
+#fig = plot_figSup2('nonsig')
+
+
 #%%
 plt.close('all')
 
-def plot_figSup2(kind):
+def plot_figSup3(kind):
     """
     plot supplementary figure 2: Vm all conditions of surround-only stimulation CP-ISO sig
     input : kind in ['minus': Surround-then-center - Center Only Vs Surround-Only,
@@ -2174,83 +2190,8 @@ def plot_figSup2(kind):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figSup2('minus')
-#☻fig = plot_figSup2('plus')
-#%%
-#plt.close('all')
-
-def plot_figSup3(kind):
-    """
-    plot supplementary figure 1 : Vm with random Sector control
-    input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nonsig': non significant cells]
-    """
-    filenames = {'pop' : 'data/figSup3.xlsx',
-                 'sig': 'data/figSup3bis.xlsx',
-                 'nonsig': 'data/figSup3bis2.xlsx'}
-    titles = {'pop' : 'all cells',
-              'sig': 'individually significant cells',
-              'nonsig': 'individually non significants cells'}
-    #samplesize
-    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
-    ncells = cellnumbers[kind]
-    df = pd.read_excel(filenames[kind])
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
-    cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS',
-            'RND-ISO SECTOR', 'RND-ISO-FULL']
-    df.columns = cols
-    colors = ['k', stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu'], stdColors['bleu']]
-    #alpha = [0.5, 0.8, 0.5, 1, 0.6]
-    alpha = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
-    fig = plt.figure(figsize=(8, 7))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-    #fig.suptitle(titles[kind])
-    ax = fig.add_subplot(111)
-    for i, col in enumerate(cols):
-        if (i == 4):
-            ax.plot(df[col], linestyle='dotted', color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-        elif (i != 4):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-    ax.set_ylabel('Normalized membrane potential')
-    ax.set_xlabel('Relative time (ms)')
-    for ax in fig.get_axes():
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-    ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    #ax.vlines(0, -0.2, 1.1, alpha=0.2)
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.1, 1.1)
-
-    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-    leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                    handlelength=0)
-    for line, text in zip(leg.get_lines(), leg.get_texts()):
-        text.set_color(line.get_color())
-    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-    #            xycoords="axes fraction", ha='center')
-    fig.tight_layout()
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-
-fig = plot_figSup3('pop')
-#fig = plot_figSup3('sig')
-#fig = plot_figSup3('nonsig')
-
+fig = plot_figSup3('minus')
+#☻fig = plot_figSup3('plus')
 #pop all cells
 #%%
 plt.close('all')
