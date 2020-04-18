@@ -23,7 +23,7 @@ from datetime import datetime
 #===========================
 # global setup
 font_size = 'medium' # large, medium
-anot = True         # to draw the date and name on the bottom of the plot
+anot = False         # to draw the date and name on the bottom of the plot
 #============================
 
 def go_to_dir():
