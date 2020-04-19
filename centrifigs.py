@@ -23,7 +23,7 @@ from datetime import datetime
 #===========================
 # global setup
 font_size = 'medium' # large, medium
-anot = False         # to draw the date and name on the bottom of the plot
+anot = True         # to draw the date and name on the bottom of the plot
 #============================
 
 def go_to_dir():
@@ -1353,7 +1353,7 @@ def plot_fig5():
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = ['data/figSup7a.xlsx', 'data/figSup7b.xlsx']
+    filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
     titles = ['High speed', 'Low speed']
 
 
