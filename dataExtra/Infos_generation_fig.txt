@@ -1,0 +1,17 @@
+Fichier: 2019_CXRIGHT_TUN21
+
+Les vecteurs sont binnés a 5ms et sont sous la forme "PSTH_Numéro de stim_numéro de canal"
+
+Les numéros de stim nous intéressant sont les suivants :
+Pour 25°/s : 1 (center only), 2 (surround only), 3 (surround then center)
+
+Pour 150°/s :  10 (center only), 11 (surround only), 12 (surround then center)
+
+Stim 19 = BLANK
+
+les canaux d'interet pour chaque couche sont les suivants
+L2/3 : 12 to 28
+L4 : 35 to 45
+L5/6 : 50 to 64
+
+Pour les top synchro, Chris je te les ai envoyés en fichier .txt
