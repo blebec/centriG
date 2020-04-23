@@ -21,7 +21,9 @@ df = pd.DataFrame()
 #ser = pd.read_csv('Top_synch_150.txt')
 
 #%%
-#NB look at the readme file in the dataExtra folder 
+#NB look at the readme file in the dataExtra folder
+# + infos_generation_figs listing conditions of interests
+#  numerotation in /dataExtra     
 
 def load_extra_data(path, bin_dur=5):
     file_list = [y for x in os.walk(path) for y in glob(os.path.join(x[0], '*.txt'))]
@@ -42,16 +44,3 @@ def load_extra_data(path, bin_dur=5):
 df = load_extra_data(cdir)
 ser150 = pd.read_csv('Top_synch_150.txt')
 sert25 = pd.read_csv('Top_synch_25.txt')
-
-
-
-#%% test matrices
-os.chdir('/Users/cdesbois/ownCloud/cgFigures/elphyExport')
-
-from scipy.io import loadmat
-res = loadmat('PSTHS_2019_TUN21.mat')
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(res['PSTH'].flatten())
-
-df = pd.DataFrame(res['PSTH'].flatten())
