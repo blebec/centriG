@@ -2120,97 +2120,128 @@ def plot_figSup3(kind):
     df.columns = cols
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
+    #limit time
+    df = df.loc[-150:150]
+
     cols = df.columns
-
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu'],
-              stdColors['bleu']]
-
-    stdColors1 = {'dark_rouge' : [x/256 for x in [115, 0, 34]],
-                  'dark_vert' : [x/256 for x in [10, 146, 13]],
-                  'dark_jaune' :	[x/256 for x in [163, 133, 16]],
-                  'dark_bleu' :	[x/256 for x in [14, 73, 118]]}
-
-    colors1 = [stdColors1['dark_rouge'], stdColors1['dark_vert'],
-               stdColors1['dark_jaune'], stdColors1['dark_bleu'],
-               stdColors1['dark_bleu'], stdColors1['dark_bleu']]
-
-    alpha = [0.7, 0, 0, 0.7]
+    # list of 4 columns ie each condition (val, up, down, sim)
+    col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
+    
+    colors_list = [stdColors['rouge'], stdColors['vert'],
+                   stdColors['jaune'], stdColors['bleu'],
+                   stdColors['bleu']]
+    dark_color_list = [stdColors['dark_rouge'], stdColors['dark_vert'],
+                       stdColors['dark_jaune'], stdColors['dark_bleu'],
+                       stdColors['dark_bleu'], stdColors['dark_bleu']]
+    alpha_list = [0.7, 0, 0, 0.7]
 
     fig = plt.figure(figsize=(6, 16))
+    for i in range(5):
+        if i == 0 : 
+            ax = fig.add_subplot(5, 1, i+1)
+        else:
+            ax = fig.add_subplot(5, 1, i+1, sharex=ax, sharey=ax)            
+        toPlot = col_seg[i]
+        col = toPlot[0]
+        print(col)
+        ax.plot(df[col], color=colors_list[i], alpha=alpha[0],
+                     label=col, linewidth=2)
+        ax.fill_between(df.index, df[toPlot[1]], df[toPlot[2]],
+                         color=colors[i], alpha=0.2)
+        col = toPlot[-1]
+        ax.plot(df[col], color=dark_color_list[i], alpha=alpha[0],
+                 label=col, linewidth=2)
+        ax.axvspan(xmin=0, xmax=50, ymin=0.2, ymax=1, color='grey', alpha=0.2)
+        ax.spines['top'].set_visible(False)
+        ax.set_facecolor('None')
+        #label left:
+        if i % 2 == 0:
+            ax.spines['right'].set_visible(False)                
+        #label right    
+        else:
+            ax.spines['left'].set_visible(False)
+            ax.yaxis.tick_right()
+        if i != 4:
+            ax.xaxis.set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            
+    for i, ax in enumerate(fig.get_axes()):
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.3)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        
+    fig.tight_layout()
+    fig.subplots_adjust(hspace=-0.3, wspace=0.2)
 
-    j = int
-    ax1 = fig.add_subplot(511)
-    y = [0, 1, 2]
-    for i in y:
-        ax1.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
-                 label=df.columns[i], linewidth=2)
-    for i in [3]:
-        ax1.plot(df[df.columns[i]], color=colors1[i-i], alpha=alpha[i-i],
-                 label=df.columns[i], linewidth=2)
-    ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
-                     color=colors[0], alpha=0.2)
-    r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.05)
-    ax1.add_patch(r1)
 
-    x = [4, 5, 6]
-    zipped = zip(x, y)
-    ax2 = fig.add_subplot(512)
-    for i, j in zipped:
-        ax2.plot(df[df.columns[i]], color=colors[i-i+1], alpha=alpha[j],
-                 label=df.columns[i], linewidth=2)
-    for i in [7]:
-        ax2.plot(df[df.columns[i]], color=colors1[i-i+1], alpha=alpha[0],
-                 label=df.columns[i], linewidth=2)
-    ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
-                     color=colors[1], alpha=0.2)
-    r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.05)
-    ax2.add_patch(r1)
+    # for i, col in enumerate(cols[:3]):
+    #     ax0.plot(df[col], color=colors_list[0], alpha=alpha[i],
+    #              label=col, linewidth=2)
+    # ax1 = fig.add_subplot(512)
+    # x = [0, 1, 2]   # column number
+    # y = [0, 1, 2]   # alpha values
+    # for i in x:
+    #     ax1.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
+    #              label=df.columns[i], linewidth=2)
+    # for i in [3]:
+    #     ax1.plot(df[df.columns[i]], color=colors1[i-i], alpha=alpha[i-i],
+    #              label=df.columns[i], linewidth=2)
+    # ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
+    #                  color=colors[0], alpha=0.2)
 
-    x = [8, 9, 10]
-    y = [0, 1, 2]
-    zipped = zip(x, y)
-    ax3 = fig.add_subplot(513)
-    for i, j in zipped:
-        ax3.plot(df[df.columns[i]], color=colors[i-i+2], alpha=alpha[j],
-                 label=df.columns[i], linewidth=2)
-    for i in [11]:
-        ax3.plot(df[df.columns[i]], color=colors1[i-i+2], alpha=alpha[0],
-                 label=df.columns[i], linewidth=2)
-    ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
-                     color=colors[2], alpha=0.2)
-    r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.05)
-    ax3.add_patch(r1)
+    # x = [4, 5, 6]
+    # zipped = zip(x, y)
+    # ax2 = fig.add_subplot(512, sharex=ax1, sharey=ax1)
+    # for i, j in zipped:
+    #     ax2.plot(df[df.columns[i]], color=colors[i-i+1], alpha=alpha[j],
+    #              label=df.columns[i], linewidth=2)
+    # for i in [7]:
+    #     ax2.plot(df[df.columns[i]], color=colors1[i-i+1], alpha=alpha[0],
+    #              label=df.columns[i], linewidth=2)
+    # ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
+    #                  color=colors[1], alpha=0.2)
 
-    x = [12, 13, 14]
-    zipped = zip(x, y)
-    ax4 = fig.add_subplot(514)
-    for i, j in zipped:
-        ax4.plot(df[df.columns[i]], color=colors[i-i+3], linestyle='dotted',
-                 alpha=alpha[j], label=df.columns[i], linewidth=2)
-    for i in [15]:
-        ax4.plot(df[df.columns[i]], color=colors1[i-i+3],linestyle='dashed',
-                 alpha=alpha[0], label=df.columns[i], linewidth=2)
-    ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
-                     color=colors[3], alpha=0.2)
-    r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.05)
-    ax4.add_patch(r1)
+    # x = [8, 9, 10]
+    # zipped = zip(x, y)
+    # ax3 = fig.add_subplot(513, sharex=ax1, sharey=ax1)
+    # for i, j in zipped:
+    #     ax3.plot(df[df.columns[i]], color=colors[i-i+2], alpha=alpha[j],
+    #              label=df.columns[i], linewidth=2)
+    # for i in [11]:
+    #     ax3.plot(df[df.columns[i]], color=colors1[i-i+2], alpha=alpha[0],
+    #              label=df.columns[i], linewidth=2)
+    # ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
+    #                  color=colors[2], alpha=0.2)
 
-    x = [16, 17, 18]
-    zipped = zip(x, y)
-    ax5 = fig.add_subplot(515)
-    for i, j in zipped:
-        ax5.plot(df[df.columns[i]], color=colors[i-i+3], alpha=alpha[j],
-                 label=df.columns[i], linewidth=2)
-    for i in [19]:
-        ax5.plot(df[df.columns[i]], color=colors1[i-i+3], alpha=alpha[0],
-                 label=df.columns[i], linewidth=2)
-    ax5.fill_between(df.index, df[df.columns[18]], df[df.columns[17]],
-                     color=colors[3], alpha=0.2)
-    r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.05)
-    ax5.add_patch(r1)
+    # x = [12, 13, 14]
+    # zipped = zip(x, y)
+    # ax4 = fig.add_subplot(514, sharex=ax1, sharey=ax1)
+    # for i, j in zipped:
+    #     ax4.plot(df[df.columns[i]], color=colors[i-i+3], linestyle='dotted',
+    #              alpha=alpha[j], label=df.columns[i], linewidth=2)
+    # for i in [15]:
+    #     ax4.plot(df[df.columns[i]], color=colors1[i-i+3],linestyle='dashed',
+    #              alpha=alpha[0], label=df.columns[i], linewidth=2)
+    # ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
+    #                  color=colors[3], alpha=0.2)
 
-    for ax in fig.get_axes():
+    # x = [16, 17, 18]
+    # zipped = zip(x, y)
+    # ax5 = fig.add_subplot(515, sharex=ax1, sharey=ax1)
+    # for i, j in zipped:
+    #     ax5.plot(df[df.columns[i]], color=colors[i-i+3], alpha=alpha[j],
+    #              label=df.columns[i], linewidth=2)
+    # for i in [19]:
+    #     ax5.plot(df[df.columns[i]], color=colors1[i-i+3], alpha=alpha[0],
+    #              label=df.columns[i], linewidth=2)
+    # ax5.fill_between(df.index, df[df.columns[18]], df[df.columns[17]],
+    #                  color=colors[3], alpha=0.2)
+
+    for i, ax in enumerate(fig.get_axes()):
+        r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.1)
+        ax.add_patch(r1)
+        ax.spines['top'].set_visible(False)
         ax.set_xlim(-150, 150)
         ax.set_ylim(ylimtinf, ylimtsup)
         ax.get_xaxis().set_visible(False)
@@ -2248,7 +2279,7 @@ def plot_figSup3(kind):
     return fig
 
 fig = plot_figSup3('minus')
-#☻fig = plot_figSup3('plus')
+#fig = plot_figSup3('plus')
 #pop all cells
 #%%
 plt.close('all')
