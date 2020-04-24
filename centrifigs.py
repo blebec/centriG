@@ -388,6 +388,19 @@ def plot_figure2(data, colsdict, fill=True):
     # adjust amplitude (without moving the zero)
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
+    #rebuild tick to one decimal
+    ax = vmaxes[0]
+    custom_ticks = np.linspace(-2, 12, 8, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax = vmaxes[1]
+    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    ax.set_yticks(custom_ticks)
+    ax = spkaxes[1]
+    custom_ticks = np.linspace(-2, 12, 8, dtype=int)/10
+    ax.set_yticks(custom_ticks)    
+
+
+
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -405,8 +418,8 @@ def plot_figure2(data, colsdict, fill=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-data, content = load2()
-fig = plot_figure2(data, content)
+data_df, cols_dict = load2()
+fig = plot_figure2(data_df, cols_dict)
 
 
 #%%
@@ -464,7 +477,9 @@ def plot_half_figure2(data, colsdict):
                 xycoords="axes fraction", ha='center')
     #labels
     for ax in axes:
-        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+#        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+#todo avoid approximation in the label
+# see line 1718
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     ylabels = ['Membrane potential (mV)',
@@ -518,6 +533,13 @@ def plot_half_figure2(data, colsdict):
     # adjust amplitude (without moving the zero)
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
+    # adjust ticks
+    ax = vmaxes[1]
+    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    ax.set_yticks(custom_ticks)
+    ax = spkaxes[1]
+    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    ax.set_yticks(custom_ticks)    
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -536,7 +558,7 @@ def plot_half_figure2(data, colsdict):
 
     return fig
 
-fig = plot_half_figure2(data, content)
+fig = plot_half_figure2(data_df, cols_dict)
 
 #%%
 plt.close('all')
@@ -759,7 +781,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
 
     return fig
 
-fig = plot_3quarter_figure2(data, content)
+fig = plot_3quarter_figure2(data_df, cols_dict)
 #%% sigNonsig
 def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     """
@@ -938,7 +960,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
 
     return fig
 
-plot_signonsig_figure2(data, content)
+plot_signonsig_figure2(data_df, cols_dict)
 
 #%% NB the length of the sorted data are not the same compared to the other traces
 #filename = 'fig2cells.xlsx'
@@ -1098,7 +1120,7 @@ sort_stat()
 #         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 #     return fig
 #
-# plot_figure9C(data, content)
+# plot_figure9C(data_df, cols_dict)
 #
 # #%% stacked plot
 # plt.close('all')
@@ -1817,8 +1839,8 @@ def plot_figure9CD(data, colsdict):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#data, content = load2()
-plot_figure9CD(data, content)
+#data_df, cols_dict = load2()
+plot_figure9CD(data_df, cols_dict)
 
 #%%
 plt.close('all')
