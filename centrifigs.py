@@ -2151,7 +2151,7 @@ def plot_figSup3(kind):
         col = toPlot[-1]
         ax.plot(df[col], color=dark_color_list[i], alpha=alpha[0],
                  label=col, linewidth=2)
-        ax.axvspan(xmin=0, xmax=50, ymin=0.2, ymax=1, color='grey', alpha=0.2)
+        ax.axvspan(xmin=0, xmax=50, ymin=0.15, ymax=0.8, color='grey', alpha=0.2)
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
         #label left:
