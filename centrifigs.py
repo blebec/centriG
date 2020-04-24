@@ -2144,12 +2144,12 @@ def plot_figSup3(kind):
         toPlot = col_seg[i]
         col = toPlot[0]
         print(col)
-        ax.plot(df[col], color=colors_list[i], alpha=alpha[0],
+        ax.plot(df[col], color=colors_list[i], alpha=alpha_list[0],
                      label=col, linewidth=2)
         ax.fill_between(df.index, df[toPlot[1]], df[toPlot[2]],
-                         color=colors[i], alpha=0.2)
+                         color=colors_list[i], alpha=0.2)
         col = toPlot[-1]
-        ax.plot(df[col], color=dark_color_list[i], alpha=alpha[0],
+        ax.plot(df[col], color=dark_color_list[i], alpha=alpha_list[0],
                  label=col, linewidth=2)
         ax.axvspan(xmin=0, xmax=50, ymin=0.15, ymax=0.8, color='grey', alpha=0.2)
         ax.spines['top'].set_visible(False)
@@ -2164,6 +2164,8 @@ def plot_figSup3(kind):
         if i != 4:
             ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
+        else:
+            ax.set_xlabel('Relative time (ms)')
             
     for i, ax in enumerate(fig.get_axes()):
         lims = ax.get_ylim()
@@ -2238,23 +2240,23 @@ def plot_figSup3(kind):
     # ax5.fill_between(df.index, df[df.columns[18]], df[df.columns[17]],
     #                  color=colors[3], alpha=0.2)
 
-    for i, ax in enumerate(fig.get_axes()):
-        r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.1)
-        ax.add_patch(r1)
-        ax.spines['top'].set_visible(False)
-        ax.set_xlim(-150, 150)
-        ax.set_ylim(ylimtinf, ylimtsup)
-        ax.get_xaxis().set_visible(False)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.1)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.1)
-        for loc in ['top', 'bottom', 'right']:
-            ax.spines[loc].set_visible(False)
+    # for i, ax in enumerate(fig.get_axes()):
+    #     r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.1)
+    #     ax.add_patch(r1)
+    #     ax.spines['top'].set_visible(False)
+    #     ax.set_xlim(-150, 150)
+    #     ax.set_ylim(ylimtinf, ylimtsup)
+    #     ax.get_xaxis().set_visible(False)
+    #     lims = ax.get_ylim()
+    #     ax.vlines(0, lims[0], lims[1], alpha=0.1)
+    #     lims = ax.get_xlim()
+    #     ax.hlines(0, lims[0], lims[1], alpha=0.1)
+    #     for loc in ['top', 'bottom', 'right']:
+    #         ax.spines[loc].set_visible(False)
 
-    ax5.axes.get_xaxis().set_visible(True)
-    ax5.spines['bottom'].set_visible(True)
-    ax5.set_xlabel('Relative time (ms)')
+    # ax5.axes.get_xaxis().set_visible(True)
+    # ax5.spines['bottom'].set_visible(True)
+    # ax5.set_xlabel('Relative time (ms)')
 
     ##axes = list(fig.get_axes())
     ##leg = ax.legend(loc='center right', markerscale=None, frameon=False,
@@ -2265,15 +2267,15 @@ def plot_figSup3(kind):
     ##ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     ##            xycoords="axes fraction", ha='center')
 
-    fig.tight_layout()
-    fig.text(-0.04, 0.5, 'Normalized membrane potential',
+    fig.text(0.01, 0.5, 'Normalized membrane potential',
              va='center', rotation='vertical')
+#    fig.tight_layout()
     # remove the space between plots
-    fig.subplots_adjust(hspace=0.1)
+#    fig.subplots_adjust(hspace=0.1)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
