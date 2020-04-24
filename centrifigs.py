@@ -393,14 +393,11 @@ def plot_figure2(data, colsdict, fill=True):
     custom_ticks = np.linspace(-2, 12, 8, dtype=int)
     ax.set_yticks(custom_ticks)
     ax = vmaxes[1]
-    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    custom_ticks = np.arange(-0.2, 1.2, 0.2)
     ax.set_yticks(custom_ticks)
     ax = spkaxes[1]
-    custom_ticks = np.linspace(-2, 12, 8, dtype=int)/10
+    custom_ticks = np.arange(-0.3, 1.4, 0.3)
     ax.set_yticks(custom_ticks)    
-
-
-
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -477,9 +474,6 @@ def plot_half_figure2(data, colsdict):
                 xycoords="axes fraction", ha='center')
     #labels
     for ax in axes:
-#        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-#todo avoid approximation in the label
-# see line 1718
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
     ylabels = ['Membrane potential (mV)',
@@ -497,9 +491,9 @@ def plot_half_figure2(data, colsdict):
         ax.set_xlabel('Time (ms)')
 
     for ax in vmaxes[1:]:
-        ax.set_ylim(-0.10, 1.2)
+        ax.set_ylim(-0.10, 1.1)
     for ax in spkaxes[1:]:
-        ax.set_ylim(-0.10, 1.3)
+        ax.set_ylim(-0.10, 1.1)
         ax.set_xlabel('Relative time (ms)')
 
     # stimulations
@@ -534,11 +528,14 @@ def plot_half_figure2(data, colsdict):
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
     # adjust ticks
+    ax = vmaxes[0]
+    custom_ticks = np.linspace(-2, 12, 8, dtype=int)
+    ax.set_yticks(custom_ticks)
     ax = vmaxes[1]
-    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    custom_ticks = np.arange(-0.2, 1.2, 0.2)
     ax.set_yticks(custom_ticks)
     ax = spkaxes[1]
-    custom_ticks = np.linspace(-2, 10, 7, dtype=int)/10
+    custom_ticks = np.arange(-0.2, 1.2, 0.2)
     ax.set_yticks(custom_ticks)    
     # zerolines
     for ax in axes:
@@ -761,12 +758,16 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        #1 decimal place
-        #https://stackoverflow.com/questions/29188757/matplotlib-specify-format-of-floats-for-tick-lables
-        #https://matplotlib.org/3.1.1/gallery/ticks_and_spines/tick-formatters.html
-        #plt.gca().ticklabel_format(axis='both', style='plain', useOffset=False)
-        ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-
+    # adjust ticks
+    ax = vmaxes[0]
+    custom_ticks = np.linspace(-2, 10, 7, dtype=int)
+    ax.set_yticks(custom_ticks)
+    for ax in vmaxes[1:]:
+        custom_ticks = np.arange(-0.2, 1.2, 0.2)
+        ax.set_yticks(custom_ticks)
+    for ax in spkaxes[1:]: 
+        custom_ticks = np.arange(-0.3, 1.3, 0.3)
+        ax.set_yticks(custom_ticks)    
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06, wspace=0.4)
@@ -1018,7 +1019,9 @@ def plot_figure2B(pltmode, sig=True):
     axes[0].set_ylabel(txt)
     txt = r'$\Delta$ response'
     axes[1].set_ylabel(txt)
-#    axes[1].set_ylabel('Delta response')
+    # custom_ticks = np.arange(-0.2, 0.9, 0.2)
+    # axes[1].set_yticks(custom_ticks)
+
     if pltmode == 'horizontal':
         align_yaxis(axes[0], 0, axes[1], 0)
         change_plot_trace_amplitude(axes[1], 0.75)
@@ -1799,7 +1802,10 @@ def plot_figure9CD(data, colsdict):
     ax0.vlines(0, lims[0], lims[1], alpha=0.2)
     lims = ax0.get_xlim()
     ax0.hlines(0, lims[0], lims[1], alpha=0.2)
-
+    # lims = ax1.get_ylim()
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax0.set_yticks(custom_ticks)
+    
     #hist
     ax1 = fig.add_subplot(1, 2, 2)
     filename = 'data/fig2cells.xlsx'
@@ -1816,13 +1822,12 @@ def plot_figure9CD(data, colsdict):
              color=[stdColors['rouge'], 'None'], edgecolor='k', linewidth=1)
     ax1.set_xlim(-10, 35)
     #adjust nb of ticks
-#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     lims = ax1.get_ylim()
     custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
+#    custom_ticks = np.arange(0, 13, 4)
     ax1.set_yticks(custom_ticks)
     ax1.set_yticklabels(custom_ticks)
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
-#    ax1.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax1.set_ylabel('Number of cells')
     ax1.set_xlabel(r'$\Delta$ phase (ms)')
 
