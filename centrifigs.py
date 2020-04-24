@@ -1939,24 +1939,47 @@ def plot_sorted_responses_sup1():
                                                   ascending=False)
         barColors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
-        # ax.set_title(name)
+#        ax.set_title(str(i))
         ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
                alpha=0.8, width=0.8)
         if i in [0, 1]:
             ax.set_title(anoty[i])
-    for i, ax in enumerate(axes):
-        ax.ticklabel_format(useOffset=True)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-        if i not in [8, 9]:
-            ax.xaxis.set_visible(False)
-            ax.spines['bottom'].set_visible(False)
-        else:
-            ax.set_xlabel(anotx)
-            ax.set_xticks([1, len(df)])
-            ax.set_xlim(0.55, len(df)+2)
+    # alternate the y_axis position
+    axes = fig.get_axes()
+    left_axes = axes[::2]
+    right_axes = axes[1::2]
+    for axe in [left_axes, right_axes]:
+        for i, ax in enumerate(axe):
+            ax.set_facecolor('None')
+            # ax.set_title(i)
+            ax.spines['top'].set_visible(False)
+            ax.ticklabel_format(useOffset=True)
+            #zero line
+            lims = ax.get_xlim()
+            ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
+            #label left:
+            if i % 2 == 0:
+                ax.spines['right'].set_visible(False)                
+            #label right    
+            else:
+       #     i % 2 == 1:
+                ax.spines['left'].set_visible(False)
+                ax.yaxis.tick_right()
+            if i != 4:
+                ax.xaxis.set_visible(False)
+                ax.spines['bottom'].set_visible(False)
+            else:
+                ax.set_xlabel(anotx)
+                ax.set_xticks([1, len(df)])
+                ax.set_xlim(0, len(df)+1)
+    for ax in left_axes:
+        custom_ticks = np.linspace(-10, 10, 3, dtype=int)
+        ax.set_yticks(custom_ticks)
+    for ax in right_axes:
+        custom_ticks = np.linspace(-0.5, 0.5, 3)
+        ax.set_yticks(custom_ticks)
+
+               
     #align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
     #keep data range whithout distortion, preserve 0 alignment
@@ -1964,7 +1987,7 @@ def plot_sorted_responses_sup1():
     # remove the space between plots
     fig.tight_layout()
 
-    fig.subplots_adjust(hspace=0.02, wspace=0.05)
+    fig.subplots_adjust(hspace=-0.5, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses_sup1',
