@@ -1570,7 +1570,7 @@ def plot_figure6():
         # colored text
         #for line, text in zip(leg.get_lines(), leg.get_texts()):
             #text.set_color(line.get_color())
-        ax.set_ylabel('Normalised Membrane potential (mV)')
+        ax.set_ylabel('Normalized Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
