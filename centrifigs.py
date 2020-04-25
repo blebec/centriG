@@ -2081,9 +2081,11 @@ plt.close('all')
 
 def plot_figSup3(kind):
     """
-    plot supplementary figure 2: Vm all conditions of surround-only stimulation CP-ISO sig
-    input : kind in ['minus': Surround-then-center - Center Only Vs Surround-Only,
-    'plus': Surround-Only + Center only Vs Surround-then-center]
+    plot supplementary figure 3: 
+        Vm all conditions of surround-only stimulation CP-ISO sig
+    input : kind in ['minus'', 'plus] 
+        'minus': Surround-then-center - Center Only Vs Surround-Only,
+        'plus': Surround-Only + Center only Vs Surround-then-center]
     """
     filenames = {'minus' : 'data/figSup2m.xlsx',
                  'plus': 'data/figSup2p.xlsx'}
@@ -2091,49 +2093,43 @@ def plot_figSup3(kind):
     titles = {'minus': 'Surround-then-center minus center only',
               'plus'  : 'Surround-only plus center-only'}
 
-
-    yliminf = {'minus': -0.15,
-               'plus': -0.08}
-    ylimsup = {'minus': 0.4,
-               'plus' : 1.14}
+    yliminf = {'minus': -0.15, 'plus': -0.08}
+    ylimsup = {'minus': 0.4, 'plus' : 1.14}
 
     #samplesize
-    cellnumbers = {'minus' : 12, 'plus': 12}
-    ncells = cellnumbers[kind]
-    ylimtinf = yliminf[kind]
-    ylimtsup = ylimsup[kind]
+    # cellnumbers = {'minus' : 12, 'plus': 12}
+    # ncells = cellnumbers[kind]
+    # ylimtinf = yliminf[kind]
+    # ylimtsup = ylimsup[kind]
     df = pd.read_excel(filenames[kind])
     #centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
+    # adjust time
     df.index = df.index/10
-    cols = ['CP-Iso-Stc', 'CP-Iso-Stc-SeUp',
-            'CP-Iso-Stc-SeDw', 'CP-Iso-Stc-Dlp',
-            'CF-Iso-Stc', 'CF-Iso-Stc-SeUp',
-            'CF-Iso-Stc-SeDw', 'CF-Iso-Stc-Dlp',
-            'CP-Cross-Stc', 'CP-Cross-Stc-SeUp',
-            'CP-Cross-Stc-SeDw', 'CP-Cross-Stc-Dlp',
-            'RND-Iso-Stc-Sec', 'RND-Iso-Stc-SeUp-Sec',
-            'RND-Iso-Stc-SeDw-Sec', 'RND-Iso-Stc-Dlp-Sec',
-            'RND-Iso-Stc-Full', 'RND-Iso-Stc-SeUp-Full',
-            'RND-Iso-Stc-SeDw-Full', 'RND-Iso-Stc-Dlp-Full']
-    df.columns = cols
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    #limit time
     df = df.loc[-150:150]
-
-    cols = df.columns
-    # list of 4 columns ie each condition (val, up, down, sim)
-    col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
-    
-    colors_list = [stdColors['rouge'], stdColors['vert'],
+    #rename
+    cols = ['CP_Iso_Stc', 'CP_Iso_Stc_SeUp',
+            'CP_Iso_Stc_SeDw', 'CP_Iso_Stc_Dlp',
+            'CF_Iso_Stc', 'CF_Iso_Stc_SeUp',
+            'CF_Iso_Stc_SeDw', 'CF_Iso_Stc_Dlp',
+            'CP_Cross_Stc', 'CP_Cross_Stc_SeUp',
+            'CP_Cross_Stc_SeDw', 'CP_Cross_Stc_Dlp',
+            'RND_Iso_Stc_Sec', 'RND_Iso_Stc_SeUp_Sec',
+            'RND_Iso_Stc_SeDw_Sec', 'RND_Iso_Stc_Dlp_Sec',
+            'RND_Iso_Stc_Full', 'RND_Iso_Stc_SeUp_Full',
+            'RND_Iso_Stc_SeDw_Full', 'RND_Iso_Stc_Dlp_Full']
+    df.columns = cols
+    #colors    
+    light_colors = [stdColors['rouge'], stdColors['vert'],
                    stdColors['jaune'], stdColors['bleu'],
                    stdColors['bleu']]
-    dark_color_list = [stdColors['dark_rouge'], stdColors['dark_vert'],
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                        stdColors['dark_jaune'], stdColors['dark_bleu'],
                        stdColors['dark_bleu'], stdColors['dark_bleu']]
-    alpha_list = [0.7, 0, 0, 0.7]
+    alphas = [0.7, 0.2] # front, fillbetween
+    #traces -> lists of 4 columns ie each condition (val, up, down, sum)
+    col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
 
     fig = plt.figure(figsize=(6, 16))
     for i in range(5):
@@ -2143,15 +2139,16 @@ def plot_figSup3(kind):
             ax = fig.add_subplot(5, 1, i+1, sharex=ax, sharey=ax)            
         toPlot = col_seg[i]
         col = toPlot[0]
-        print(col)
-        ax.plot(df[col], color=colors_list[i], alpha=alpha_list[0],
+        #print(col)
+        ax.plot(df[col], color=light_colors[i], alpha=alphas[0],
                      label=col, linewidth=2)
         ax.fill_between(df.index, df[toPlot[1]], df[toPlot[2]],
-                         color=colors_list[i], alpha=0.2)
+                         color=light_colors[i], alpha=alphas[1])
         col = toPlot[-1]
-        ax.plot(df[col], color=dark_color_list[i], alpha=alpha_list[0],
+        ax.plot(df[col], color=dark_colors[i], alpha=alphas[0],
                  label=col, linewidth=2)
-        ax.axvspan(xmin=0, xmax=50, ymin=0.15, ymax=0.8, color='grey', alpha=0.2)
+        ax.axvspan(xmin=0, xmax=50, ymin=0, ymax=1, 
+                   color='grey', alpha=alphas[1])
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
         #label left:
@@ -2168,110 +2165,18 @@ def plot_figSup3(kind):
             ax.set_xlabel('Relative time (ms)')
             
     for i, ax in enumerate(fig.get_axes()):
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.3)
+        # lims = ax.get_ylim()
+        # ax.vlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        custom_ticks = np.arange(-0.1, 0.3, 0.1)
+        ax.set_yticks(custom_ticks)
         
     fig.tight_layout()
     fig.subplots_adjust(hspace=-0.3, wspace=0.2)
 
-
-    # for i, col in enumerate(cols[:3]):
-    #     ax0.plot(df[col], color=colors_list[0], alpha=alpha[i],
-    #              label=col, linewidth=2)
-    # ax1 = fig.add_subplot(512)
-    # x = [0, 1, 2]   # column number
-    # y = [0, 1, 2]   # alpha values
-    # for i in x:
-    #     ax1.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
-    #              label=df.columns[i], linewidth=2)
-    # for i in [3]:
-    #     ax1.plot(df[df.columns[i]], color=colors1[i-i], alpha=alpha[i-i],
-    #              label=df.columns[i], linewidth=2)
-    # ax1.fill_between(df.index, df[df.columns[2]], df[df.columns[1]],
-    #                  color=colors[0], alpha=0.2)
-
-    # x = [4, 5, 6]
-    # zipped = zip(x, y)
-    # ax2 = fig.add_subplot(512, sharex=ax1, sharey=ax1)
-    # for i, j in zipped:
-    #     ax2.plot(df[df.columns[i]], color=colors[i-i+1], alpha=alpha[j],
-    #              label=df.columns[i], linewidth=2)
-    # for i in [7]:
-    #     ax2.plot(df[df.columns[i]], color=colors1[i-i+1], alpha=alpha[0],
-    #              label=df.columns[i], linewidth=2)
-    # ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[5]],
-    #                  color=colors[1], alpha=0.2)
-
-    # x = [8, 9, 10]
-    # zipped = zip(x, y)
-    # ax3 = fig.add_subplot(513, sharex=ax1, sharey=ax1)
-    # for i, j in zipped:
-    #     ax3.plot(df[df.columns[i]], color=colors[i-i+2], alpha=alpha[j],
-    #              label=df.columns[i], linewidth=2)
-    # for i in [11]:
-    #     ax3.plot(df[df.columns[i]], color=colors1[i-i+2], alpha=alpha[0],
-    #              label=df.columns[i], linewidth=2)
-    # ax3.fill_between(df.index, df[df.columns[10]], df[df.columns[9]],
-    #                  color=colors[2], alpha=0.2)
-
-    # x = [12, 13, 14]
-    # zipped = zip(x, y)
-    # ax4 = fig.add_subplot(514, sharex=ax1, sharey=ax1)
-    # for i, j in zipped:
-    #     ax4.plot(df[df.columns[i]], color=colors[i-i+3], linestyle='dotted',
-    #              alpha=alpha[j], label=df.columns[i], linewidth=2)
-    # for i in [15]:
-    #     ax4.plot(df[df.columns[i]], color=colors1[i-i+3],linestyle='dashed',
-    #              alpha=alpha[0], label=df.columns[i], linewidth=2)
-    # ax4.fill_between(df.index, df[df.columns[14]], df[df.columns[13]],
-    #                  color=colors[3], alpha=0.2)
-
-    # x = [16, 17, 18]
-    # zipped = zip(x, y)
-    # ax5 = fig.add_subplot(515, sharex=ax1, sharey=ax1)
-    # for i, j in zipped:
-    #     ax5.plot(df[df.columns[i]], color=colors[i-i+3], alpha=alpha[j],
-    #              label=df.columns[i], linewidth=2)
-    # for i in [19]:
-    #     ax5.plot(df[df.columns[i]], color=colors1[i-i+3], alpha=alpha[0],
-    #              label=df.columns[i], linewidth=2)
-    # ax5.fill_between(df.index, df[df.columns[18]], df[df.columns[17]],
-    #                  color=colors[3], alpha=0.2)
-
-    # for i, ax in enumerate(fig.get_axes()):
-    #     r1 = patches.Rectangle((0, 0), 50, 40, color='grey', alpha=0.1)
-    #     ax.add_patch(r1)
-    #     ax.spines['top'].set_visible(False)
-    #     ax.set_xlim(-150, 150)
-    #     ax.set_ylim(ylimtinf, ylimtsup)
-    #     ax.get_xaxis().set_visible(False)
-    #     lims = ax.get_ylim()
-    #     ax.vlines(0, lims[0], lims[1], alpha=0.1)
-    #     lims = ax.get_xlim()
-    #     ax.hlines(0, lims[0], lims[1], alpha=0.1)
-    #     for loc in ['top', 'bottom', 'right']:
-    #         ax.spines[loc].set_visible(False)
-
-    # ax5.axes.get_xaxis().set_visible(True)
-    # ax5.spines['bottom'].set_visible(True)
-    # ax5.set_xlabel('Relative time (ms)')
-
-    ##axes = list(fig.get_axes())
-    ##leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-        ##leg = ax.legend(loc=2, markerscale=None, frameon=False,
-        ##                handlelength=0)
-        ##for line, text in zip(leg.get_lines(), leg.get_texts()):
-        ##    text.set_color(line.get_color())
-    ##ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-    ##            xycoords="axes fraction", ha='center')
-
     fig.text(0.01, 0.5, 'Normalized membrane potential',
              va='center', rotation='vertical')
-#    fig.tight_layout()
-    # remove the space between plots
-#    fig.subplots_adjust(hspace=0.1)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
