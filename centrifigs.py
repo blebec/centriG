@@ -2130,7 +2130,7 @@ def plot_figSup3(kind):
     alphas = [0.7, 0.2] # front, fillbetween
     #traces -> lists of 4 columns ie each condition (val, up, down, sum)
     col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
-
+    
     fig = plt.figure(figsize=(4, 8))
     for i in range(5):
         if i == 0 : 
@@ -2147,8 +2147,9 @@ def plot_figSup3(kind):
         col = toPlot[-1]
         ax.plot(df[col], color=dark_colors[i], alpha=alphas[0],
                  label=col, linewidth=1.5)
-        ax.axvspan(xmin=0, xmax=50, ymin=0, ymax=1, 
-                   color='grey', alpha=alphas[1])
+        #ax.axvspan(xmin=0, xmax=50, ymin=0.27, ymax=0.96, 
+                   #color='grey', alpha=alphas[1])
+        
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
         #label left:
@@ -2163,14 +2164,20 @@ def plot_figSup3(kind):
             ax.spines['bottom'].set_visible(False)
         else:
             ax.set_xlabel('Relative time (ms)')
-            
+    #ax1.add_patch(r1)                   
     for i, ax in enumerate(fig.get_axes()):
+        
         # lims = ax.get_ylim()
         # ax.vlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         custom_ticks = np.arange(-0.1, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
+                    
+    for ax in fig.get_axes():
+        #lims = ax.get_ylim()
+        r1 = patches.Rectangle((0,0),50,ax.get_ylim()[1], color='grey', alpha=0.1)
+        ax.add_patch(r1)
         
     fig.tight_layout()
     fig.subplots_adjust(hspace=-0.3, wspace=0.2)
