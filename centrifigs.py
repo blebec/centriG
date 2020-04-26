@@ -2131,7 +2131,7 @@ def plot_figSup3(kind):
     #traces -> lists of 4 columns ie each condition (val, up, down, sum)
     col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
 
-    fig = plt.figure(figsize=(6, 16))
+    fig = plt.figure(figsize=(4, 8))
     for i in range(5):
         if i == 0 : 
             ax = fig.add_subplot(5, 1, i+1)
@@ -2141,12 +2141,12 @@ def plot_figSup3(kind):
         col = toPlot[0]
         #print(col)
         ax.plot(df[col], color=light_colors[i], alpha=alphas[0],
-                     label=col, linewidth=2)
+                     label=col, linewidth=1.5)
         ax.fill_between(df.index, df[toPlot[1]], df[toPlot[2]],
                          color=light_colors[i], alpha=alphas[1])
         col = toPlot[-1]
         ax.plot(df[col], color=dark_colors[i], alpha=alphas[0],
-                 label=col, linewidth=2)
+                 label=col, linewidth=1.5)
         ax.axvspan(xmin=0, xmax=50, ymin=0, ymax=1, 
                    color='grey', alpha=alphas[1])
         ax.spines['top'].set_visible(False)
