@@ -1957,14 +1957,16 @@ def plot_sorted_responses_sup1(overlap=True):
             #zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
-            #label left:
-            if i % 2 == 0:
-                ax.spines['right'].set_visible(False)                
-            #label right    
+            if overlap:
+                #label left:
+                if i % 2 == 0:
+                    ax.spines['right'].set_visible(False)                
+                #label right    
+                else:
+                    ax.spines['left'].set_visible(False)
+                    ax.yaxis.tick_right()
             else:
-       #     i % 2 == 1:
-                ax.spines['left'].set_visible(False)
-                ax.yaxis.tick_right()
+                ax.spines['right'].set_visible(False)                                
             if i != 4:
                 ax.xaxis.set_visible(False)
                 ax.spines['bottom'].set_visible(False)
@@ -1978,16 +1980,17 @@ def plot_sorted_responses_sup1(overlap=True):
     for ax in right_axes:
         custom_ticks = np.linspace(-0.5, 0.5, 3)
         ax.set_yticks(custom_ticks)
-
-               
+        
     #align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
     #keep data range whithout distortion, preserve 0 alignment
     change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
-
-    fig.subplots_adjust(hspace=-0.5, wspace=0.2)
+    if overlap:
+        fig.subplots_adjust(hspace=-0.5, wspace=0.2)
+    else:
+        fig.subplots_adjust(hspace=0.05, wspace=0.2)        
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses_sup1',
@@ -1995,7 +1998,7 @@ def plot_sorted_responses_sup1(overlap=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_sorted_responses_sup1()
+fig = plot_sorted_responses_sup1(overlap=True)
 
 
 #%%
