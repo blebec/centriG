@@ -1570,7 +1570,7 @@ def plot_figure6():
         # colored text
         #for line, text in zip(leg.get_lines(), leg.get_texts()):
             #text.set_color(line.get_color())
-        ax.set_ylabel('Normalized Membrane potential (mV)')
+        ax.set_ylabel('Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
@@ -1921,7 +1921,7 @@ def plot_sorted_responses_sup1(overlap=True):
     # text labels
     title = 'Vm (sector)'
     anotx = 'Cell rank'
-    anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
+    anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
              #(fraction of Center-only response)']
     #plot
     fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
