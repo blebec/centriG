@@ -1896,7 +1896,7 @@ plt.close('all')
 # TODO: in first figure, 1st condition latency advance of CP-ISO
 # plot and fill the actual 10 and 11th df.index significant cell row
 # before the actual actual 9th
-def plot_sorted_responses_sup1():
+def plot_sorted_responses_sup1(overlap=True):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -2079,7 +2079,7 @@ fig = plot_figSup2('pop')
 #%%
 plt.close('all')
 
-def plot_figSup3(kind):
+def plot_figSup3(kind, overlap=True):
     """
     plot supplementary figure 3: 
         Vm all conditions of surround-only stimulation CP-ISO sig
@@ -2152,21 +2152,22 @@ def plot_figSup3(kind):
         
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
-        #label left:
-        if i % 2 == 0:
-            ax.spines['right'].set_visible(False)                
-        #label right    
+        if overlap:
+            #label left:
+            if i % 2 == 0:
+                ax.spines['right'].set_visible(False)                
+            #label right    
+            else:
+                ax.spines['left'].set_visible(False)
+                ax.yaxis.tick_right()
         else:
-            ax.spines['left'].set_visible(False)
-            ax.yaxis.tick_right()
+            ax.spines['right'].set_visible(False)                
         if i != 4:
             ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
         else:
             ax.set_xlabel('Relative time (ms)')
-    #ax1.add_patch(r1)                   
     for i, ax in enumerate(fig.get_axes()):
-        
         # lims = ax.get_ylim()
         # ax.vlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_xlim()
@@ -2176,11 +2177,13 @@ def plot_figSup3(kind):
                     
     for ax in fig.get_axes():
         #lims = ax.get_ylim()
-        r1 = patches.Rectangle((0,0),50,ax.get_ylim()[1], color='grey', alpha=0.1)
+        r1 = patches.Rectangle((0, 0), 50, ax.get_ylim()[1], color='grey', 
+                               alpha=0.1)
         ax.add_patch(r1)
         
     fig.tight_layout()
-    fig.subplots_adjust(hspace=-0.3, wspace=0.2)
+    if overlap:
+        fig.subplots_adjust(hspace=-0.3, wspace=0.2)
 
     fig.text(0.01, 0.5, 'Normalized membrane potential',
              va='center', rotation='vertical')
@@ -2192,7 +2195,7 @@ def plot_figSup3(kind):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figSup3('minus')
+fig = plot_figSup3('minus', overlap=True)
 #fig = plot_figSup3('plus')
 #pop all cells
 #%%
