@@ -2462,17 +2462,7 @@ def extract_values(df, stim_kind='s', measure='lat'):
         signi_num = len(adf.loc[adf[signi] > 0, cond])
         percent = round((signi_num / pop_num) * 100)
         leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
-        if (leg_cond == 'cp-iso'):
-            leg_cond = 'CP-ISO'
-        else:
-            if (leg_cond == 'cf-iso'):
-                leg_cond = 'CF-ISO'
-            else:
-                if (leg_cond == 'cp-cross'):
-                    leg_cond = 'CP-CROSS'
-                else:
-                    if (leg_cond == 'rnd-iso'):
-                        leg_cond = 'RND-ISO'
+        leg_cond = leg_cond.upper()
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
         moy = adf.loc[adf[signi] > 0, cond].mean()
