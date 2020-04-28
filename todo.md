@@ -30,6 +30,7 @@ taille des légendes
 voir comment séparer les leg.get_lines(), get_texts for line, text in zip() entre SECTOR et dernière line FULL
 
 fig sup3: fig = plot_figSup3('minus', overlap=True)
+~~Réduire overlap zone grisée non à lims[1] mais 0.4 pour éviter overlap entre bandes grisées autour de y = 0 pour chaque subplot~~
 Ajouter les stims
 
 fig sup4:  (extract_values() + autolabel() + plot_cell_contribution()

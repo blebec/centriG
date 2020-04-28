@@ -2179,8 +2179,9 @@ def plot_figSup3(kind, overlap=True):
         ax.set_yticks(custom_ticks)
                     
     for ax in fig.get_axes():
-        #lims = ax.get_ylim()
-        r1 = patches.Rectangle((0, 0), 50, ax.get_ylim()[1], color='grey', 
+        lims = ax.get_ylim()
+        print(lims)
+        r1 = patches.Rectangle((0, 0), 50, 0.4, color ='grey',#ax.get_ylim()[1]
                                alpha=0.1)
         ax.add_patch(r1)
         
