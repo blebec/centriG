@@ -1015,9 +1015,9 @@ def plot_figure2B(pltmode, sig=True):
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [df.index.min(), df.index.max()]
         ax.set_xticks(ticks)
-    txt = r'$\Delta$ phase (ms)'
+    txt = r'$\Delta$ Phase (ms)'
     axes[0].set_ylabel(txt)
-    txt = r'$\Delta$ response'
+    txt = r'$\Delta$ Amplitude'
     axes[1].set_ylabel(txt)
     # custom_ticks = np.arange(-0.2, 0.9, 0.2)
     # axes[1].set_yticks(custom_ticks)
@@ -1829,7 +1829,7 @@ def plot_figure9CD(data, colsdict):
     ax1.set_yticklabels(custom_ticks)
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
     ax1.set_ylabel('Number of cells')
-    ax1.set_xlabel(r'$\Delta$ phase (ms)')
+    ax1.set_xlabel(r'$\Delta$ Phase (ms)')
 
     for ax in fig.get_axes():
         for loca in ['top', 'right']:
@@ -2456,12 +2456,22 @@ def extract_values(df, stim_kind='s', measure='lat'):
     pop_dico = {}
     resp_dico = {}
     for cond in records:
-        #cond = rec[0]
         signi = cond + '_indisig'
         pop_num = len(adf)
         signi_num = len(adf.loc[adf[signi] > 0, cond])
         percent = round((signi_num / pop_num) * 100)
         leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
+        if (leg_cond == 'cp-iso'):
+            leg_cond = 'CP-ISO'
+        else:
+            if (leg_cond == 'cf-iso'):
+                leg_cond = 'CF-ISO'
+            else:
+                if (leg_cond == 'cp-cross'):
+                    leg_cond = 'CP-CROSS'
+                else:
+                    if (leg_cond == 'rnd-iso'):
+                        leg_cond = 'RND-ISO'
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
         moy = adf.loc[adf[signi] > 0, cond].mean()
@@ -2473,16 +2483,17 @@ def autolabel(ax, rects):
     # attach some text labels
     for rect in rects:
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width()/2., 1.05 * height,
+        ax.text(rect.get_x() + rect.get_width()/2., 0.25 * height,#1.05 * height,
                 '%d' % int(height) + '%',
                 ha='center', va='bottom')
+        #print(rect.get_x())
 
 def plot_cell_contribution(df):
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     fig = plt.figure(figsize=(8, 8))
     ax = fig.add_subplot(221)
-    ax.set_title('Phase gain (% significant cells)')
+    ax.set_title('$\Delta$ Phase (% significant cells)', pad = 0)
     stim = 's'
     mes = 'lat'
     pop_dico, resp_dico = extract_values(df, stim, mes)
@@ -2499,7 +2510,7 @@ def plot_cell_contribution(df):
 
 
     ax = fig.add_subplot(222, sharey=ax)
-    ax.set_title('Amplitude gain (% significant cells)')
+    ax.set_title('$\Delta$ Amplitude (% significant cells)', pad = 0)
     stim = 's'
     mes = 'gain'
     pop_dico, resp_dico = extract_values(df, stim, mes)
