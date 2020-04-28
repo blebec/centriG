@@ -127,7 +127,9 @@ def fig_properties(afig):
     """
     for ax in afig.get_axes():
         properties(ax)
-
+#%%
+def inchtocm(value):
+    return value/2.54
 #%%
 plt.close('all')
 
@@ -173,7 +175,7 @@ def plot_figure2(data, colsdict, fill=True):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(17.6, 12)) #fig = plt.figure(figsize=(8, 8))
+    fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12))) #fig = plt.figure(figsize=(8, 8))
     #build axes with sharex and sharey
     axes = []
     axL = fig.add_subplot(2, 4, 1)
