@@ -1945,12 +1945,23 @@ plt.close('all')
 # TODO: in first figure, 1st condition latency advance of CP-ISO
 # plot and fill the actual 10 and 11th df.index significant cell row
 # before the actual actual 9th
+
 def plot_sorted_responses_sup1(overlap=True):
     """
     plot the sorted cell responses
     input = conditions parameters
 
     """
+    def set_ticks_both(axis):
+        """ set ticks and ticks labels on both sides """
+        ticks = list( axis.majorTicks ) # a copy
+        ticks.extend( axis.minorTicks )
+        for t in ticks:
+            t.tick1line.set_visible(True)
+            t.tick2line.set_visible(True)
+            t.label1.set_visible(True)
+            t.label2.set_visible(True)
+
     # parameter
     colors = [stdColors['rouge'], stdColors['rouge'],
               stdColors['vert'], stdColors['vert'],
@@ -2006,16 +2017,19 @@ def plot_sorted_responses_sup1(overlap=True):
             #zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
-            if overlap:
-                #label left:
-                if i % 2 == 0:
-                    ax.spines['right'].set_visible(False)                
-                #label right    
-                else:
-                    ax.spines['left'].set_visible(False)
-                    ax.yaxis.tick_right()
-            else:
-                ax.spines['right'].set_visible(False)                                
+            # ticks and ticks labels on both sides (call)
+            set_ticks_both(ax.yaxis)
+            # alternate right and left
+            # if overlap:
+            #     #label left:
+            #     if i % 2 == 0:
+            #         ax.spines['right'].set_visible(False)                
+            #     #label right    
+            #     else:
+            #         ax.spines['left'].set_visible(False)
+            #         ax.yaxis.tick_right()
+            # else:
+            #     ax.spines['right'].set_visible(False)                                
             if i != 4:
                 ax.xaxis.set_visible(False)
                 ax.spines['bottom'].set_visible(False)
@@ -2103,7 +2117,11 @@ def plot_figSup2(kind):
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.1, 1.1)
+    ax.set_ylim(-0.1, 1)
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax.set_yticks(custom_ticks)
+    custom_ticks = np.arange(-10, 31, 10)
+    ax.set_xticks(custom_ticks)
 
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -2139,6 +2157,16 @@ def plot_figSup3(kind, overlap=True):
         'minus': Surround-then-center - Center Only Vs Surround-Only,
         'plus': Surround-Only + Center only Vs Surround-then-center]
     """
+    def set_ticks_both(axis):
+        """ set ticks and ticks labels on both sides """
+        ticks = list( axis.majorTicks ) # a copy
+        ticks.extend( axis.minorTicks )
+        for t in ticks:
+            t.tick1line.set_visible(True)
+            t.tick2line.set_visible(True)
+            t.label1.set_visible(True)
+            t.label2.set_visible(True)
+
     filenames = {'minus' : 'data/figSup2m.xlsx',
                  'plus': 'data/figSup2p.xlsx'}
 
@@ -2204,16 +2232,18 @@ def plot_figSup3(kind, overlap=True):
         
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
-        if overlap:
-            #label left:
-            if i % 2 == 0:
-                ax.spines['right'].set_visible(False)                
-            #label right    
-            else:
-                ax.spines['left'].set_visible(False)
-                ax.yaxis.tick_right()
-        else:
-            ax.spines['right'].set_visible(False)                
+        # axis on both sides
+        set_ticks_both(ax.yaxis)
+        # if overlap:
+        #     #label left:
+        #     if i % 2 == 0:
+        #         ax.spines['right'].set_visible(False)                
+        #     #label right    
+        #     else:
+        #         ax.spines['left'].set_visible(False)
+        #         ax.yaxis.tick_right()
+        # else:
+        #     ax.spines['right'].set_visible(False)                
         if i != 4:
             ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
