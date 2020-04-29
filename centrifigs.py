@@ -1626,6 +1626,10 @@ def plot_figure6():
                   linestyle=':', alpha=0.8)
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
+        #ticks
+        custom_ticks = np.linspace(-1, 4, 6, dtype=int)
+        ax.set_yticks(custom_ticks)
+        ax.set_yticklabels(custom_ticks)
     fig.tight_layout()
 
     if anot:
@@ -1651,6 +1655,8 @@ def plot_figure7():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
+    #limit the date time range
+    df = df.loc[-150:150]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sdUp', 'sdDown', 'linearPrediction']
     dico = dict(zip(df.columns, cols))
@@ -1686,7 +1692,7 @@ def plot_figure7():
                      color=colors[2], alpha=0.2)
     #ax2.set_ylim(-0.2, 0.3)
     # set fontname and fontsize for y label
-    ax1.set_ylabel('Normalized membrane potential (mV)')
+    ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
     for ax in fig.get_axes():
@@ -1695,7 +1701,7 @@ def plot_figure7():
         # colored text
         #for line, text in zip(leg.get_lines(), leg.get_texts()):
         #    text.set_color(line.get_color())
-        ax.set_xlim(-150, 150)
+        #ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
         ax.set_xlabel('Relative time (ms)')
         #, fontname = 'Arial', fontsize = 14)
@@ -1707,10 +1713,12 @@ def plot_figure7():
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # align zero between subplots
     align_yaxis(ax1, 0, ax2, 0)
-    change_plot_trace_amplitude(ax2, 1.35)
+    change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax1.set_yticks(custom_ticks)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
