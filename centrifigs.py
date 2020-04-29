@@ -126,8 +126,7 @@ def fig_properties(afig):
     exoplore figure properties
     """
     for ax in afig.get_axes():
-        properties(ax)
-#%%
+        properties(ax)#%%
 def inchtocm(value):
     return value/2.54
 #%%
@@ -175,7 +174,8 @@ def plot_figure2(data, colsdict, fill=True):
     colors = ['k', stdColors['rouge']]
     alpha = [0.8, 0.8]
 
-    fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12))) #fig = plt.figure(figsize=(8, 8))
+    #fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12))) 
+    fig = plt.figure(figsize=(16.6, 12))
     #build axes with sharex and sharey
     axes = []
     axL = fig.add_subplot(2, 4, 1)
@@ -390,16 +390,6 @@ def plot_figure2(data, colsdict, fill=True):
     # adjust amplitude (without moving the zero)
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
-    #rebuild tick to one decimal
-    ax = vmaxes[0]
-    custom_ticks = np.linspace(-2, 12, 8, dtype=int)
-    ax.set_yticks(custom_ticks)
-    ax = vmaxes[1]
-    custom_ticks = np.arange(-0.2, 1.2, 0.2)
-    ax.set_yticks(custom_ticks)
-    ax = spkaxes[1]
-    custom_ticks = np.arange(-0.3, 1.4, 0.3)
-    ax.set_yticks(custom_ticks)    
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -407,7 +397,26 @@ def plot_figure2(data, colsdict, fill=True):
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
+    #rebuild tick to one decimal
+    #individuals
+    ax = vmaxes[0]
+    custom_ticks = np.linspace(-2, 12, 8, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    ax = spkaxes[0]
+    custom_ticks = np.linspace(0, 15, 4, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    #pop
+    ax = vmaxes[1]
+    custom_ticks = np.linspace(-0.2, 1, 7)
+    ax.set_yticks(custom_ticks)
+    ax = spkaxes[1]
+    custom_ticks = np.linspace(0, 1, 6)
+    ax.set_yticks(custom_ticks)    
+
     fig.tight_layout()
+
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
@@ -530,15 +539,22 @@ def plot_half_figure2(data, colsdict):
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
     # adjust ticks
+    #individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 12, 8, dtype=int)
     ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    ax = spkaxes[0]
+    custom_ticks = np.linspace(0, 15, 4, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    #pop
     ax = vmaxes[1]
     custom_ticks = np.arange(-0.2, 1.2, 0.2)
     ax.set_yticks(custom_ticks)
     ax = spkaxes[1]
-    custom_ticks = np.arange(-0.2, 1.2, 0.2)
-    ax.set_yticks(custom_ticks)    
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax.set_yticks(custom_ticks)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -760,16 +776,34 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    # adjust ticks
+    # # adjust ticks
+    # ax = vmaxes[0]
+    # custom_ticks = np.linspace(-2, 10, 7, dtype=int)
+    # ax.set_yticks(custom_ticks)
+    # for ax in vmaxes[1:]:
+    #     custom_ticks = np.arange(-0.2, 1.2, 0.2)
+    #     ax.set_yticks(custom_ticks)
+    # for ax in spkaxes[1:]: 
+    #     custom_ticks = np.arange(-0.3, 1.3, 0.3)
+    #     ax.set_yticks(custom_ticks)    
+    #rebuild tick to one decimal
+    #individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    ax = spkaxes[0]
+    custom_ticks = np.linspace(0, 15, 4, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    #pop
     for ax in vmaxes[1:]:
-        custom_ticks = np.arange(-0.2, 1.2, 0.2)
+        custom_ticks = np.linspace(-0.2, 1, 7)
         ax.set_yticks(custom_ticks)
-    for ax in spkaxes[1:]: 
-        custom_ticks = np.arange(-0.3, 1.3, 0.3)
+    for ax in spkaxes[1:]:
+        custom_ticks = np.linspace(0, 1.2, 7)
         ax.set_yticks(custom_ticks)    
+
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06, wspace=0.4)
@@ -987,12 +1021,12 @@ def plot_figure2B(pltmode, sig=True):
             fig = plt.figure(figsize=(6, 6))
     #build axes
     axes = []
-    for i in range(2):
+    for i in range(1, 3):
         if pltmode == 'horizontal':
-            axes.append(fig.add_subplot(1, 2, i+1))
+            axes.append(fig.add_subplot(1, 2, i))
         else:
             if pltmode == 'vertical':
-                axes.append(fig.add_subplot(2, 1, i+1))
+                axes.append(fig.add_subplot(2, 1, i))
 
     color_dic = {0 :'w', 1 : stdColors['rouge']}
     for i, ax in enumerate(axes):
@@ -1019,14 +1053,15 @@ def plot_figure2B(pltmode, sig=True):
         ax.set_xticks(ticks)
     txt = r'$\Delta$ Phase (ms)'
     axes[0].set_ylabel(txt)
+    axes[0].set_ylim(-8, 29)
     txt = r'$\Delta$ Amplitude'
     axes[1].set_ylabel(txt)
-    # custom_ticks = np.arange(-0.2, 0.9, 0.2)
-    # axes[1].set_yticks(custom_ticks)
+    custom_ticks = np.arange(0, 0.7, 0.2)
+    axes[1].set_yticks(custom_ticks)
 
     if pltmode == 'horizontal':
         align_yaxis(axes[0], 0, axes[1], 0)
-        change_plot_trace_amplitude(axes[1], 0.75)
+        change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
 
     if anot:
@@ -2207,7 +2242,7 @@ fig = plot_figSup3('minus', overlap=True)
 #%%
 plt.close('all')
 
-def plot_figSup5(kind, stimmode):
+def plot_figSup4B(kind, stimmode):
     """
     plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -2269,7 +2304,7 @@ def plot_figSup5(kind, stimmode):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4B',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
@@ -2482,6 +2517,7 @@ def autolabel(ax, rects):
         #print(rect.get_x())
 
 def plot_cell_contribution(df):
+    "sup 4"
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     fig = plt.figure(figsize=(8, 8))
@@ -2556,6 +2592,12 @@ def plot_cell_contribution(df):
         fig.text(0.5, 1.01, 'Spikes',
                  ha='center', va='top',
                  fontsize=18)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4A',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    
     else:
         fig.text(0.5, 1.01, 'Vm',
                  ha='center', va='top',
