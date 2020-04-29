@@ -1254,7 +1254,10 @@ def plot_figure3(kind):
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
-
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax.set_yticks(custom_ticks)
+    custom_ticks = np.arange(-10, 31, 10)
+    ax.set_xticks(custom_ticks)
     # bluePoint
     ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1])
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
@@ -1271,9 +1274,7 @@ def plot_figure3(kind):
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
     return fig
-
 
 #fig = plot_figure3('pop')
 fig = plot_figure3('sig')
@@ -1386,6 +1387,9 @@ def plot_figure4():
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    custom_ticks = np.linspace(-40, 40, 5)
+    ax.set_xticks(custom_ticks)
+
     #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
     #                handlelength=0)
     #for line, text in zip(leg.get_lines(), leg.get_texts()):
