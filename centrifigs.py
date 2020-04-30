@@ -1379,7 +1379,6 @@ def plot_fig5():
                  xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
-#        ax.set_xlim(-300, 300)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.1)
         lims = ax.get_xlim()
@@ -2130,7 +2129,7 @@ def plot_figSup4B(kind, stimmode):
               stdColors['jaune'], stdColors['bleu']]
     #alpha = [0.5, 0.8, 0.5, 1, 0.6]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
-    fig = plt.figure(figsize=(8, 7))
+    fig = plt.figure(figsize=(6.5, 5.5))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference 
 #between traces
     #fig.suptitle(titles[kind])
@@ -2151,12 +2150,17 @@ def plot_figSup4B(kind, stimmode):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
     ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    #ax.vlines(0, -0.2, 1.1, alpha=0.2)
+    custom_ticks = np.arange(-10, 31, 10)
+    ax.set_xticks(custom_ticks)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
-    ax.set_ylim(-0.1, 1.1)
+    ax.set_ylim(-0.2, 1.1)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    ax.set_yticks(custom_ticks)
+    # bluePoint
+    ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1])
 
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
