@@ -1312,25 +1312,26 @@ def plot_fig5():
     filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
     titles = ['High speed', 'Low speed']
 
-
     filename = filenames[0]
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
+    # reduce the time range
+    df = df.loc[-100:300]
+    # remove the negative values
+    for col in df.columns:
+        df[col].loc[df[col] < 0] = 0    
     cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
            # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-
+#    dico = dict(zip(df.columns, cols))
+#    cols = df.columns
     colors = [stdColors['rouge'], stdColors['jaune']]
-
     alpha = [0.7, 0.7]
 
-    fig = plt.figure(figsize=(5, 7))
+    fig = plt.figure(figsize=(4, 7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
         ax1.plot(df[col], color='black',
@@ -1347,11 +1348,17 @@ def plot_fig5():
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
+    #reduce the time range
+    df = df.loc[-100:300]
+    # remove the negative values
+    for col in df.columns:
+        df[col].loc[df[col] < 0] = 0    
+
     cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
+    # dico = dict(zip(df.columns, cols))
+    # df.rename(columns=dico, inplace=True)
+    # cols = df.columns
     colors = [stdColors['jaune'], stdColors['rouge']]
 
     ax2 = fig.add_subplot(212)
@@ -1372,7 +1379,7 @@ def plot_fig5():
                  xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
-        ax.set_xlim(-300, 300)
+#        ax.set_xlim(-300, 300)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.1)
         lims = ax.get_xlim()
@@ -1388,7 +1395,7 @@ def plot_fig5():
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_fig5',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -2124,16 +2131,19 @@ def plot_figSup4B(kind, stimmode):
     #alpha = [0.5, 0.8, 0.5, 1, 0.6]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+##SUGGESTION: make y dimension much larger to see maximize visual difference 
+#between traces
     #fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
     if stimmode == 'sec':
         for i, col in enumerate(cols[:5]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+            ax.plot(df[col], color=colors[i], alpha=alpha[i], 
+                    label=col, linewidth=2)
     else:
         if stimmode == 'ful':
             for i, col in enumerate(cols[5:]):
-                ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+                ax.plot(df[col], color=colors[i], alpha=alpha[i], 
+                        label=col, linewidth=2)
 
     ax.set_ylabel('Normalized firing rate')
     ax.set_xlabel('Relative time (ms)')
@@ -2176,8 +2186,9 @@ plt.close('all')
 def plot_figSup6(kind):
     """
     plot supplementary figure 2: Vm all conditions of FULL stimulation
-    input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nonsig': non significant cells]
+    input : kind in ['pop': whole population, 
+            'sig': individually significants cells, 
+            'nonsig': non significant cells]
     """
     filenames = {'pop' : 'data/figSup6.xlsx'}#,
                  #'sig': 'data/figSup1bis.xlsx',
