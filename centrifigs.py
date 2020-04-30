@@ -316,7 +316,6 @@ def plot_figure2(data, colsdict, fill=True):
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
     ax.plot(x1, y, '|', color=stdColors['bleu'])
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
-
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     #popSpkNsig
@@ -335,19 +334,22 @@ def plot_figure2(data, colsdict, fill=True):
         # for j in [0, 1]:
         #     ax.plot(df[col[j]], color=colors[i],
         #             alpha=1, label=col, linewidth=0.5)
+    ax.annotate("n=15", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
+
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
-    ylabels = ['membrane potential (mV)',
-               'normalized membrane potential',
+    ylabels = ['Membrane potential (mV)',
+               'Normalized membrane potential',
                '', '']
     for i, ax in enumerate(vmaxes):
         ax.axes.get_xaxis().set_visible(False)
         ax.spines['bottom'].set_visible(False)
         ax.set_ylabel(ylabels[i])
-    ylabels = ['firing rate (spikes/s)',
-               'normalized firing rate',
+    ylabels = ['Firing rate (spikes/s)',
+               'Normalized firing rate',
                '', '']
     for i, ax in enumerate(spkaxes):
         ax.set_ylabel(ylabels[i])
@@ -865,7 +867,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     #popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[-2]
-    #ax.set_title('significative population')
+    ax.set_title('significative population')
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
@@ -889,12 +891,12 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
     ax.plot(x1, y, '|', color=stdColors['bleu'])
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
-#ax.annotate("n=10", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    ax.annotate("n=10", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
     #popVmNsig
     cols = colsdict['popVmNsig']
     ax = vmaxes[-1]
-    #ax.set_title('non significative population')
+    ax.set_title('non significative population')
     #traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alpha[i],
@@ -909,8 +911,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
                 for j in [0, 1]:
                     ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
                             label=col, linewidth=0.5)
-    #ax.annotate("n=27", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    ax.annotate("n=27", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
     #NB for spiking response, the control should be plotted last,
     # ie revert the order
     inv_colors = colors[::-1]
@@ -937,8 +939,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     ax.plot(x0, y, 'o', color=stdColors['bleu'])
     ax.plot(x1, y, '|', color=stdColors['bleu'])
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
-    #ax.annotate("n=5", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    ax.annotate("n=5", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
     #popSpkNsig
     cols = colsdict['popSpkNsig']
     ax = spkaxes[-1]
@@ -952,8 +954,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
                         alpha=alpha[i]/2)
-    #ax.annotate("n=15", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    ax.annotate("n=15", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
     #labels
     for ax in axes:
         for loca in ['top', 'right']:
@@ -978,7 +980,7 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
         ax.set_ylim(-0.10, 1.2)
     for ax in spkaxes:
         ax.set_ylim(-0.10, 1.3)
-        ax.set_xlabel('Relative time (ms)')
+        ax.set_xlabel('relative time (ms)')
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -1085,124 +1087,12 @@ def sort_stat():
 
     temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
     temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
-    for temp in [temp1, temp2]:
-        print(len(temp))
-        print(temp.mean())
-        print(temp.std())
-        print(temp.sem())
+    for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
+        print(item , len(temp), 'measures')
+        print('mean= {:5.2f}'.format(temp.mean()[0]))
+        print('std= {:5.2f}'.format(temp.std()[0]))
+        print('sem= {:5.2f}'.format(temp.sem()[0]))
 sort_stat()
-# =============================================================================
-#>>> see fig 9
-#%% sigNonsig
-# def plot_figure9C(data, colsdict, fill=True, fillground=True):
-#     """
-#     plot_figure2
-#     """
-#     colors = ['k', stdColors['rouge']]
-#     alpha = [0.8, 0.8]
-#     # no individual : focus on initial response
-#     df = data.loc[-30:35]
-#
-#     fig = plt.figure(figsize=(4, 4)) #fig = plt.figure(figsize=(8, 8))
-#     #build axes with sharex and sharey
-#     vmaxes = []
-#
-#     vmaxes.append(fig.add_subplot(1, 1, 1))
-#     # axes list
-#
-#     cols = colsdict['popVmSig']
-#     ax = vmaxes[0]
-#     #ax.set_title('significative population')
-#     #traces
-#     for i, col in enumerate(cols[:2]):
-#         ax.plot(df[col], color=colors[i], alpha=alpha[i],
-#                 label=col)
-#         #errors : iterate on tuples
-#     for i, col in enumerate(cols[2:]):
-#         if fill:
-#             ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-#                             alpha=alpha[i]/2)
-#         else:
-#             for i, col in enumerate(cols[2:]):
-#                 for j in [0, 1]:
-#                     ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
-#                             label=col, linewidth=0.5)
-#         #advance
-#     x0 = 0
-#     y = df.loc[x0][cols[0]]
-#     adf = df.loc[-20:0, [cols[1]]]
-#     i1 = (adf - y).abs().values.flatten().argsort()[0]
-#     x1 = adf.index[i1]
-#     #ax.plot(x0, y, 'o', color=stdColors['bleu'])
-#     #ax.plot(x1, y, '|', color=stdColors['bleu'])
-#     #ax.hlines(y, x1, x0, color=stdColors['bleu'])
-#     #ax.annotate("n=10", xy=(0.2, 0.8),
-#     #            xycoords="axes fraction", ha='center')
-#     ylabels = ['normalized membrane potential']
-#     for i, ax in enumerate(vmaxes):
-#         for loca in ['top', 'right', 'bottom']:
-#             ax.spines[loca].set_visible(False)
-#         ax.axes.get_xaxis().set_visible(True)
-#         ax.set_ylabel(ylabels[i])
-#         ax.set_ylim(-0.10, 1.2)
-#         ax.set_xlabel('Relative time (ms)')
-#         lims = ax.get_ylim()
-#         ax.vlines(0, lims[0], lims[1], alpha=0.2)
-#         lims = ax.get_xlim()
-#         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-#     fig.tight_layout()
-#     # remove the space between plots
-#     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
-#     if anot:
-#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9C',
-#                  ha='right', va='bottom', alpha=0.4)
-#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-#     return fig
-#
-# plot_figure9C(data_df, cols_dict)
-#
-# #%% stacked plot
-# plt.close('all')
-#
-# def plot_9D():
-#     filename = 'data/fig2cells.xlsx'
-#     df = pd.read_excel(filename)
-# #    cols = df.columns[:2]
-# #    signs = df.columns[2:]
-#     df.index += 1 # cells = 1 to 37
-#
-#     nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
-#     sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
-#
-#     fig = plt.figure(figsize=(7,6))
-#     ax = fig.add_subplot(111)
-#     bins = np.arange(-5, 31, 5)
-#     #ax.hist([nsig, sig], stacked=True, color=['r', 'r'], fill=[False, True])
-#     _, bins, _ = ax.hist([sig, nsig], bins=bins, stacked=True,
-#                          color=['r', speedColors['orange']], edgecolor='k',
-#                          linewidth=1, alpha=0.6)
-#     ax.set_xlim(32,-32)
-#     lims = ax.get_ylim()
-#     ax.vlines(0, lims[0], lims[1], linestyle='--')
-#     ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-#     for loca in ['top', 'right']:
-#         ax.spines[loca].set_visible(False)
-#         ax.set_ylabel('Nb of cells')
-#         ax.set_xlabel('Latency advance (ms)')
-#         fig.tight_layout()
-#     if anot:
-#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-#         fig.text(0.99, 0.01, 'centrifigs.py:plot_9D',
-#                  ha='right', va='bottom', alpha=0.4)
-#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-#     return
-#
-# bins  = plot_9D()
-#
-#
-# #%%
-# =============================================================================
 
 #%%
 #plt.close('all')
@@ -1311,7 +1201,7 @@ def plot_figure3_signonsig():
         middle = (df.index.max() - df.index.min())/2
         df.index = (df.index - middle)/10
         df = df.loc[-15:30]
-        cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP_CROSS', 'RND-ISO']
+        cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
         df.columns = cols
 
         ax = axes[i]
@@ -1729,84 +1619,6 @@ def plot_figure7():
     return fig
 
 fig = plot_figure7()
-
-#%%
-plt.close('all')
-
-def plot_9Dplay():
-    filename = 'data/fig2cells.xlsx'
-    df = pd.read_excel(filename)
-    df.index += 1 # cells = 1 to 37
-
-    nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
-    sig = df.loc[df.lagIndiSig == 1].popVmscpIsolatg.tolist()
-
-    fig = plt.figure(figsize=(14, 12))
-    fig.suptitle('fig 9 : choose version ...')
-#    bins = np.arange(-5, 31, 5)
-    bins = np.arange(-5, 36, 5) - 2.5
-
-    #first
-    ax = fig.add_subplot(221)
-    ax.set_title('initial')
-    ax.hist([sig, nsig], bins=bins, stacked=True,
-            color=['r', 'None'], edgecolor='r',
-            linewidth=1)
-    #ax.set_xlim(-32, 32)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], linestyle='--')
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    #second
-    ax = fig.add_subplot(222)
-    ax.set_title('2')
-    ax.hist([sig, nsig], bins=bins, stacked=True,
-            color=['r', speedColors['orange']], edgecolor='k',
-            linewidth=1, alpha=0.6)
-    ax.set_xlim(32, -32)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], linestyle='--')
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    #third
-    ax = fig.add_subplot(223)
-    ax.set_title('3')
-    ax.hist([sig, nsig], bins=bins, stacked=True,
-            color=['r', 'None'], edgecolor='k',
-            linewidth=1)
-    ax.set_xlim(-32, 32)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], linestyle='--')
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-    #fourth
-    ax = fig.add_subplot(224)
-    ax.set_title('4')
-    ax.hist([sig, nsig], bins=bins, stacked=True,
-            color=['r', 'None'], edgecolor='k',
-            linewidth=1)
-    ax.set_xlim(32, -32)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], linestyle='--')
-    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-
-    for ax in fig.get_axes():
-        lims = ax.get_ylim()
-        custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
-        ax.set_yticks(custom_ticks)
-        ax.set_yticklabels(custom_ticks)
-        ax.vlines(0, lims[0], lims[1], linestyle='--')
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
-            ax.set_ylabel('Nb of cells')
-            ax.set_xlabel('Latency advance (ms)')
-    fig.tight_layout()
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_9Dplay',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return
-
-plot_9Dplay()
-
 
 #%% fig 9
 plt.close('all')
@@ -2305,7 +2117,7 @@ def plot_figSup4B(kind, stimmode):
     df.index = df.index - middle
     df.index = df.index/10
     cols = ['CENTER-ONLY-SEC', 'CP-ISO-SEC', 'CF-ISO-SEC', 'CP-CROSS-SEC', 'RND-ISO-SEC',
-            'CENTER-ONLY-FUL', 'CP-ISO-FUL', 'CF-ISO-FUL', 'CP-CROSS-FUL', 'RND-ISO-FUL']
+            'CENTER-ONLY-FULL', 'CP-ISO-FULL', 'CF-ISO-FULL', 'CP-CROSS-FULL', 'RND-ISO-FULL']
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
@@ -2353,8 +2165,8 @@ def plot_figSup4B(kind, stimmode):
     return fig
 
 
-#fig = plot_figSup4('pop', 'sec')
-fig = plot_figSup5('pop', 'ful')
+#fig = plot_figSup4B('pop', 'sec')
+fig = plot_figSup4B('pop', 'ful')
 
 #fig = plot_figSup1('sig')
 #fig = plot_figSup1('nonsig')
@@ -2552,34 +2364,40 @@ def extract_values(df, stim_kind='s', measure='lat'):
 def autolabel(ax, rects):
     # attach some text labels
     for rect in rects:
+        x = rect.get_x() + rect.get_width()/2
         height = rect.get_height()
-        ax.text(rect.get_x() + rect.get_width()/2., 0.25 * height,#1.05 * height,
-                '%d' % int(height) + '%',
-                ha='center', va='bottom')
-        #print(rect.get_x())
+        y = height - 1
+        if y < 3 :
+            y = height + 1
+            ax.text(x, y, '%d' % int(height) + '%',
+                    ha='center', va='bottom')
+        else:
+            ax.text(x, y, '%d' % int(height) + '%',
+                    ha='center', va='top')
+        #print(y)
 
 def plot_cell_contribution(df):
-    "sup 4"
+    "sup 4A"
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
+              stdColors['dark_jaune'], stdColors['dark_bleu']]
     fig = plt.figure(figsize=(8, 8))
+    #sector phase
     ax = fig.add_subplot(221)
     ax.set_title('$\Delta$ Phase (% significant cells)', pad = 0)
     stim = 's'
     mes = 'lat'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(ax, bar)
+    heights = [pop_dico[item][-1] for item in pop_dico.keys()]
+    bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8, 
+                  edgecolor= dark_colors)
+    autolabel(ax, bars) # call
     ax.set_ylabel('SECTOR')
     ax.xaxis.set_visible(False)
-    axt = ax.twinx()
-    height = [resp_dico[item][0] for item in resp_dico.keys()]
-    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
 
-
+    # sector amplitude    
     ax = fig.add_subplot(222, sharey=ax)
     ax.set_title('$\Delta$ Amplitude (% significant cells)', pad = 0)
     stim = 's'
@@ -2587,15 +2405,12 @@ def plot_cell_contribution(df):
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(ax, bar)
+    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+                 edgecolor= dark_colors)
+    autolabel(ax, bars)
     ax.xaxis.set_visible(False)
-    axt = ax.twinx()
-    height = [resp_dico[item][0] for item in resp_dico.keys()]
-    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
-    #ax.set_ylim(0,30)#32)
 
+    #full phase
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'f'
     mes = 'lat'
@@ -2603,13 +2418,12 @@ def plot_cell_contribution(df):
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
-    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(ax, bar)
+    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+                  edgecolor= dark_colors)
+    autolabel(ax, bars)
     ax.set_ylabel('FULL')
-    axt = ax.twinx()
-    height = [resp_dico[item][0] for item in resp_dico.keys()]
-    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
 
+    #full amplitude
     ax = fig.add_subplot(224, sharey=ax)
     stim = 'f'
     mes = 'gain'
@@ -2617,11 +2431,9 @@ def plot_cell_contribution(df):
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
-    bar = ax.bar(x, height, color=colors, width=0.95, alpha=0.8)
-    autolabel(ax, bar)
-    axt = ax.twinx()
-    height = [resp_dico[item][0] for item in resp_dico.keys()]
-    #bar = axt.bar(x, height, edgecolor='k', width=0.1, fc=(1, 1, 1, 0))
+    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+                  edgecolor= dark_colors)
+    autolabel(ax, bars)
 
     for ax in fig.get_axes():
         for loca in ['left', 'top', 'right']:
