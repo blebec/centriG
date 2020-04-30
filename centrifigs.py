@@ -800,7 +800,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.set_yticklabels(custom_ticks)
     #pop
     for ax in vmaxes[1:]:
-        custom_ticks = np.linspace(-0.2, 1, 7)
+        custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
     for ax in spkaxes[1:]:
         custom_ticks = np.linspace(0, 1.2, 7)
@@ -1523,7 +1523,7 @@ def plot_figure6():
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
         #ticks
-        custom_ticks = np.linspace(-1, 4, 6, dtype=int)
+        custom_ticks = np.linspace(0, 4, 5, dtype=int)
         ax.set_yticks(custom_ticks)
         ax.set_yticklabels(custom_ticks)
     fig.tight_layout()

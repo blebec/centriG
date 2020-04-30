@@ -43,3 +43,15 @@ on the right: + spike full (plot_figSup5('pop', 'ful'))
 
 fig sup5
 Figure extra
+
+
+
+
+
+#############
+
+~~Figure 2,A, panel du haut, au milieu (panel B) et panel du haut à droite, il reste un -0.2 inutile~~
+
+~~figure 6 il reste un -1 inutile en haut et en bas~~
+
+~~et enfin sup_1, il reste l'axe négatif à gauche (contre seulement positif à gauche) et n"gatif + positif à droite (contre seulement négatif à droite)~~
