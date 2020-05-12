@@ -12,7 +12,7 @@ import getpass
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
-import humps
+#import humps
 
 def go_to_dir():
     """
@@ -20,12 +20,12 @@ def go_to_dir():
     """
     osname = platform.system()
     username = getpass.getuser()
-    if osname == 'Windows'and username == 'Benoit':
-        os.chdir(r'C:\Users\Benoît\Desktop\centriExtra')
-        
+    if osname == 'Windows' and username == 'Benoit':
+        os.chdir(r'C:\Users\Benoît\Desktop\centriExtra\data')        
     #elif osname == 'Linux' and username == 'benoit':
         #os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
-        
+    elif osname == 'Darwin' and username == 'cdesbois':
+        os.chdir('/Users/cdesbois/ownCloud/cgFigures/elphyDataExport')
     return True
 go_to_dir()
 
@@ -53,13 +53,13 @@ def load_data_file(filename,
     trials = np.linspace(1,30,30)
     
     for key in data:
-        if (key not in ['__header__', '__version__', '__globals__','DataFile']):
+        if (key not in ['__header__', '__version__', '__globals__', 'DataFile']):
             reformated_data = {'t':np.arange(len(np.array(data['PSTH_STIM_1_ELEC_1_TRIAL_1']).flatten()))*dt}
             
             for cond in conditions:
                 reformated_data[cond] = []
                 for elec in electrodes:
-                    reformated_data[cond,elec] = []
+                    reformated_data[cond, elec] = []
                     for trial in range(31):#trials:
                         if (cond == 10):
                             if 'PSTH_STIM_%d_ELEC_%d_TRIAL_%d' %(cond, elec, trial) in data:
@@ -75,10 +75,10 @@ def load_data_file(filename,
 
     return reformated_data                        
 #%% file specifications
-filename ='data/PSTHS_TRIALS_2010_TUN21'
+filename ='PSTHS_TRIALS_2010_TUN21'
 dt = 1/10E3
 data = load_data_file(filename, dt)
-#%% check dimensions
+ #%% check dimensions
 #print(reformated_data.keys())
 print(np.shape(data[10]))
 print(np.shape(data[12]))
@@ -98,3 +98,48 @@ print(len(data[12][63][29]))
 
 #%%
 # 1TO DO  plot 64 electrodes, squeezed over the 30 trial dimension to replicate average MUA traces
+
+#%%
+#PSTH_STIM_n1_ELEC_n2_TRIAL_n3
+
+def extract_name(alist):
+    """ return elts = name elements """
+    # built container
+    elts = []
+    for i in range(7):
+        elts.append([])
+    # extract alist elements
+    for item in alist:
+        item_elts = item.split('_')
+        for i, elt in enumerate(item_elts):
+            if elt not in elts[i]:
+                elts[i].append(elt)
+    for i, kind in enumerate(elts):
+        print(i, ': ', kind)
+    return elts
+
+filename ='PSTHS_TRIALS_2010_TUN21'
+dt = 1/10E3
+data = loadmat(filename)
+keys = list(data.keys())
+keys = keys[3:]
+elts = extract_name(keys)
+
+#%%
+name = 'PSTH' + '_' + 'STIM' + '_' + n1 + '_' + 'ELEC' + '_' + n2 + '_' + 'TRIAL' + '_' + n3
+
+center_only_hs = [key for key in keys if key.split('_')[2] == '10']
+surroundThenCenter_hs = [key for key in keys if key.split('_')[2] == '19']
+
+def build_a_df_of_stims(keys):
+    """ describe the names """
+    df = pd.DataFrame(keys)
+    df['stim'] = df[df.columns[0]].apply(lambda x : int(x.split('_')[2]))
+    df['elect'] = df[df.columns[0]].apply(lambda x : int(x.split('_')[4]))
+    df['trial'] = df[df.columns[0]].apply(lambda x : int(x.split('_')[6]))
+    del df[df.columns[0]]
+    return df
+keys_df = build_a_df_of_stims(keys)
+
+#%%
+ import xarray as xr
