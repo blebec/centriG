@@ -1878,9 +1878,9 @@ fig = plot_sorted_responses_sup1(overlap=True)
 
 
 #%%
-#plt.close('all')
+plt.close('all')
 
-def plot_figSup2(kind):
+def plot_figSup2B(kind):
     """
     plot supplementary figure 1 : Vm with random Sector control
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -1909,7 +1909,8 @@ def plot_figSup2(kind):
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-    #fig.suptitle(titles[kind])
+    if anot:
+        fig.suptitle('Vm ' + titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         if i == 4:
@@ -1947,16 +1948,16 @@ def plot_figSup2(kind):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2B',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
 
-fig = plot_figSup2('pop')
-#fig = plot_figSup2('sig')
-#fig = plot_figSup2('nonsig')
+fig = plot_figSup2B('pop')
+#fig = plot_figSup2B('sig')
+#fig = plot_figSup2B('nonsig')
 
 
 #%%
@@ -2344,6 +2345,8 @@ keys = build_keys_list(cols)
 #print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
 ## !!! doesnt suit with the figure !!!
 #%%
+plt.close("all")
+
 def extract_values(df, stim_kind='s', measure='lat'):
     """ extract pop and response dico:
         input : dataframe, stim kind (s or f) and mesaure kind (lat or gain)
@@ -2387,12 +2390,14 @@ def autolabel(ax, rects):
         #print(y)
 
 def plot_cell_contribution(df):
-    "sup 4A"
+    "sup 2A"
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
               stdColors['dark_jaune'], stdColors['dark_bleu']]
     fig = plt.figure(figsize=(8, 8))
+    if anot:
+        fig.suptitle('vm')
     #sector phase
     ax = fig.add_subplot(221)
     ax.set_title('$\Delta$ Phase (% significant cells)', pad = 0)
@@ -2458,14 +2463,9 @@ def plot_cell_contribution(df):
                  fontsize=18)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4A',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2A',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    
-    else:
-        fig.text(0.5, 1.01, 'Vm',
-                 ha='center', va='top',
-                 fontsize=18)
 
     fig.tight_layout()
 
