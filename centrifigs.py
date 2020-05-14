@@ -1436,7 +1436,7 @@ def plot_figure6():
         else:
             ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
                      label=col)
-    ax2.set_xlabel('Relative time (ms)')
+    ax2.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
@@ -1593,7 +1593,7 @@ def plot_figure7():
         #    text.set_color(line.get_color())
         #ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
-        ax.set_xlabel('Time (ms)')
+        ax.set_xlabel('Relative time (ms)')
         #, fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
@@ -1798,7 +1798,8 @@ def plot_sorted_responses_sup1(overlap=True):
     #plot
     fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
-    fig.suptitle(title)
+    if anot:
+        fig.suptitle(title)
     axes = axes.flatten()
     x = range(1, len(df)+1)
     #plot all traces
@@ -1828,7 +1829,7 @@ def plot_sorted_responses_sup1(overlap=True):
             ax.ticklabel_format(useOffset=True)
             #zero line
             lims = ax.get_xlim()
-            ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
+            ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
             set_ticks_both(ax.yaxis)
             # alternate right and left
