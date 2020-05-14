@@ -1963,7 +1963,7 @@ fig = plot_figSup2B('pop')
 #%%
 plt.close('all')
 
-def plot_figSup3(kind, overlap=True):
+def plot_figSup4(kind, overlap=True):
     """
     plot supplementary figure 3: 
         Vm all conditions of surround-only stimulation CP-ISO sig
@@ -2087,13 +2087,13 @@ def plot_figSup3(kind, overlap=True):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figSup3('minus', overlap=True)
-#fig = plot_figSup3('plus')
+fig = plot_figSup4('minus', overlap=True)
+#fig = plot_figSup4('plus')
 #pop all cells
 #%%
 plt.close('all')
