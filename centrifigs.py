@@ -1936,6 +1936,8 @@ def plot_figSup2B(kind):
     ax.set_yticks(custom_ticks)
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
+    # point bleu
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=stdColors['bleu'])
 
     #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
