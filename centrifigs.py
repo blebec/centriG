@@ -1593,7 +1593,7 @@ def plot_figure7():
         #    text.set_color(line.get_color())
         #ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
-        ax.set_xlabel('Relative time (ms)')
+        ax.set_xlabel('Time (ms)')
         #, fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
