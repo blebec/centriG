@@ -2098,7 +2098,7 @@ fig = plot_figSup3('minus', overlap=True)
 #%%
 plt.close('all')
 
-def plot_figSup4B(kind, stimmode):
+def plot_figSup3B(kind, stimmode):
     """
     plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -2128,7 +2128,8 @@ def plot_figSup4B(kind, stimmode):
     fig = plt.figure(figsize=(6.5, 5.5))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference 
 #between traces
-    #fig.suptitle(titles[kind])
+    if anot:
+        fig.suptitle(titles[kind] + ' spikes')
     ax = fig.add_subplot(111)
     if stimmode == 'sec':
         for i, col in enumerate(cols[:5]):
@@ -2168,15 +2169,15 @@ def plot_figSup4B(kind, stimmode):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup4B',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup3B',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
 
-#fig = plot_figSup4B('pop', 'sec')
-fig = plot_figSup4B('pop', 'ful')
+#fig = plot_figSup3B('pop', 'sec')
+fig = plot_figSup3B('pop', 'ful')
 
 #fig = plot_figSup1('sig')
 #fig = plot_figSup1('nonsig')
