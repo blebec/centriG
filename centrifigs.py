@@ -1326,18 +1326,16 @@ def plot_fig5():
     cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
            # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
-#    dico = dict(zip(df.columns, cols))
-#    cols = df.columns
     colors = [stdColors['rouge'], stdColors['jaune']]
+    darkcolors = [stdColors['dark_rouge'], stdColors['dark_jaune']]
     alpha = [0.7, 0.7]
 
     fig = plt.figure(figsize=(4, 7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
-        ax1.plot(df[col], color='black',
-                 alpha=1, linewidth=1)
-        ax1.fill_between(df.index, df[col], color=colors[i],
-                         alpha=1, linewidth=2)
+        ax1.fill_between(df.index, df[col], facecolor=colors[i], 
+#                         edgecolor=darkcolors[i], alpha=1, linewidth=1)
+                         edgecolor='black', alpha=1, linewidth=1)
     ax1.axes.get_xaxis().set_visible(False)
     ax1.spines['bottom'].set_visible(False)
     ax1.set_ylim(0, 5.5)
@@ -1356,17 +1354,13 @@ def plot_fig5():
 
     cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
-    # dico = dict(zip(df.columns, cols))
-    # df.rename(columns=dico, inplace=True)
-    # cols = df.columns
-    colors = [stdColors['jaune'], stdColors['rouge']]
-
+    colors = colors[::-1]
+    darkcolors = darkcolors[::-1]
     ax2 = fig.add_subplot(212)
     for i, col in enumerate(cols[:2]):
-        ax2.plot(df[col], color='black',
-                 alpha=1, linewidth=1)
-        ax2.fill_between(df.index, df[col], color=colors[i],
-                         alpha=1, linewidth=2)
+        ax2.fill_between(df.index, df[col], facecolor=colors[i], 
+#                         edgecolor=darkcolors[i], alpha=1, linewidth=1)
+                         edgecolor='black', alpha=1, linewidth=1)
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
     ax2.set_ylim(0, 11.5)
