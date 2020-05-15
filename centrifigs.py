@@ -2720,3 +2720,148 @@ def plotSpeeddiff():
     return fig
 
 fig = plotSpeeddiff()
+
+#%% bar plot peaks
+
+def load_peakdata(name):
+    df = pd.read_excel(name)
+    # adapt column names
+    new_list = []
+    for item in df.iloc[0].tolist():
+        if 'value' in str(item):
+            new_list.append('_value')
+        elif 'time' in str(item):
+            new_list.append('_time')
+        else:
+            new_list.append('')
+    cols = [item.split('.')[0] for item in df.columns]
+    cols = [a + b for a, b in zip(cols, new_list)]
+    df.columns = cols
+    df = df.drop(df.index[0])
+    df = df.drop('Unnamed: 10', axis=1)
+    df = df.set_index('Neuron')
+    return df
+
+filename = 'data/cg_peakValueTime_spk.xlsx'
+data = load_peakdata(filename)
+
+
+def plot_sorted_peak_responses(df, overlap=True):
+    """
+    plot the sorted cell responses
+    input = conditions parameters
+
+    """
+    def set_ticks_both(axis):
+        """ set ticks and ticks labels on both sides """
+        ticks = list( axis.majorTicks ) # a copy
+        ticks.extend( axis.minorTicks )
+        for t in ticks:
+            t.tick1line.set_visible(True)
+            t.tick2line.set_visible(True)
+            t.label1.set_visible(True)
+            t.label2.set_visible(True)
+
+    # parameter
+    colors = [stdColors['rouge'], stdColors['rouge'],
+              stdColors['vert'], stdColors['vert'],
+              stdColors['jaune'], stdColors['jaune'],
+              stdColors['bleu'], stdColors['bleu'],
+              stdColors['bleu'], stdColors['bleu']]
+    # extract list of traces : sector vs full
+    traces = [item for item in df.columns if 's_' in item[:7]]
+    
+    time_list = [item for item in df.columns if 'time' in item]
+    value_list = [item for item in df.columns if 'value' in item]
+    
+    # append full random
+    f_rnd = [item for item in df.columns if 'vm_f_rnd' in item]
+    for item in f_rnd:
+        traces.append(item)
+    # filter -> only significative cells
+    traces = [item for item in traces if 'indisig' not in item]
+    # text labels
+    title = 'Vm (sector)'
+    anotx = 'Cell rank'
+    anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
+             #(fraction of Center-only response)']
+    #plot
+    fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
+                             sharey='col', squeeze=False)#•sharey=True,
+    if anot:
+        fig.suptitle(title)
+    axes = axes.flatten()
+    x = range(1, len(df)+1)
+    #plot all traces
+    for i, name in enumerate(traces):
+        sig_name = name + '_indisig'
+        # color : white if non significant, edgecolor otherwise
+        edgeColor = colors[i]
+        color_dic = {0 : 'w', 1 : edgeColor}
+        select = df[[name, sig_name]].sort_values(by=[name, sig_name],
+                                                  ascending=False)
+        barColors = [color_dic[x] for x in select[sig_name]]
+        ax = axes[i]
+#        ax.set_title(str(i))
+        ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
+               alpha=0.8, width=0.8)
+        if i in [0, 1]:
+            ax.set_title(anoty[i])
+    # alternate the y_axis position
+    axes = fig.get_axes()
+    left_axes = axes[::2]
+    right_axes = axes[1::2]
+    for axe in [left_axes, right_axes]:
+        for i, ax in enumerate(axe):
+            ax.set_facecolor('None')
+            # ax.set_title(i)
+            ax.spines['top'].set_visible(False)
+            ax.ticklabel_format(useOffset=True)
+            #zero line
+            lims = ax.get_xlim()
+            ax.hlines(0, lims[0], lims[1], alpha=0.2)
+            # ticks and ticks labels on both sides (call)
+            set_ticks_both(ax.yaxis)
+            # alternate right and left
+            # if overlap:
+            #     #label left:
+            #     if i % 2 == 0:
+            #         ax.spines['right'].set_visible(False)                
+            #     #label right    
+            #     else:
+            #         ax.spines['left'].set_visible(False)
+            #         ax.yaxis.tick_right()
+            # else:
+            #     ax.spines['right'].set_visible(False)                                
+            if i != 4:
+                ax.xaxis.set_visible(False)
+                ax.spines['bottom'].set_visible(False)
+            else:
+                ax.set_xlabel(anotx)
+                ax.set_xticks([1, len(df)])
+                ax.set_xlim(0, len(df)+1)
+    for ax in left_axes:
+        custom_ticks = np.linspace(-10, 10, 3, dtype=int)
+        ax.set_yticks(custom_ticks)
+    for ax in right_axes:
+        custom_ticks = np.linspace(-0.5, 0.5, 3)
+        ax.set_yticks(custom_ticks)
+        
+    #align each row yaxis on zero between subplots
+    align_yaxis(axes[0], 0, axes[1], 0)
+    #keep data range whithout distortion, preserve 0 alignment
+    change_plot_trace_amplitude(axes[1], 0.80)
+    # remove the space between plots
+    fig.tight_layout()
+    if overlap:
+        fig.subplots_adjust(hspace=-0.5, wspace=0.2)
+    else:
+        fig.subplots_adjust(hspace=0.05, wspace=0.2)        
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses_sup1',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig = plot_sorted_responses_sup1(overlap=True)
