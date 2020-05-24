@@ -2726,6 +2726,7 @@ fig = plotSpeeddiff()
 plt.close('all')
 
 def load_peakdata(name):
+    'load the excel file'
     df = pd.read_excel(name)
     # adapt column names
     new_list = []
@@ -2747,33 +2748,35 @@ def load_peakdata(name):
     df = df.astype('float')
     return df
 
-def normalize_peakdata_and_select(df, spread = 'sec', param='gain'):
+def normalize_peakdata_and_select(df, spread='sec', param='gain'):
     """
+    return the normalized and selected df parts for plotting
     spread in ['sec', 'full'], 
     param in ['time', 'gain']
     """
-    # extract list of traces : sector vs full
-    time_list = [item for item in df.columns if 'time' in item]
-    value_list = [item for item in df.columns if 'gain' in item]
-    sec_time = [item for item in time_list if 'sec' in item]
-    sec_val = [item for item in value_list if 'sec' in item]
-    ful_time = [item for item in time_list if 'full' in item]
-    ful_val = [item for item in value_list if 'full' in item]
+    if spread not in ['sec', 'full']:
+        print("'spread' should be in ['sec', 'full']")
+        return
+    elif param not in ['time', 'gain']:
+        print("'param' should be in ['time', 'gain']")
+        return
+    #select by param (first value = control)
+    col_list = [item for item in df.columns if param in item]
     # normalization with center only (Y - Yref)/Yref
-    ctrl = df[time_list[0]]
-    for item in time_list[1:]:
+    ctrl = df[col_list[0]]
+    for item in col_list[1:]:
+        print(df[item].mean())
         df[item] = (df[item] - ctrl) / ctrl
-    # ratio
-    ctrl = df[value_list[0]]
-    for item in value_list[1:]:
-        df[item] = (df[item] - ctrl) / ctrl
-    
+        print(df[item].mean())
+    #select by spread
+    col_list = [item for item in col_list if spread in item]
+    return df[col_list]
     
 
-def plot_sorted_peak_responses(df, ext='sec', overlap=True):
+def plot_sorted_peak_responses(df_left, df_right, overlap=True):
     """
     plot the sorted cell responses
-    input = dataframe, ext in [sec, ful], overlap=boolean
+    input = dataframes, overlap=boolean
 
     """
     def set_ticks_both(axis):
@@ -2791,15 +2794,17 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
     dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
 
-
-    # # text labels
-    title = 'sorted_peak_responses' + ' (' + ext + ')'
+    # text labels
+    if 'sec' in right.columns[0].split('_')[0]:
+        spread = 'sec'
+    else:
+        spread = 'full'
+    title = 'sorted_peak_responses' + ' (' + spread + ')'
     anotx = 'Cell rank'
-    anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
+    anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
+   # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #          #(fraction of Center-only response)']
     #plot
-    fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
-                             sharey='col', squeeze=False)#•sharey=True,
     fig = plt.figure()
     gs = fig.add_gridspec(4, 2)
     #left
@@ -2819,18 +2824,33 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
     # to identify the plots (uncomment to use)
     if anot:
         fig.suptitle(title)
-    x = range(1, len(df)+1)
-    if ext == 'sec' :
-        traces =  [a for b in zip(sec_time, sec_val) for a in b]
-    elif ext == 'ful':
-        traces =  [a for b in zip(ful_time, ful_val) for a in b]
-    else:
-        print('ext should be in [ful, sec]')
-        return        
-
+    x = range(1, len(df_left) + 1)
     #plot the traces
     #left
-    for i, name in enumerate(traces):
+    for i, name in enumerate(df_left.columns):
+        # color : white if non significant, edgecolor otherwise
+        # edgeColor = colors[i]
+        # color_dic = {0 : 'w', 1 : edgeColor}
+        # select = df[[name, sig_name]].sort_values(by=[name, sig_name],
+        #                                           ascending=False)
+        # barColors = [color_dic[x] for x in select[sig_name]]
+        ax = left_axes[i]
+        #ax.set_title(str(i))
+        ax.set_title(name)
+        #without significance
+        select = df_left[name].sort_values(ascending=False)
+        ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
+               alpha=0.8, width=0.8)
+        # # with significance
+        # select = df_left[name].sort_values(by=[name, sig_name],
+        #                                            ascending=False)
+
+        # ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
+        #        alpha=0.8, width=0.8)
+        if i == 0:
+            ax.set_title(anoty[i])
+    #right
+    for i, name in enumerate(df_right.columns):
         # sig_name = name + '_indisig'
         # color : white if non significant, edgecolor otherwise
         # edgeColor = colors[i]
@@ -2838,11 +2858,11 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
         # select = df[[name, sig_name]].sort_values(by=[name, sig_name],
         #                                           ascending=False)
         # barColors = [color_dic[x] for x in select[sig_name]]
-        ax = axes[i]
+        ax = right_axes[i]
         #ax.set_title(str(i))
         ax.set_title(name)
         #without significance
-        select = df[name].sort_values(ascending=False)
+        select = df_right[name].sort_values(ascending=False)
         ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
                alpha=0.8, width=0.8)
         # # with significance
@@ -2851,9 +2871,8 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
 
         # ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
         #        alpha=0.8, width=0.8)
-        if i in [0, 1]:
-            ax.set_title(anoty[i])
-    #eight
+        if i == 0:
+            ax.set_title(anoty[1])
     
     # alternate the y_axis position
     axes = fig.get_axes()
@@ -2888,18 +2907,18 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
                 ax.set_xlabel(anotx)
                 ax.set_xticks([1, len(df)])
                 ax.set_xlim(0, len(df)+1)
-    for ax in left_axes:
-        custom_ticks = np.linspace(-10, 10, 3, dtype=int)
-        ax.set_yticks(custom_ticks)
-    for ax in right_axes:
-        ax.set_ylim(-0.5, 0.5)
-        custom_ticks = np.linspace(-0.5, 0.5, 3)
-        ax.set_yticks(custom_ticks)
+    # for ax in left_axes:
+    #     custom_ticks = np.linspace(-10, 10, 3, dtype=int)
+    #     ax.set_yticks(custom_ticks)
+    # for ax in right_axes:
+    #     ax.set_ylim(-0.5, 0.5)
+    #     custom_ticks = np.linspace(-0.5, 0.5, 3)
+    #     ax.set_yticks(custom_ticks)
         
     #align each row yaxis on zero between subplots
-    align_yaxis(axes[0], 0, axes[1], 0)
+    #align_yaxis(left_axes[0], 0, right_axes[0], 0)
     #keep data range whithout distortion, preserve 0 alignment
-    change_plot_trace_amplitude(axes[1], 0.80)
+#    change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
     if overlap:
@@ -2916,4 +2935,6 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
 #filename = 'data/cg_peakValueTime_spk.xlsx'
 filename = 'data/cg_peakValueTime_vm.xlsx'
 data = load_peakdata(filename)
-fig = plot_sorted_peak_responses(data, ext='sec', overlap=True)
+left = normalize_peakdata_and_select(data.copy(), spread='full', param='gain')
+right = normalize_peakdata_and_select(data.copy(), spread='sec', param='gain')
+fig = plot_sorted_peak_responses(left, right, overlap=False)
