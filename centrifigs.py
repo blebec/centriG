@@ -11,6 +11,7 @@ import inspect
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
 from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as patches
@@ -2730,7 +2731,7 @@ def load_peakdata(name):
     new_list = []
     for item in df.iloc[0].tolist():
         if 'value' in str(item):
-            new_list.append('_value')
+            new_list.append('_gain')
         elif 'time' in str(item):
             new_list.append('_time')
         else:
@@ -2738,11 +2739,36 @@ def load_peakdata(name):
     cols = [item.split('.')[0] for item in df.columns]
     cols = [a + b for a, b in zip(cols, new_list)]
     df.columns = cols
+    #remove first line
     df = df.drop(df.index[0])
+    # remove empty column
     df = df.drop('Unnamed: 10', axis=1)
     df = df.set_index('Neuron')
     df = df.astype('float')
     return df
+
+def normalize_peakdata_and_select(df, spread = 'sec', param='gain'):
+    """
+    spread in ['sec', 'full'], 
+    param in ['time', 'gain']
+    """
+    # extract list of traces : sector vs full
+    time_list = [item for item in df.columns if 'time' in item]
+    value_list = [item for item in df.columns if 'gain' in item]
+    sec_time = [item for item in time_list if 'sec' in item]
+    sec_val = [item for item in value_list if 'sec' in item]
+    ful_time = [item for item in time_list if 'full' in item]
+    ful_val = [item for item in value_list if 'full' in item]
+    # normalization with center only (Y - Yref)/Yref
+    ctrl = df[time_list[0]]
+    for item in time_list[1:]:
+        df[item] = (df[item] - ctrl) / ctrl
+    # ratio
+    ctrl = df[value_list[0]]
+    for item in value_list[1:]:
+        df[item] = (df[item] - ctrl) / ctrl
+    
+    
 
 def plot_sorted_peak_responses(df, ext='sec', overlap=True):
     """
@@ -2759,40 +2785,13 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
+          
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+                   stdColors['dark_jaune'], stdColors['dark_bleu']]
 
-    # parameter
-    colors = [stdColors['rouge'], stdColors['rouge'],
-              stdColors['vert'], stdColors['vert'],
-              stdColors['jaune'], stdColors['jaune'],
-              stdColors['bleu'], stdColors['bleu'],
-              stdColors['bleu'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_rouge'],
-              stdColors['dark_vert'], stdColors['dark_vert'],
-              stdColors['dark_jaune'], stdColors['dark_jaune'],
-              stdColors['dark_bleu'], stdColors['dark_bleu'],
-              stdColors['dark_bleu'], stdColors['dark_bleu']]
 
-    # extract list of traces : sector vs full
-    time_list = [item for item in df.columns if 'time' in item]
-    value_list = [item for item in df.columns if 'value' in item]
-    sec_time = [item for item in time_list if 'sec' in item]
-    sec_val = [item for item in value_list if 'sec' in item]
-    ful_time = [item for item in time_list if 'full' in item]
-    ful_val = [item for item in value_list if 'full' in item]
-
-    # difference with center only
-    for item in time_list[1:]:
-         df[item] = df[time_list[0]] - df[item]
-    # ratio
-    for item in value_list[1:]:
-        df[item] = df[item] / df[value_list[0]]
-
-    # # append full random
-    # f_rnd = [item for item in df.columns if 'vm_f_rnd' in item]
-    # for item in f_rnd:
-    #     traces.append(item)
-    # # filter -> only significative cells
-    # traces = [item for item in traces if 'indisig' not in item]
     # # text labels
     title = 'sorted_peak_responses' + ' (' + ext + ')'
     anotx = 'Cell rank'
@@ -2801,9 +2800,25 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
     #plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
+    fig = plt.figure()
+    gs = fig.add_gridspec(4, 2)
+    #left
+    left_axes = []
+    ax = fig.add_subplot(gs[0, 0])
+    left_axes.append(ax)
+    for i in range(1,4):
+        left_axes.append(fig.add_subplot(gs[i, 0], 
+                                         sharey=ax, sharex=ax))
+    #right
+    right_axes = []
+    ax = fig.add_subplot(gs[0, 1])
+    right_axes.append(ax)
+    for i in range(1,4):
+        right_axes.append(fig.add_subplot(gs[i, 1],
+                                          sharey=ax, sharex=ax))
+    # to identify the plots (uncomment to use)
     if anot:
         fig.suptitle(title)
-    axes = axes.flatten()
     x = range(1, len(df)+1)
     if ext == 'sec' :
         traces =  [a for b in zip(sec_time, sec_val) for a in b]
@@ -2813,7 +2828,8 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
         print('ext should be in [ful, sec]')
         return        
 
-    #plot all traces
+    #plot the traces
+    #left
     for i, name in enumerate(traces):
         # sig_name = name + '_indisig'
         # color : white if non significant, edgecolor otherwise
@@ -2837,6 +2853,8 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
         #        alpha=0.8, width=0.8)
         if i in [0, 1]:
             ax.set_title(anoty[i])
+    #eight
+    
     # alternate the y_axis position
     axes = fig.get_axes()
     left_axes = axes[::2]
@@ -2894,7 +2912,7 @@ def plot_sorted_peak_responses(df, ext='sec', overlap=True):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
-
+#%%
 #filename = 'data/cg_peakValueTime_spk.xlsx'
 filename = 'data/cg_peakValueTime_vm.xlsx'
 data = load_peakdata(filename)
