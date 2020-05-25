@@ -1828,6 +1828,7 @@ def plot_sorted_responses_sup1(overlap=True):
             # ax.set_title(i)
             ax.spines['top'].set_visible(False)
             ax.ticklabel_format(useOffset=True)
+            ax.spines['bottom'].set_visible(False)
             #zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
@@ -1846,7 +1847,6 @@ def plot_sorted_responses_sup1(overlap=True):
             #     ax.spines['right'].set_visible(False)                                
             if i != 4:
                 ax.xaxis.set_visible(False)
-                ax.spines['bottom'].set_visible(False)
             else:
                 ax.set_xlabel(anotx)
                 ax.set_xticks([1, len(df)])
@@ -2881,37 +2881,38 @@ def plot_sorted_peak_responses(df_left, df_right, overlap=True):
     
     # alternate the y_axis position
     axes = fig.get_axes()
-    left_axes = axes[::2]
-    right_axes = axes[1::2]
+    left_axes = axes[:4]
+    right_axes = axes[4:]
     for axe in [left_axes, right_axes]:
         for i, ax in enumerate(axe):
             ax.set_facecolor('None')
             # ax.set_title(i)
             ax.spines['top'].set_visible(False)
             ax.ticklabel_format(useOffset=True)
+            ax.spines['bottom'].set_visible(False)
             #zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
             set_ticks_both(ax.yaxis)
             # alternate right and left
-            if overlap:
-                #label left:
-                if i % 2 == 0:
-                    ax.spines['right'].set_visible(False)                
-                #label right    
-                else:
-                    ax.spines['left'].set_visible(False) 
-                    ax.yaxis.tick_right()
-            else:
-                ax.spines['right'].set_visible(False)                                
-            if i != 4:
+            # if overlap:
+            #     #label left:
+            #     if i % 2 == 0:
+            #         ax.spines['right'].set_visible(False)                
+            #     #label right    
+            #     else:
+            #         ax.spines['left'].set_visible(False) 
+            #         ax.yaxis.tick_right()
+            # else:
+            #     ax.spines['right'].set_visible(False)                                
+            if i != 3:
                 ax.xaxis.set_visible(False)
-                ax.spines['bottom'].set_visible(False)
             else:
                 ax.set_xlabel(anotx)
-                ax.set_xticks([1, len(df)])
-                ax.set_xlim(0, len(df)+1)
+                ax.set_xticks([1, len(df_right)])
+                ax.set_xlim(0, len(df_right)+1)
+
     # for ax in left_axes:
     #     custom_ticks = np.linspace(-10, 10, 3, dtype=int)
     #     ax.set_yticks(custom_ticks)
@@ -2985,7 +2986,7 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, overlap=False)
+    fig = plot_sorted_peak_responses(left, right, overlap=True)
 
 #%% spk
 for spread in ['sect', 'full']:
@@ -2996,4 +2997,4 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, overlap=False)
+    fig = plot_sorted_peak_responses(left, right, overlap=True)
