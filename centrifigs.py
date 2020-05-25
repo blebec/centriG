@@ -11,9 +11,9 @@ import inspect
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
+# import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
-from matplotlib.ticker import MaxNLocator
+# from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as patches
 from matplotlib import markers
 from matplotlib.ticker import StrMethodFormatter
@@ -2938,3 +2938,51 @@ data = load_peakdata(filename)
 left = normalize_peakdata_and_select(data.copy(), spread='full', param='gain')
 right = normalize_peakdata_and_select(data.copy(), spread='sec', param='gain')
 fig = plot_sorted_peak_responses(left, right, overlap=False)
+
+#%% load the usual 
+
+def load_50vals():
+    df = load_cell_contributions('vm')
+    trans = {'s': 'sect', 'f': 'full', 
+             'dlat50' : 'time50', 'dgain50' : 'gain50' }
+    cols = []
+    for item in df.columns:
+        sp = item.split('_')
+        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
+        if len(sp) > 6:
+            new_name += ('_sig')
+        cols.append(new_name)
+    df.columns = cols
+    return df
+
+
+def select_50(df, spread='sec', param='gain'):
+    """
+    return the selected df parts for plotting
+    spread in ['sec', 'full'], 
+    param in ['time', 'gain']
+    """
+    if spread not in ['sec', 'full']:
+        print("'spread' should be in ['sec', 'full']")
+        return
+    elif param not in ['time', 'gain']:
+        print("'param' should be in ['time', 'gain']")
+        return
+    #select by param (first value = control)
+    col_list = [item for item in df.columns if param in item]
+    #select by spread
+    col_list = [item for item in col_list if spread in item]
+    #remove sig
+    col_list = [item for item in col_list if 'sig' not in item]
+    return df[col_list]
+    
+    
+    
+    
+    
+    
+    
+data50 = load_50vals()
+advance_df = select_50(data50, spread='sec', param='time')
+left = advance_df
+
