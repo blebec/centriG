@@ -2728,6 +2728,11 @@ plt.close('all')
 def load_peakdata(name):
     'load the excel file'
     df = pd.read_excel(name)
+    # replace 'sec' by 'sect' for homogeneity
+    new_list = []
+    for item in df.columns:
+        new_list.append(item.replace('sec', 'sect'))
+    df.columns = new_list
     # adapt column names
     new_list = []
     for item in df.iloc[0].tolist():
@@ -2748,14 +2753,14 @@ def load_peakdata(name):
     df = df.astype('float')
     return df
 
-def normalize_peakdata_and_select(df, spread='sec', param='gain'):
+def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     """
     return the normalized and selected df parts for plotting
-    spread in ['sec', 'full'], 
+    spread in ['sect', 'full'], 
     param in ['time', 'gain']
     """
-    if spread not in ['sec', 'full']:
-        print("'spread' should be in ['sec', 'full']")
+    if spread not in ['sect', 'full']:
+        print("'spread' should be in ['sect', 'full']")
         return
     elif param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
@@ -2795,8 +2800,8 @@ def plot_sorted_peak_responses(df_left, df_right, overlap=True):
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
 
     # text labels
-    if 'sec' in right.columns[0].split('_')[0]:
-        spread = 'sec'
+    if 'sect' in right.columns[0].split('_')[0]:
+        spread = 'sect'
     else:
         spread = 'full'
     title = 'sorted_peak_responses' + ' (' + spread + ')'
@@ -2931,18 +2936,13 @@ def plot_sorted_peak_responses(df_left, df_right, overlap=True):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
-#%%
-#filename = 'data/cg_peakValueTime_spk.xlsx'
-filename = 'data/cg_peakValueTime_vm.xlsx'
-data = load_peakdata(filename)
-left = normalize_peakdata_and_select(data.copy(), spread='full', param='gain')
-right = normalize_peakdata_and_select(data.copy(), spread='sec', param='gain')
-fig = plot_sorted_peak_responses(left, right, overlap=False)
 
-#%% load the usual 
-
-def load_50vals():
-    df = load_cell_contributions('vm')
+# load the values50
+def load_50vals(kind='vm'):
+    if kind not in ['vm', 'spk']:
+        print('kind should be in [vm, spk]')
+        return
+    df = load_cell_contributions(kind)
     trans = {'s': 'sect', 'f': 'full', 
              'dlat50' : 'time50', 'dgain50' : 'gain50' }
     cols = []
@@ -2956,14 +2956,14 @@ def load_50vals():
     return df
 
 
-def select_50(df, spread='sec', param='gain'):
+def select_50(df, spread='sect', param='gain'):
     """
     return the selected df parts for plotting
-    spread in ['sec', 'full'], 
+    spread in ['sect', 'full'], 
     param in ['time', 'gain']
     """
-    if spread not in ['sec', 'full']:
-        print("'spread' should be in ['sec', 'full']")
+    if spread not in ['sect', 'full']:
+        print("'spread' should be in ['sect', 'full']")
         return
     elif param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
@@ -2976,13 +2976,24 @@ def select_50(df, spread='sec', param='gain'):
     col_list = [item for item in col_list if 'sig' not in item]
     return df[col_list]
     
-    
-    
-    
-    
-    
-    
-data50 = load_50vals()
-advance_df = select_50(data50, spread='sec', param='time')
-left = advance_df
+#%% vm
+for spread in ['sect', 'full']:
+    data50 = load_50vals('vm')
+    advance_df = select_50(data50, spread=spread, param='time')
+    left = advance_df
 
+    filename = 'data/cg_peakValueTime_vm.xlsx'
+    data = load_peakdata(filename)
+    right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+    fig = plot_sorted_peak_responses(left, right, overlap=False)
+
+#%% spk
+for spread in ['sect', 'full']:
+    data50 = load_50vals('spk')
+    advance_df = select_50(data50, spread=spread, param='time')
+    left = advance_df
+
+    filename = 'data/cg_peakValueTime_spk.xlsx'
+    data = load_peakdata(filename)
+    right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+    fig = plot_sorted_peak_responses(left, right, overlap=False)
