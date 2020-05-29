@@ -127,9 +127,11 @@ def fig_properties(afig):
     exoplore figure properties
     """
     for ax in afig.get_axes():
-        properties(ax)#%%
-def inchtocm(value):
+        properties(ax)
+        
+def inch_to_cm(value):
     return value/2.54
+
 #%%
 plt.close('all')
 
@@ -2594,6 +2596,7 @@ fig = plot_sorted_responses(parameter_dico)
 #     for spread in ['s', 'f']:
 #         parameter_dico['spread'] = spread
 #         fig = plot_sorted_responses(parameter_dico)
+
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
           speedColors['orange'], speedColors['jaune']]
@@ -2778,7 +2781,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     return df[col_list]
     
 
-def plot_sorted_peak_responses(df_left, df_right, overlap=True):
+def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     """
     plot the sorted cell responses
     input = dataframes, overlap=boolean
@@ -2804,7 +2807,7 @@ def plot_sorted_peak_responses(df_left, df_right, overlap=True):
         spread = 'sect'
     else:
         spread = 'full'
-    title = 'sorted_peak_responses' + ' (' + spread + ')'
+    title = 'sorted_peak_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
     anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
    # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
@@ -2976,25 +2979,312 @@ def select_50(df, spread='sect', param='gain'):
     #remove sig
     col_list = [item for item in col_list if 'sig' not in item]
     return df[col_list]
+
+def horizontal_dot_plot(df_left, df_right, mes=''):
+
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+     # text labels
+    if 'sect' in df_right.columns[0].split('_')[0]:
+        spread = 'sect'
+    else:
+        spread = 'full'
+    title = 'sorted_peak_responses' + ' (' + mes + ' ' + spread + ')'
+    anoty = 'Cell rank'
+    anotx = [df_left.columns[0][5:], df_right.columns[0][5:]]
+
+    fig = plt.figure()
+    fig.suptitle(title)
+    #left 
+    ax = fig.add_subplot(121)
+    df = df_left.sort_values(by=df_left.columns[0], ascending=True)
+    sorted_cells = df.index.copy()
+    df = df.reset_index(drop=True)
+    df.index += 1 #'cell name from 0'
+    df *= -1 # time 
+    for i, col in enumerate(df.columns):
+        ax.plot(df[col], df.index, 'o', color=colors[i], alpha = 0.6)
+    ax.set_yticks([1, len(df)])
+    ax.set_ylim(-1, len(df)+1)
+    ax.set_xlabel('time')
+    #right
+    ax = fig.add_subplot(122)
+#    df = df_right.sort_values(by=df_right.columns[0], ascending=True)
+    df = df_right.reindex(sorted_cells)
+    df = df.reset_index(drop=True)
+    df.index +=1
+    for i, col in enumerate(df.columns):
+        ax.plot(df[col], df.index, 'o', color=colors[i], alpha = 0.6)
+    ax.set_yticks([1, len(df)])
+    ax.set_ylim(-1, len(df)+1)
+    ax.set_xlabel('gain')    
+    for ax in fig.get_axes():
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], 'k', alpha=0.3)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:horizontal_dot_plot',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+def scatter_lat_gain(df_left, df_right, mes=''):
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+     # text labels
+    if 'sect' in df_right.columns[0].split('_')[0]:
+        spread = 'sect'
+    else:
+        spread = 'full'
+    title = 'responses' + ' (' + mes + ' ' + spread + ')'
+    fig = plt.figure(figsize=(8,8))
+    fig.suptitle(title)
+    ax = fig.add_subplot(111)
+    for i in range(len(df_left.columns)):
+        color_list = []
+        for j in range(len(df_left)):
+            color_list.append(colors[i])
+        ax.scatter(left[df_left.columns[i]], df_right[right.columns[i]], 
+               c = color_list, 
+               edgecolors=dark_colors[i], alpha=0.6)
+    ax.set_xlabel('time')
+    ax.set_ylabel('gain')    
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], 'k', alpha=0.3)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], 'k', alpha=0.3)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:horizontal_dot_plot',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+def histo_lat_gain(df_left, df_right, mes=''):
+    """
+    histogramme des données
+    """
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+
+    # text labels
+    if 'sect' in right.columns[0].split('_')[0]:
+        spread = 'sect'
+    else:
+        spread = 'full'
+    title = 'peak_responses' + ' (' + mes + ' ' + spread + ')'
+    anotx = 'Cell rank'
+    anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
+   # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
+    #          #(fraction of Center-only response)']
+    #plot
+    fig = plt.figure(figsize=(8,8))
+    gs = fig.add_gridspec(4, 2)
+    #left
+    left_axes = []
+    ax = fig.add_subplot(gs[0, 0])
+    left_axes.append(ax)
+    for i in range(1,4):
+        left_axes.append(fig.add_subplot(gs[i, 0], sharex=ax))
+    #right
+    right_axes = []
+    ax = fig.add_subplot(gs[0, 1])
+    right_axes.append(ax)
+    for i in range(1,4):
+        right_axes.append(fig.add_subplot(gs[i, 1], sharex=ax))
+    # to identify the plots (uncomment to use)
+    if anot:
+        fig.suptitle(title)
+    #plot the traces
+    #left
+    for i, name in enumerate(df_left.columns):
+        ax = left_axes[i]
+        #ax.set_title(str(i))
+        # ax.set_title(name)
+        ax.hist(df_left[name], bins=15, color=colors[i], 
+                edgecolor=dark_colors[i], alpha=0.8)
+        # ax.hist(df_left[name], width=2, color=colors[i], 
+        #         edgecolor=dark_colors[i], alpha=0.8)
+        if i == 0:
+            ax.set_title(anoty[i])
+    for i, name in enumerate(df_left.columns):
+        ax = left_axes[i]
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=1)
+        med = df_left[name].median()
+        ax.vlines(med, lims[0], lims[1], color= dark_colors[i],
+                  linewidth=2, linestyle=':')
+        tx = 'med=' + str(round(med, 2))
+        ax.text(0.65, 0.8, tx, horizontalalignment='left', 
+                transform=ax.transAxes, alpha = 0.5)    
+        #right
+    for i, name in enumerate(df_right.columns):
+        ax = right_axes[i]
+        #ax.set_title(str(i))
+        # ax.set_title(name)
+        ax.hist(df_right[name], bins=15, color=colors[i], 
+                edgecolor=dark_colors[i], alpha=0.8)
+        # ax.hist(df_right[name], width = 0.05, color=colors[i], 
+        #         edgecolor=dark_colors[i], alpha=0.8)
+        if i == 0:
+            ax.set_title(anoty[1])
+    for i, name in enumerate(df_right.columns):
+        ax = right_axes[i]
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=1)
+        med = df_right[name].median()
+        ax.vlines(med, lims[0], lims[1], color=dark_colors[i],
+                  linewidth=2, linestyle=':')
+        tx = 'med=' + str(round(med, 2))
+        ax.text(0.65, 0.8, tx, horizontalalignment='left', 
+                transform=ax.transAxes, alpha = 0.5)
+    
+    for ax in fig.get_axes():
+        ax.set_facecolor('None')
+        ax.yaxis.set_visible(False)
+        for loca in ['left', 'top', 'right']:
+            ax.spines[loca].set_visible(False)
+    fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:histo_lat_gain',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+def plot_glob_varia(left, right, mes=''):
+    pass
+
+
+def extract_stat():
+    #output
+    desc_df = pd.DataFrame()
+    #vm
+    mes = 'vm'
+    filename = 'data/cg_peakValueTime_vm.xlsx'
+    data50 = load_50vals(mes)
+    # remove the significance
+    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    #vm_time50
+    times = [item for item in data50.columns if 'time' in item]
+    times = [item for item in times if 'sect_' in item] \
+            + [item for item in times if 'full_' in item]
+    advance_df = data50[times]
+    advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
+    desc_df['time50_vm_med'] = advance_df.median()
+    desc_df['time50_vm_mad'] = advance_df.mad()
+    #vm_gain50
+    gains = [item for item in data50.columns if 'gain' in item]
+    gains = [item for item in times if 'sect_' in item] \
+            + [item for item in times if 'full_' in item]
+    gain_df = data50[gains]
+    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
+    desc_df['gain50_vm_med'] = advance_df.median()
+    desc_df['gain50_vm_mad'] = advance_df.mad()
+
+    #spike
+    mes = 'spk'
+    filename = 'data/cg_peakValueTime_spk.xlsx'
+    data50 = load_50vals(mes)
+    # remove the significance
+    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    #spk_time50
+    times = [item for item in data50.columns if 'time' in item]
+    times = [item for item in times if 'sect_' in item] \
+            + [item for item in times if 'full_' in item]
+    advance_df = data50[times]
+    advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
+    desc_df['time50_spk_med'] = advance_df.median()
+    desc_df['time50_spk_mad'] = advance_df.mad()
+    #spk_gain50
+    gains = [item for item in data50.columns if 'gain' in item]
+    gains = [item for item in times if 'sect_' in item] \
+            + [item for item in times if 'full_' in item]
+    gain_df = data50[gains]
+    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
+    desc_df['gain50_spk_med'] = advance_df.median()
+    desc_df['gain50_spk_mad'] = advance_df.mad()
+
+
+#to be continued    
+    #peak
+    #vm_gain
+    filename = 'data/cg_peakValueTime_vm.xlsx'
+    data = load_peakdata(filename)
+    gain_df  = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
+    gain_df.rename(columns={'cpisosfull':'cpisofull', 'rndfull':'rndisofull'}, inplace=True)
+    desc_df['gain_vm_med'] = gain_df.median()
+    desc_df['gain_vm_mad'] = gain_df.mad()
+    
+    #spk_time
+    mes = 'spk'
+    filename = 'data/cg_peakValueTime_spk.xlsx'
+    data50 = load_50vals(mes)
+    # remove the significance
+    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    #advance
+    times = [item for item in data50.columns if 'time' in item]
+    times = [item for item in times if 'sect_' in item] + [item for item in times if 'full_' in item]
+    advance_df = data50[times]
+    advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
+    desc_df['time_vm_med'] = advance_df.median()
+    desc_df['time_vm_mad'] = advance_df.mad()
+    
+    
+    
+    
+    
+    
+    
+    
+
     
 #%% vm
+plt.close('all')
 for spread in ['sect', 'full']:
-    data50 = load_50vals('vm')
+    mes='vm'
+    data50 = load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, overlap=True)
+    fig = plot_sorted_peak_responses(left, right, mes=mes, overlap=True)
+    fig2 = horizontal_dot_plot(left, right, mes=mes)
+    fig3 = scatter_lat_gain(left, right, mes=mes)
+    fig4 = histo_lat_gain(left, right, mes=mes)
 
 #%% spk
 for spread in ['sect', 'full']:
-    data50 = load_50vals('spk')
+    mes='spk'
+    data50 = load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, overlap=True)
+    fig = plot_sorted_peak_responses(left, right, mes=mes, overlap=True)
+    fig2 = horizontal_dot_plot(left, right, mes=mes)
+    fig3 = scatter_lat_gain(left, right, mes=mes)
+    fig4 = histo_lat_gain(left, right, mes=mes)
+
+#%% test
+plt.close('all')
+
+    
+
+#%% nb description with pandas:  
+pd.options.display.max_columns = 30
+
