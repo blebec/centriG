@@ -3178,22 +3178,25 @@ def extract_stat():
     times = [item for item in data50.columns if 'time' in item]
     times = [item for item in times if 'sect_' in item] \
             + [item for item in times if 'full_' in item]
-    advance_df = data50[times]
+    advance_df = data50[times].copy()
     advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
+    advance_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'}, inplace=True)
     desc_df['time50_vm_mean'] = advance_df.mean()
     desc_df['time50_vm_std'] = advance_df.std()
     desc_df['time50_vm_med'] = advance_df.median()
     desc_df['time50_vm_mad'] = advance_df.mad()
     #vm_gain50
     gains = [item for item in data50.columns if 'gain' in item]
-    gains = [item for item in times if 'sect_' in item] \
-            + [item for item in times if 'full_' in item]
-    gain_df = data50[gains]
+    gains = [item for item in gains if 'sect_' in item] \
+            + [item for item in gains if 'full_' in item]
+    gain_df = data50[gains].copy()
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gain50_vm_mean'] = advance_df.mean()
-    desc_df['gain50_vm_std'] = advance_df.std()
-    desc_df['gain50_vm_med'] = advance_df.median()
-    desc_df['gain50_vm_mad'] = advance_df.mad()
+    gain_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'}, 
+                   inplace=True)
+    desc_df['gain50_vm_mean'] = gain_df.mean()
+    desc_df['gain50_vm_std'] = gain_df.std()
+    desc_df['gain50_vm_med'] = gain_df.median()
+    desc_df['gain50_vm_mad'] = gain_df.mad()
 
     #spike
     mes = 'spk'
@@ -3205,22 +3208,22 @@ def extract_stat():
     times = [item for item in data50.columns if 'time' in item]
     times = [item for item in times if 'sect_' in item] \
             + [item for item in times if 'full_' in item]
-    advance_df = data50[times]
-    advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
-    desc_df['time50_spk_mean'] = advance_df.mean()
-    desc_df['time50_spk_std'] = advance_df.std()
-    desc_df['time50_spk_med'] = advance_df.median()
-    desc_df['time50_spk_mad'] = advance_df.mad()
+    time_df = data50[times].copy()
+    time_df.columns = [item.split('_')[0] for item in time_df.columns]
+    desc_df['time50_spk_mean'] = time_df.mean()
+    desc_df['time50_spk_std'] = time_df.std()
+    desc_df['time50_spk_med'] = time_df.median()
+    desc_df['time50_spk_mad'] = time_df.mad()
     #spk_gain50
     gains = [item for item in data50.columns if 'gain' in item]
-    gains = [item for item in times if 'sect_' in item] \
-            + [item for item in times if 'full_' in item]
-    gain_df = data50[gains]
+    gains = [item for item in gains if 'sect_' in item] \
+            + [item for item in gains if 'full_' in item]
+    gain_df = data50[gains].copy()
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gain50_spk_mean'] = advance_df.mean()
-    desc_df['gain50_spk_std'] = advance_df.std()
-    desc_df['gain50_spk_med'] = advance_df.median()
-    desc_df['gain50_spk_mad'] = advance_df.mad()
+    desc_df['gain50_spk_mean'] = gain_df.mean()
+    desc_df['gain50_spk_std'] = gain_df.std()
+    desc_df['gain50_spk_med'] = gain_df.median()
+    desc_df['gain50_spk_mad'] = gain_df.mad()
 
 
 #to be continued    
@@ -3240,14 +3243,16 @@ def extract_stat():
     time_df = data[times[1:]].copy()
     #stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'cpisosfull':'cpisofull', 'rndfull':'rndisofull'}, inplace=True)
+    gain_df.rename(columns={'rndsect':'rndisosect','cpisosfull':'cpisofull', 
+                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_vm_mean'] = gain_df.mean()
     desc_df['gainP_vm_std'] = gain_df.std()
     desc_df['gainP_vm_med'] = gain_df.median()
     desc_df['gainP_vm_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'cpisosfull':'cpisofull', 'rndfull':'rndisofull'}, inplace=True)
+    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_vm_mean'] = time_df.mean()
     desc_df['timeP_vm_std'] = time_df.std()
     desc_df['timeP_vm_med'] = time_df.median()
@@ -3268,29 +3273,172 @@ def extract_stat():
     time_df = data[times[1:]].copy()
     #stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'cpisosfull':'cpisofull', 'rndfull':'rndisofull'}, inplace=True)
+    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_spk_mean'] = gain_df.mean()
     desc_df['gainP_spk_std'] = gain_df.std()
     desc_df['gainP_spk_med'] = gain_df.median()
     desc_df['gainP_spk_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'cpisosfull':'cpisofull', 'rndfull':'rndisofull'}, inplace=True)
+    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_spk_mean'] = time_df.mean()
     desc_df['timeP_spk_std'] = time_df.std()
     desc_df['timeP_spk_med'] = time_df.median()
     desc_df['timeP_spk_mad'] = time_df.mad()
     
     return desc_df
-    
-    
-stat_df = extract_stat()
- 
-    
-    
-    
 
+
+stat_df = extract_stat()
+   
+#%% plot stat
+
+plt.close('all')
+
+def plot_stat(stat_df, kind='mean', loc='50'):
     
+    if kind == 'mean':
+        stat = ['_mean', '_std']
+    elif kind == 'med':
+        stat = ['_med', '_mad']
+    else:
+        print('non valid kind argument')
+        return
+    if loc == '50':
+        mes = ['time50', 'gain50']
+    elif loc == 'peak':
+        mes = ['timeP', 'gainP']
+    else:
+        print('non valid loc argument')
+        return
+
+    colors = [stdColors['rouge'], stdColors['vert'], 
+              stdColors['jaune'], stdColors['bleu']]
+    fig = plt.figure(figsize=(8,8))
+    title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
+    fig.suptitle(title)
+    #sect vm
+    axes = []
+    ax = fig.add_subplot(221)
+    axes.append(ax)
+    ax1 = fig.add_subplot(2,2,2, sharex=ax, sharey=ax)
+    axes.append(ax1)
+    ax2 = fig.add_subplot(2,2,3, sharex=ax)
+    axes.append(ax2)
+    ax3 = fig.add_subplot(2,2,4, sharex=ax, sharey=ax2)
+    axes.append(ax3)
+
+    #vm
+    ax.set_title('vm, sector')
+    vals = [item for item in stat_df.columns if '_vm' in item]
+    # sector
+    spread = [item for item in stat_df.index if 'sect' in item]
+    df = stat_df.loc[spread].copy()
+    xvals = [item for item in vals if mes[0] in item \
+         and (stat[0] in item or stat[1] in item)]
+    yvals = [item for item in vals if mes[1] in item \
+         and (stat[0] in item or stat[1] in item)]  
+
+    x = df[xvals[0]]
+    y = df[yvals[0]]
+    xerr = df[xvals[1]]
+    yerr =df[yvals[1]]
+    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+                    fmt='s', color=ci)
+
+    # full
+    ax = axes[1]
+    ax.set_title('vm, full')
+    spread = [item for item in stat_df.index if 'full' in item]
+    df = stat_df.loc[spread].copy()
+    xvals = [item for item in vals if mes[0] in item \
+             and (stat[0] in item or stat[1] in item)]
+    yvals = [item for item in vals if mes[1] in item \
+             and (stat[0] in item or stat[1] in item)]  
+
+    x = df[xvals[0]]
+    y = df[yvals[0]]
+    xerr = df[xvals[1]]
+    yerr =df[yvals[1]]
+    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+                    fmt='s', color=ci)
+
+    #spikes
+    ax = axes[2]
+    ax.set_title('spk, sector')
+    vals = [item for item in stat_df.columns if '_spk' in item]
+    # sector
+    spread = [item for item in stat_df.index if 'sect' in item]
+    df = stat_df.loc[spread].copy()
+    xvals = [item for item in vals if mes[0] in item \
+             and (stat[0] in item or stat[1] in item)]
+    yvals = [item for item in vals if mes[1] in item \
+             and (stat[0] in item or stat[1] in item)]  
+
+    x = df[xvals[0]]
+    y = df[yvals[0]]
+    xerr = df[xvals[1]]
+    yerr =df[yvals[1]]
+    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+                    fmt='s', color=ci)
+
+    #full
+    ax = axes[3]
+    ax.set_title('spk, full')
+    spread = [item for item in stat_df.index if 'full' in item]
+    df = stat_df.loc[spread].copy()
+    xvals = [item for item in vals if mes[0] in item \
+             and (stat[0] in item or stat[1] in item)]
+    yvals = [item for item in vals if mes[1] in item \
+             and (stat[0] in item or stat[1] in item)]  
+    x = df[xvals[0]]
+    y = df[yvals[0]]
+    xerr = df[xvals[1]]
+    yerr =df[yvals[1]]
+    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+                    fmt='s', color=ci) 
+
+    for i, ax in enumerate(axes):
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+            if i % 2 == 0:
+                ax.set_ylabel('gain')
+            else:
+                ax.spines['left'].set_visible(False)
+                ax.yaxis.set_visible(False)
+            if i > 1:
+                ax.set_xlabel('time advance (ms)')
+            else: 
+                ax.spines['bottom'].set_visible(False)
+                ax.xaxis.set_visible(False)
+    # ax = axes[2]
+    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
+    # ax.set_yticks(custom_ticks)
+    # ax.set_yticklabels(custom_ticks)
+
+    fig.tight_layout() 
+    fig.subplots_adjust(hspace=0.02) 
+    fig.subplots_adjust(wspace=0.02)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_stat',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+
+plot_stat(stat_df, 'med', 'peak')
+
 #%% vm
 plt.close('all')
 for spread in ['sect', 'full']:
