@@ -19,6 +19,9 @@ from matplotlib import markers
 from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
+# nb description with pandas:  
+pd.options.display.max_columns = 30
+
 #import math
 
 #===========================
@@ -26,6 +29,7 @@ from datetime import datetime
 font_size = 'medium' # large, medium
 anot = True         # to draw the date and name on the bottom of the plot
 #============================
+paths = {}
 
 def go_to_dir():
     """
@@ -41,6 +45,7 @@ def go_to_dir():
         os.chdir(r'H:/pg/centriG')
     elif osname == 'Darwin' and username == 'cdesbois':
         os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
+        paths['cgFig'] = os.path.expanduser('~/ownCloud/cgFigures')
     return True
 go_to_dir()
 savePath = '/Users/cdesbois/ownCloud/cgFigures'
@@ -3478,3 +3483,48 @@ plt.close('all')
 #%% nb description with pandas:  
 pd.options.display.max_columns = 30
 
+#%%cellsDepth / advance
+plt.close('all')
+
+
+def plot_cellDeph():
+    #cells
+    data50 = load_50vals('vm')
+    # retain only the neuron names
+    data50.reset_index(inplace=True)
+    data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
+    data50.set_index('Neuron', inplace=True)
+
+    # layers (.csv file include decimals in dephts -> bugs)
+    filename = os.path.join(paths['cgFig'], 'cells/centri_neurons_histolog_170105.xlsx')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+
+    # lay_df = pd.concat([data50, df])
+    lay_df = pd.concat([data50, df], axis=1, join='inner')
+    labelled = lay_df.dropna(subset=['CDLayer']).copy()
+    labelled.CDLayer = labelled.CDLayer.astype('int')
+
+    colors = {6:'k', 5:'b', 4:'g', 3:'r'}
+    fig = plt.figure()
+    fig.suptitle('cp iso  : layers effect')
+    ax = fig.add_subplot(111)
+    labelled.sort_values(by='cpisosect_time50', ascending=False)
+    labelled = labelled.sort_values(by='cpisosect_time50', ascending=False)
+    y = labelled.cpisosect_time50.to_list()
+    x = labelled.index.to_list()
+    z = [colors[item] for item in labelled.CDLayer.to_list()]
+    ax.bar(x, y, color = z, alpha=0.6)
+    ax.set_ylabel('latency advance (ms)')
+    ax.set_xlabel('cell')
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.3)
+    for loca in ['top', 'right']:
+        ax.spines[loca].set_visible(False)
+    leg = 'black= layer 6, \n blue= layer 5, \n red=layer 3'
+    ax.text(0.8, 0.7, leg, transform=ax.transAxes)
+    ax.tick_params(axis='x', labelrotation=45)
+    fig.tight_layout()
+    return fig
+
+plot_cellDeph()
