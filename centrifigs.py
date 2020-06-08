@@ -3303,7 +3303,9 @@ stat_df = extract_stat()
 plt.close('all')
 
 def plot_stat(stat_df, kind='mean', loc='50'):
-    
+    """
+    plot the stats    
+    """
     if kind == 'mean':
         stat = ['_mean', '_std']
     elif kind == 'med':
@@ -3334,7 +3336,6 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     axes.append(ax2)
     ax3 = fig.add_subplot(2,2,4, sharex=ax, sharey=ax2)
     axes.append(ax3)
-
     #vm
     ax.set_title('vm, sector')
     vals = [item for item in stat_df.columns if '_vm' in item]
@@ -3353,7 +3354,6 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
         ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
                     fmt='s', color=ci)
-
     # full
     ax = axes[1]
     ax.set_title('vm, full')
@@ -3371,7 +3371,6 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
         ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
                     fmt='s', color=ci)
-
     #spikes
     ax = axes[2]
     ax.set_title('spk, sector')
@@ -3391,7 +3390,6 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
         ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
                     fmt='s', color=ci)
-
     #full
     ax = axes[3]
     ax.set_title('spk, full')
@@ -3486,20 +3484,20 @@ pd.options.display.max_columns = 30
 #%%cellsDepth / advance
 plt.close('all')
 
-
 def plot_cellDeph():
+    """
+    relation profondeur / latence
+    """
     #cells
     data50 = load_50vals('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
     data50.set_index('Neuron', inplace=True)
-
     # layers (.csv file include decimals in dephts -> bugs)
     filename = os.path.join(paths['cgFig'], 'cells/centri_neurons_histolog_170105.xlsx')
     df = pd.read_excel(filename)
     df.set_index('Neuron', inplace=True)
-
     # lay_df = pd.concat([data50, df])
     lay_df = pd.concat([data50, df], axis=1, join='inner')
     labelled = lay_df.dropna(subset=['CDLayer']).copy()
@@ -3508,7 +3506,7 @@ def plot_cellDeph():
     colors = {6:'k', 5:'b', 4:'g', 3:'r'}
     fig = plt.figure()
     fig.suptitle('cp iso  : layers effect')
-    ax = fig.add_subplot(111)
+    ax = fig.add_subplot(211)
     labelled.sort_values(by='cpisosect_time50', ascending=False)
     labelled = labelled.sort_values(by='cpisosect_time50', ascending=False)
     y = labelled.cpisosect_time50.to_list()
@@ -3519,12 +3517,111 @@ def plot_cellDeph():
     ax.set_xlabel('cell')
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    for loca in ['top', 'right']:
-        ax.spines[loca].set_visible(False)
+
+    ax = fig.add_subplot(212)
+    y = labelled.cpisosect_gain50.to_list()
+    ax.bar(x, y, color = z, alpha=0.6)
+    ax.set_ylabel('gain')
+    ax.set_xlabel('cell')
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.3)
+
     leg = 'black= layer 6, \n blue= layer 5, \n red=layer 3'
-    ax.text(0.8, 0.7, leg, transform=ax.transAxes)
-    ax.tick_params(axis='x', labelrotation=45)
+    for i, ax in enumerate(fig.get_axes()):
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        if i == 0:
+            ax.text(0.8, 0.7, leg, transform=ax.transAxes)
+            ax.xaxis.set_visible(False)            
+            ax.spines['bottom'].set_visible(False)
+        else:
+            ax.tick_params(axis='x', labelrotation=45)
     fig.tight_layout()
     return fig
 
 plot_cellDeph()
+
+
+
+
+#%% 
+def plot_cellDeph_all(spread='sect'):
+    """
+    relation profondeur / latence
+    """
+    #cells
+    data50 = load_50vals('vm')
+    # retain only the neuron names
+    data50.reset_index(inplace=True)
+    data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
+    data50.set_index('Neuron', inplace=True)
+    # layers (.csv file include decimals in dephts -> bugs)
+    filename = os.path.join(paths['cgFig'], 'cells/centri_neurons_histolog_170105.xlsx')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+    # lay_df = pd.concat([data50, df])
+    lay_df = pd.concat([data50, df], axis=1, join='inner')
+    labelled = lay_df.dropna(subset=['CDLayer']).copy()
+    labelled.CDLayer = labelled.CDLayer.astype('int')
+    labelled = labelled.sort_values(by='cpisosect_time50', ascending=False)
+    colors = {6:'k', 5:'b', 4:'g', 3:'r'}
+    x = labelled.index.to_list()
+    y = labelled.cpisosect_time50.to_list()
+    z = [colors[item] for item in labelled.CDLayer.to_list()]
+
+    plt.close('all')
+    fig = plt.figure()
+    leg = 'black= layer 6,  blue= layer 5, green=layer 4, red=layer 3'
+    fig.suptitle(leg)
+#    fig.suptitle('layers effect')
+
+    axes = []
+    ax = fig.add_subplot(421)
+    axes.append(ax)
+    for i in range(3,8,2):
+        axes.append(fig.add_subplot(4, 2, i))
+    for i in range(2,9,2):
+        axes.append(fig.add_subplot(4, 2, i))
+        
+    alist = [item for item in labelled.columns if '_sig' not in item]
+#    spread = 'sect'
+    alist = [item for item in alist if spread in item]    
+    cols = [item for item in alist if 'time50' in item]
+    for ax, col in zip(axes[0::2], cols):
+        ax.set_title(col.split('_')[0])
+        ax.set_ylabel('advance')
+        y = labelled[col].to_list()
+        ax.bar(x, y, color = z, alpha=0.6)
+        ax.set_xlabel('cell')
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+    cols = [item for item in alist if 'gain50' in item]
+    for ax, col in zip(axes[1::2], cols):
+        ax.set_ylabel('gain')
+        y = labelled[col].to_list()
+        ax.bar(x, y, color = z, alpha=0.6)
+        ax.set_xlabel('cell')
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+
+    for i, ax in enumerate(fig.get_axes()):
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        if i in [0, 4]:
+            pass
+            # ax.text(0.7, 0.7, leg, transform=ax.transAxes)
+        if i not in [3, 7]:
+            ax.xaxis.set_visible(False)            
+            ax.spines['bottom'].set_visible(False)
+        else:
+            ax.tick_params(axis='x', labelrotation=45)
+
+    fig.subplots_adjust(hspace=0.02) 
+    fig.subplots_adjust(wspace=0.2)
+    fig.tight_layout()
+    return fig
+
+#fig = plot_cellDeph()
+fig1 = plot_cellDeph_all(spread='sect')
+fig2 = plot_cellDeph_all(spread='full')
+
