@@ -2673,15 +2673,13 @@ def plot_speed_multigraph():
     #                      handlelength=0, framealpha=1)
     #for line, text in zip(leg.get_lines(), leg.get_texts()):
     #    text.set_color(line.get_color())
-
     fig.tight_layout()
-    return fig
-
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_speed_multigraph',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
 
 fig = plot_speed_multigraph()
 
@@ -3408,10 +3406,10 @@ def plot_stat(stat_df, kind='mean', loc='50'):
                     fmt='s', color=ci) 
 
     for i, ax in enumerate(axes):
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+        # lims = ax.get_ylim()
+        # ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+        # lims = ax.get_xlim()
+        # ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
             if i % 2 == 0:
@@ -3537,6 +3535,11 @@ def plot_cellDeph():
         else:
             ax.tick_params(axis='x', labelrotation=45)
     fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDepth',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 plot_cellDeph()
@@ -3545,6 +3548,11 @@ plot_cellDeph()
 
 
 #%% 
+plt.close('all')
+
+#TODO add the significativity for each condition
+#? grou by depth
+
 def plot_cellDeph_all(spread='sect'):
     """
     relation profondeur / latence
@@ -3569,7 +3577,6 @@ def plot_cellDeph_all(spread='sect'):
     y = labelled.cpisosect_time50.to_list()
     z = [colors[item] for item in labelled.CDLayer.to_list()]
 
-    plt.close('all')
     fig = plt.figure()
     leg = 'black= layer 6,  blue= layer 5, green=layer 4, red=layer 3'
     fig.suptitle(leg)
@@ -3619,6 +3626,11 @@ def plot_cellDeph_all(spread='sect'):
     fig.subplots_adjust(hspace=0.02) 
     fig.subplots_adjust(wspace=0.2)
     fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDeph_all',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 #fig = plot_cellDeph()
