@@ -1909,7 +1909,7 @@ fig = plot_sorted_responses_sup1(overlap=True)
 #%%
 plt.close('all')
 
-def plot_figSup2B(kind):
+def plot_figSup2B(kind='pop'):
     """
     plot supplementary figure 1 : Vm with random Sector control
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -3487,7 +3487,7 @@ pd.options.display.max_columns = 30
 #%%cellsDepth / advance
 plt.close('all')
 
-def plot_cellDeph():
+def plot_cellDepth():
     """
     relation profondeur / latence
     """
@@ -3551,7 +3551,7 @@ def plot_cellDeph():
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
-    leg = 'black= layer 6, \n blue= layer 5, \n red=layer 3'
+    leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
     for i, ax in enumerate(fig.get_axes()):
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
@@ -3569,7 +3569,7 @@ def plot_cellDeph():
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-plot_cellDeph()
+plot_cellDepth()
 
 #%% 
 plt.close('all')
@@ -3577,7 +3577,7 @@ plt.close('all')
 #TODO add the significativity for each condition
 #? grou by depth
 
-def plot_cellDeph_all(spread='sect'):
+def plot_cellDepth_all(spread='sect'):
     """
     relation profondeur / latence
     """
@@ -3613,17 +3613,15 @@ def plot_cellDeph_all(spread='sect'):
         else:
             z2.append('w')
     #figure
-    fig = plt.figure()
-    leg = 'red=layer 3, green=layer 4, blue= layer 5, black= layer 6'
-    # fig.suptitle(leg)
-    # build axes
-    axes = []
-    ax = fig.add_subplot(421)
-    axes.append(ax)
-    for i in range(3,8,2):
-        axes.append(fig.add_subplot(4, 2, i))
-    for i in range(2,9,2):
-        axes.append(fig.add_subplot(4, 2, i))
+    fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(12, 8), sharex=True)
+    axes = axes.T.flatten().tolist()
+    # shareY
+    axr = axes[0]
+    for ax in axes[0::2]:
+        ax.get_shared_y_axes().join(ax, axr)
+    axr = axes[1]
+    for ax in axes[1::2]:
+        ax.get_shared_y_axes().join(ax, axr)    
     # fill axes        
     # 'sect' or 'full'
     alist = [item for item in labelled.columns if spread in item]    
@@ -3673,7 +3671,7 @@ def plot_cellDeph_all(spread='sect'):
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
-    for i, ax in enumerate(fig.get_axes()):
+    for i, ax in enumerate(axes):
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
         if i in [0, 4]:
@@ -3684,23 +3682,46 @@ def plot_cellDeph_all(spread='sect'):
             ax.spines['bottom'].set_visible(False)
         else:
             ax.tick_params(axis='x', labelrotation=45)
-    ax = axes[0]
-    ax.text(0.05, 0.97, 'layer 3', color='r', transform=ax.transAxes)
-    ax.text(0.2, 0.7, 'layer 4', color='g', transform=ax.transAxes)
-    ax.text(0.4, 0.8, 'layer 5', color='b', transform=ax.transAxes)
-    ax.text(0.85, 0.6, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
+    for ax in [axes[0], axes[4]]:
+        ax.text(0.08, 0.85, 'layer 3', color='r', transform=ax.transAxes)
+        ax.text(0.22, 0.85, 'layer 4', color='g', transform=ax.transAxes)
+        ax.text(0.45, 0.85, 'layer 5', color='b', transform=ax.transAxes)
+        ax.text(0.85, 0.85, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
+        ax.margins(0.01)
 
     fig.subplots_adjust(hspace=0.02) 
     fig.subplots_adjust(wspace=0.2)
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDeph_all',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDepth_all',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#fig = plot_cellDeph()
-fig1 = plot_cellDeph_all(spread='sect')
-fig2 = plot_cellDeph_all(spread='full')
+#fig = plot_cellDepth()
+fig1 = plot_cellDepth_all(spread='sect')
+fig2 = plot_cellDepth_all(spread='full')
 
+#%%
+plt.close('all')
+
+fig = plt.figure()
+axes = []
+ax = fig.add_subplot(421)
+axes.append(ax)
+for i in range(3,8,2):
+    print(i)
+    axes.append(fig.add_subplot(4, 2, i))
+for i in range(2,9,2):
+    axes.append(fig.add_subplot(4, 2, i))
+
+fig, axes = plt.subplots(nrows=4, ncols=2)
+axes = axes.T.flatten().tolist()
+axr = axes[0]
+for ax in axes[0::2]:
+    ax.get_shared_y_axes().join(ax, axr)
+axr = axes[1]
+for ax in axes[1::2]:
+    ax.get_shared_y_axes().join(ax, axr)
+    
