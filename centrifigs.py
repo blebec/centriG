@@ -137,6 +137,64 @@ def fig_properties(afig):
 def inch_to_cm(value):
     return value/2.54
 
+
+# load the values50
+def load_50vals(kind='vm'):
+    if kind not in ['vm', 'spk']:
+        print('kind should be in [vm, spk]')
+        return
+    df = load_cell_contributions(kind)
+    trans = {'s': 'sect', 'f': 'full', 
+             'dlat50' : 'time50', 'dgain50' : 'gain50' }
+    cols = []
+    for item in df.columns:
+        sp = item.split('_')
+        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
+        if len(sp) > 6:
+            new_name += ('_sig')
+        cols.append(new_name)
+    df.columns = cols
+    return df
+
+def new_columns_names(cols):
+    def convert_to_snake(camel_str):
+        """ camel case to snake case """
+        temp_list = []
+        for letter in camel_str:
+            if letter.islower():
+                temp_list.append(letter)
+            elif letter.isdigit():
+                temp_list.append(letter)
+            else:
+                temp_list.append('_')
+                temp_list.append(letter)
+        result = "".join(temp_list)
+        return result.lower()
+    newcols = [convert_to_snake(item) for item in cols]
+    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
+    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
+    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
+    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
+    return newcols
+
+def load_cell_contributions(kind='vm'):
+    """
+    load the corresponding xcel file
+    kind = 'vm' or 'spk'
+    """
+    if kind == 'vm':
+        filename = 'data/figSup34Vm.xlsx'
+    elif kind == 'spk':
+        filename = 'data/figSup34Spk.xlsx'
+    else:
+        print('kind should be vm or spk')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+    #rename using snake_case
+    cols = new_columns_names(df.columns)
+    df.columns = cols
+    return df
+
 #%%
 plt.close('all')
 
@@ -1719,44 +1777,7 @@ plot_figure9CD(data_df, cols_dict)
 #%%
 plt.close('all')
 
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
-    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
-    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
-    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
-    return newcols
 
-def load_cell_contributions(kind='vm'):
-    """
-    load the corresponding xcel file
-    kind = 'vm' or 'spk'
-    """
-    if kind == 'vm':
-        filename = 'data/figSup34Vm.xlsx'
-    elif kind == 'spk':
-        filename = 'data/figSup34Spk.xlsx'
-    else:
-        print('kind should be vm or spk')
-    df = pd.read_excel(filename)
-    df.set_index('Neuron', inplace=True)
-    #rename using snake_case
-    cols = new_columns_names(df.columns)
-    df.columns = cols
-    return df
 
 # plot latency (left) and gain (right)
 
@@ -1968,6 +1989,7 @@ def plot_figSup2B(kind):
 fig = plot_figSup2B('pop')
 #fig = plot_figSup2B('sig')
 #fig = plot_figSup2B('nonsig')
+
 
 
 #%%
@@ -2944,23 +2966,6 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-# load the values50
-def load_50vals(kind='vm'):
-    if kind not in ['vm', 'spk']:
-        print('kind should be in [vm, spk]')
-        return
-    df = load_cell_contributions(kind)
-    trans = {'s': 'sect', 'f': 'full', 
-             'dlat50' : 'time50', 'dgain50' : 'gain50' }
-    cols = []
-    for item in df.columns:
-        sp = item.split('_')
-        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
-        if len(sp) > 6:
-            new_name += ('_sig')
-        cols.append(new_name)
-    df.columns = cols
-    return df
 
 
 def select_50(df, spread='sect', param='gain'):
@@ -3230,7 +3235,7 @@ def extract_stat():
 
 
 #to be continued    
-    #peak (non nomalized data)
+    #peak (non normalized data)
     #vm
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
@@ -3505,20 +3510,42 @@ def plot_cellDeph():
     fig = plt.figure()
     fig.suptitle('cp iso  : layers effect')
     ax = fig.add_subplot(211)
-    labelled.sort_values(by='cpisosect_time50', ascending=False)
-    labelled = labelled.sort_values(by='cpisosect_time50', ascending=False)
+    kind = 'cpisosect_time50'
+    labelled = labelled.sort_values(by=kind, ascending=False)
     y = labelled.cpisosect_time50.to_list()
     x = labelled.index.to_list()
     z = [colors[item] for item in labelled.CDLayer.to_list()]
-    ax.bar(x, y, color = z, alpha=0.6)
+    #stat
+    z1 = z.copy()
+    z2 = []
+    for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
+        if b == 1:
+            z2.append(a)
+        else:
+            z2.append('w')
+    ax.bar(x, y, color=z2, edgecolor=z1, linewidth=3,
+               alpha=0.6, width=0.8)
+#    ax.bar(x, y, color = z, alpha=0.6)
     ax.set_ylabel('latency advance (ms)')
     ax.set_xlabel('cell')
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
     ax = fig.add_subplot(212)
-    y = labelled.cpisosect_gain50.to_list()
-    ax.bar(x, y, color = z, alpha=0.6)
+    kind = 'cpisosect_gain50'
+    y = labelled[kind].to_list()
+    #stat
+    z1 = z.copy()
+    z2 = []
+    for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
+        if b == 1:
+            z2.append(a)
+        else:
+            z2.append('w')
+    ax.bar(x, y, color=z2, edgecolor=z1, linewidth=3,
+               alpha=0.6, width=0.8)
+
+#    ax.bar(x, y, color = z, alpha=0.6)
     ax.set_ylabel('gain')
     ax.set_xlabel('cell')
     lims = ax.get_xlim()
@@ -3544,9 +3571,6 @@ def plot_cellDeph():
 
 plot_cellDeph()
 
-
-
-
 #%% 
 plt.close('all')
 
@@ -3570,18 +3594,29 @@ def plot_cellDeph_all(spread='sect'):
     # lay_df = pd.concat([data50, df])
     lay_df = pd.concat([data50, df], axis=1, join='inner')
     labelled = lay_df.dropna(subset=['CDLayer']).copy()
+    kind = 'cpisosect_time50'
     labelled.CDLayer = labelled.CDLayer.astype('int')
-    labelled = labelled.sort_values(by='cpisosect_time50', ascending=False)
+    #sort by response
+    labelled = labelled.sort_values(by=kind, ascending=False)
+    #an the sort by depth
+    labelled = labelled.sort_values(by='CDLayer', ascending=True)
     colors = {6:'k', 5:'b', 4:'g', 3:'r'}
     x = labelled.index.to_list()
-    y = labelled.cpisosect_time50.to_list()
+    y = labelled[kind].to_list()
     z = [colors[item] for item in labelled.CDLayer.to_list()]
-
+    #stat z1 = list(depht_colors), z2 = list(white if non significant)
+    z1 = z.copy()
+    z2 = []
+    for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
+        if b == 1:
+            z2.append(a)
+        else:
+            z2.append('w')
+    #figure
     fig = plt.figure()
-    leg = 'black= layer 6,  blue= layer 5, green=layer 4, red=layer 3'
-    fig.suptitle(leg)
-#    fig.suptitle('layers effect')
-
+    leg = 'red=layer 3, green=layer 4, blue= layer 5, black= layer 6'
+    # fig.suptitle(leg)
+    # build axes
     axes = []
     ax = fig.add_subplot(421)
     axes.append(ax)
@@ -3589,24 +3624,51 @@ def plot_cellDeph_all(spread='sect'):
         axes.append(fig.add_subplot(4, 2, i))
     for i in range(2,9,2):
         axes.append(fig.add_subplot(4, 2, i))
-        
-    alist = [item for item in labelled.columns if '_sig' not in item]
-#    spread = 'sect'
-    alist = [item for item in alist if spread in item]    
-    cols = [item for item in alist if 'time50' in item]
-    for ax, col in zip(axes[0::2], cols):
+    # fill axes        
+    # 'sect' or 'full'
+    alist = [item for item in labelled.columns if spread in item]    
+    # remove separate the sig column
+    val_list = [item for item in alist if '_sig' not in item]
+    sig_list = [item for item in alist if '_sig' in item]
+    # choose advance values
+    cols = [item for item in val_list if 'time50' in item]
+    sig_cols = [item for item in sig_list if 'time50' in item]
+    for ax, col, sig_col in zip(axes[0::2], cols, sig_cols):
         ax.set_title(col.split('_')[0])
         ax.set_ylabel('advance')
         y = labelled[col].to_list()
-        ax.bar(x, y, color = z, alpha=0.6)
+        #stat z1 = list(depht_colors), z2 = list(white if non significant)
+        z1 = z.copy()
+        z2 = []
+        for a, b in zip(z1, labelled[sig_col].to_list()):
+            if b == 1:
+                z2.append(a)
+            else:
+                z2.append('w')
+#        ax.bar(x, y, color=z, alpha=0.6)
+        ax.bar(x, y, color=z2, edgecolor=z1, linewidth=2,
+               alpha=0.6, width=0.8)        
         ax.set_xlabel('cell')
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    cols = [item for item in alist if 'gain50' in item]
-    for ax, col in zip(axes[1::2], cols):
+    # choose gain values
+    cols = [item for item in val_list if 'gain50' in item]
+    sig_cols = [item for item in sig_list if 'gain50' in item]
+    for ax, col, sig_col in zip(axes[1::2], cols, sig_cols):
+        ax.set_title(col.split('_')[0])
         ax.set_ylabel('gain')
         y = labelled[col].to_list()
-        ax.bar(x, y, color = z, alpha=0.6)
+        #stat z1 = list(depht_colors), z2 = list(white if non significant)
+        z1 = z.copy()
+        z2 = []
+        for a, b in zip(z1, labelled[sig_col].to_list()):
+            if b == 1:
+                z2.append(a)
+            else:
+                z2.append('w')
+        # ax.bar(x, y, color = z, alpha=0.6)
+        ax.bar(x, y, color=z2, edgecolor=z1, linewidth=2,
+               alpha=0.6, width=0.8)        
         ax.set_xlabel('cell')
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
@@ -3622,6 +3684,11 @@ def plot_cellDeph_all(spread='sect'):
             ax.spines['bottom'].set_visible(False)
         else:
             ax.tick_params(axis='x', labelrotation=45)
+    ax = axes[0]
+    ax.text(0.05, 0.97, 'layer 3', color='r', transform=ax.transAxes)
+    ax.text(0.2, 0.7, 'layer 4', color='g', transform=ax.transAxes)
+    ax.text(0.4, 0.8, 'layer 5', color='b', transform=ax.transAxes)
+    ax.text(0.85, 0.6, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
 
     fig.subplots_adjust(hspace=0.02) 
     fig.subplots_adjust(wspace=0.2)
