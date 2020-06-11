@@ -3173,15 +3173,19 @@ def plot_glob_varia(left, right, mes=''):
     pass
 
 
-def extract_stat():
+def extract_stat(onlySig=False):
     #output
     desc_df = pd.DataFrame()
     #vm
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data50 = load_50vals(mes)
+    if onlySig:
+        data50 = data50.loc[data50.cpisosect_time50_sig > 0]
+    print(len(data50), ' cells')
     # remove the significance
     data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    sigCells = data50.index.to_list()
     #vm_time50
     times = [item for item in data50.columns if 'time' in item]
     times = [item for item in times if 'sect_' in item] \
@@ -3210,6 +3214,8 @@ def extract_stat():
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data50 = load_50vals(mes)
+    if onlySig:
+        data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
     data50 = data50[[item for item in data50.columns if '_sig' not in item]]
     #spk_time50
@@ -3233,8 +3239,6 @@ def extract_stat():
     desc_df['gain50_spk_med'] = gain_df.median()
     desc_df['gain50_spk_mad'] = gain_df.mad()
 
-
-#to be continued    
     #peak (non normalized data)
     #vm
     filename = 'data/cg_peakValueTime_vm.xlsx'
@@ -3299,15 +3303,13 @@ def extract_stat():
     return desc_df
 
 
-stat_df = extract_stat()
-   
-#%% plot stat
-
 plt.close('all')
 
 def plot_stat(stat_df, kind='mean', loc='50'):
     """
-    plot the stats    
+    plot the stats
+    input : stat_df, kind in ['mean', 'med'], loc in ['50', 'peak']
+    output : matplotlib figure
     """
     if kind == 'mean':
         stat = ['_mean', '_std']
@@ -3442,8 +3444,46 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
+# to have sig and non sig:
+def sigNonSig_stat_plot():
+    """ stats for sig and non sig cells """
+    stat_df = extract_stat(onlySig=False)
+    fig0 = plot_stat(stat_df, 'med', '50')
+    stat_df = extract_stat(onlySig=True)
+    fig1 = plot_stat(stat_df, 'med', '50')
+    axes0 = fig0.get_axes()
+    axes1 = fig1.get_axes()
+    ax0 = axes0[0]
+    ax1 = axes1[0]
+    leg = '37 cells'
+    ax0.text(0.8, 0.8, leg, transform=ax0.transAxes)
+    leg = '10 cells'
+    ax1.text(0.8, 0.8, leg, transform=ax1.transAxes)
+    for ax in [ax0, ax1]:    
+        ax.set_ylim(-0.15, 0.5)
+    ax0 = axes0[2]
+    ax1 = axes1[2]
+    for ax in [ax0, ax1]:
+        ax.set_ylim(-0.16, 0.75)
+        ax.set_xlim(-12, 20)
+    # zeroline
+    alpha = 0.3
+    for ax in fig0.get_axes():
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=alpha)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=alpha)    
+    for ax in fig1.get_axes():
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=alpha)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=alpha)
+    
 
+stat_df = extract_stat(onlySig=False)
 plot_stat(stat_df, 'med', 'peak')
+plot_stat(stat_df, 'med', '50')
+
 
 #%% vm
 plt.close('all')
