@@ -1070,6 +1070,7 @@ plot_signonsig_figure2(data_df, cols_dict)
 #%% NB the length of the sorted data are not the same compared to the other traces
 #filename = 'fig2cells.xlsx'
 #df = pd.read_excel(filename)
+plt.close('all')
 
 def plot_figure2B(pltmode, sig=True):
     """
@@ -1141,9 +1142,6 @@ def plot_figure2B(pltmode, sig=True):
         fig.align_ylabels(axes[0:])
     return fig
 
-plot_figure2B('horizontal')
-#plot_figure2B('vertical')
-
 def plot_2B_bis():
     df = load_cell_contributions('vm')
     alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
@@ -1177,6 +1175,17 @@ def plot_2B_bis():
     for ax in axes:
         for loca in ['top', 'right']:
             ax.spines[loca].set_visible(False)
+        ax.set_xticks([0, len(df)-1])
+        ax.set_xticklabels([0, len(df)])
+        ax.set_xlim(-0.5, len(df)+0.5)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+ 
+    custom_ticks = np.linspace(0, 20, 3, dtype=int)
+    axes[0].set_yticks(custom_ticks)
+    custom_ticks = np.linspace(0, 0.6, 4)
+    axes[1].set_yticks(custom_ticks)
+ 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
@@ -1198,6 +1207,10 @@ def sort_stat():
         print('mean= {:5.2f}'.format(temp.mean()[0]))
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
+
+plot_2B_bis()
+plot_figure2B('horizontal')
+#plot_figure2B('vertical')
 sort_stat()
 
 #%%
@@ -1335,6 +1348,7 @@ def plot_figure3_signonsig():
         ax.set_xlabel('relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
+        
     fig.tight_layout()
 
     if anot:
