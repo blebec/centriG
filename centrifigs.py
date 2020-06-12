@@ -1216,7 +1216,7 @@ sort_stat()
 #%%
 #plt.close('all')
 
-def plot_figure3(kind):
+def plot_figure3(kind='sig', substract=False):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -1242,6 +1242,10 @@ def plot_figure3(kind):
               stdColors['jaune'], stdColors['bleu']]
     #alpha = [0.5, 0.8, 0.5, 1, 0.6]
     alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
+
+    if substract:
+        ref = df['CENTER-ONLY'] 
+        df = df.subtract(ref, axis=0)
 
     fig = plt.figure(figsize=(6.5, 5.5))
 ##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
@@ -1276,8 +1280,11 @@ def plot_figure3(kind):
         #text.set_color(line.get_color())
     ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
+    if substract:
+        ax.set_xlim(-45, 70)
+        ax.set_ylim(-0.15, 0.4)
     fig.tight_layout()
-
+    
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
@@ -1288,6 +1295,7 @@ def plot_figure3(kind):
 #fig = plot_figure3('pop')
 fig = plot_figure3('sig')
 #fig = plot_figure3('nonsig')
+#fig = plot_figure3('sig', substract=True)
 
 #pop all cells
 #%% grouped sig and non sig
