@@ -1787,7 +1787,7 @@ plt.close('all')
 # plot and fill the actual 10 and 11th df.index significant cell row
 # before the actual actual 9th
 
-def plot_sorted_responses_sup1(overlap=True):
+def plot_sorted_responses_sup1(overlap=True, sort_all=True):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -1831,14 +1831,21 @@ def plot_sorted_responses_sup1(overlap=True):
         fig.suptitle(title)
     axes = axes.flatten()
     x = range(1, len(df)+1)
+    # use cpisotime for ref
+    name = traces[0]
+    sig_name = name + '_indisig'
+    df = df.sort_values(by=[name, sig_name], ascending=False)
     #plot all traces
     for i, name in enumerate(traces):
         sig_name = name + '_indisig'
         # color : white if non significant, edgecolor otherwise
         edgeColor = colors[i]
         color_dic = {0 : 'w', 1 : edgeColor}
-        select = df[[name, sig_name]].sort_values(by=[name, sig_name],
+        if sort_all:
+            select = df[[name, sig_name]].sort_values(by=[name, sig_name],
                                                   ascending=False)
+        else:
+            select = df[[name, sig_name]]            
         barColors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
 #        ax.set_title(str(i))
@@ -1904,6 +1911,7 @@ def plot_sorted_responses_sup1(overlap=True):
     return fig
 
 fig = plot_sorted_responses_sup1(overlap=True)
+#fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 
 
 #%%
