@@ -1144,6 +1144,46 @@ def plot_figure2B(pltmode, sig=True):
 plot_figure2B('horizontal')
 #plot_figure2B('vertical')
 
+def plot_2B_bis():
+    df = load_cell_contributions('vm')
+    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
+    df = df[alist].sort_values(by=alist[0], ascending=False)
+    cols = df.columns[::2]
+    sigs = df.columns[1::2]
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
+    color_dic = {0 :'w', 1 : stdColors['rouge']}
+    for i, ax in enumerate(axes):
+        colors = [color_dic[x] for x in df[sigs[i]]]
+        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
+                        color=colors, label=cols[i], alpha=0.8, width=0.8)   
+        for loca in ['top', 'right', 'bottom']:
+            ax.spines[loca].set_visible(False)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+        ticks = [df.index.min(), df.index.max()]
+        ax.set_xticks(ticks)
+    txt = r'$\Delta$ Phase (ms)'
+    axes[0].set_ylabel(txt)
+    axes[0].set_ylim(-8, 29)
+    txt = r'$\Delta$ Amplitude'
+    axes[1].set_ylabel(txt)
+    custom_ticks = np.arange(0, 0.7, 0.2)
+    axes[1].set_yticks(custom_ticks)
+
+    align_yaxis(axes[0], 0, axes[1], 0)
+    change_plot_trace_amplitude(axes[1], 0.8)
+    fig.tight_layout()
+    
+    for ax in axes:
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)   
+        
+
 def sort_stat():
     filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
