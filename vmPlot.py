@@ -10,11 +10,13 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
  
-osname1 = sys.platform
-osname = osname1
-osname2 = platform.system()
-username = getpass.getuser()
-
+# =============================================================================
+# osname1 = sys.platform
+# osname = osname1
+# osname2 = platform.system()
+# username = getpass.getuser()
+# 
+# =============================================================================
 ##//osname = platform.system()
 ##//username = getpass.getuser()
 def config():
@@ -23,9 +25,12 @@ def config():
     """
     paths = {}
 
-    #osname = sys.platform
-    #osname = platform.system
-    #username = getpass.getuser()
+    osname1 = sys.platform
+    osname = osname1
+    osname2 = platform.system()
+    username = getpass.getuser()
+    osname1 = sys.platform
+    osname2 = platform.system()
     if (osname1 == 'Windows') or (osname2 =='Windows') and username == 'Benoît':
         os.chdir(r'D:\\travail\sourcecode\developing\paper\centriG')
         paths['cgFig'] = 'D:\\owncloud\cgFiguresSrc'
@@ -47,13 +52,15 @@ def config():
 
 
 paths = config()
-if osname == 'darwin' and username == 'cdesbois':
-   info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
-elif (osname1 == 'Linux') or (osname2 == 'Linux') and username == 'benoit':
-    info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
-elif (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
-    info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')    
-
+info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
+# =============================================================================
+# if osname == 'darwin' and username == 'cdesbois':
+# elif (osname1 == 'Linux') or (osname2 == 'Linux') and username == 'benoit':
+#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
+# elif (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
+#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')    
+# 
+# =============================================================================
 #print(paths['traces'])
 #print(osname1)
 #print('')
@@ -101,14 +108,25 @@ def normalize(dico):
     conds = list(dico.keys())
     conds.remove('blank.txt')
     ref = 'ctronly.txt'
-    conds.remove(ref)
+    # conds.remove(ref)  # to normalize the centerOnly
     # normalize
     data_ref = dico[ref]
     for cond in conds:
         df = dico[cond]
         res[cond] = df.divide(data_ref.max())
-    return res        
+    return res
 
+def align_traces(vm_dico, info_df):
+    """" align traces on center only response"""
+    ser = info_df.set_index('Neuron')['time3stddev']
+    out_dico = {}
+    for cond in vm_dico.keys():
+        df = vm_dico[cond].copy()
+        for cell in ser.index:
+            df[cell] = df[cell].shift(-int(ser[cell]*10))
+        out_dico[cond]= df
+    return out_dico
+        
 def plot_res(vm_dico, norm_dico):
     cells = ['1424M_CXG16', '1638D_CXG5']
     cond = 'cpisosec.txt'
@@ -118,57 +136,16 @@ def plot_res(vm_dico, norm_dico):
     for cell in cells:
         ax.plot(vm_dico[cond][cell], label=cell)
     for cell in cells:
-        axT.plot(norm_dico[cond][cell], 'k:')
+        axT.plot(norm_dico[cond][cell], 'k:', label=cell)
     ax.legend()
     axT.legend()
         
 vm_dico = load_all_vm_traces(info_df)
-norm_dico = normalize(vm_dico)
-plot_res(vm_dico, norm_dico)
+vm_dico = normalize(vm_dico)
+align_dico = align_traces(vm_dico, info_df)
 
-# =============================================================================
-# #%% Load conditions
-# plt.close('all')
-# 
-# cond = 'cpisosec.txt'
-# data_cond = vm_dico[cond][sig_cells]
-# ref = 'ctronly.txt' 
-# data_ref = vm_dico[ref][sig_cells]
-# 
-# #%% Load conditions and Normalize
-# plt.close('all')
-# 
-# cond = 'cpisosec.txt'
-# data_cond = vm_dico[cond][sig_cells]
-# ref = 'ctronly.txt' 
-# data_ref = vm_dico[ref][sig_cells]
-# 
-# for 
-# data_cond = data_cond.divide(data_ref.max())
-# 
-# for i in [data_ref.keys()]:
-#     data_cond[i] = data_cond[i].divide(data_ref[i].max())
-#     data_ref[i] = data_ref[i].divide(data_ref[i].max())
-# #print (data_cond['1427A_CXG4'])    
-# #print (data_ref['1427A_CXG4']) 
-# #print (data_ref['1427A_CXG4'].max()) 
-# =============================================================================
+plot_res(vm_dico, align_dico)
 
-#%% Load individual latency realignement
-cellslatAlign = []
-for cell in sig_cells:
-    for neuron in info_df['Neuron']:
-        if cell in neuron:
-            info_df.loc[info_df['Neuron']== cell, 'time3stddev']
-    column_values = info_df.loc[info_df['Neuron']== cell, 'time3stddev'].values.ravel()
-    for i in column_values:
-        cellslatAlign.append(i)
-    
-#print(info_df)
-print(cellslatAlign)
-#%% Align traces
-#pandas.DataFrame.shift
-#https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.DataFrame.shift.html
 
 #%%
 #for cond in data_cond.columns:
