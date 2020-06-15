@@ -17,7 +17,6 @@ username = getpass.getuser()
 
 ##//osname = platform.system()
 ##//username = getpass.getuser()
-
 def config():
     """
     to go to the pg and file directory (spyder use)
@@ -79,45 +78,81 @@ sig_cells = ['1427A_CXG4',
              '1638D_CXG5']
 
 #%%
-  
+plt.close('all')
+
 def load_all_vm_traces(info_df):
     stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm'))
              if item[0] != '.']
     conds = {}
-    for name in stims:
-        filename = os.path.join(paths['traces'], 'vm', name)
+    for stim in stims:
+        filename = os.path.join(paths['traces'], 'vm', stim)
         df = pd.read_csv(filename, sep='\t', header=None)
         df.columns = info_df.Neuron.to_list()
-        #center and scale
+        # center and scale
         df.index -= df.index.max()/2
         df.index /= 10
-        conds[name] = df.copy()
+        conds[stim] = df.copy()
     return conds
 
+def normalize(dico):
+    """ divide by centerOnly"""
+    #build list
+    res = dico.copy()
+    conds = list(dico.keys())
+    conds.remove('blank.txt')
+    ref = 'ctronly.txt'
+    conds.remove(ref)
+    # normalize
+    data_ref = dico[ref]
+    for cond in conds:
+        df = dico[cond]
+        res[cond] = df.divide(data_ref.max())
+    return res        
+
+def plot_res(vm_dico, norm_dico):
+    cells = ['1424M_CXG16', '1638D_CXG5']
+    cond = 'cpisosec.txt'
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    axT = ax.twinx()
+    for cell in cells:
+        ax.plot(vm_dico[cond][cell], label=cell)
+    for cell in cells:
+        axT.plot(norm_dico[cond][cell], 'k:')
+    ax.legend()
+    axT.legend()
+        
 vm_dico = load_all_vm_traces(info_df)
-#%% Load conditions
-plt.close('all')
+norm_dico = normalize(vm_dico)
+plot_res(vm_dico, norm_dico)
 
-cond = 'cpisosec.txt'
-data_cond = vm_dico[cond][sig_cells]
-ref = 'ctronly.txt' 
-data_ref = vm_dico[ref][sig_cells]
-
-#%% Load conditions and Normalize
-plt.close('all')
-
-cond = 'cpisosec.txt'
-data_cond = vm_dico[cond][sig_cells]
-ref = 'ctronly.txt' 
-data_ref = vm_dico[ref][sig_cells]
-
-
-for i in [data_ref.keys()]:
-    data_cond[i] = data_cond[i].divide(data_ref[i].max())
-    data_ref[i] = data_ref[i].divide(data_ref[i].max())
-#print (data_cond['1427A_CXG4'])    
-#print (data_ref['1427A_CXG4']) 
-#print (data_ref['1427A_CXG4'].max()) 
+# =============================================================================
+# #%% Load conditions
+# plt.close('all')
+# 
+# cond = 'cpisosec.txt'
+# data_cond = vm_dico[cond][sig_cells]
+# ref = 'ctronly.txt' 
+# data_ref = vm_dico[ref][sig_cells]
+# 
+# #%% Load conditions and Normalize
+# plt.close('all')
+# 
+# cond = 'cpisosec.txt'
+# data_cond = vm_dico[cond][sig_cells]
+# ref = 'ctronly.txt' 
+# data_ref = vm_dico[ref][sig_cells]
+# 
+# for 
+# data_cond = data_cond.divide(data_ref.max())
+# 
+# for i in [data_ref.keys()]:
+#     data_cond[i] = data_cond[i].divide(data_ref[i].max())
+#     data_ref[i] = data_ref[i].divide(data_ref[i].max())
+# #print (data_cond['1427A_CXG4'])    
+# #print (data_ref['1427A_CXG4']) 
+# #print (data_ref['1427A_CXG4'].max()) 
+# =============================================================================
 
 #%% Load individual latency realignement
 cellslatAlign = []
