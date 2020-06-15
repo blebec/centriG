@@ -149,41 +149,51 @@ plot_res(vm_dico, align_dico)
 
 #%%
 #for cond in data_cond.columns:
-    
 
-fig = plt.figure()
-ax = fig.add_subplot(411)
-for col in data_cond.columns:
-    ax.plot(data_cond[col], 'r-', alpha=0.6)#, label=col.split('_')[0])
-    ax.plot(data_ref[col], 'k-', alpha=0.6)
-ax = fig.add_subplot(412)
-ax.plot(data_cond.mean(axis=1), 'r-', alpha=0.6, label=cond)
-ax.plot(data_ref.mean(axis=1), 'k-', alpha=0.6, label=ref)
-axT = ax.twinx()
-axT.plot(np.cumsum(data_cond.mean(axis=1)), 'r-', alpha=0.6, label='cumsum')
-axT.plot(np.cumsum(data_ref.mean(axis=1)), 'k-', alpha=0.6, label='cumsum')
-# axT.legend()
-# ax.legend()
-ax = fig.add_subplot(413)
-diff = data_cond.mean(axis=1) - data_ref.mean(axis=1)
-ax.plot(diff, '-g', 
-        linewidth=2, alpha=0.8, label = 'diff')
-x = diff.index.values
-ax.fill_between(x=x, y1=diff,color='g', alpha=0.3)
-# ax.legend()
-ax = fig.add_subplot(414)
-ax.plot(np.cumsum(diff), label='cumsum')
-ax.plot(np.cumsum(diff -diff.mean()), label='-mean & cumsum')
-# ax.legend()
-for i, ax in enumerate(fig.get_axes()):
-    for loca in ['top', 'right']:
-        ax.spines[loca].set_visible(False)
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.3)
-    if i <4:
-        ax.xaxis.set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-fig.legend()        
+def testPlot(vm_dico):
+    cond = 'cpisosec.txt'
+    data_cond = vm_dico[cond][sig_cells]
+    ref = 'ctronly.txt' 
+    data_ref = vm_dico[ref][sig_cells]
+
+    fig = plt.figure()
+    fig.suptitle('several ways to look at')
+    ax = fig.add_subplot(411)
+    for col in data_cond.columns:
+        ax.plot(data_cond[col], 'r-', alpha=0.6)#, label=col.split('_')[0])
+        ax.plot(data_ref[col], 'k-', alpha=0.6)
+    ax = fig.add_subplot(412)
+    ax.plot(data_cond.mean(axis=1), 'r-', alpha=0.6, label=cond)
+    ax.plot(data_ref.mean(axis=1), 'k-', alpha=0.6, label=ref)
+    axT = ax.twinx()
+    axT.plot(np.cumsum(data_cond.mean(axis=1)), 'r-', alpha=0.6, label='cumsum')
+    axT.plot(np.cumsum(data_ref.mean(axis=1)), 'k-', alpha=0.6, label='cumsum')
+    # axT.legend()
+    # ax.legend()
+    ax = fig.add_subplot(413)
+    diff = data_cond.mean(axis=1) - data_ref.mean(axis=1)
+    ax.plot(diff, '-g', 
+            linewidth=2, alpha=0.8, label = 'diff')
+    x = diff.index.values
+    ax.fill_between(x=x, y1=diff,color='g', alpha=0.3)
+    # ax.legend()
+    ax = fig.add_subplot(414)
+    ax.plot(np.cumsum(diff), label='cumsum')
+    ax.plot(np.cumsum(diff -diff.mean()), label='-mean & cumsum')
+    # ax.legend()
+    for i, ax in enumerate(fig.get_axes()):
+        ax.legend()
+        for loca in ['top', 'right']:
+            ax.spines[loca].set_visible(False)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.3)
+        if i <4:
+            ax.xaxis.set_visible(False)
+            ax.spines['bottom'].set_visible(False)
+            #fig.legend()        
+    fig.tight_layout()
+    
+testPlot(vm_dico)
 #%%
