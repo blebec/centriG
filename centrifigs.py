@@ -1370,7 +1370,7 @@ def plot_figure3_signonsig():
 plot_figure3_signonsig()
 #%%
 #plt.close('all')
-def plot_figure4():
+def plot_figure4(substract=False):
     """ speed """
     filename = 'data/fig4.xlsx'
     df = pd.read_excel(filename)
@@ -1384,7 +1384,9 @@ def plot_figure4():
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
     alpha = [0.8, 1, 0.8, 0.8, 1]
-
+    if substract:
+        ref = df.centerOnly
+        df = df.subtract(ref, axis=0)
     fig = plt.figure(figsize=(7, 5.5))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
@@ -1416,7 +1418,11 @@ def plot_figure4():
                 xycoords="axes fraction", ha='center')
     # bluePoint
     ax.plot(0, df.loc[0]['centerOnly'], 'o', color=stdColors['bleu'])
-
+    if substract:
+        ax.set_ylim(-0.05, 0.4)
+        custom_ticks = np.linspace(0, 0.3, 4)
+        ax.set_yticks(custom_ticks)
+        ax.set_xlim(-80, 60)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4',
@@ -1426,6 +1432,7 @@ def plot_figure4():
     return fig
 
 fig = plot_figure4()
+fig = plot_figure4(substract=True)
 ## alpha = 0.8, figsize = 8,6, ha = 'left'
 #%% fig 5 <-> sup 7
 
