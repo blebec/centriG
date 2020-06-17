@@ -1319,8 +1319,9 @@ fig2 = plot_figure3('pop', substract=True)
 
 #pop all cells
 #%% grouped sig and non sig
+plt.close('all')
 
-def plot_figure3_signonsig():
+def plot_figure3_signonsig(substract=False):
     """
     plot_figure3
     with individually significants and non significant cells
@@ -1347,10 +1348,12 @@ def plot_figure3_signonsig():
         #centering
         middle = (df.index.max() - df.index.min())/2
         df.index = (df.index - middle)/10
-        df = df.loc[-15:30]
+        df = df.loc[-45:120]
         cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
         df.columns = cols
-
+        if substract:
+            ref = df['CNT-ONLY'] 
+            df = df.subtract(ref, axis=0)
         ax = axes[i]
         ax.set_title(titles[kind])
         ncells = cellnumbers[kind]
@@ -1359,8 +1362,12 @@ def plot_figure3_signonsig():
                     label=col, linewidth=2)
             ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                         xycoords="axes fraction", ha='center')
-        leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
-                        handlelength=0)
+        if substract: 
+            leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
+                            handlelength=0)            
+        else:
+            leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
+                            handlelength=0)
         for line, text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
         # point bleu
@@ -1368,6 +1375,7 @@ def plot_figure3_signonsig():
 
     axes[0].set_ylabel('normalized membrane potential')
     for ax in axes:
+        ax.set_xlim(-15, 30)
         ax.set_ylim(-0.1, 1.1)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
@@ -1376,6 +1384,25 @@ def plot_figure3_signonsig():
         ax.set_xlabel('relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
+    
+    if substract:
+        for ax in axes:
+            ax.set_xlim(-45, 120)
+            ax.set_ylim(-0.15, 0.4)
+            custom_ticks = np.arange(-40, 110, 20)
+            ax.set_xticks(custom_ticks)
+            #max center only
+            lims = ax.get_ylim()
+            ax.vlines(21.4, lims[0], lims[1])
+            # end of center only
+            #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
+            ax.vlines(88, lims[0], lims[1], alpha=0.3)
+            ax.axvspan(0, 88, facecolor='k', alpha=0.1)
+            ax.text(0.41, 0.6, 'center only response \n start | peak | end', 
+                transform=ax.transAxes, alpha = 0.5)
+        axes[0].set_ylabel('Norm vm - Norm centerOnly')
+        #axes[1].yaxis.set_visible(False)
+        #axes[1].spines['left'].set_visible(False)
         
     fig.tight_layout()
 
@@ -1388,8 +1415,10 @@ def plot_figure3_signonsig():
     return fig
 
 plot_figure3_signonsig()
+fig = plot_figure3_signonsig(substract=True)
 #%%
-#plt.close('all')
+plt.close('all')
+
 def plot_figure4(substract=False):
     """ speed """
     filename = 'data/fig4.xlsx'
@@ -1407,6 +1436,11 @@ def plot_figure4(substract=False):
     if substract:
         ref = df.centerOnly
         df = df.subtract(ref, axis=0)
+        # stack
+        # stacks = []
+        # for i, col in enumerate(df.columns[:-5:-1]):
+        #     df[col] += i / 10 * 2
+        #     stack.append(i / 10 * 2)
     fig = plt.figure(figsize=(7, 5.5))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
@@ -1443,6 +1477,9 @@ def plot_figure4(substract=False):
         custom_ticks = np.linspace(0, 0.3, 4)
         ax.set_yticks(custom_ticks)
         ax.set_xlim(-80, 60)
+        lims = ax.get_xlim()
+        # for i, col in enumerate(df.columns)):
+        #     ax.hline()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4',
@@ -1574,7 +1611,6 @@ def plot_figure6():
     alpha = [0.6, 0.8, 0.8, 0.8]
     #plotting
     fig = plt.figure(figsize=(8.5, 8))
-    # SUGGESTION increase a bit y dimension or subplots height
 #    fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
@@ -1686,6 +1722,116 @@ def plot_figure6():
     return fig
 
 fig = plot_figure6()
+
+#%% 
+def plot_figure6_bis():
+    """
+    plot_figure6 minus center
+    """
+    filename = 'data/fig5.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    # rename columns
+    cols = df.columns
+    cols = ['Center-Only', 'Surround-then-Center', 'Surround-Only',
+            'Static linear prediction']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    # color parameters
+    colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
+    alpha = [0.6, 0.8, 0.8, 0.8]
+    # substract
+    df['Surround-then-Center'] = df['Surround-then-Center'] - df['Center-Only']
+    df['Center-Only'] -= df['Center-Only']
+    #plotting
+    
+    fig = plt.figure(figsize=(8.5, 4))
+#    fig.suptitle(os.path.basename(filename))
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols):
+        if i == 3:
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+                     label=col, linestyle='--', linewidth=1.5)
+        else:
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+                     label=col)
+    ax.set_xlabel('Time (ms)')
+    # stims
+    step = 21
+    hlocs = np.arange(0, -110, -step)
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+#    vlocs = np.linspace(-0.7, -1.7, 4)
+    vlocs = np.linspace(-1.4, -2.4, 4)
+    dico = dict(zip(names, hlocs))
+
+    #ax
+    for key in dico.keys():
+        # names
+        ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
+                     annotation_clip=False, fontsize='small')
+        #stim1
+        rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
+                         fill=True, alpha=1, edgecolor='w',
+                         facecolor=colors[2])
+        if key == 'D0':
+            rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
+                             fill=True, alpha=1, edgecolor=colors[2],
+                             facecolor='w')
+        ax.add_patch(rect)
+        #stim2
+        rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+                         fill=True, alpha=0.6, edgecolor='w',
+                         facecolor=colors[1])
+        ax.add_patch(rect)
+    # #center
+    # rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
+    #                  alpha=0.6, edgecolor='w', facecolor=colors[0])
+    # ax.add_patch(rect)
+    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
+        ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
+                     annotation_clip=False, fontsize='small')
+        
+    ax.set_ylabel('$\Delta$ with Center Only')
+    for loc in ['top', 'right']:
+        ax.spines[loc].set_visible(False)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.2)
+    # response start
+    x = 41
+    y = df['Center-Only'].loc[x]
+    ax.plot(x, y, 'o', color=stdColors['bleu'])
+    ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
+              linestyle=':', alpha=0.8)
+    for dloc in hlocs:
+        ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
+    # end
+    x = 150.1 
+    ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
+              linestyle=':', alpha=0.8)
+    # peak
+    x = 63.9
+    ax.vlines(x, -0.5, lims[1], 'k', alpha=0.5)
+    ax.axvspan(41, 150.1, ymin=0.45, color='k', alpha=0.1)
+    #ticks
+    custom_ticks = np.linspace(0, 1, 2, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    fig.tight_layout()
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+fig = plot_figure6_bis()
 
 #%%
 plt.close('all')
