@@ -1724,6 +1724,8 @@ def plot_figure6():
 fig = plot_figure6()
 
 #%% 
+plt.close('all')
+
 def plot_figure6_bis():
     """
     plot_figure6 minus center
@@ -1785,6 +1787,10 @@ def plot_figure6_bis():
         rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
+        if key == 'D0':
+            rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+                         fill=True, alpha=0.6, edgecolor='k',
+                         facecolor='y')    
         ax.add_patch(rect)
     # #center
     # rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
@@ -1821,11 +1827,14 @@ def plot_figure6_bis():
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    fig.tight_layout()
 
+    fig.tight_layout()
+    
+    ax.text(0.55, 0.33, 'center only response \n start | peak | end', 
+                transform=ax.transAxes, alpha = 0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
