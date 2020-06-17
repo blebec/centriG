@@ -196,6 +196,8 @@ def load_cell_contributions(kind='vm'):
     return df
 
 #%%
+
+#%%
 plt.close('all')
 
 def load2():
@@ -405,8 +407,8 @@ def plot_figure2(data, colsdict, fill=True):
 
     #labels
     for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     ylabels = ['Membrane potential (mV)',
                'Normalized membrane potential',
                '', '']
@@ -553,8 +555,8 @@ def plot_half_figure2(data, colsdict):
                 xycoords="axes fraction", ha='center')
     #labels
     for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     ylabels = ['Membrane potential (mV)',
                'Normalized membrane potential',
                '', '']
@@ -783,8 +785,8 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
 
     #labels
     for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     ylabels = ['Membrane potential (mV)',
                'Normalized membrane potential',
                '', '', '', '']
@@ -1024,8 +1026,8 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
                 xycoords="axes fraction", ha='center')
     #labels
     for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     ylabels = ['membrane potential (mV)',
                'normalized membrane potential',
                '', '']
@@ -1109,13 +1111,14 @@ def plot_figure2B(pltmode, sig=True):
                         alpha=0.8, width=0.8)
         if pltmode == 'horizontal':
             ax.set_xlabel('Cell rank')
+            ax.xaxis.set_label_coords(0.5, -0.025)
         else:
             if pltmode == 'vertical':
                 if i == 1:
                     ax.set_xlabel('cell rank')
         axes[i].set_xlim(0.42, 37.7)
-        for loca in ['top', 'right', 'bottom']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right', 'bottom']:
+            ax.spines[spine].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [df.index.min(), df.index.max()]
@@ -1154,8 +1157,8 @@ def plot_2B_bis():
         colors = [color_dic[x] for x in df[sigs[i]]]
         axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                         color=colors, label=cols[i], alpha=0.8, width=0.8)   
-        for loca in ['top', 'right', 'bottom']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right', 'bottom']:
+            ax.spines[spine].set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ticks = [df.index.min(), df.index.max()]
@@ -1173,25 +1176,29 @@ def plot_2B_bis():
     fig.tight_layout()
     
     for ax in axes:
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
+        ax.set_xlabel('Cell rank')
+        ax.xaxis.set_label_coords(0.5, -0.025)
         ax.set_xticks([0, len(df)-1])
         ax.set_xticklabels([0, len(df)])
-        ax.set_xlim(-0.5, len(df)+0.5)
+        ax.set_xlim(-1, len(df)+0.5)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
  
+    axes[0].vlines(-1, 0, 20, linewidth=2)
     custom_ticks = np.linspace(0, 20, 3, dtype=int)
     axes[0].set_yticks(custom_ticks)
+    axes[1].vlines(-1, 0, 0.6, linewidth=2)
     custom_ticks = np.linspace(0, 0.6, 4)
     axes[1].set_yticks(custom_ticks)
- 
+    
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)   
-        
+    return fig
 
 def sort_stat():
     filename = 'data/fig2cells.xlsx'
@@ -1208,7 +1215,7 @@ def sort_stat():
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-plot_2B_bis()
+fig = plot_2B_bis()
 plot_figure2B('horizontal')
 #plot_figure2B('vertical')
 sort_stat()
@@ -1828,8 +1835,8 @@ def plot_figure9CD(data, colsdict):
     ax1.set_xlabel(r'$\Delta$ Phase (ms)')
 
     for ax in fig.get_axes():
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     fig.tight_layout()
     # remove the space between plots
     #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
@@ -1843,18 +1850,9 @@ def plot_figure9CD(data, colsdict):
 #data_df, cols_dict = load2()
 plot_figure9CD(data_df, cols_dict)
 
-#%%
-plt.close('all')
-
-
-
-# plot latency (left) and gain (right)
+#%% plot latency (left) and gain (right)
 
 plt.close('all')
-
-# TODO: in first figure, 1st condition latency advance of CP-ISO
-# plot and fill the actual 10 and 11th df.index significant cell row
-# before the actual actual 9th
 
 def plot_sorted_responses_sup1(overlap=True, sort_all=True):
     """
@@ -1994,7 +1992,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
     return fig
 
 fig = plot_sorted_responses_sup1(overlap=True)
-#fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 
 
 #%%
@@ -2575,8 +2573,8 @@ def plot_cell_contribution(df):
     autolabel(ax, bars)
 
     for ax in fig.get_axes():
-        for loca in ['left', 'top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
             ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
@@ -2676,21 +2674,30 @@ def plot_sorted_responses(dico):
         ax.ticklabel_format(useOffset=True)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3, linestyle=':')
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['left', 'top', 'right', 'bottom']:
+            ax.spines[spine].set_visible(False)
         if i in range(6):
             ax.xaxis.set_visible(False)
-            ax.spines['bottom'].set_visible(False)
         else:
             ax.set_xlabel(anotx)
             ax.set_xticks([1, len(df)])
-            ax.set_xlim(0.55, len(df)+2)
+            ax.set_xlim(0, len(df)+2)
+    #left
+    for ax in axes[::2]:
+        ax.vlines(0, 0, 20, color='k', linewidth=2) 
+        custom_ticks = np.linspace(0, 20, 2, dtype=int)
+        ax.set_yticks(custom_ticks)    
+    #right
+    for ax in axes[1::2]:
+        ax.vlines(0, 0, 1, color='k', linewidth=2) 
+        custom_ticks = np.linspace(0, 1, 2, dtype=int)
+        ax.set_yticks(custom_ticks)    
     #align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
     #keep data range whithout distortion, preserve 0 alignment
     change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
-    fig.subplots_adjust(hspace=0.05, wspace=0.05)
+    fig.subplots_adjust(hspace=0.00, wspace=0.00)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses',
@@ -2708,12 +2715,12 @@ parameter_dico = {
         }
 
 fig = plot_sorted_responses(parameter_dico)
-# iterate through conditions for plotting
-# for kind in ['vm', 'spk']:
-#     parameter_dico['kind'] = kind
-#     for spread in ['s', 'f']:
-#         parameter_dico['spread'] = spread
-#         fig = plot_sorted_responses(parameter_dico)
+#iterate through conditions for plotting
+for kind in ['vm', 'spk']:
+    parameter_dico['kind'] = kind
+    for spread in ['s', 'f']:
+        parameter_dico['spread'] = spread
+        fig = plot_sorted_responses(parameter_dico)
 
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
@@ -2772,8 +2779,8 @@ def plot_speed_multigraph():
     right_ax.set_xlabel('Relative time to center-only onset (ms)')
     # adjust
     for ax in fig.get_axes():
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
     for ax in left_axes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.5)
@@ -2826,8 +2833,8 @@ def plotSpeeddiff():
                         label=cols[i], alpha=alpha[j])
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    for loca in ['left', 'top', 'right']:
-        ax.spines[loca].set_visible(False)
+    for spine in ['left', 'top', 'right']:
+        ax.spines[spine].set_visible(False)
     ax.yaxis.set_visible(False)
     fig.legend()
     fig.tight_layout()
@@ -3120,8 +3127,8 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     ax.set_ylim(-1, len(df)+1)
     ax.set_xlabel('gain')    
     for ax in fig.get_axes():
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], 'k', alpha=0.3)
     if anot:
@@ -3250,8 +3257,8 @@ def histo_lat_gain(df_left, df_right, mes=''):
     for ax in fig.get_axes():
         ax.set_facecolor('None')
         ax.yaxis.set_visible(False)
-        for loca in ['left', 'top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -3508,8 +3515,8 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         # ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
         # lims = ax.get_xlim()
         # ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
             if i % 2 == 0:
                 ax.set_ylabel('gain')
             else:
@@ -3684,8 +3691,8 @@ def plot_cellDepth():
 
     leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
     for i, ax in enumerate(fig.get_axes()):
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
         if i == 0:
             ax.text(0.8, 0.7, leg, transform=ax.transAxes)
             ax.xaxis.set_visible(False)            
@@ -3803,8 +3810,8 @@ def plot_cellDepth_all(spread='sect'):
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
     for i, ax in enumerate(axes):
-        for loca in ['top', 'right']:
-            ax.spines[loca].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
         if i in [0, 4]:
             pass
             # ax.text(0.7, 0.7, leg, transform=ax.transAxes)
