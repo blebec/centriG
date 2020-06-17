@@ -1288,8 +1288,20 @@ def plot_figure3(kind='sig', substract=False):
     ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
     if substract:
-        ax.set_xlim(-45, 70)
+        ax.set_xlim(-45, 120)
         ax.set_ylim(-0.15, 0.4)
+        custom_ticks = np.arange(-40, 110, 20)
+        ax.set_xticks(custom_ticks)
+        #max center only
+        lims = ax.get_ylim()
+        ax.vlines(21.4, lims[0], lims[1])
+        # end of center only
+        #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
+        ax.vlines(88, lims[0], lims[1], alpha=0.3)
+        ax.axvspan(0, 88, facecolor='k', alpha=0.2)
+        ax.text(0.4, 0.9, 'center only response \n start | peak | end', 
+                transform=ax.transAxes, alpha = 0.5)
+        ax.set_ylabel('Norm vm - Norm centerOnly')
     fig.tight_layout()
     
     if anot:
@@ -1302,7 +1314,8 @@ def plot_figure3(kind='sig', substract=False):
 #fig = plot_figure3('pop')
 fig = plot_figure3('sig')
 #fig = plot_figure3('nonsig')
-#fig = plot_figure3('sig', substract=True)
+fig = plot_figure3('sig', substract=True)
+fig2 = plot_figure3('pop', substract=True)
 
 #pop all cells
 #%% grouped sig and non sig
