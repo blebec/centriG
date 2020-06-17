@@ -90,6 +90,10 @@ plt.close('all')
 def load_all_vm_traces(info_df):
     stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm'))
              if item[0] != '.']
+    # remove dir
+    for stim in stims:
+        if not os.path.isfile(os.path.join(paths['traces'], 'vm', stim)):
+             stims.remove(stim)
     conds = {}
     for stim in stims:
         filename = os.path.join(paths['traces'], 'vm', stim)
