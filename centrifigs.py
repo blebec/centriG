@@ -1937,7 +1937,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
-            set_ticks_both(ax.yaxis)
+            #set_ticks_both(ax.yaxis)
             # alternate right and left
             # if overlap:
             #     #label left:
@@ -1956,12 +1956,26 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
                 ax.set_xticks([1, len(df)])
                 ax.set_xlim(0, len(df)+1)
     for ax in left_axes:
-        custom_ticks = np.linspace(-10, 10, 3, dtype=int)
+        custom_ticks = np.linspace(0, 10, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     for ax in right_axes:
-        custom_ticks = np.linspace(-0.5, 0.5, 3)
+        custom_ticks = np.linspace(0, 0.5, 2)
         ax.set_yticks(custom_ticks)
-        
+    no_spines = True
+    if no_spines == True:
+        for ax in left_axes:
+            limx = ax.get_xlim()
+            ax.vlines(limx[0], 0, 10, color='k', linewidth=2)
+            # ax.vlines(limx[1], 0, -10, color='k', linewidth=2)
+            for spine in ['left', 'right']:
+                ax.spines[spine].set_visible(False)        
+        for ax in right_axes:
+            limx = ax.get_xlim()
+            ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
+            # ax.vlines(limx[1], 0, -0.5, color='k', linewidth=2)
+            for spine in ['left', 'right']:
+                ax.spines[spine].set_visible(False)
+
     #align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
     #keep data range whithout distortion, preserve 0 alignment
