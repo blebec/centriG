@@ -1074,7 +1074,7 @@ plot_signonsig_figure2(data_df, cols_dict)
 #df = pd.read_excel(filename)
 plt.close('all')
 
-def plot_figure2B(pltmode, sig=True):
+def plot_figure2B(sig=True):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
@@ -1084,22 +1084,9 @@ def plot_figure2B(pltmode, sig=True):
     cols = df.columns[:2]
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
-
-    if pltmode == 'horizontal':
-        fig = plt.figure(figsize=(17.6, 4))
-    else:
-        if pltmode == 'vertical':
-            fig = plt.figure(figsize=(6, 6))
-    #build axes
-    axes = []
-    for i in range(1, 3):
-        if pltmode == 'horizontal':
-            axes.append(fig.add_subplot(1, 2, i))
-        else:
-            if pltmode == 'vertical':
-                axes.append(fig.add_subplot(2, 1, i))
-
     color_dic = {0 :'w', 1 : stdColors['rouge']}
+
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
         if sig:
@@ -1109,43 +1096,46 @@ def plot_figure2B(pltmode, sig=True):
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                         color=stdColors['rouge'], label=cols[i],
                         alpha=0.8, width=0.8)
-        if pltmode == 'horizontal':
-            ax.set_xlabel('Cell rank')
-            ax.xaxis.set_label_coords(0.5, -0.025)
-        else:
-            if pltmode == 'vertical':
-                if i == 1:
-                    ax.set_xlabel('cell rank')
-        axes[i].set_xlim(0.42, 37.7)
-        for spine in ['top', 'right', 'bottom']:
-            ax.spines[spine].set_visible(False)
+        #zero line
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        ticks = [df.index.min(), df.index.max()]
-        ax.set_xticks(ticks)
-    txt = r'$\Delta$ Phase (ms)'
-    axes[0].set_ylabel(txt)
-    axes[0].set_ylim(-8, 29)
-    txt = r'$\Delta$ Amplitude'
-    axes[1].set_ylabel(txt)
-    custom_ticks = np.arange(0, 0.7, 0.2)
-    axes[1].set_yticks(custom_ticks)
-
-    if pltmode == 'horizontal':
-        align_yaxis(axes[0], 0, axes[1], 0)
-        change_plot_trace_amplitude(axes[1], 0.8)
+        #ticks
+        ax.set_xlim(0, 38)
+        ax.set_xticks([df.index.min(), df.index.max()])
+        ax.set_xlabel('Cell rank')
+        ax.xaxis.set_label_coords(0.5, -0.025)
+        if i == 0:
+            txt = r'$\Delta$ Phase (ms)'
+            ylims = (-6, 29) 
+            ax.vlines(0, 0, 20, linewidth=2)
+            custom_yticks = np.linspace(0, 20, 3, dtype=int)
+        else:
+            txt = r'$\Delta$ Amplitude'
+            ylims = ax.get_ylim()
+            ax.vlines(0, 0, 0.6, linewidth=2)
+            custom_yticks = np.linspace(0, 0.6, 4)
+        ax.set_yticks(custom_yticks)        
+        ax.set_ylabel(txt)
+        ax.set_ylim(ylims)
+        for spine in ['left', 'top', 'right', 'bottom']:
+            ax.spines[spine].set_visible(False)
+    # align zero between plots
+    align_yaxis(axes[0], 0, axes[1], 0)
+    change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
-
+    # anot
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    if pltmode == 'vertical':
-        fig.align_ylabels(axes[0:])
     return fig
 
 def plot_2B_bis():
+    """
+    plot_figure2B alternative : sorted phase advance and delta response
+    response are sorted only by phase
+    """
     df = load_cell_contributions('vm')
     alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
     df = df[alist].sort_values(by=alist[0], ascending=False)
@@ -1157,42 +1147,33 @@ def plot_2B_bis():
         colors = [color_dic[x] for x in df[sigs[i]]]
         axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                         color=colors, label=cols[i], alpha=0.8, width=0.8)   
-        for spine in ['top', 'right', 'bottom']:
-            ax.spines[spine].set_visible(False)
         lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        ticks = [df.index.min(), df.index.max()]
-        ax.set_xticks(ticks)
-    txt = r'$\Delta$ Phase (ms)'
-    axes[0].set_ylabel(txt)
-    axes[0].set_ylim(-8, 29)
-    txt = r'$\Delta$ Amplitude'
-    axes[1].set_ylabel(txt)
-    custom_ticks = np.arange(0, 0.7, 0.2)
-    axes[1].set_yticks(custom_ticks)
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        ax.set_xticks([0, len(df)-1])
+        ax.set_xticklabels([1, len(df)])
+        ax.set_xlim(-1, len(df)+0.5)
+        if i == 0:
+            ax.vlines(-1, 0, 20, linewidth=2)
+            custom_yticks = np.linspace(0, 20, 3, dtype=int)
+            ylabel = r'$\Delta$ Phase (ms)'
+            ax.set_ylim(-6, 29)
+            x_label = 'Cell rank'
+        else:
+            ax.vlines(-1, 0, 0.6, linewidth=2)
+            custom_yticks = np.linspace(0, 0.6, 4)
+            x_label = 'Ranked cells'
+            ylabel = r'$\Delta$ Amplitude'
+        ax.set_xlabel(x_label)
+        ax.xaxis.set_label_coords(0.5, -0.025)
+        ax.set_yticks(custom_yticks)
+        ax.set_ylabel(ylabel)
+        for spine in ['bottom', 'left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
 
     align_yaxis(axes[0], 0, axes[1], 0)
     change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
-    
-    for ax in axes:
-        for spine in ['left', 'top', 'right']:
-            ax.spines[spine].set_visible(False)
-        ax.set_xlabel('Cell rank')
-        ax.xaxis.set_label_coords(0.5, -0.025)
-        ax.set_xticks([0, len(df)-1])
-        ax.set_xticklabels([0, len(df)])
-        ax.set_xlim(-1, len(df)+0.5)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
- 
-    axes[0].vlines(-1, 0, 20, linewidth=2)
-    custom_ticks = np.linspace(0, 20, 3, dtype=int)
-    axes[0].set_yticks(custom_ticks)
-    axes[1].vlines(-1, 0, 0.6, linewidth=2)
-    custom_ticks = np.linspace(0, 0.6, 4)
-    axes[1].set_yticks(custom_ticks)
-    
+     
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
