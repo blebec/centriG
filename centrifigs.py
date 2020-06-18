@@ -1773,7 +1773,8 @@ def plot_figure6_bis():
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     # vlocs = np.linspace(-0.7, -1.7, 4)
-    vlocs = np.linspace(-1.4, -2.4, 4)
+    # vlocs = np.linspace(-1.4, -2.4, 4)
+    vlocs = np.linspace(-0.8, -1.5, 4)
     dico = dict(zip(names, hlocs))
 
     #ax
@@ -1782,11 +1783,11 @@ def plot_figure6_bis():
         ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
         #stim1
-        rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
+        rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.2,
                          fill=True, alpha=1, edgecolor='w',
                          facecolor=colors[2])
         if key == 'D0':
-            rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
+            rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.2,
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax.add_patch(rect)
@@ -1830,7 +1831,7 @@ def plot_figure6_bis():
     # peak
     x = 63.9
     ax.vlines(x, -0.5, lims[1], 'k', alpha=0.5)
-    ax.axvspan(41, 150.1, ymin=0.45, color='k', alpha=0.1)
+    ax.axvspan(41, 150.1, ymin=0.28, color='k', alpha=0.1)
     #ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
@@ -1838,7 +1839,7 @@ def plot_figure6_bis():
 
     fig.tight_layout()
     
-    ax.text(0.55, 0.33, 'center only response \n start | peak | end', 
+    ax.text(0.55, 0.17, 'center only response \n start | peak | end', 
                 transform=ax.transAxes, alpha = 0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2030,7 +2031,7 @@ plot_figure9CD(data_df, cols_dict)
 
 plt.close('all')
 
-def plot_sorted_responses_sup1(overlap=True, sort_all=True):
+def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=1):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -2076,6 +2077,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
     x = range(1, len(df)+1)
     # use cpisotime for ref
     name = traces[0]
+    name = traces[key]
     sig_name = name + '_indisig'
     df = df.sort_values(by=[name, sig_name], ascending=False)
     #plot all traces
@@ -2127,6 +2129,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
                 ax.xaxis.set_visible(False)
             else:
                 ax.set_xlabel(anotx)
+                ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df)])
                 ax.set_xlim(0, len(df)+1)
     for ax in left_axes:
@@ -2170,6 +2173,14 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True):
 fig = plot_sorted_responses_sup1(overlap=True)
 fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 
+# =============================================================================
+# savePath = os.path.join(paths['cgFig'], 'pythonPreview', 'sorted', 'testAllSortingKeys')
+# for key in range(10):
+#     fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=key)
+#     filename = os.path.join(savePath, str(key) + '.png')
+#     fig.savefig(filename, format='png')
+    
+# =============================================================================
 
 #%%
 plt.close('all')
