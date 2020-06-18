@@ -1727,10 +1727,11 @@ def plot_figure6_bis():
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
     alpha = [0.6, 0.8, 0.8, 0.8]
     # substract
-    df['Surround-then-Center'] = df['Surround-then-Center'] - df['Center-Only']
-    df['Center-Only'] -= df['Center-Only']
-    #plotting
     
+    ref = df['Center-Only'].copy()
+    df['Surround-then-Center'] = df['Surround-then-Center'] - ref
+    df['Center-Only'] -= ref
+    #plotting
     fig = plt.figure(figsize=(8.5, 4))
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
@@ -1739,8 +1740,9 @@ def plot_figure6_bis():
             pass
         # suround the center minus center
         elif i == 1:
-            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                     label=col, linestyle='--', linewidth=1.5)
+            pass
+            # ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+            #          label=col, linestyle='--', linewidth=1.5)
         # linear predictor
         elif i == 3:
             ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
@@ -1919,6 +1921,97 @@ def plot_figure7():
     return fig
 
 fig = plot_figure7()
+
+#%%
+plt.close('all')
+
+def plot_figure7_bis():
+    """
+    plot_figure7 minus center
+    """
+    filename = 'data/fig6.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    #limit the date time range
+    df = df.loc[-150:160]
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+            'sdUp', 'sdDown', 'linearPrediction']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+    # if substract:
+    #     ref = df.centerOnly
+    #     df.surroundThenCenter = df.surroundThenCenter - ref
+    #     df.centerOnly = df.centerOnly - ref
+    colors = ['k', 'r', 'b', 'g', 'b', 'b']
+    colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
+              stdColors['bleuViolet'], stdColors['bleuViolet'],
+              stdColors['bleuViolet']]
+    colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
+              stdColors['bleuViolet'], stdColors['rouge'],
+              stdColors['bleuViolet']]
+    alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
+
+    # plotting
+    fig = plt.figure(figsize=(8.5, 4))
+    ax = fig.add_subplot(111)
+    ax.plot(df.popfillVmscpIsoDlp, ':r', alpha=1, linewidth=2,
+                 label='sThenCent - cent')
+    # surroundOnly
+    ax.plot(df.surroundOnlysdUp, color=stdColors['vertSombre'], alpha=0.7,
+                 label='surroundOnly')
+    ax.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
+                     color=stdColors['vertSombre'], alpha=0.2)
+    
+    ax.set_ylabel('Normalized membrane potential')
+    ax.annotate("n=12", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax.set_xlabel('Relative time (ms)')        
+    for loc in ['top', 'right']:
+        ax.spines[loc].set_visible(False)
+    lims = ax.get_xlim()
+    ax.hlines(0, lims[0], lims[1], alpha=0.3)
+    lims = ax.get_ylim()
+    ax.vlines(0, lims[0], lims[1], alpha=0.3)
+    # response start
+    x0 = 0
+    y = df['centerOnly'].loc[x0]
+    ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    ax.vlines(x0, lims[0], lims[1], color=stdColors['bleu'],
+              linestyle=':', alpha=0.8)
+    # end
+    x2 = 124.6
+    y = df['centerOnly'].loc[x2]
+    ax.vlines(x2, lims[0], lims[1], color='k',
+              linestyle='-', alpha=0.2)
+ #   ax.plot(x2, y, 'o', color=stdColors['bleu'])
+    # peak
+    # df.centerOnly.idxmax()
+    x1 = 26.1
+    ax.vlines(x1, 0, lims[1], 'k', alpha=0.3)
+    ax.axvspan(x0, x2, color='k', alpha=0.1)
+    #ticks
+    custom_ticks = np.linspace(0, 0.4, 3)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+
+    fig.tight_layout()
+    
+    ax.text(0.5, 0.10, 'center only response \n start | peak | end', 
+                transform=ax.transAxes, alpha = 0.5)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_bis',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+fig = plot_figure7_bis()
+
 
 #%% fig 9
 plt.close('all')
