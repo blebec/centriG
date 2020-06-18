@@ -1311,7 +1311,7 @@ def plot_figure3(kind='sig', substract=False):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#fig = plot_figure3('pop')
+fig = plot_figure3('pop')
 fig = plot_figure3('sig')
 #fig = plot_figure3('nonsig')
 fig = plot_figure3('sig', substract=True)
@@ -1753,19 +1753,26 @@ def plot_figure6_bis():
     fig = plt.figure(figsize=(8.5, 4))
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
-    for i, col in enumerate(cols):
-        if i == 3:
+    for i, col in enumerate(cols): # omit centrerOnly
+        if i == 0:
+            pass
+        # suround the center minus center
+        elif i == 1:
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+                     label=col, linestyle='--', linewidth=1.5)
+        # linear predictor
+        elif i == 3:
             ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
                      label=col, linestyle='--', linewidth=1.5)
         else:
-            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=1,
                      label=col)
     ax.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-#    vlocs = np.linspace(-0.7, -1.7, 4)
+    # vlocs = np.linspace(-0.7, -1.7, 4)
     vlocs = np.linspace(-1.4, -2.4, 4)
     dico = dict(zip(names, hlocs))
 
@@ -1783,24 +1790,25 @@ def plot_figure6_bis():
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax.add_patch(rect)
-        #stim2
-        rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
-                         fill=True, alpha=0.6, edgecolor='w',
-                         facecolor=colors[1])
-        if key == 'D0':
-            rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
-                         fill=True, alpha=0.6, edgecolor='k',
-                         facecolor='y')    
-        ax.add_patch(rect)
+        # #stim2
+        # rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+        #                  fill=True, alpha=0.6, edgecolor='w',
+        #                  facecolor=colors[1])
+        # if key == 'D0':
+        #     rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+        #                  fill=True, alpha=0.6, edgecolor='k',
+        #                  facecolor='y')    
+        # ax.add_patch(rect)
     # #center
     # rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
     #                  alpha=0.6, edgecolor='w', facecolor=colors[0])
     # ax.add_patch(rect)
-    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
+#    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
+    for i, st in enumerate(['Surround-Only']):
         ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
                      annotation_clip=False, fontsize='small')
         
-    ax.set_ylabel('$\Delta$ with Center Only')
+    ax.set_ylabel('Membrane potential (mV)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
     lims = ax.get_xlim()
