@@ -2105,7 +2105,7 @@ plot_figure9CD(data_df, cols_dict)
 
 plt.close('all')
 
-def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=1):
+def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -2941,6 +2941,7 @@ def plot_sorted_responses(dico):
             ax.xaxis.set_visible(False)
         else:
             ax.set_xlabel(anotx)
+            ax.xaxis.set_label_coords(0.5, -0.025)
             ax.set_xticks([1, len(df)])
             ax.set_xlim(0, len(df)+2)
     #left
@@ -3281,7 +3282,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
-            set_ticks_both(ax.yaxis)
+            #set_ticks_both(ax.yaxis)
             # alternate right and left
             # if overlap:
             #     #label left:
@@ -3297,7 +3298,28 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
                 ax.xaxis.set_visible(False)
             else:
                 ax.set_xlabel(anotx)
+                ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df_right)])
+    for ax in left_axes:
+        custom_ticks = np.linspace(0, 20, 2, dtype=int)
+        ax.set_yticks(custom_ticks)
+    for ax in right_axes:
+        custom_ticks = np.linspace(0, 0.5, 2)
+        ax.set_yticks(custom_ticks)
+    no_spines = True
+    if no_spines == True:
+        for ax in left_axes:
+            limx = ax.get_xlim()
+            ax.vlines(limx[0], 0, 20, color='k', linewidth=2)
+            # ax.vlines(limx[1], 0, -10, color='k', linewidth=2)
+            for spine in ['left', 'right']:
+                ax.spines[spine].set_visible(False)        
+        for ax in right_axes:
+            limx = ax.get_xlim()
+            ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
+            # ax.vlines(limx[1], 0, -0.5, color='k', linewidth=2)
+            for spine in ['left', 'right']:
+                ax.spines[spine].set_visible(False)            
                 ax.set_xlim(0, len(df_right)+1)
 
     # for ax in left_axes:
@@ -3313,6 +3335,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     #keep data range whithout distortion, preserve 0 alignment
 #    change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
+    
     fig.tight_layout()
     if overlap:
         fig.subplots_adjust(hspace=-0.5, wspace=0.2)
