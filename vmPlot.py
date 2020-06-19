@@ -201,3 +201,27 @@ def testPlot(vm_dico):
     
 testPlot(vm_dico)
 #%%
+
+filename = os.path.join(paths['traces'], 'neuron_props_speed.xlsx')
+speed_info_df = pd.read_excel(filename)
+
+#%%
+def load_speed_vm_traces(speed_info_df):
+    stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm', 'speed'))
+             if item[0] != '.']
+    # remove dir
+    for stim in stims:
+        if not os.path.isfile(os.path.join(paths['traces'], 'vm', stim)):
+             stims.remove(stim)
+    dico = {}
+    for stim in stims:
+        filename = os.path.join(paths['traces'], 'vm', 'speed', stim)
+        df = pd.read_csv(filename, sep='\t', header=None)
+        df.columns = speed_info_df.Neuron.to_list()
+        # center and scale
+        df.index -= df.index.max()/2
+        df.index /= 10
+        dico[stim] = df.copy()
+    return dico
+
+speed_dico = load_speed_vm_traces(speed_info_df)
