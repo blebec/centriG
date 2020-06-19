@@ -52,7 +52,9 @@ def config():
 
 
 paths = config()
-info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
+vm_info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
+speed_info_df = pd.read_excel(
+    os.path.join(paths['traces'], 'neuron_props_speed.xlsx'))
 # =============================================================================
 # if osname == 'darwin' and username == 'cdesbois':
 # elif (osname1 == 'Linux') or (osname2 == 'Linux') and username == 'benoit':
@@ -87,30 +89,31 @@ sig_cells = ['1427A_CXG4',
 #%%
 plt.close('all')
 
-def load_all_vm_traces(info_df):
-    stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm'))
+def load_all_traces(info_df, folder='vm_all'):
+    stims = [item for item in os.listdir(os.path.join(paths['traces'], folder))
              if item[0] != '.']
     # remove dir
     for stim in stims:
-        if not os.path.isfile(os.path.join(paths['traces'], 'vm', stim)):
+        if not os.path.isfile(os.path.join(paths['traces'], folder, stim)):
              stims.remove(stim)
-    conds = {}
+    dico = {}
     for stim in stims:
-        filename = os.path.join(paths['traces'], 'vm', stim)
+        filename = os.path.join(paths['traces'], folder, stim)
         df = pd.read_csv(filename, sep='\t', header=None)
         df.columns = info_df.Neuron.to_list()
         # center and scale
         df.index -= df.index.max()/2
         df.index /= 10
-        conds[stim] = df.copy()
-    return conds
+        dico[stim] = df.copy()
+    return dico
 
 def normalize(dico):
     """ divide by centerOnly"""
     #build list
     res = dico.copy()
     conds = list(dico.keys())
-    conds.remove('blank.txt')
+    if 'blank.txt' in conds:
+        conds.remove('blank.txt')
     ref = 'ctronly.txt'
     # conds.remove(ref)  # to normalize the centerOnly
     # normalize
@@ -144,12 +147,16 @@ def plot_res(vm_dico, norm_dico):
     ax.legend()
     axT.legend()
         
-vm_dico = load_all_vm_traces(info_df)
+
+vm_dico = load_all_traces(vm_info_df, 'vm_all')
 vm_dico = normalize(vm_dico)
-align_dico = align_traces(vm_dico, info_df)
+# vm_align_dico = align_traces(vm_dico, vm_info_df)
+#plot_res(vm_dico, vm_align_dico)
+vm_dico = align_traces(vm_dico, vm_info_df)
 
-plot_res(vm_dico, align_dico)
-
+speed_dico = load_all_traces(speed_info_df, 'vm_speed')
+speed_dico = normalize(speed_dico)
+speed_dico = align_traces(speed_dico, speed_info_df)
 
 #%%
 #for cond in data_cond.columns:
@@ -201,11 +208,6 @@ def testPlot(vm_dico):
     
 testPlot(vm_dico)
 #%%
-
-filename = os.path.join(paths['traces'], 'neuron_props_speed.xlsx')
-speed_info_df = pd.read_excel(filename)
-
-#%%
 def load_speed_vm_traces(speed_info_df):
     stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm', 'speed'))
              if item[0] != '.']
@@ -224,4 +226,7 @@ def load_speed_vm_traces(speed_info_df):
         dico[stim] = df.copy()
     return dico
 
+
 speed_dico = load_speed_vm_traces(speed_info_df)
+
+#%%
