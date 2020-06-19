@@ -19,17 +19,16 @@ from matplotlib import markers
 from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
-# nb description with pandas:  
+# nb description with pandas:
 pd.options.display.max_columns = 30
-
-#import math
 
 #===========================
 # global setup
-font_size = 'medium' # large, medium
-anot = True         # to draw the date and name on the bottom of the plot
+font_size = 'medium'  # large, medium
+anot = True           # to draw the date and name on the bottom of the plot
 #============================
 paths = {}
+
 
 def go_to_dir():
     """
@@ -50,7 +49,7 @@ def go_to_dir():
 go_to_dir()
 savePath = '/Users/cdesbois/ownCloud/cgFigures'
 
-#colors
+# colors
 stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
              'vert' : [x/256 for x in [127, 204, 56]],
              'bleu' :	[x/256 for x in [0, 125, 218]],
@@ -68,7 +67,7 @@ speedColors = {'orangeFonce' : [x/256 for x in [237, 73, 59]],
                'jaune' : [x/256 for x in [253, 174, 74]]}
 
 ############################
-#NB fig size : 8.5, 11.6 or 17.6 cm
+# NB fig size : 8.5, 11.6 or 17.6 cm
 params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
           'legend.fontsize': font_size,
@@ -82,7 +81,7 @@ params = {'font.sans-serif': ['Arial'],
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
-#% general functions
+# general functions
 def retrieve_name(var):
     """
     to retrieve the string value of a variable
@@ -133,7 +132,8 @@ def fig_properties(afig):
     """
     for ax in afig.get_axes():
         properties(ax)
-        
+
+
 def inch_to_cm(value):
     return value/2.54
 
@@ -144,8 +144,8 @@ def load_50vals(kind='vm'):
         print('kind should be in [vm, spk]')
         return
     df = load_cell_contributions(kind)
-    trans = {'s': 'sect', 'f': 'full', 
-             'dlat50' : 'time50', 'dgain50' : 'gain50' }
+    trans = {'s': 'sect', 'f': 'full',
+             'dlat50': 'time50', 'dgain50': 'gain50'}
     cols = []
     for item in df.columns:
         sp = item.split('_')
@@ -155,6 +155,7 @@ def load_50vals(kind='vm'):
         cols.append(new_name)
     df.columns = cols
     return df
+
 
 def new_columns_names(cols):
     def convert_to_snake(camel_str):
@@ -176,6 +177,7 @@ def new_columns_names(cols):
     newcols = [item.replace('spks', 'spk_s_') for item in newcols]
     newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
     return newcols
+
 
 def load_cell_contributions(kind='vm'):
     """
@@ -200,6 +202,7 @@ def load_cell_contributions(kind='vm'):
 #%%
 plt.close('all')
 
+
 def load2():
     """
     import the datafile
@@ -214,35 +217,36 @@ def load2():
     df = df.loc[-200:150]
     # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
     colsdict = {
-        'indVm' : ['indiVmctr', 'indiVmscpIsoStc'],
-        'indSpk' : ['indiSpkCtr', 'indiSpkscpIsoStc'],
-        'popVm' : ['popVmCtr', 'popVmscpIsoStc'],
-        'popSpk' : ['popSpkCtr', 'popSpkscpIsoStc'],
-        'popVmSig' : ['popVmCtrSig', 'popVmscpIsoStcSig',
-                      ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                      ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-        'popSpkSig' : ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                       ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
-                       ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-        'popVmNsig' : ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                       ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
-                       ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-        'popSpkNsig' : ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                        ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                        ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-        'sort' : ['popVmscpIsolatg', 'popVmscpIsoAmpg',
-                  'lagIndiSig', 'ampIndiSig']
+        'indVm': ['indiVmctr', 'indiVmscpIsoStc'],
+        'indSpk': ['indiSpkCtr', 'indiSpkscpIsoStc'],
+        'popVm': ['popVmCtr', 'popVmscpIsoStc'],
+        'popSpk': ['popSpkCtr', 'popSpkscpIsoStc'],
+        'popVmSig': ['popVmCtrSig', 'popVmscpIsoStcSig',
+                     ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+                     ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+        'popSpkSig': ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+                      ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
+                      ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+        'popVmNsig': ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                      ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
+                      ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+        'popSpkNsig': ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+                       ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+                       ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+        'sort': ['popVmscpIsolatg', 'popVmscpIsoAmpg',
+                 'lagIndiSig', 'ampIndiSig']
                 }
     return df, colsdict
+
 
 def plot_figure2(data, colsdict, fill=True):
     """
     plot_figure2 (individual + moy + sig + nonsig)
     """
     colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
+    alphas = [0.8, 0.8]
 
-    #fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12))) 
+    #fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12)))
     fig = plt.figure(figsize=(16.6, 12))
     #build axes with sharex and sharey
     axes = []
@@ -265,9 +269,9 @@ def plot_figure2(data, colsdict, fill=True):
     cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(data[col], color=colors[i], alpha=alpha[i],
+        ax.plot(data[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    #start point
+    # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
@@ -275,49 +279,49 @@ def plot_figure2(data, colsdict, fill=True):
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
     # invert the plot order for spikes
     inv_colors = colors[::-1]
-    inv_alpha = alpha[::-1]
-    #individual spike
+    inv_alphas = alphas[::-1]
+    # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
     for i, col in enumerate(cols[::-1]):
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
         ax.plot(data[col], color=inv_colors[i],
-                alpha=1, label=col)#, linewidth=1)
+                alpha=1, label=col)  #, linewidth=1)
 #    ax.plot(39.8, 0.1523, 'o', color= stdColors['bleu'])
     x = 39.8
     y = data.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
-    #____ plots pop (column 1-3)
+    # plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
     cols = colsdict['popVm']
     ax = vmaxes[1]
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popVmSig
+    # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
         #errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             if fill:
                 ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=0.2)#alpha[i]/2)
+                                color=colors[i], alpha=0.2)#alphas[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
-                        ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                        ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                                 label=col, linewidth=0.5)
-    #advance
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -328,26 +332,26 @@ def plot_figure2(data, colsdict, fill=True):
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popVmNsig
+    # popVmNsig
     cols = colsdict['popVmNsig']
     ax = vmaxes[3]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
         #errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             if fill:
                 ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=0.2)#alpha[i]/2)
+                                color=colors[i], alpha=0.2)#alphas[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
-                        ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                        ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                                 label=col, linewidth=0.5)
     ax.annotate("n=27", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #pop spike
+    # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
@@ -358,24 +362,24 @@ def plot_figure2(data, colsdict, fill=True):
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
-#TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
+# TODO define a Spk plotmode[lines, allhist, sdFill] for popSpkSig and popSpkNsig
     #popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2][::-1]):
         # ax.fill_between(df.index, df[col], color=inv_colors[i],
-        #                 alpha=inv_alpha[i]/2)
-        ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
+        #                 alpha=inv_alphas[i]/2)
+        ax.plot(df[col], color=inv_colors[i], alpha=inv_alphas[i],
                 label=col, linewidth=2)
-    #errors : iterate on tuples
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)
+                        alpha=inv_alphas[i]/2)# label=col, linewidth=0.5)
         # for j in [0, 1]:
         #     ax.plot(df[col[j]], color=colors[i],
         #             alpha=1, label=col, linewidth=0.5)
-    #advance
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -386,26 +390,26 @@ def plot_figure2(data, colsdict, fill=True):
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popSpkNsig
+    # popSpkNsig
     cols = colsdict['popSpkNsig']
     ax = spkaxes[3]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2][::-1]):
         # ax.fill_between(df.index, df[col[0]], df[col[1]], color=inv_colors[i],
-        #                 alpha=inv_alpha[i]/2)
-        ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
+        #                 alpha=inv_alphas[i]/2)
+        ax.plot(df[col], color=inv_colors[i], alpha=inv_alphas[i],
                 label=col, linewidth=2)
-    #errors : iterate on tuples
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=alpha[i]/2)#, label=col, linewidth=0.5)
+                        alpha=alphas[i]/2)#, label=col, linewidth=0.5)
         # for j in [0, 1]:
         #     ax.plot(df[col[j]], color=colors[i],
         #             alpha=1, label=col, linewidth=0.5)
     ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
 
-    #labels
+    # labels
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -434,7 +438,7 @@ def plot_figure2(data, colsdict, fill=True):
     xlocs = np.arange(0, -150, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     dico = dict(zip(names, xlocs))
-    #lines
+    # lines
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
@@ -447,11 +451,11 @@ def plot_figure2(data, colsdict, fill=True):
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
                          alpha=0.6, edgecolor='w', facecolor=stdColors['rouge'])
         ax.add_patch(rect)
-        #center
+        # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
-    #fit individual example
+    # fit individual example
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
@@ -467,8 +471,8 @@ def plot_figure2(data, colsdict, fill=True):
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         ax.yaxis.set_major_formatter(StrMethodFormatter('{x:,.1f}'))
-    #rebuild tick to one decimal
-    #individuals
+    # rebuild tick to one decimal
+    # individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 12, 8, dtype=int)
     ax.set_yticks(custom_ticks)
@@ -477,13 +481,13 @@ def plot_figure2(data, colsdict, fill=True):
     custom_ticks = np.linspace(0, 15, 4, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    #pop
+    # pop
     ax = vmaxes[1]
     custom_ticks = np.linspace(-0.2, 1, 7)
     ax.set_yticks(custom_ticks)
     ax = spkaxes[1]
     custom_ticks = np.linspace(0, 1, 6)
-    ax.set_yticks(custom_ticks)    
+    ax.set_yticks(custom_ticks)
 
     fig.tight_layout()
 
@@ -503,29 +507,30 @@ fig = plot_figure2(data_df, cols_dict)
 #%%
 plt.close('all')
 
+
 def plot_half_figure2(data, colsdict):
     """
     plot_figure2 indiv + pop
     """
     colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
+    alphas = [0.8, 0.8]
 
     fig = plt.figure(figsize=(8.5, 8))
-    #build axes with sharex and sharey
+    # build axes with sharex and sharey
     axes = []
     for i in range(4):
         axes.append(fig.add_subplot(2, 2, i+1))
     # axes list
     vmaxes = axes[:2]      # vm axes = top row
     spkaxes = axes[2:]     # spikes axes = bottom row
-    #____ plots individuals (first column)
+    # plots individuals (first column)
     # individual vm
     cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(data[col], color=colors[i], alpha=alpha[i],
+        ax.plot(data[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    #individual spike
+    # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
     for i, col in enumerate(cols[::-1]):
@@ -533,17 +538,17 @@ def plot_half_figure2(data, colsdict):
                 alpha=1, label=col, linewidth=1)
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
-    #____ plots pop (column 1-3)
+    # plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
     cols = colsdict['popVm']
     ax = vmaxes[1]
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #pop spike
+    # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
@@ -553,7 +558,7 @@ def plot_half_figure2(data, colsdict):
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #labels
+    # labels
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -582,7 +587,7 @@ def plot_half_figure2(data, colsdict):
     xlocs = np.arange(0, -150, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     dico = dict(zip(names, xlocs))
-    #lines
+    # lines
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
@@ -595,11 +600,11 @@ def plot_half_figure2(data, colsdict):
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
                          alpha=0.6, edgecolor='w', facecolor=stdColors['rouge'])
         ax.add_patch(rect)
-        #center
+        # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
-    #fit individual example
+    # fit individual example
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
@@ -609,7 +614,7 @@ def plot_half_figure2(data, colsdict):
     change_plot_trace_amplitude(vmaxes[1], 0.85)
     change_plot_trace_amplitude(spkaxes[1], 0.8)
     # adjust ticks
-    #individuals
+    # individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 12, 8, dtype=int)
     ax.set_yticks(custom_ticks)
@@ -618,7 +623,7 @@ def plot_half_figure2(data, colsdict):
     custom_ticks = np.linspace(0, 15, 4, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    #pop
+    # pop
     ax = vmaxes[1]
     custom_ticks = np.arange(-0.2, 1.2, 0.2)
     ax.set_yticks(custom_ticks)
@@ -655,9 +660,9 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     figure2 (individual + pop + sig)
     """
     colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
+    alphas = [0.8, 0.8]
     inv_colors = colors[::-1]
-    inv_alpha = alpha[::-1]
+    inv_alphas = alphas[::-1]
 
 
     fig = plt.figure(figsize=(17.6, 12))
@@ -668,21 +673,21 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     # axes list
     vmaxes = axes[:3]      # vm axes = top row
     spkaxes = axes[3:]     # spikes axes = bottom row
-    #____ plots individuals (first column)
+    # ____ plots individuals (first column)
     # individual vm
     cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(data[col], color=colors[i], alpha=alpha[i],
+        ax.plot(data[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    #start point
+    # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'],
               linestyle=':')
-    #individual spike
+    # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
     for i, col in enumerate(cols[::-1]):
@@ -690,46 +695,46 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                 alpha=1, label=col, linewidth=1)
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
-    #start point
+    # start point
     x = 39.8
     y = data.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'],
               linestyle=':')
-    #individual spike
+    # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
 
-    #____ plots pop (column 1-3)
+    # ____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
     cols = colsdict['popVm']
     ax = vmaxes[1]
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popVmSig
+    # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
-        #errors : iterate on tuples
+        # errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             if fill:
                 ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=0.2)#alpha[i]/2)
+                                color=colors[i], alpha=0.2)#alphas[i]/2)
             else:
                 for i, col in enumerate(cols[2:]):
                     for j in [0, 1]:
-                        ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                        ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                                 label=col, linewidth=0.5)
 
-    #advance
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -742,10 +747,10 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # adv = str(x0 - x1)
-    #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+    # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
 
-    #pop spike
+    # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
@@ -757,17 +762,17 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
                 xycoords="axes fraction", ha='center')
 
 
-    #popSpkSig
+    # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2][::-1]):
         ax.plot(df[col], color=inv_colors[i], alpha=1, label=col)
-    #errors : iterate on tuples
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=inv_alpha[i]/2)# label=col, linewidth=0.5)
-    #advance
+                        alpha=inv_alphas[i]/2)# label=col, linewidth=0.5)
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -779,11 +784,11 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #adv = str(x0 - x1)
-    #ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-                #xycoords="axes fraction", ha='center')
+    # adv = str(x0 - x1)
+    # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+                # xycoords="axes fraction", ha='center')
 
-    #labels
+    # labels
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -812,7 +817,7 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     xlocs = np.arange(0, -150, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
     dico = dict(zip(names, xlocs))
-    #lines
+    # lines
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
@@ -825,11 +830,11 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
                          alpha=0.6, edgecolor='w', facecolor=stdColors['rouge'])
         ax.add_patch(rect)
-    #center
+    # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
                      alpha=0.6, edgecolor='w', facecolor='k')
     ax.add_patch(rect)
-    #fit individual example
+    # fit individual example
     vmaxes[0].set_ylim(-3.5, 12)
     spkaxes[0].set_ylim(-5.5, 18)
     # align zero between plots  NB ref = first plot
@@ -853,11 +858,11 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     # for ax in vmaxes[1:]:
     #     custom_ticks = np.arange(-0.2, 1.2, 0.2)
     #     ax.set_yticks(custom_ticks)
-    # for ax in spkaxes[1:]: 
+    # for ax in spkaxes[1:]:
     #     custom_ticks = np.arange(-0.3, 1.3, 0.3)
-    #     ax.set_yticks(custom_ticks)    
-    #rebuild tick to one decimal
-    #individuals
+    #     ax.set_yticks(custom_ticks)
+    # rebuild tick to one decimal
+    # individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
@@ -866,18 +871,18 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     custom_ticks = np.linspace(0, 15, 4, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    #pop
+    # pop
     for ax in vmaxes[1:]:
         custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
     for ax in spkaxes[1:]:
         custom_ticks = np.linspace(0, 1.2, 7)
-        ax.set_yticks(custom_ticks)    
+        ax.set_yticks(custom_ticks)
 
     fig.tight_layout()
     # remove the space between plots
     fig.subplots_adjust(hspace=0.06, wspace=0.4)
-    #align ylabels
+    # align ylabels
     fig.align_ylabels()
 
     if anot:
@@ -890,29 +895,31 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
 
 fig = plot_3quarter_figure2(data_df, cols_dict)
 #%% sigNonsig
+
+
 def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     """
     plot_figure2
     """
     colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
+    alphas = [0.8, 0.8]
     # no individual : focus on initial response
     df = data.loc[-30:35]
 
     fig = plt.figure(figsize=(8.5, 8)) #fig = plt.figure(figsize=(8, 8))
-    #build axes with sharex and sharey
+    # build axes with sharex and sharey
     axes = []
     for i in range(4):
         axes.append(fig.add_subplot(2, 2, i+1))
     # axes list
     vmaxes = axes[:2]      # vm axes = top row
     spkaxes = axes[2:]     # spikes axes = bottom row
-    #____ plots individuals (first column)
+    # ____ plots individuals (first column)
 #    # individual vm
 #    cols = colsdict['indVm']
 #    ax = vmaxes[0]
 #    for i, col in enumerate(cols):
-#        ax.plot(data[col], color=colors[i], alpha=alpha[i],
+#        ax.plot(data[col], color=colors[i], alpha=alphas[i],
 #                label=col)
 #    #individual spike
 #    cols = colsdict['indSpk']
@@ -928,29 +935,29 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
 #    cols = colsdict['popVm']
 #    ax = vmaxes[1]
 #    for i, col in enumerate(cols):
-#        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+#        ax.plot(df[col], color=colors[i], alpha=alphas[i],
 #                label=col)
 #    ax.annotate("n=37", xy=(0.2, 0.8),
 #                xycoords="axes fraction", ha='center')
-    #popVmSig
+    # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[-2]
     ax.set_title('significative population')
-    #traces
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
         #errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         if fill:
             ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                            alpha=alpha[i]/2)
+                            alpha=alphas[i]/2)
         else:
             for i, col in enumerate(cols[2:]):
                 for j in [0, 1]:
-                    ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                    ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                             label=col, linewidth=0.5)
-    #advance
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -961,44 +968,44 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popVmNsig
+    # popVmNsig
     cols = colsdict['popVmNsig']
     ax = vmaxes[-1]
     ax.set_title('non significative population')
-    #traces
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    #errors : iterate on tuples
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         if fill:
             ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                            alpha=alpha[i]/2)
+                            alpha=alphas[i]/2)
         else:
             for i, col in enumerate(cols[2:]):
                 for j in [0, 1]:
-                    ax.plot(df[col[j]], color=colors[i], alpha=alpha[i],
+                    ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                             label=col, linewidth=0.5)
     ax.annotate("n=27", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #NB for spiking response, the control should be plotted last,
+    # NB for spiking response, the control should be plotted last,
     # ie revert the order
     inv_colors = colors[::-1]
-    inv_alpha = alpha[::-1]
-    #popSpkSig
+    inv_alphas = alphas[::-1]
+    # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[-2]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2][::-1]):
         # ax.fill_between(df.index, df[col], color=inv_colors[i],
-        #                 alpha=inv_alpha[i]/2)
-        ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
+        #                 alpha=inv_alphas[i]/2)
+        ax.plot(df[col], color=inv_colors[i], alpha=inv_alphas[i],
                 label=col, linewidth=2)
-    #errors : iterate on tuples
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=alpha[i]/2, label=col)
-    #advance
+                        alpha=alphas[i]/2, label=col)
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
@@ -1009,22 +1016,22 @@ def plot_signonsig_figure2(data, colsdict, fill=True, fillground=True):
     ax.hlines(y, x1, x0, color=stdColors['bleu'])
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #popSpkNsig
+    # popSpkNsig
     cols = colsdict['popSpkNsig']
     ax = spkaxes[-1]
-    #traces
+    # traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.plot(df[col], color=inv_colors[i], alpha=inv_alpha[i],
+        ax.plot(df[col], color=inv_colors[i], alpha=inv_alphas[i],
                 label=col, linewidth=2)
         # ax.fill_between(df.index, df[col], color=inv_colors[i],
-        #                 alpha=inv_alpha[i]/2)
-    #errors : iterate on tuples
+        #                 alpha=inv_alphas[i]/2)
+    # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=alpha[i]/2)
+                        alpha=alphas[i]/2)
     ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    #labels
+    # labels
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -1096,17 +1103,17 @@ def plot_figure2B(sig=True):
             axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
                         color=stdColors['rouge'], label=cols[i],
                         alpha=0.8, width=0.8)
-        #zero line
+        # zero line
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        #ticks
+        # ticks
         ax.set_xlim(0, 38)
         ax.set_xticks([df.index.min(), df.index.max()])
         ax.set_xlabel('Cell rank')
         ax.xaxis.set_label_coords(0.5, -0.025)
         if i == 0:
             txt = r'$\Delta$ Phase (ms)'
-            ylims = (-6, 29) 
+            ylims = (-6, 29)
             ax.vlines(0, 0, 20, linewidth=2)
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
@@ -1114,7 +1121,7 @@ def plot_figure2B(sig=True):
             ylims = ax.get_ylim()
             ax.vlines(0, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
-        ax.set_yticks(custom_yticks)        
+        ax.set_yticks(custom_yticks)
         ax.set_ylabel(txt)
         ax.set_ylim(ylims)
         for spine in ['left', 'top', 'right', 'bottom']:
@@ -1146,7 +1153,7 @@ def plot_2B_bis():
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[sigs[i]]]
         axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-                        color=colors, label=cols[i], alpha=0.8, width=0.8)   
+                    color=colors, label=cols[i], alpha=0.8, width=0.8)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         ax.set_xticks([0, len(df)-1])
@@ -1173,13 +1180,14 @@ def plot_2B_bis():
     align_yaxis(axes[0], 0, axes[1], 0)
     change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
-     
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
                  ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)   
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
+
 
 def sort_stat():
     filename = 'data/fig2cells.xlsx'
@@ -1191,7 +1199,7 @@ def sort_stat():
     temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
     temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
-        print(item , len(temp), 'measures')
+        print(item, len(temp), 'measures')
         print('mean= {:5.2f}'.format(temp.mean()[0]))
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
@@ -1202,7 +1210,8 @@ plot_figure2B('horizontal')
 sort_stat()
 
 #%%
-#plt.close('all')
+# plt.close('all')
+
 
 def plot_figure3(kind='sig', substract=False):
     """
@@ -1216,11 +1225,11 @@ def plot_figure3(kind='sig', substract=False):
     titles = {'pop' : 'all cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
-    #samplesize
+    # samplesize
     cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     ncells = cellnumbers[kind]
     df = pd.read_excel(filenames[kind])
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -1228,21 +1237,21 @@ def plot_figure3(kind='sig', substract=False):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    #alpha = [0.5, 0.8, 0.5, 1, 0.6]
-    alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
+    # alphas = [0.5, 0.8, 0.5, 1, 0.6]
+    alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
 
     if substract:
-        ref = df['CENTER-ONLY'] 
+        ref = df['CENTER-ONLY']
         df = df.subtract(ref, axis=0)
 
     fig = plt.figure(figsize=(6.5, 5.5))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-    #fig.suptitle(titles[kind])
+    #  #SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    # fig.suptitle(titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         #if (i == 0) or (i == 4):
-            #ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
-        ax.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+            #ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
@@ -1251,7 +1260,7 @@ def plot_figure3(kind='sig', substract=False):
     ax.set_xlim(-15, 30)
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    #ax.vlines(0, -0.2, 1.1, alpha=0.2)
+    # ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
@@ -1261,11 +1270,11 @@ def plot_figure3(kind='sig', substract=False):
     ax.set_xticks(custom_ticks)
     # bluePoint
     ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1])
-    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-    #leg = ax.legend(loc=2, markerscale=None, frameon=False,
+    # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+    # leg = ax.legend(loc=2, markerscale=None, frameon=False,
                     #handlelength=0)
-    #for line, text in zip(leg.get_lines(), leg.get_texts()):
-        #text.set_color(line.get_color())
+    # for line, text in zip(leg.get_lines(), leg.get_texts()):
+        # text.set_color(line.get_color())
     ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
     if substract:
@@ -1273,18 +1282,18 @@ def plot_figure3(kind='sig', substract=False):
         ax.set_ylim(-0.15, 0.4)
         custom_ticks = np.arange(-40, 110, 20)
         ax.set_xticks(custom_ticks)
-        #max center only
+        # max center only
         lims = ax.get_ylim()
         ax.vlines(21.4, lims[0], lims[1])
         # end of center only
         #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
         ax.vlines(88, lims[0], lims[1], alpha=0.3)
         ax.axvspan(0, 88, facecolor='k', alpha=0.2)
-        ax.text(0.4, 0.9, 'center only response \n start | peak | end', 
-                transform=ax.transAxes, alpha = 0.5)
+        ax.text(0.4, 0.9, 'center only response \n start | peak | end',
+                transform=ax.transAxes, alpha=0.5)
         ax.set_ylabel('Norm vm - Norm centerOnly')
     fig.tight_layout()
-    
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
@@ -1302,6 +1311,7 @@ fig2 = plot_figure3('pop', substract=True)
 #%% grouped sig and non sig
 plt.close('all')
 
+
 def plot_figure3_signonsig(substract=False):
     """
     plot_figure3
@@ -1313,11 +1323,11 @@ def plot_figure3_signonsig(substract=False):
     titles = {'pop' : 'recorded cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
-    #samplesize
+    # samplesize
     cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.6, 0.8, 0.5, 1, 0.6]
+    alphas = [0.6, 0.8, 0.5, 1, 0.6]
 
     fig = plt.figure(figsize=(11.6, 6))
     axes = []
@@ -1326,32 +1336,32 @@ def plot_figure3_signonsig(substract=False):
     for i, kind in enumerate(['sig', 'nonsig']):
         ncells = cellnumbers[kind]
         df = pd.read_excel(filenames[kind])
-        #centering
+        # centering
         middle = (df.index.max() - df.index.min())/2
         df.index = (df.index - middle)/10
         df = df.loc[-45:120]
         cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
         df.columns = cols
         if substract:
-            ref = df['CNT-ONLY'] 
+            ref = df['CNT-ONLY']
             df = df.subtract(ref, axis=0)
         ax = axes[i]
         ax.set_title(titles[kind])
         ncells = cellnumbers[kind]
         for j, col in enumerate(cols):
-            ax.plot(df[col], color=colors[j], alpha=alpha[j],
+            ax.plot(df[col], color=colors[j], alpha=alphas[j],
                     label=col, linewidth=2)
             ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                         xycoords="axes fraction", ha='center')
-        if substract: 
+        if substract:
             leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
-                            handlelength=0)            
+                            handlelength=0)
         else:
             leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
                             handlelength=0)
         for line, text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
-        # point bleu
+        # bleu point
         ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['bleu'])
 
     axes[0].set_ylabel('normalized membrane potential')
@@ -1365,26 +1375,26 @@ def plot_figure3_signonsig(substract=False):
         ax.set_xlabel('relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-    
+
     if substract:
         for ax in axes:
             ax.set_xlim(-45, 120)
             ax.set_ylim(-0.15, 0.4)
             custom_ticks = np.arange(-40, 110, 20)
             ax.set_xticks(custom_ticks)
-            #max center only
+            # max center only
             lims = ax.get_ylim()
             ax.vlines(21.4, lims[0], lims[1])
             # end of center only
             #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
             ax.vlines(88, lims[0], lims[1], alpha=0.3)
             ax.axvspan(0, 88, facecolor='k', alpha=0.1)
-            ax.text(0.41, 0.6, 'center only response \n start | peak | end', 
-                transform=ax.transAxes, alpha = 0.5)
+            ax.text(0.41, 0.6, 'center only response \n start | peak | end',
+                    transform=ax.transAxes, alpha=0.5)
         axes[0].set_ylabel('Norm vm - Norm centerOnly')
-        #axes[1].yaxis.set_visible(False)
-        #axes[1].spines['left'].set_visible(False)
-        
+        # axes[1].yaxis.set_visible(False)
+        # axes[1].spines['left'].set_visible(False)
+
     fig.tight_layout()
 
     if anot:
@@ -1404,16 +1414,16 @@ def plot_figure4(substract=False):
     """ speed """
     filename = 'data/fig4.xlsx'
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
-    #OBSERVATION bottom raw 0 baseline has been decentered by police and ticks size changes
+    # OBSERVATION bottom raw 0 baseline has been decentered by police and ticks size changes
     df.index = df.index - middle
     df.index = df.index/10
     cols = ['centerOnly', '100%', '70%', '50%', '30%']
     df.columns = cols
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
-    alpha = [0.8, 1, 0.8, 0.8, 1]
+    alphas = [0.8, 1, 0.8, 0.8, 1]
     if substract:
         ref = df.centerOnly
         df = df.subtract(ref, axis=0)
@@ -1426,16 +1436,16 @@ def plot_figure4(substract=False):
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
     ax.set_ylabel('Normalized membrane potential')
-    #, fontname = 'Arial', fontsize = 14)
+    # fontname = 'Arial', fontsize = 14)
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
     fig.tight_layout()
-    #fig.legend()
+    # fig.legend()
     ax.set_xlim(-40, 45)
     ax.set_ylim(-0.1, 1.1)
     lims = ax.get_ylim()
@@ -1445,9 +1455,9 @@ def plot_figure4(substract=False):
     custom_ticks = np.linspace(-40, 40, 5)
     ax.set_xticks(custom_ticks)
 
-    #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+    # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
     #                handlelength=0)
-    #for line, text in zip(leg.get_lines(), leg.get_texts()):
+    # for line, text in zip(leg.get_lines(), leg.get_texts()):
     #    text.set_color(line.get_color())
     ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
                 xycoords="axes fraction", ha='center')
@@ -1471,7 +1481,7 @@ def plot_figure4(substract=False):
 
 fig = plot_figure4()
 fig = plot_figure4(substract=True)
-## alpha = 0.8, figsize = 8,6, ha = 'left'
+## alpha=0.8, figsize = 8,6, ha = 'left'
 #%% fig 5 <-> sup 7
 
 plt.close('all')
@@ -1487,7 +1497,7 @@ def plot_fig5():
 
     filename = filenames[0]
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -1495,19 +1505,18 @@ def plot_fig5():
     df = df.loc[-100:300]
     # remove the negative values
     for col in df.columns:
-        df[col].loc[df[col] < 0] = 0    
+        df[col].loc[df[col] < 0] = 0
     cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
            # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
     colors = [stdColors['rouge'], stdColors['jaune']]
     darkcolors = [stdColors['dark_rouge'], stdColors['dark_jaune']]
-    alpha = [0.7, 0.7]
+    alphas = [0.7, 0.7]
 
     fig = plt.figure(figsize=(4, 7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
-        ax1.fill_between(df.index, df[col], facecolor=colors[i], 
-#                         edgecolor=darkcolors[i], alpha=1, linewidth=1)
+        ax1.fill_between(df.index, df[col], facecolor=colors[i],
                          edgecolor='black', alpha=1, linewidth=1)
     ax1.axes.get_xaxis().set_visible(False)
     ax1.spines['bottom'].set_visible(False)
@@ -1515,15 +1524,15 @@ def plot_fig5():
 
     filename = filenames[1]
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    #reduce the time range
+    # reduce the time range
     df = df.loc[-100:300]
     # remove the negative values
     for col in df.columns:
-        df[col].loc[df[col] < 0] = 0    
+        df[col].loc[df[col] < 0] = 0
 
     cols = ['scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
@@ -1531,8 +1540,7 @@ def plot_fig5():
     darkcolors = darkcolors[::-1]
     ax2 = fig.add_subplot(212)
     for i, col in enumerate(cols[:2]):
-        ax2.fill_between(df.index, df[col], facecolor=colors[i], 
-#                         edgecolor=darkcolors[i], alpha=1, linewidth=1)
+        ax2.fill_between(df.index, df[col], facecolor=colors[i],
                          edgecolor='black', alpha=1, linewidth=1)
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
@@ -1577,7 +1585,7 @@ def plot_figure6():
     """
     filename = 'data/fig5.xlsx'
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -1589,13 +1597,13 @@ def plot_figure6():
     df.rename(columns=dico, inplace=True)
     # color parameters
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
-    alpha = [0.6, 0.8, 0.8, 0.8]
-    #plotting
+    alphas = [0.6, 0.8, 0.8, 0.8]
+    # plotting
     fig = plt.figure(figsize=(8.5, 8))
-#    fig.suptitle(os.path.basename(filename))
+    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols[:2]):
-        ax1.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+        ax1.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                  label=col)
     ax1.spines['bottom'].set_visible(False)
     ax1.axes.get_xaxis().set_visible(False)
@@ -1603,31 +1611,31 @@ def plot_figure6():
     ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
         if i == 3:
-            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                      label=col, linestyle='--', linewidth=1.5)
         else:
-            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                      label=col)
     ax2.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
-#    vlocs = np.linspace(-0.7, -1.7, 4)
+    # vlocs = np.linspace(-0.7, -1.7, 4)
     vlocs = np.linspace(-1.4, -2.4, 4)
     dico = dict(zip(names, hlocs))
 
-    #ax1
+    # ax1
     for key in dico.keys():
-        #name
+        # name
         ax1.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
-        #stim1
+        # stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
         ax1.add_patch(rect)
-    #center
+    # center
     rect = Rectangle(xy=(0, vlocs[2]), width=step, height=0.3, fill=True,
                      alpha=0.6, edgecolor='w', facecolor=colors[0])#'k')
     ax1.add_patch(rect)
@@ -1641,12 +1649,12 @@ def plot_figure6():
         # see annotation_clip=False
     ax1.set_ylim(-2.5, 4.5)
 
-    #ax2
+    # ax2
     for key in dico.keys():
         # names
         ax2.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
-        #stim1
+        # stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
                          fill=True, alpha=1, edgecolor='w',
                          facecolor=colors[2])
@@ -1655,7 +1663,7 @@ def plot_figure6():
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax2.add_patch(rect)
-        #stim2
+        # stim2
         rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
@@ -1668,11 +1676,11 @@ def plot_figure6():
         ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
                      annotation_clip=False, fontsize='small')
     for ax in fig.get_axes():
-        #leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
+        # leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
         #                handlelength=0)
         # colored text
-        #for line, text in zip(leg.get_lines(), leg.get_texts()):
-            #text.set_color(line.get_color())
+        # for line, text in zip(leg.get_lines(), leg.get_texts()):
+            # text.set_color(line.get_color())
         ax.set_ylabel('Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
@@ -1704,8 +1712,9 @@ def plot_figure6():
 
 fig = plot_figure6()
 
-#%% 
+#%%
 plt.close('all')
+
 
 def plot_figure6_bis():
     """
@@ -1713,7 +1722,7 @@ def plot_figure6_bis():
     """
     filename = 'data/fig5.xlsx'
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -1725,13 +1734,13 @@ def plot_figure6_bis():
     df.rename(columns=dico, inplace=True)
     # color parameters
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
-    alpha = [0.6, 0.8, 0.8, 0.8]
+    alphas = [0.6, 0.8, 0.8, 0.8]
     # substract
-    
+
     ref = df['Center-Only'].copy()
     df['Surround-then-Center'] = df['Surround-then-Center'] - ref
     df['Center-Only'] -= ref
-    #plotting
+    # plotting
     fig = plt.figure(figsize=(8.5, 4))
 #    fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
@@ -1741,15 +1750,15 @@ def plot_figure6_bis():
         # suround the center minus center
         elif i == 1:
             pass
-            # ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
+            # ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
             #          label=col, linestyle='--', linewidth=1.5)
         # linear predictor
         elif i == 3:
-            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alpha[i],
-                     label=col, linestyle='--', linewidth=1.5)
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                    label=col, linestyle='--', linewidth=1.5)
         else:
             ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=1,
-                     label=col)
+                    label=col)
     ax.set_xlabel('Time (ms)')
     # stims
     step = 21
@@ -1760,11 +1769,11 @@ def plot_figure6_bis():
     vlocs = np.linspace(-0.8, -1.5, 4)
     dico = dict(zip(names, hlocs))
 
-    #ax
+    # ax
     for key in dico.keys():
         # names
         ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
-                     annotation_clip=False, fontsize='small')
+                    annotation_clip=False, fontsize='small')
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.2,
                          fill=True, alpha=1, edgecolor='w',
@@ -1781,7 +1790,7 @@ def plot_figure6_bis():
         # if key == 'D0':
         #     rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
         #                  fill=True, alpha=0.6, edgecolor='k',
-        #                  facecolor='y')    
+        #                  facecolor='y')
         # ax.add_patch(rect)
     # #center
     # rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
@@ -1790,8 +1799,8 @@ def plot_figure6_bis():
 #    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
     for i, st in enumerate(['Surround-Only']):
         ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
-                     annotation_clip=False, fontsize='small')
-        
+                    annotation_clip=False, fontsize='small')
+
     ax.set_ylabel('Membrane potential (mV)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
@@ -1808,22 +1817,22 @@ def plot_figure6_bis():
     for dloc in hlocs:
         ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     # end
-    x = 150.1 
+    x = 150.1
     ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
               linestyle=':', alpha=0.8)
     # peak
     x = 63.9
     ax.vlines(x, -0.5, lims[1], 'k', alpha=0.5)
     ax.axvspan(41, 150.1, ymin=0.28, color='k', alpha=0.1)
-    #ticks
+    # ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
 
     fig.tight_layout()
-    
-    ax.text(0.55, 0.17, 'center only response \n start | peak | end', 
-                transform=ax.transAxes, alpha = 0.5)
+
+    ax.text(0.55, 0.17, 'center only response \n start | peak | end',
+            transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6_bis',
@@ -1836,6 +1845,7 @@ fig = plot_figure6_bis()
 
 #%%
 plt.close('all')
+
 
 def plot_figure7():
     """
@@ -1858,42 +1868,42 @@ def plot_figure7():
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
               stdColors['bleuViolet'], stdColors['bleuViolet'],
               stdColors['bleuViolet']]
-    alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
+    alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     fig = plt.figure(figsize=(11.6, 5))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(121)
     for i, col in enumerate(cols[:3]):
         if i == 2:
-            ax1.plot(df[col], color=colors[i], alpha=alpha[i],
+            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
                      linewidth=2, label=col)
         else:
-            ax1.plot(df[col], color=colors[i], alpha=alpha[i],
+            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
                      label=col)
     x = 0
     y = df.centerOnly.loc[0]
     ax1.plot(x, y, 'o', color=stdColors['bleu'])
-    #ax1.hlines(y, -150, 10, colors=stdColors['bleu'], alpha=0.5)
+    # ax1.hlines(y, -150, 10, colors=stdColors['bleu'], alpha=0.5)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
         print('i=', i, colors[i])
-        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alpha[i],
+        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                  label=df.columns[i])
     ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
                      color=colors[2], alpha=0.2)
-    #ax2.set_ylim(-0.2, 0.3)
+    # ax2.set_ylim(-0.2, 0.3)
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
     for ax in fig.get_axes():
-        #leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+        # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
         #                handlelength=0)
         # colored text
-        #for line, text in zip(leg.get_lines(), leg.get_texts()):
+        # for line, text in zip(leg.get_lines(), leg.get_texts()):
         #    text.set_color(line.get_color())
-        #ax.set_xlim(-150, 150)
+        # ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
         ax.set_xlabel('Relative time (ms)')
         #, fontname = 'Arial', fontsize = 14)
@@ -1931,11 +1941,11 @@ def plot_figure7_bis():
     """
     filename = 'data/fig6.xlsx'
     df = pd.read_excel(filename)
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    #limit the date time range
+    # limit the date time range
     df = df.loc[-150:160]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sdUp', 'sdDown', 'linearPrediction']
@@ -1953,23 +1963,23 @@ def plot_figure7_bis():
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
               stdColors['bleuViolet'], stdColors['rouge'],
               stdColors['bleuViolet']]
-    alpha = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
+    alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
     ax = fig.add_subplot(111)
     ax.plot(df.popfillVmscpIsoDlp, ':r', alpha=1, linewidth=2,
-                 label='sThenCent - cent')
+            label='sThenCent - cent')
     # surroundOnly
     ax.plot(df.surroundOnlysdUp, color=stdColors['vertSombre'], alpha=0.7,
-                 label='surroundOnly')
+            label='surroundOnly')
     ax.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                     color=stdColors['vertSombre'], alpha=0.2)
-    
+                    color=stdColors['vertSombre'], alpha=0.2)
+
     ax.set_ylabel('Normalized membrane potential')
     ax.annotate("n=12", xy=(0.1, 0.8),
-                 xycoords="axes fraction", ha='center')
-    ax.set_xlabel('Relative time (ms)')        
+                xycoords="axes fraction", ha='center')
+    ax.set_xlabel('Relative time (ms)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
     lims = ax.get_xlim()
@@ -1987,7 +1997,7 @@ def plot_figure7_bis():
     y = df['centerOnly'].loc[x2]
     ax.vlines(x2, lims[0], lims[1], color='k',
               linestyle='-', alpha=0.2)
- #   ax.plot(x2, y, 'o', color=stdColors['bleu'])
+    # ax.plot(x2, y, 'o', color=stdColors['bleu'])
     # peak
     # df.centerOnly.idxmax()
     x1 = 26.1
@@ -1999,9 +2009,9 @@ def plot_figure7_bis():
     ax.set_yticklabels(custom_ticks)
 
     fig.tight_layout()
-    
-    ax.text(0.5, 0.10, 'center only response \n start | peak | end', 
-                transform=ax.transAxes, alpha = 0.5)
+
+    ax.text(0.5, 0.10, 'center only response \n start | peak | end',
+            transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_bis',
@@ -2021,33 +2031,33 @@ def plot_figure9CD(data, colsdict):
     plot_figure9CD
     """
     colors = ['k', stdColors['rouge']]
-    alpha = [0.8, 0.8]
+    alphas = [0.8, 0.8]
     # no individual : focus on initial response
     df = data.loc[-30:35]
 
     fig = plt.figure(figsize=(11.6, 5)) #fig = plt.figure(figsize=(8, 8))
     ax0 = fig.add_subplot(1, 2, 1)
     cols = colsdict['popVmSig']
-    #ax.set_title('significative population')
-    #traces
+    # ax.set_title('significative population')
+    # traces
     for i, col in enumerate(cols[:2]):
-        ax0.plot(df[col], color=colors[i], alpha=alpha[i],
+        ax0.plot(df[col], color=colors[i], alpha=alphas[i],
                  label=col)
-        #errors : iterate on tuples
+        # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax0.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                         alpha=alpha[i]/2)
-        #advance
+                         alpha=alphas[i]/2)
+    # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    #ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    #ax.plot(x1, y, '|', color=stdColors['bleu'])
-    #ax.hlines(y, x1, x0, color=stdColors['bleu'])
-    #ax.annotate("n=10", xy=(0.2, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    # ax.plot(x0, y, 'o', color=stdColors['bleu'])
+    # ax.plot(x1, y, '|', color=stdColors['bleu'])
+    # ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    # ax.annotate("n=10", xy=(0.2, 0.8),
+    #               xycoords="axes fraction", ha='center')
     ylabel = 'Normalized membrane potential'
     ax0.set_ylabel(ylabel)
     ax0.set_ylim(-0.10, 1.2)
@@ -2059,13 +2069,13 @@ def plot_figure9CD(data, colsdict):
     # lims = ax1.get_ylim()
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax0.set_yticks(custom_ticks)
-    
-    #hist
+
+    # hist
     ax1 = fig.add_subplot(1, 2, 2)
     filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
-#    cols = df.columns[:2]
-#    signs = df.columns[2:]
+    # cols = df.columns[:2]
+    # signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
 
     nsig = df.loc[df.lagIndiSig == 0].popVmscpIsolatg.tolist()
@@ -2075,10 +2085,10 @@ def plot_figure9CD(data, colsdict):
     ax1.hist([sig, nsig], bins=bins, stacked=True,
              color=[stdColors['rouge'], 'None'], edgecolor='k', linewidth=1)
     ax1.set_xlim(-10, 35)
-    #adjust nb of ticks
+    # adjust nb of ticks
     lims = ax1.get_ylim()
     custom_ticks = np.linspace(lims[0], 18, 7, dtype=int)
-#    custom_ticks = np.arange(0, 13, 4)
+    # custom_ticks = np.arange(0, 13, 4)
     ax1.set_yticks(custom_ticks)
     ax1.set_yticklabels(custom_ticks)
     ax1.vlines(0, lims[0], lims[1], linestyle='--')
@@ -2090,7 +2100,7 @@ def plot_figure9CD(data, colsdict):
             ax.spines[spine].set_visible(False)
     fig.tight_layout()
     # remove the space between plots
-    #fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
+    # fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure9CD',
@@ -2098,12 +2108,13 @@ def plot_figure9CD(data, colsdict):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#data_df, cols_dict = load2()
+# data_df, cols_dict = load2()
 plot_figure9CD(data_df, cols_dict)
 
 #%% plot latency (left) and gain (right)
 
 plt.close('all')
+
 
 def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     """
@@ -2113,8 +2124,8 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     """
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
-        ticks = list( axis.majorTicks ) # a copy
-        ticks.extend( axis.minorTicks )
+        ticks = list(axis.majorTicks) # a copy
+        ticks.extend(axis.minorTicks)
         for t in ticks:
             t.tick1line.set_visible(True)
             t.tick2line.set_visible(True)
@@ -2127,7 +2138,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
               stdColors['jaune'], stdColors['jaune'],
               stdColors['bleu'], stdColors['bleu'],
               stdColors['bleu'], stdColors['bleu']]
-    #data (call)
+    # data (call)
     df = load_cell_contributions('vm')
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if 's_' in item[:7]]
@@ -2142,7 +2153,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     anotx = 'Cell rank'
     anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
              #(fraction of Center-only response)']
-    #plot
+    # plot
     fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
     if anot:
@@ -2154,7 +2165,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     name = traces[key]
     sig_name = name + '_indisig'
     df = df.sort_values(by=[name, sig_name], ascending=False)
-    #plot all traces
+    # plot all traces
     for i, name in enumerate(traces):
         sig_name = name + '_indisig'
         # color : white if non significant, edgecolor otherwise
@@ -2162,12 +2173,12 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
         color_dic = {0 : 'w', 1 : edgeColor}
         if sort_all:
             select = df[[name, sig_name]].sort_values(by=[name, sig_name],
-                                                  ascending=False)
+                                                      ascending=False)
         else:
-            select = df[[name, sig_name]]            
+            select = df[[name, sig_name]]
         barColors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
-#        ax.set_title(str(i))
+        # ax.set_title(str(i))
         ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
                alpha=0.8, width=0.8)
         if i in [0, 1]:
@@ -2183,22 +2194,22 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
             ax.spines['top'].set_visible(False)
             ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
-            #zero line
+            # zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
-            #set_ticks_both(ax.yaxis)
+            # set_ticks_both(ax.yaxis)
             # alternate right and left
             # if overlap:
             #     #label left:
             #     if i % 2 == 0:
-            #         ax.spines['right'].set_visible(False)                
-            #     #label right    
+            #         ax.spines['right'].set_visible(False)
+            #     #label right
             #     else:
             #         ax.spines['left'].set_visible(False)
             #         ax.yaxis.tick_right()
             # else:
-            #     ax.spines['right'].set_visible(False)                                
+            #     ax.spines['right'].set_visible(False)
             if i != 4:
                 ax.xaxis.set_visible(False)
             else:
@@ -2219,7 +2230,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
             ax.vlines(limx[0], 0, 10, color='k', linewidth=2)
             # ax.vlines(limx[1], 0, -10, color='k', linewidth=2)
             for spine in ['left', 'right']:
-                ax.spines[spine].set_visible(False)        
+                ax.spines[spine].set_visible(False)
         for ax in right_axes:
             limx = ax.get_xlim()
             ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
@@ -2227,16 +2238,16 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
             for spine in ['left', 'right']:
                 ax.spines[spine].set_visible(False)
 
-    #align each row yaxis on zero between subplots
+    # align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
-    #keep data range whithout distortion, preserve 0 alignment
+    # keep data range whithout distortion, preserve 0 alignment
     change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
     if overlap:
         fig.subplots_adjust(hspace=-0.5, wspace=0.2)
     else:
-        fig.subplots_adjust(hspace=0.05, wspace=0.2)        
+        fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses_sup1',
@@ -2253,7 +2264,7 @@ fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #     fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=key)
 #     filename = os.path.join(savePath, str(key) + '.png')
 #     fig.savefig(filename, format='png')
-    
+
 # =============================================================================
 
 #%%
@@ -2271,11 +2282,11 @@ def plot_figSup2B(kind='pop'):
     titles = {'pop' : 'all cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
-    #samplesize
+    # samplesize
     cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     ncells = cellnumbers[kind]
     df = pd.read_excel(filenames[kind])
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -2284,19 +2295,19 @@ def plot_figSup2B(kind='pop'):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu'], stdColors['bleu']]
-    #alpha = [0.5, 0.8, 0.5, 1, 0.6]
-    alpha = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
+    # alphas = [0.5, 0.8, 0.5, 1, 0.6]
+    alphas = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
-##SUGGESTION: make y dimension much larger to see maximize visual difference between traces
+    # SUGGESTION: make y dimension much larger to see maximize visual difference between traces
     if anot:
         fig.suptitle('Vm ' + titles[kind])
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         if i == 4:
             ax.plot(df[col], linestyle='dotted', color=colors[i],
-                    alpha=alpha[i], label=col, linewidth=2)
+                    alpha=alphas[i], label=col, linewidth=2)
         elif i != 4:
-            ax.plot(df[col], color=colors[i], alpha=alpha[i],
+            ax.plot(df[col], color=colors[i], alpha=alphas[i],
                     label=col, linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
@@ -2306,7 +2317,7 @@ def plot_figSup2B(kind='pop'):
     ax.set_xlim(-15, 30)
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    #ax.vlines(0, -0.2, 1.1, alpha=0.2)
+    # ax.vlines(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
     ax.hlines(0, lims[0], lims[1], alpha=0.2)
@@ -2315,15 +2326,15 @@ def plot_figSup2B(kind='pop'):
     ax.set_yticks(custom_ticks)
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
-    # point bleu
+    # blue point
     ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=stdColors['bleu'])
 
-    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+    # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
                     handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
-    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #            xycoords="axes fraction", ha='center')
     fig.tight_layout()
 
@@ -2345,46 +2356,47 @@ fig = plot_figSup2B('pop')
 #%%
 plt.close('all')
 
+
 def plot_figSup4(kind, overlap=True):
     """
-    plot supplementary figure 3: 
+    plot supplementary figure 3:
         Vm all conditions of surround-only stimulation CP-ISO sig
-    input : kind in ['minus'', 'plus] 
+    input : kind in ['minus'', 'plus]
         'minus': Surround-then-center - Center Only Vs Surround-Only,
         'plus': Surround-Only + Center only Vs Surround-then-center]
     """
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
-        ticks = list( axis.majorTicks ) # a copy
-        ticks.extend( axis.minorTicks )
+        ticks = list(axis.majorTicks) # a copy
+        ticks.extend(axis.minorTicks)
         for t in ticks:
             t.tick1line.set_visible(True)
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    filenames = {'minus' : 'data/figSup2m.xlsx',
+    filenames = {'minus': 'data/figSup2m.xlsx',
                  'plus': 'data/figSup2p.xlsx'}
 
     titles = {'minus': 'Surround-then-center minus center only',
-              'plus'  : 'Surround-only plus center-only'}
+              'plus': 'Surround-only plus center-only'}
 
     yliminf = {'minus': -0.15, 'plus': -0.08}
     ylimsup = {'minus': 0.4, 'plus' : 1.14}
 
-    #samplesize
+    # samplesize
     # cellnumbers = {'minus' : 12, 'plus': 12}
     # ncells = cellnumbers[kind]
     # ylimtinf = yliminf[kind]
     # ylimtsup = ylimsup[kind]
     df = pd.read_excel(filenames[kind])
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     # adjust time
     df.index = df.index/10
     df = df.loc[-150:150]
-    #rename
+    # rename
     cols = ['CP_Iso_Stc', 'CP_Iso_Stc_SeUp',
             'CP_Iso_Stc_SeDw', 'CP_Iso_Stc_Dlp',
             'CF_Iso_Stc', 'CF_Iso_Stc_SeUp',
@@ -2396,36 +2408,36 @@ def plot_figSup4(kind, overlap=True):
             'RND_Iso_Stc_Full', 'RND_Iso_Stc_SeUp_Full',
             'RND_Iso_Stc_SeDw_Full', 'RND_Iso_Stc_Dlp_Full']
     df.columns = cols
-    #colors    
+    # colors
     light_colors = [stdColors['rouge'], stdColors['vert'],
-                   stdColors['jaune'], stdColors['bleu'],
-                   stdColors['bleu']]
+                    stdColors['jaune'], stdColors['bleu'],
+                    stdColors['bleu']]
     dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-                       stdColors['dark_jaune'], stdColors['dark_bleu'],
-                       stdColors['dark_bleu'], stdColors['dark_bleu']]
+                   stdColors['dark_jaune'], stdColors['dark_bleu'],
+                   stdColors['dark_bleu'], stdColors['dark_bleu']]
     alphas = [0.7, 0.2] # front, fillbetween
-    #traces -> lists of 4 columns ie each condition (val, up, down, sum)
+    # traces -> lists of 4 columns ie each condition (val, up, down, sum)
     col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
-    
+
     fig = plt.figure(figsize=(4, 8))
     for i in range(5):
-        if i == 0 : 
+        if i == 0:
             ax = fig.add_subplot(5, 1, i+1)
         else:
-            ax = fig.add_subplot(5, 1, i+1, sharex=ax, sharey=ax)            
+            ax = fig.add_subplot(5, 1, i+1, sharex=ax, sharey=ax)
         toPlot = col_seg[i]
         col = toPlot[0]
-        #print(col)
+        # print(col)
         ax.plot(df[col], color=light_colors[i], alpha=alphas[0],
-                     label=col, linewidth=1.5)
+                label=col, linewidth=1.5)
         ax.fill_between(df.index, df[toPlot[1]], df[toPlot[2]],
-                         color=light_colors[i], alpha=alphas[1])
+                        color=light_colors[i], alpha=alphas[1])
         col = toPlot[-1]
         ax.plot(df[col], color=dark_colors[i], alpha=alphas[0],
-                 label=col, linewidth=1.5)
-        #ax.axvspan(xmin=0, xmax=50, ymin=0.27, ymax=0.96, 
-                   #color='grey', alpha=alphas[1])
-        
+                label=col, linewidth=1.5)
+        # ax.axvspan(xmin=0, xmax=50, ymin=0.27, ymax=0.96,
+        #            color='grey', alpha=alphas[1])
+
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
         # axis on both sides
@@ -2433,13 +2445,13 @@ def plot_figSup4(kind, overlap=True):
         # if overlap:
         #     #label left:
         #     if i % 2 == 0:
-        #         ax.spines['right'].set_visible(False)                
-        #     #label right    
+        #         ax.spines['right'].set_visible(False)
+        #     #label right
         #     else:
         #         ax.spines['left'].set_visible(False)
         #         ax.yaxis.tick_right()
         # else:
-        #     ax.spines['right'].set_visible(False)                
+        #     ax.spines['right'].set_visible(False)
         if i != 4:
             ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
@@ -2452,14 +2464,14 @@ def plot_figSup4(kind, overlap=True):
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         custom_ticks = np.arange(-0.1, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
-                    
+
     for ax in fig.get_axes():
         lims = ax.get_ylim()
         print(lims)
-        r1 = patches.Rectangle((0, 0), 50, 0.4, color ='grey',#ax.get_ylim()[1]
+        r1 = patches.Rectangle((0, 0), 50, 0.4, color='grey',#ax.get_ylim()[1]
                                alpha=0.1)
         ax.add_patch(r1)
-        
+
     fig.tight_layout()
     if overlap:
         fig.subplots_adjust(hspace=-0.3, wspace=0.2)
@@ -2475,10 +2487,11 @@ def plot_figSup4(kind, overlap=True):
     return fig
 
 fig = plot_figSup4('minus', overlap=True)
-#fig = plot_figSup4('plus')
-#pop all cells
+# fig = plot_figSup4('plus')
+# pop all cells
 #%%
 plt.close('all')
+
 
 def plot_figSup3B(kind, stimmode):
     """
@@ -2505,22 +2518,22 @@ def plot_figSup3B(kind, stimmode):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    #alpha = [0.5, 0.8, 0.5, 1, 0.6]
-    alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
+    #alphas = [0.5, 0.8, 0.5, 1, 0.6]
+    alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(6.5, 5.5))
-##SUGGESTION: make y dimension much larger to see maximize visual difference 
-#between traces
+    # SUGGESTION: make y dimension much larger to see maximize visual difference
+    # between traces
     if anot:
         fig.suptitle(titles[kind] + ' spikes')
     ax = fig.add_subplot(111)
     if stimmode == 'sec':
         for i, col in enumerate(cols[:5]):
-            ax.plot(df[col], color=colors[i], alpha=alpha[i], 
+            ax.plot(df[col], color=colors[i], alpha=alphas[i],
                     label=col, linewidth=2)
     else:
         if stimmode == 'ful':
             for i, col in enumerate(cols[5:]):
-                ax.plot(df[col], color=colors[i], alpha=alpha[i], 
+                ax.plot(df[col], color=colors[i], alpha=alphas[i],
                         label=col, linewidth=2)
 
     ax.set_ylabel('Normalized firing rate')
@@ -2541,13 +2554,13 @@ def plot_figSup3B(kind, stimmode):
     # bluePoint
     ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1])
 
-    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+    # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
                     handlelength=0)
     for line, text in zip(leg.get_lines(), leg.get_texts()):
         text.set_color(line.get_color())
-    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    #             xycoords="axes fraction", ha='center')
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -2558,32 +2571,32 @@ def plot_figSup3B(kind, stimmode):
     return fig
 
 
-#fig = plot_figSup3B('pop', 'sec')
+# fig = plot_figSup3B('pop', 'sec')
 fig = plot_figSup3B('pop', 'ful')
 
-#fig = plot_figSup1('sig')
-#fig = plot_figSup1('nonsig')
+# fig = plot_figSup1('sig')
+# fig = plot_figSup1('nonsig')
 #%%
 plt.close('all')
 
 def plot_figSup6(kind):
     """
     plot supplementary figure 2: Vm all conditions of FULL stimulation
-    input : kind in ['pop': whole population, 
-            'sig': individually significants cells, 
+    input : kind in ['pop': whole population,
+            'sig': individually significants cells,
             'nonsig': non significant cells]
     """
     filenames = {'pop' : 'data/figSup6.xlsx'}#,
-                 #'sig': 'data/figSup1bis.xlsx',
-                 #'nonsig': 'data/figSup1bis2.xlsx'}
+                 # 'sig': 'data/figSup1bis.xlsx',
+                 # 'nonsig': 'data/figSup1bis2.xlsx'}
     titles = {'pop' : 'all cells'}#,
-              #'sig': 'individually significant cells',
-              #'nonsig': 'individually non significants cells'}
-    #samplesize
+              # 'sig': 'individually significant cells',
+              # 'nonsig': 'individually non significants cells'}
+    # samplesize
     cellnumbers = {'pop' : 37} #, 'sig': 10, 'nonsig': 27}
     ncells = cellnumbers[kind]
     df = pd.read_excel(filenames[kind])
-    #centering
+    # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
@@ -2591,39 +2604,39 @@ def plot_figSup6(kind):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    alpha = [0.8, 0.8, 0.8, 0.8, 0.8]
+    alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
 
     fig = plt.figure(figsize=(6, 10))
-    #fig.suptitle(titles[kind])
-    #fig, ax = plt.subplots(nrows = 2, ncols = 1, sharex = True, sharey = True, figsize = (8,7))
+    # fig.suptitle(titles[kind])
+    # fig, ax = plt.subplots(nrows = 2, ncols = 1, sharex = True, sharey = True, figsize = (8,7))
     ax1 = fig.add_subplot(211)
     for i, col in enumerate(cols):
         if i in (0, 1, 4):
-            ax1.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+            ax1.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
     ax1.axes.get_xaxis().set_visible(False)
     ax1.spines['bottom'].set_visible(False)
-    #ax1.set_ylabel('Normalized membrane potential')
+    # ax1.set_ylabel('Normalized membrane potential')
     ax1.set_ylim(-0.2, 1.1)
 
     ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
     for i, col in enumerate(cols):
         if i in (0, 1, 3):
-            ax2.plot(df[col], color=colors[i], alpha=alpha[i], label=col, linewidth=2)
+            ax2.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
 
     ax2.axes.get_xaxis().set_visible(True)
     ax2.spines['bottom'].set_visible(True)
-    #ax2.set_ylabel('Normalized membrane potential')
+    # ax2.set_ylabel('Normalized membrane potential')
     ax2.set_ylim(-0.2, 1.1)
     ax2.set_xlabel('Relative time (ms)')
 
-#    axes = list(fig.get_axes())
-    #leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-        #leg = ax.legend(loc=2, markerscale=None, frameon=False,
-        #                handlelength=0)
-        #for line, text in zip(leg.get_lines(), leg.get_texts()):
-        #    text.set_color(line.get_color())
-    #ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-    #            xycoords="axes fraction", ha='center')
+    # axes = list(fig.get_axes())
+    # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
+    #     leg = ax.legend(loc=2, markerscale=None, frameon=False,
+    #                     handlelength=0)
+    #     for line, text in zip(leg.get_lines(), leg.get_texts()):
+    #         text.set_color(line.get_color())
+    # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    #             xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
         ax.set_xlim(-15, 30)
@@ -2654,27 +2667,6 @@ fig = plot_figSup6('pop')
 
 #%% fig supp3 bars
 
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
-    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
-    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
-    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
-    return newcols
-
 def print_keys(alist):
     """ build a list of the keys defining a stimulation """
     keys = []
@@ -2704,31 +2696,32 @@ filename = 'data/figSup34Vm.xlsx'
 
 df = pd.read_excel(filename)
 df.set_index('Neuron', inplace=True)
-#rename using snake_case
+# rename using snake_case
 cols = new_columns_names(df.columns)
 df.columns = cols
-#check stimulations
+# check stimulations
 print_keys(cols)
 # build key listing
 # ex [['vm'],['s', 'f'],['cp', 'cf', 'rnd'],['iso', 'cross'],['stc'],
-#['dlat50', 'dgain50'],['indisig']]
+# ['dlat50', 'dgain50'],['indisig']]
 keys = build_keys_list(cols)
 
 #%%
-##latency advance
-#sec_lat = [item for item in cols if '_s_' in item and '_dlat50' in item]
-#adf = df[sec_lat]
-#
-## retriving the numbers:
-## latency cpiso
-#cond = 'vm_s_cp_iso_stc_dlat50'
-#signi = cond + '_indisig'
-#mean = adf.loc[adf[signi] > 0, cond].mean()
-#std = adf.loc[adf[signi] > 0, cond].std()
-#print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
-## !!! doesnt suit with the figure !!!
+# #latency advance
+# sec_lat = [item for item in cols if '_s_' in item and '_dlat50' in item]
+# adf = df[sec_lat]
+
+# # retriving the numbers:
+# # latency cpiso
+# cond = 'vm_s_cp_iso_stc_dlat50'
+# signi = cond + '_indisig'
+# mean = adf.loc[adf[signi] > 0, cond].mean()
+# std = adf.loc[adf[signi] > 0, cond].std()
+# print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
+# # !!! doesnt suit with the figure !!!
 #%%
 plt.close("all")
+
 
 def extract_values(df, stim_kind='s', measure='lat'):
     """ extract pop and response dico:
@@ -2757,13 +2750,14 @@ def extract_values(df, stim_kind='s', measure='lat'):
         resp_dico[leg_cond] = [moy, moy + stdm, moy - stdm]
     return pop_dico, resp_dico
 
+
 def autolabel(ax, rects):
     # attach some text labels
     for rect in rects:
         x = rect.get_x() + rect.get_width()/2
         height = rect.get_height()
         y = height - 1
-        if y < 3 :
+        if y < 3:
             y = height + 1
             ax.text(x, y, '%d' % int(height) + '%',
                     ha='center', va='bottom')
@@ -2772,43 +2766,42 @@ def autolabel(ax, rects):
                     ha='center', va='top')
         #print(y)
 
+
 def plot_cell_contribution(df):
     "sup 2A"
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-              stdColors['dark_jaune'], stdColors['dark_bleu']]
+                   stdColors['dark_jaune'], stdColors['dark_bleu']]
     fig = plt.figure(figsize=(8, 8))
     if anot:
         fig.suptitle('vm')
-    #sector phase
+    # sector phase
     ax = fig.add_subplot(221)
-    ax.set_title('$\Delta$ Phase (% significant cells)', pad = 0)
+    ax.set_title(r'$\Delta$ Phase (% significant cells)', pad=0)
     stim = 's'
     mes = 'lat'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
-    bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8, 
-                  edgecolor= dark_colors)
+    bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
+                  edgecolor=dark_colors)
     autolabel(ax, bars) # call
     ax.set_ylabel('SECTOR')
     ax.xaxis.set_visible(False)
-
-    # sector amplitude    
+    # sector amplitude
     ax = fig.add_subplot(222, sharey=ax)
-    ax.set_title('$\Delta$ Amplitude (% significant cells)', pad = 0)
+    ax.set_title(r'$\Delta$ Amplitude (% significant cells)', pad=0)
     stim = 's'
     mes = 'gain'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                 edgecolor= dark_colors)
+                  edgecolor=dark_colors)
     autolabel(ax, bars)
     ax.xaxis.set_visible(False)
-
-    #full phase
+    # full phase
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'f'
     mes = 'lat'
@@ -2817,11 +2810,11 @@ def plot_cell_contribution(df):
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor= dark_colors)
+                  edgecolor=dark_colors)
     autolabel(ax, bars)
     ax.set_ylabel('FULL')
 
-    #full amplitude
+    # full amplitude
     ax = fig.add_subplot(224, sharey=ax)
     stim = 'f'
     mes = 'gain'
@@ -2830,7 +2823,7 @@ def plot_cell_contribution(df):
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
     colors = colors
     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor= dark_colors)
+                  edgecolor=dark_colors)
     autolabel(ax, bars)
 
     for ax in fig.get_axes():
@@ -2857,24 +2850,6 @@ plot_cell_contribution(df)
 #%%
 plt.close('all')
 
-def load_cell_contributions(kind='vm'):
-    """
-    load the corresponding xcel file
-    kind = 'vm' or 'spk'
-    """
-    if kind == 'vm':
-        filename = 'data/figSup34Vm.xlsx'
-    elif kind == 'spk':
-        filename = 'data/figSup34Spk.xlsx'
-    else:
-        print('kind should be vm or spk')
-    df = pd.read_excel(filename)
-    df.set_index('Neuron', inplace=True)
-    #rename using snake_case
-    cols = new_columns_names(df.columns)
-    df.columns = cols
-    return df
-
 # plot latency (left) and gain (right
 
 plt.close('all')
@@ -2893,7 +2868,7 @@ def plot_sorted_responses(dico):
               stdColors['vert'], stdColors['vert'],
               stdColors['jaune'], stdColors['jaune'],
               stdColors['bleu'], stdColors['bleu']]
-    #data (call)
+    # data (call)
     df = load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread']+'_' in item[:7]]
@@ -2906,17 +2881,17 @@ def plot_sorted_responses(dico):
                   's' : 'Sector'
                   }
     title = title_dico[dico['kind']] + ' (' + title_dico[dico['spread']] + ')'
-    #title = title_dico[dico['kind']]
+    # title = title_dico[dico['kind']]
     anotx = 'Cell rank'
     anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
-             #(fraction of Center-only response)']
-    #plot
+             # (fraction of Center-only response)']
+    # plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
     fig.suptitle(title)
     axes = axes.flatten()
     x = range(1, len(df)+1)
-    #plot all traces
+    # plot all traces
     for i, name in enumerate(traces):
         sig_name = name + '_indisig'
         # color : white if non significant, edgecolor otherwise
@@ -2944,19 +2919,19 @@ def plot_sorted_responses(dico):
             ax.xaxis.set_label_coords(0.5, -0.025)
             ax.set_xticks([1, len(df)])
             ax.set_xlim(0, len(df)+2)
-    #left
+    # left
     for ax in axes[::2]:
-        ax.vlines(0, 0, 20, color='k', linewidth=2) 
+        ax.vlines(0, 0, 20, color='k', linewidth=2)
         custom_ticks = np.linspace(0, 20, 2, dtype=int)
-        ax.set_yticks(custom_ticks)    
-    #right
+        ax.set_yticks(custom_ticks)
+    # right
     for ax in axes[1::2]:
-        ax.vlines(0, 0, 1, color='k', linewidth=2) 
+        ax.vlines(0, 0, 1, color='k', linewidth=2)
         custom_ticks = np.linspace(0, 1, 2, dtype=int)
-        ax.set_yticks(custom_ticks)    
-    #align each row yaxis on zero between subplots
+        ax.set_yticks(custom_ticks)
+    # align each row yaxis on zero between subplots
     align_yaxis(axes[0], 0, axes[1], 0)
-    #keep data range whithout distortion, preserve 0 alignment
+    # keep data range whithout distortion, preserve 0 alignment
     change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.subplots_adjust(hspace=0.00, wspace=0.00)
@@ -2977,7 +2952,7 @@ parameter_dico = {
         }
 
 fig = plot_sorted_responses(parameter_dico)
-#iterate through conditions for plotting
+# iterate through conditions for plotting
 for kind in ['vm', 'spk']:
     parameter_dico['kind'] = kind
     for spread in ['s', 'f']:
@@ -2987,7 +2962,7 @@ for kind in ['vm', 'spk']:
 #%% opt
 colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
           speedColors['orange'], speedColors['jaune']]
-alpha = [0.8, 1, 0.8, 0.8, 1]
+alphas = [0.8, 1, 0.8, 0.8, 1]
 
 df = pd.read_excel('data/figOpt.xlsx')
 df.set_index('time', inplace=True)
@@ -3010,11 +2985,11 @@ def plot_speed_multigraph():
     for i, ax in enumerate(left_axes):
         st = str('ax {}'.format(i))
         ax.annotate(st, (0.5, 0.5))
-        #ax.set_xtickslabels('', minor=False)
-    #(manipulate the left_axes list to reorder the plots if required)
-    #axes.set_xticklabels(labels, fontdict=None, minor=False)
-    #plot left
-#    axes = axes[1:].append(axes[0])   # ctrl at the bottom
+        # ax.set_xtickslabels('', minor=False)
+    # (manipulate the left_axes list to reorder the plots if required)
+    # axes.set_xticklabels(labels, fontdict=None, minor=False)
+    # plot left
+    # axes = axes[1:].append(axes[0])   # ctrl at the bottom
     cols = df.columns
     for i, ax in enumerate(left_axes):
         ax.plot(df.loc[-140:40, [cols[i]]], color='black', scalex=False,
@@ -3023,7 +2998,7 @@ def plot_speed_multigraph():
         ax.yaxis.set_ticks(np.arange(-0.15, 0.25, 0.1))
         ax.set_xlim(-140, 40)
         ax.set_ylim(-0.15, 0.25)
-    #add labels
+    # add labels
     left_axes[3].set_ylabel('Normalized Membrane potential')
     left_axes[0].set_xlabel('Relative time to center-only onset (ms)')
     left_axes[0].xaxis.set_ticks(np.arange(-140, 41, 40))
@@ -3032,10 +3007,10 @@ def plot_speed_multigraph():
         ax.set_xticks(ticks, minor=False)
         ax.tick_params(axis='x', labelsize=0)
 
-    #plot right
+    # plot right
     for i, col in enumerate(df.columns):
         right_ax.plot(df.loc[40:100, [col]], color=colors[i],
-                      label=col, alpha=alpha[i])
+                      label=col, alpha=alphas[i])
         maxi = float(df.loc[30:200, [col]].max())
         right_ax.hlines(maxi, 40, 50, color=colors[i])
     right_ax.set_xlabel('Relative time to center-only onset (ms)')
@@ -3050,11 +3025,11 @@ def plot_speed_multigraph():
     gs.update(wspace=0.2, hspace=0.05)
     # add ticks to the top
     right_ax.tick_params(axis='x', bottom=True, top=True)
-    #legend
-    #leg = right_ax.legend(loc='lower right', markerscale=None,
-    #                      handlelength=0, framealpha=1)
-    #for line, text in zip(leg.get_lines(), leg.get_texts()):
-    #    text.set_color(line.get_color())
+    # legend
+    # leg = right_ax.legend(loc='lower right', markerscale=None,
+    #                       handlelength=0, framealpha=1)
+    # for line, text in zip(leg.get_lines(), leg.get_texts()):
+    #     text.set_color(line.get_color())
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -3070,7 +3045,7 @@ fig = plot_speed_multigraph()
 def plotSpeeddiff():
     colors = ['k', stdColors['rouge'], speedColors['orangeFonce'],
               speedColors['orange'], speedColors['jaune']]
-    alpha = [0.5, 1, 0.8, 0.8, 1]
+    alphas = [0.5, 1, 0.8, 0.8, 1]
 
     df = pd.read_excel('data/figOpt.xlsx')
     df.set_index('time', inplace=True)
@@ -3092,7 +3067,7 @@ def plotSpeeddiff():
         # replace negative values <-> negative slope by 0
         yvals = yvals.clip(0)
         ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j],
-                        label=cols[i], alpha=alpha[j])
+                        label=cols[i], alpha=alphas[j])
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     for spine in ['left', 'top', 'right']:
@@ -3112,6 +3087,7 @@ fig = plotSpeeddiff()
 
 #%% bar plot peaks
 plt.close('all')
+
 
 def load_peakdata(name):
     'load the excel file'
@@ -3133,7 +3109,7 @@ def load_peakdata(name):
     cols = [item.split('.')[0] for item in df.columns]
     cols = [a + b for a, b in zip(cols, new_list)]
     df.columns = cols
-    #remove first line
+    # remove first line
     df = df.drop(df.index[0])
     # remove empty column
     df = df.drop('Unnamed: 10', axis=1)
@@ -3141,10 +3117,11 @@ def load_peakdata(name):
     df = df.astype('float')
     return df
 
+
 def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     """
     return the normalized and selected df parts for plotting
-    spread in ['sect', 'full'], 
+    spread in ['sect', 'full'],
     param in ['time', 'gain']
     """
     if spread not in ['sect', 'full']:
@@ -3153,7 +3130,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     elif param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
         return
-    #select by param (first value = control)
+    # select by param (first value = control)
     col_list = [item for item in df.columns if param in item]
     # normalization with center only (Y - Yref)/Yref
     ctrl = df[col_list[0]]
@@ -3161,10 +3138,10 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
         print(df[item].mean())
         df[item] = (df[item] - ctrl) / ctrl
         print(df[item].mean())
-    #select by spread
+    # select by spread
     col_list = [item for item in col_list if spread in item]
     return df[col_list]
-    
+
 
 def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     """
@@ -3174,17 +3151,17 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     """
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
-        ticks = list( axis.majorTicks ) # a copy
-        ticks.extend( axis.minorTicks )
+        ticks = list(axis.majorTicks) # a copy
+        ticks.extend(axis.minorTicks)
         for t in ticks:
             t.tick1line.set_visible(True)
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
-          
-    colors = [stdColors['rouge'], stdColors['vert'], 
+
+    colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
 
     # text labels
@@ -3195,31 +3172,31 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     title = 'sorted_peak_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
     anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
-   # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
-    #          #(fraction of Center-only response)']
-    #plot
+    # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
+    #           #(fraction of Center-only response)']
+    # plot
     fig = plt.figure()
     gs = fig.add_gridspec(4, 2)
-    #left
+    # left
     left_axes = []
     ax = fig.add_subplot(gs[0, 0])
     left_axes.append(ax)
-    for i in range(1,4):
-        left_axes.append(fig.add_subplot(gs[i, 0], 
+    for i in range(1, 4):
+        left_axes.append(fig.add_subplot(gs[i, 0],
                                          sharey=ax, sharex=ax))
-    #right
+    # right
     right_axes = []
     ax = fig.add_subplot(gs[0, 1])
     right_axes.append(ax)
-    for i in range(1,4):
+    for i in range(1, 4):
         right_axes.append(fig.add_subplot(gs[i, 1],
                                           sharey=ax, sharex=ax))
     # to identify the plots (uncomment to use)
     if anot:
         fig.suptitle(title)
     x = range(1, len(df_left) + 1)
-    #plot the traces
-    #left
+    # plot the traces
+    # left
     for i, name in enumerate(df_left.columns):
         # color : white if non significant, edgecolor otherwise
         # edgeColor = colors[i]
@@ -3228,9 +3205,9 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         #                                           ascending=False)
         # barColors = [color_dic[x] for x in select[sig_name]]
         ax = left_axes[i]
-        #ax.set_title(str(i))
+        # ax.set_title(str(i))
         ax.set_title(name)
-        #without significance
+        # without significance
         select = df_left[name].sort_values(ascending=False)
         ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
                alpha=0.8, width=0.8)
@@ -3254,7 +3231,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         ax = right_axes[i]
         #ax.set_title(str(i))
         ax.set_title(name)
-        #without significance
+        # without significance
         select = df_right[name].sort_values(ascending=False)
         ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
                alpha=0.8, width=0.8)
@@ -3266,7 +3243,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         #        alpha=0.8, width=0.8)
         if i == 0:
             ax.set_title(anoty[1])
-    
+
     # alternate the y_axis position
     axes = fig.get_axes()
     left_axes = axes[:4]
@@ -3278,22 +3255,22 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
             ax.spines['top'].set_visible(False)
             ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
-            #zero line
+            # zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
-            #set_ticks_both(ax.yaxis)
+            # set_ticks_both(ax.yaxis)
             # alternate right and left
             # if overlap:
             #     #label left:
             #     if i % 2 == 0:
-            #         ax.spines['right'].set_visible(False)                
-            #     #label right    
+            #         ax.spines['right'].set_visible(False)
+            #     #label right
             #     else:
-            #         ax.spines['left'].set_visible(False) 
+            #         ax.spines['left'].set_visible(False)
             #         ax.yaxis.tick_right()
             # else:
-            #     ax.spines['right'].set_visible(False)                                
+            #     ax.spines['right'].set_visible(False)
             if i != 3:
                 ax.xaxis.set_visible(False)
             else:
@@ -3313,13 +3290,13 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
             ax.vlines(limx[0], 0, 20, color='k', linewidth=2)
             # ax.vlines(limx[1], 0, -10, color='k', linewidth=2)
             for spine in ['left', 'right']:
-                ax.spines[spine].set_visible(False)        
+                ax.spines[spine].set_visible(False)
         for ax in right_axes:
             limx = ax.get_xlim()
             ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
             # ax.vlines(limx[1], 0, -0.5, color='k', linewidth=2)
             for spine in ['left', 'right']:
-                ax.spines[spine].set_visible(False)            
+                ax.spines[spine].set_visible(False)
                 ax.set_xlim(0, len(df_right)+1)
 
     # for ax in left_axes:
@@ -3329,18 +3306,18 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     #     ax.set_ylim(-0.5, 0.5)
     #     custom_ticks = np.linspace(-0.5, 0.5, 3)
     #     ax.set_yticks(custom_ticks)
-        
-    #align each row yaxis on zero between subplots
-    #align_yaxis(left_axes[0], 0, right_axes[0], 0)
-    #keep data range whithout distortion, preserve 0 alignment
-#    change_plot_trace_amplitude(axes[1], 0.80)
+
+    # align each row yaxis on zero between subplots
+    # align_yaxis(left_axes[0], 0, right_axes[0], 0)
+    # keep data range whithout distortion, preserve 0 alignment
+    # change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
-    
+
     fig.tight_layout()
     if overlap:
         fig.subplots_adjust(hspace=-0.5, wspace=0.2)
     else:
-        fig.subplots_adjust(hspace=0.05, wspace=0.2)        
+        fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_peak_responses',
@@ -3353,7 +3330,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
 def select_50(df, spread='sect', param='gain'):
     """
     return the selected df parts for plotting
-    spread in ['sect', 'full'], 
+    spread in ['sect', 'full'],
     param in ['time', 'gain']
     """
     if spread not in ['sect', 'full']:
@@ -3362,19 +3339,19 @@ def select_50(df, spread='sect', param='gain'):
     elif param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
         return
-    #select by param (first value = control)
+    # select by param (first value = control)
     col_list = [item for item in df.columns if param in item]
-    #select by spread
+    # select by spread
     col_list = [item for item in col_list if spread in item]
-    #remove sig
+    # remove sig
     col_list = [item for item in col_list if 'sig' not in item]
     return df[col_list]
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
 
-    colors = [stdColors['rouge'], stdColors['vert'], 
+    colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
@@ -3387,29 +3364,29 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
 
     fig = plt.figure()
     fig.suptitle(title)
-    #left 
+    # left
     ax = fig.add_subplot(121)
     df = df_left.sort_values(by=df_left.columns[0], ascending=True)
     sorted_cells = df.index.copy()
     df = df.reset_index(drop=True)
     df.index += 1 #'cell name from 0'
-    df *= -1 # time 
+    df *= -1 # time
     for i, col in enumerate(df.columns):
-        ax.plot(df[col], df.index, 'o', color=colors[i], alpha = 0.6)
+        ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
     ax.set_yticks([1, len(df)])
     ax.set_ylim(-1, len(df)+1)
     ax.set_xlabel('time')
-    #right
+    # right
     ax = fig.add_subplot(122)
-#    df = df_right.sort_values(by=df_right.columns[0], ascending=True)
+    # df = df_right.sort_values(by=df_right.columns[0], ascending=True)
     df = df_right.reindex(sorted_cells)
     df = df.reset_index(drop=True)
-    df.index +=1
+    df.index += 1
     for i, col in enumerate(df.columns):
-        ax.plot(df[col], df.index, 'o', color=colors[i], alpha = 0.6)
+        ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
     ax.set_yticks([1, len(df)])
     ax.set_ylim(-1, len(df)+1)
-    ax.set_xlabel('gain')    
+    ax.set_xlabel('gain')
     for ax in fig.get_axes():
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -3423,9 +3400,9 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     return fig
 
 def scatter_lat_gain(df_left, df_right, mes=''):
-    colors = [stdColors['rouge'], stdColors['vert'], 
+    colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
@@ -3433,18 +3410,18 @@ def scatter_lat_gain(df_left, df_right, mes=''):
     else:
         spread = 'full'
     title = 'responses' + ' (' + mes + ' ' + spread + ')'
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(8, 8))
     fig.suptitle(title)
     ax = fig.add_subplot(111)
     for i in range(len(df_left.columns)):
         color_list = []
         for j in range(len(df_left)):
             color_list.append(colors[i])
-        ax.scatter(left[df_left.columns[i]], df_right[right.columns[i]], 
-               c = color_list, 
-               edgecolors=dark_colors[i], alpha=0.6)
+        ax.scatter(left[df_left.columns[i]], df_right[right.columns[i]],
+                   c=color_list,
+                   edgecolors=dark_colors[i], alpha=0.6)
     ax.set_xlabel('time')
-    ax.set_ylabel('gain')    
+    ax.set_ylabel('gain')
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], 'k', alpha=0.3)
     lims = ax.get_ylim()
@@ -3461,9 +3438,9 @@ def histo_lat_gain(df_left, df_right, mes=''):
     """
     histogramme des données
     """
-    colors = [stdColors['rouge'], stdColors['vert'], 
+    colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'], 
+    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
 
     # text labels
@@ -3474,35 +3451,35 @@ def histo_lat_gain(df_left, df_right, mes=''):
     title = 'peak_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
     anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
-   # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
+    # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #          #(fraction of Center-only response)']
-    #plot
-    fig = plt.figure(figsize=(8,8))
+    # plot
+    fig = plt.figure(figsize=(8, 8))
     gs = fig.add_gridspec(4, 2)
-    #left
+    # left
     left_axes = []
     ax = fig.add_subplot(gs[0, 0])
     left_axes.append(ax)
-    for i in range(1,4):
+    for i in range(1, 4):
         left_axes.append(fig.add_subplot(gs[i, 0], sharex=ax))
-    #right
+    # right
     right_axes = []
     ax = fig.add_subplot(gs[0, 1])
     right_axes.append(ax)
-    for i in range(1,4):
+    for i in range(1, 4):
         right_axes.append(fig.add_subplot(gs[i, 1], sharex=ax))
     # to identify the plots (uncomment to use)
     if anot:
         fig.suptitle(title)
-    #plot the traces
-    #left
+    # plot the traces
+    # left
     for i, name in enumerate(df_left.columns):
         ax = left_axes[i]
-        #ax.set_title(str(i))
+        # ax.set_title(str(i))
         # ax.set_title(name)
-        ax.hist(df_left[name], bins=15, color=colors[i], 
+        ax.hist(df_left[name], bins=15, color=colors[i],
                 edgecolor=dark_colors[i], alpha=0.8)
-        # ax.hist(df_left[name], width=2, color=colors[i], 
+        # ax.hist(df_left[name], width=2, color=colors[i],
         #         edgecolor=dark_colors[i], alpha=0.8)
         if i == 0:
             ax.set_title(anoty[i])
@@ -3511,19 +3488,19 @@ def histo_lat_gain(df_left, df_right, mes=''):
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=1)
         med = df_left[name].median()
-        ax.vlines(med, lims[0], lims[1], color= dark_colors[i],
+        ax.vlines(med, lims[0], lims[1], color=dark_colors[i],
                   linewidth=2, linestyle=':')
         tx = 'med=' + str(round(med, 2))
-        ax.text(0.65, 0.8, tx, horizontalalignment='left', 
-                transform=ax.transAxes, alpha = 0.5)    
-        #right
+        ax.text(0.65, 0.8, tx, horizontalalignment='left',
+                transform=ax.transAxes, alpha=0.5)
+        # right
     for i, name in enumerate(df_right.columns):
         ax = right_axes[i]
-        #ax.set_title(str(i))
+        # ax.set_title(str(i))
         # ax.set_title(name)
-        ax.hist(df_right[name], bins=15, color=colors[i], 
+        ax.hist(df_right[name], bins=15, color=colors[i],
                 edgecolor=dark_colors[i], alpha=0.8)
-        # ax.hist(df_right[name], width = 0.05, color=colors[i], 
+        # ax.hist(df_right[name], width = 0.05, color=colors[i],
         #         edgecolor=dark_colors[i], alpha=0.8)
         if i == 0:
             ax.set_title(anoty[1])
@@ -3535,9 +3512,9 @@ def histo_lat_gain(df_left, df_right, mes=''):
         ax.vlines(med, lims[0], lims[1], color=dark_colors[i],
                   linewidth=2, linestyle=':')
         tx = 'med=' + str(round(med, 2))
-        ax.text(0.65, 0.8, tx, horizontalalignment='left', 
-                transform=ax.transAxes, alpha = 0.5)
-    
+        ax.text(0.65, 0.8, tx, horizontalalignment='left',
+                transform=ax.transAxes, alpha=0.5)
+
     for ax in fig.get_axes():
         ax.set_facecolor('None')
         ax.yaxis.set_visible(False)
@@ -3556,9 +3533,9 @@ def plot_glob_varia(left, right, mes=''):
 
 
 def extract_stat(onlySig=False):
-    #output
+    # output
     desc_df = pd.DataFrame()
-    #vm
+    # vm
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data50 = load_50vals(mes)
@@ -3568,7 +3545,7 @@ def extract_stat(onlySig=False):
     # remove the significance
     data50 = data50[[item for item in data50.columns if '_sig' not in item]]
     sigCells = data50.index.to_list()
-    #vm_time50
+    # vm_time50
     times = [item for item in data50.columns if 'time' in item]
     times = [item for item in times if 'sect_' in item] \
             + [item for item in times if 'full_' in item]
@@ -3579,20 +3556,20 @@ def extract_stat(onlySig=False):
     desc_df['time50_vm_std'] = advance_df.std()
     desc_df['time50_vm_med'] = advance_df.median()
     desc_df['time50_vm_mad'] = advance_df.mad()
-    #vm_gain50
+    # vm_gain50
     gains = [item for item in data50.columns if 'gain' in item]
     gains = [item for item in gains if 'sect_' in item] \
             + [item for item in gains if 'full_' in item]
     gain_df = data50[gains].copy()
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'}, 
+    gain_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'},
                    inplace=True)
     desc_df['gain50_vm_mean'] = gain_df.mean()
     desc_df['gain50_vm_std'] = gain_df.std()
     desc_df['gain50_vm_med'] = gain_df.median()
     desc_df['gain50_vm_mad'] = gain_df.mad()
 
-    #spike
+    # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data50 = load_50vals(mes)
@@ -3600,7 +3577,7 @@ def extract_stat(onlySig=False):
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
     data50 = data50[[item for item in data50.columns if '_sig' not in item]]
-    #spk_time50
+    # spk_time50
     times = [item for item in data50.columns if 'time' in item]
     times = [item for item in times if 'sect_' in item] \
             + [item for item in times if 'full_' in item]
@@ -3610,7 +3587,7 @@ def extract_stat(onlySig=False):
     desc_df['time50_spk_std'] = time_df.std()
     desc_df['time50_spk_med'] = time_df.median()
     desc_df['time50_spk_mad'] = time_df.mad()
-    #spk_gain50
+    # spk_gain50
     gains = [item for item in data50.columns if 'gain' in item]
     gains = [item for item in gains if 'sect_' in item] \
             + [item for item in gains if 'full_' in item]
@@ -3621,8 +3598,8 @@ def extract_stat(onlySig=False):
     desc_df['gain50_spk_med'] = gain_df.median()
     desc_df['gain50_spk_mad'] = gain_df.mad()
 
-    #peak (non normalized data)
-    #vm
+    # peak (non normalized data)
+    # vm
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     gains = [item for item in data.columns if 'gain' in item]
@@ -3637,7 +3614,7 @@ def extract_stat(onlySig=False):
     time_df = data[times[1:]].copy()
     #stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect','cpisosfull':'cpisofull', 
+    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
                             'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_vm_mean'] = gain_df.mean()
     desc_df['gainP_vm_std'] = gain_df.std()
@@ -3645,14 +3622,14 @@ def extract_stat(onlySig=False):
     desc_df['gainP_vm_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
                             'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_vm_mean'] = time_df.mean()
     desc_df['timeP_vm_std'] = time_df.std()
     desc_df['timeP_vm_med'] = time_df.median()
     desc_df['timeP_vm_mad'] = time_df.mad()
-    
-    #spk_time
+
+    # spk_time
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     gains = [item for item in data.columns if 'gain' in item]
@@ -3665,9 +3642,9 @@ def extract_stat(onlySig=False):
     # select
     gain_df = data[gains[1:]].copy()
     time_df = data[times[1:]].copy()
-    #stat
+    # stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
                             'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_spk_mean'] = gain_df.mean()
     desc_df['gainP_spk_std'] = gain_df.std()
@@ -3675,13 +3652,13 @@ def extract_stat(onlySig=False):
     desc_df['gainP_spk_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull', 
+    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
                             'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_spk_mean'] = time_df.mean()
     desc_df['timeP_spk_std'] = time_df.std()
     desc_df['timeP_spk_med'] = time_df.median()
     desc_df['timeP_spk_mad'] = time_df.mad()
-    
+
     return desc_df
 
 
@@ -3708,22 +3685,22 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         print('non valid loc argument')
         return
 
-    colors = [stdColors['rouge'], stdColors['vert'], 
+    colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    fig = plt.figure(figsize=(8,8))
+    fig = plt.figure(figsize=(8, 8))
     title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
     fig.suptitle(title)
-    #sect vm
+    # sect vm
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
-    ax1 = fig.add_subplot(2,2,2, sharex=ax, sharey=ax)
+    ax1 = fig.add_subplot(2, 2, 2, sharex=ax, sharey=ax)
     axes.append(ax1)
-    ax2 = fig.add_subplot(2,2,3, sharex=ax)
+    ax2 = fig.add_subplot(2, 2, 3, sharex=ax)
     axes.append(ax2)
-    ax3 = fig.add_subplot(2,2,4, sharex=ax, sharey=ax2)
+    ax3 = fig.add_subplot(2, 2, 4, sharex=ax, sharey=ax2)
     axes.append(ax3)
-    #vm
+    # vm
     ax.set_title('vm, sector')
     vals = [item for item in stat_df.columns if '_vm' in item]
     # sector
@@ -3732,14 +3709,14 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     xvals = [item for item in vals if mes[0] in item \
          and (stat[0] in item or stat[1] in item)]
     yvals = [item for item in vals if mes[1] in item \
-         and (stat[0] in item or stat[1] in item)]  
+         and (stat[0] in item or stat[1] in item)]
 
     x = df[xvals[0]]
     y = df[yvals[0]]
     xerr = df[xvals[1]]
-    yerr =df[yvals[1]]
-    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+    yerr = df[yvals[1]]
+    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                     fmt='s', color=ci)
     # full
     ax = axes[1]
@@ -3749,16 +3726,16 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     xvals = [item for item in vals if mes[0] in item \
              and (stat[0] in item or stat[1] in item)]
     yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]  
+             and (stat[0] in item or stat[1] in item)]
 
     x = df[xvals[0]]
     y = df[yvals[0]]
     xerr = df[xvals[1]]
-    yerr =df[yvals[1]]
-    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+    yerr = df[yvals[1]]
+    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                     fmt='s', color=ci)
-    #spikes
+    # spikes
     ax = axes[2]
     ax.set_title('spk, sector')
     vals = [item for item in stat_df.columns if '_spk' in item]
@@ -3768,16 +3745,16 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     xvals = [item for item in vals if mes[0] in item \
              and (stat[0] in item or stat[1] in item)]
     yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]  
+             and (stat[0] in item or stat[1] in item)]
 
     x = df[xvals[0]]
     y = df[yvals[0]]
     xerr = df[xvals[1]]
-    yerr =df[yvals[1]]
-    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
+    yerr = df[yvals[1]]
+    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                     fmt='s', color=ci)
-    #full
+    # full
     ax = axes[3]
     ax.set_title('spk, full')
     spread = [item for item in stat_df.index if 'full' in item]
@@ -3785,14 +3762,14 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     xvals = [item for item in vals if mes[0] in item \
              and (stat[0] in item or stat[1] in item)]
     yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]  
+             and (stat[0] in item or stat[1] in item)]
     x = df[xvals[0]]
     y = df[yvals[0]]
     xerr = df[xvals[1]]
-    yerr =df[yvals[1]]
-    for xi, yi, xe, ye, ci,  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye, 
-                    fmt='s', color=ci) 
+    yerr = df[yvals[1]]
+    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                    fmt='s', color=ci)
 
     for i, ax in enumerate(axes):
         # lims = ax.get_ylim()
@@ -3808,7 +3785,7 @@ def plot_stat(stat_df, kind='mean', loc='50'):
                 ax.yaxis.set_visible(False)
             if i > 1:
                 ax.set_xlabel('time advance (ms)')
-            else: 
+            else:
                 ax.spines['bottom'].set_visible(False)
                 ax.xaxis.set_visible(False)
     # ax = axes[2]
@@ -3816,8 +3793,8 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     # ax.set_yticks(custom_ticks)
     # ax.set_yticklabels(custom_ticks)
 
-    fig.tight_layout() 
-    fig.subplots_adjust(hspace=0.02) 
+    fig.tight_layout()
+    fig.subplots_adjust(hspace=0.02)
     fig.subplots_adjust(wspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -3841,7 +3818,7 @@ def sigNonSig_stat_plot():
     ax0.text(0.8, 0.8, leg, transform=ax0.transAxes)
     leg = '10 cells'
     ax1.text(0.8, 0.8, leg, transform=ax1.transAxes)
-    for ax in [ax0, ax1]:    
+    for ax in [ax0, ax1]:
         ax.set_ylim(-0.15, 0.5)
     ax0 = axes0[2]
     ax1 = axes1[2]
@@ -3854,13 +3831,13 @@ def sigNonSig_stat_plot():
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=alpha)
         lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=alpha)    
+        ax.vlines(0, lims[0], lims[1], alpha=alpha)
     for ax in fig1.get_axes():
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=alpha)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=alpha)
-    
+
 
 stat_df = extract_stat(onlySig=False)
 plot_stat(stat_df, 'med', 'peak')
@@ -3870,7 +3847,7 @@ plot_stat(stat_df, 'med', '50')
 #%% vm
 plt.close('all')
 for spread in ['sect', 'full']:
-    mes='vm'
+    mes = 'vm'
     data50 = load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
@@ -3885,7 +3862,7 @@ for spread in ['sect', 'full']:
 
 #%% spk
 for spread in ['sect', 'full']:
-    mes='spk'
+    mes = 'spk'
     data50 = load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
@@ -3898,13 +3875,6 @@ for spread in ['sect', 'full']:
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 
-#%% test
-plt.close('all')
-
-    
-
-#%% nb description with pandas:  
-pd.options.display.max_columns = 30
 
 #%%cellsDepth / advance
 plt.close('all')
@@ -3913,7 +3883,7 @@ def plot_cellDepth():
     """
     relation profondeur / latence
     """
-    #cells
+    # cells
     data50 = load_50vals('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
@@ -3937,7 +3907,7 @@ def plot_cellDepth():
     y = labelled.cpisosect_time50.to_list()
     x = labelled.index.to_list()
     z = [colors[item] for item in labelled.CDLayer.to_list()]
-    #stat
+    # stat
     z1 = z.copy()
     z2 = []
     for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
@@ -3946,9 +3916,9 @@ def plot_cellDepth():
         else:
             z2.append('w')
     ax.bar(x, y, color=z2, edgecolor=z1, linewidth=3,
-               alpha=0.6, width=0.8)
-#    ax.bar(x, y, color = z, alpha=0.6)
-    ax.set_ylabel('latency advance (ms)')
+           alpha=0.6, width=0.8)
+    # ax.bar(x, y, color = z, alpha=0.6)
+    ax.set_ylabel('advance (ms)')
     ax.set_xlabel('cell')
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.3)
@@ -3956,7 +3926,7 @@ def plot_cellDepth():
     ax = fig.add_subplot(212)
     kind = 'cpisosect_gain50'
     y = labelled[kind].to_list()
-    #stat
+    # stat
     z1 = z.copy()
     z2 = []
     for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
@@ -3965,25 +3935,42 @@ def plot_cellDepth():
         else:
             z2.append('w')
     ax.bar(x, y, color=z2, edgecolor=z1, linewidth=3,
-               alpha=0.6, width=0.8)
+           alpha=0.6, width=0.8)
 
-#    ax.bar(x, y, color = z, alpha=0.6)
+    # ax.bar(x, y, color = z, alpha=0.6)
     ax.set_ylabel('gain')
     ax.set_xlabel('cell')
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
-    leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
-    for i, ax in enumerate(fig.get_axes()):
+    # leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
+    axes = fig.get_axes()
+    for i, ax in enumerate(axes):
+        ax.set_xlim(-0.5, len(x))
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
         if i == 0:
-            ax.text(0.8, 0.7, leg, transform=ax.transAxes)
-            ax.xaxis.set_visible(False)            
+            # ax.text(0.8, 0.7, leg, transform=ax.transAxes)
+            ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
+            ax.text(0.80, 0.95, 'layer 3', color='r', transform=ax.transAxes)
+            ax.text(0.80, 0.85, 'layer 4', color='g', transform=ax.transAxes)
+            ax.text(0.80, 0.75, 'layer 5', color='b', transform=ax.transAxes)
+            ax.text(0.80, 0.65, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
+            custom_ticks = np.linspace(0, 10, 2, dtype=int)
+            ax.set_yticks(custom_ticks)
+            ax.set_yticklabels(custom_ticks)
+            ax.vlines(ax.get_xlim()[0], 0, 10, linewidth=2)
+            ax.spines['left'].set_visible(False)
         else:
             ax.tick_params(axis='x', labelrotation=45)
-    fig.tight_layout()
+            custom_ticks = np.linspace(0, 0.4, 2)
+            ax.set_yticks(custom_ticks)
+            ax.set_yticklabels(custom_ticks)
+            ax.vlines(ax.get_xlim()[0], 0, 0.4, linewidth=2)
+            ax.spines['left'].set_visible(False)
+            
+        fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDepth',
@@ -3991,19 +3978,19 @@ def plot_cellDepth():
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-plot_cellDepth()
+fig = plot_cellDepth()
 
-#%% 
+#%%
 plt.close('all')
 
-#TODO add the significativity for each condition
-#? grou by depth
+# TODO add the significativity for each condition
+# ? grou by depth
 
 def plot_cellDepth_all(spread='sect'):
     """
     relation profondeur / latence
     """
-    #cells
+    # cells
     data50 = load_50vals('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
@@ -4018,15 +4005,15 @@ def plot_cellDepth_all(spread='sect'):
     labelled = lay_df.dropna(subset=['CDLayer']).copy()
     kind = 'cpisosect_time50'
     labelled.CDLayer = labelled.CDLayer.astype('int')
-    #sort by response
+    # sort by response
     labelled = labelled.sort_values(by=kind, ascending=False)
-    #an the sort by depth
+    # an the sort by depth
     labelled = labelled.sort_values(by='CDLayer', ascending=True)
     colors = {6:'k', 5:'b', 4:'g', 3:'r'}
     x = labelled.index.to_list()
     y = labelled[kind].to_list()
     z = [colors[item] for item in labelled.CDLayer.to_list()]
-    #stat z1 = list(depht_colors), z2 = list(white if non significant)
+    # stat z1 = list(depht_colors), z2 = list(white if non significant)
     z1 = z.copy()
     z2 = []
     for a, b in zip(z1, labelled[kind + '_sig'].to_list()):
@@ -4034,7 +4021,7 @@ def plot_cellDepth_all(spread='sect'):
             z2.append(a)
         else:
             z2.append('w')
-    #figure
+    # figure
     fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(12, 8), sharex=True)
     axes = axes.T.flatten().tolist()
     # shareY
@@ -4043,10 +4030,10 @@ def plot_cellDepth_all(spread='sect'):
         ax.get_shared_y_axes().join(ax, axr)
     axr = axes[1]
     for ax in axes[1::2]:
-        ax.get_shared_y_axes().join(ax, axr)    
-    # fill axes        
+        ax.get_shared_y_axes().join(ax, axr)
+    # fill axes
     # 'sect' or 'full'
-    alist = [item for item in labelled.columns if spread in item]    
+    alist = [item for item in labelled.columns if spread in item]
     # remove separate the sig column
     val_list = [item for item in alist if '_sig' not in item]
     sig_list = [item for item in alist if '_sig' in item]
@@ -4065,12 +4052,18 @@ def plot_cellDepth_all(spread='sect'):
                 z2.append(a)
             else:
                 z2.append('w')
-#        ax.bar(x, y, color=z, alpha=0.6)
+        # ax.bar(x, y, color=z, alpha=0.6)
         ax.bar(x, y, color=z2, edgecolor=z1, linewidth=2,
-               alpha=0.6, width=0.8)        
+               alpha=0.6, width=0.8)
         ax.set_xlabel('cell')
+        ax.set_xlim(-0.5, len(x))
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        custom_ticks = np.linspace(0, 10, 2)
+        ax.set_yticks(custom_ticks)
+        ax.set_yticklabels(custom_ticks)
+        ax.vlines(ax.get_xlim()[0], 0, 10, linewidth=2)
+        ax.spines['left'].set_visible(False)
     # choose gain values
     cols = [item for item in val_list if 'gain50' in item]
     sig_cols = [item for item in sig_list if 'gain50' in item]
@@ -4078,7 +4071,7 @@ def plot_cellDepth_all(spread='sect'):
         ax.set_title(col.split('_')[0])
         ax.set_ylabel('gain')
         y = labelled[col].to_list()
-        #stat z1 = list(depht_colors), z2 = list(white if non significant)
+        # stat z1 = list(depht_colors), z2 = list(white if non significant)
         z1 = z.copy()
         z2 = []
         for a, b in zip(z1, labelled[sig_col].to_list()):
@@ -4088,10 +4081,15 @@ def plot_cellDepth_all(spread='sect'):
                 z2.append('w')
         # ax.bar(x, y, color = z, alpha=0.6)
         ax.bar(x, y, color=z2, edgecolor=z1, linewidth=2,
-               alpha=0.6, width=0.8)        
+               alpha=0.6, width=0.8)
         ax.set_xlabel('cell')
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        custom_ticks = np.linspace(0, 0.5, 2)
+        ax.set_yticks(custom_ticks)
+        ax.set_yticklabels(custom_ticks)
+        ax.vlines(ax.get_xlim()[0], 0, 0.5, linewidth=2)
+        ax.spines['left'].set_visible(False)
 
     for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
@@ -4100,7 +4098,7 @@ def plot_cellDepth_all(spread='sect'):
             pass
             # ax.text(0.7, 0.7, leg, transform=ax.transAxes)
         if i not in [3, 7]:
-            ax.xaxis.set_visible(False)            
+            ax.xaxis.set_visible(False)
             ax.spines['bottom'].set_visible(False)
         else:
             ax.tick_params(axis='x', labelrotation=45)
@@ -4111,7 +4109,7 @@ def plot_cellDepth_all(spread='sect'):
         ax.text(0.85, 0.85, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
         ax.margins(0.01)
 
-    fig.subplots_adjust(hspace=0.02) 
+    fig.subplots_adjust(hspace=0.02)
     fig.subplots_adjust(wspace=0.2)
     fig.tight_layout()
     if anot:
@@ -4121,7 +4119,7 @@ def plot_cellDepth_all(spread='sect'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#fig = plot_cellDepth()
+# fig = plot_cellDepth()
 fig1 = plot_cellDepth_all(spread='sect')
 fig2 = plot_cellDepth_all(spread='full')
 
@@ -4132,10 +4130,10 @@ fig = plt.figure()
 axes = []
 ax = fig.add_subplot(421)
 axes.append(ax)
-for i in range(3,8,2):
+for i in range(3, 8, 2):
     print(i)
     axes.append(fig.add_subplot(4, 2, i))
-for i in range(2,9,2):
+for i in range(2, 9, 2):
     axes.append(fig.add_subplot(4, 2, i))
 
 fig, axes = plt.subplots(nrows=4, ncols=2)
@@ -4146,4 +4144,3 @@ for ax in axes[0::2]:
 axr = axes[1]
 for ax in axes[1::2]:
     ax.get_shared_y_axes().join(ax, axr)
-    
