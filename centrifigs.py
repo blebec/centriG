@@ -1716,7 +1716,7 @@ fig = plot_figure6()
 plt.close('all')
 
 
-def plot_figure6_bis():
+def plot_figure6_bis(linear=True, substract=False):
     """
     plot_figure6 minus center
     """
@@ -1749,13 +1749,14 @@ def plot_figure6_bis():
             pass
         # suround the center minus center
         elif i == 1:
-            pass
-            # ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
-            #          label=col, linestyle='--', linewidth=1.5)
+            if substract:
+                ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                        label=col, linestyle='--', linewidth=1.5)
         # linear predictor
         elif i == 3:
-            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
-                    label=col, linestyle='--', linewidth=1.5)
+            if linear:
+                ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                        label=col, linestyle='--', linewidth=1.5)
         else:
             ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=1,
                     label=col)
@@ -1842,6 +1843,9 @@ def plot_figure6_bis():
     return fig
 
 fig = plot_figure6_bis()
+# fig = plot_figure6_bis(substract=True)
+fig = plot_figure6_bis(linear=False, substract=True)
+
 
 #%%
 plt.close('all')
