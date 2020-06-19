@@ -75,7 +75,7 @@ speed_info_df = pd.read_excel(
 # df = df.subtract(ref, axis=0) #on average traces already normalized
 
 #%% to be checked:
-sig_cells = ['1427A_CXG4',
+vm_sig_cells = ['1427A_CXG4',
              '1429D_CXG8',
              '1509E_CXG4',
              '1512F_CXG6',
@@ -160,73 +160,87 @@ speed_dico = align_traces(speed_dico, speed_info_df)
 
 #%%
 #for cond in data_cond.columns:
+plt.close('all')
 
-def testPlot(vm_dico):
+
+def testPlot(dico, sig_cells):
     cond = 'cpisosec.txt'
-    data_cond = vm_dico[cond][sig_cells]
+    data_cond = dico[cond][sig_cells]
     ref = 'ctronly.txt' 
-    data_ref = vm_dico[ref][sig_cells]
+    data_ref = dico[ref][sig_cells]
 
-    fig = plt.figure()
-    fig.suptitle('several ways to look at')
-    ax = fig.add_subplot(411)
+    fig, axes = plt.subplots(ncols=2, nrows=5, sharex=True)
+    axes = axes.flatten()
+    # fig.suptitle('several ways to look at')
+    # recordings
+    ax = axes[0]
+    ax.set_title('condition')
     for col in data_cond.columns:
-        ax.plot(data_cond[col], 'r-', alpha=0.6)#, label=col.split('_')[0])
+        ax.plot(data_cond[col], 'r-', alpha=0.8)#, label=col.split('_')[0])
+    ax = axes[1]
+    ax.set_title('reference')
+    for col in data_cond.columns:
         ax.plot(data_ref[col], 'k-', alpha=0.6)
-    ax = fig.add_subplot(412)
-    ax.plot(data_cond.mean(axis=1), 'r-', alpha=0.6, label=cond)
-    ax.plot(data_ref.mean(axis=1), 'k-', alpha=0.6, label=ref)
-    axT = ax.twinx()
-    axT.plot(np.cumsum(data_cond.mean(axis=1)), 'r-', alpha=0.6, label='cumsum')
-    axT.plot(np.cumsum(data_ref.mean(axis=1)), 'k-', alpha=0.6, label='cumsum')
-    # axT.legend()
-    # ax.legend()
-    ax = fig.add_subplot(413)
+    # mean or med
+    ax = axes[2]
+    ax.set_title('mean & std')
+    middle = data_cond.mean(axis=1)
+    errs = data_cond.std(axis=1)
+    ax.plot(middle, 'r-', alpha=0.6, label=cond)
+    ax.fill_between(x=data_cond.index, y1=(middle - errs), y2=(middle + errs),
+                    color='r', alpha=0.3)
+    middle = data_ref.mean(axis=1)
+    errs = data_ref.std(axis=1)
+    ax.plot(middle, 'k-', alpha=0.6, label=cond)
+    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs), 
+                    color='k', alpha=0.2)
+    # med & mad    
+    ax = axes[3]
+    ax.set_title('med & mad')
+    middle = data_cond.median(axis=1)
+    errs = data_cond.mad(axis=1)
+    ax.plot(middle, 'r-', alpha=0.6, label=cond)
+    ax.fill_between(x=data_cond.index, y1=(middle - errs), y2=(middle + errs), 
+                    color='r', alpha=0.3)
+    middle = data_ref.median(axis=1)
+    errs = data_ref.mad(axis=1)
+    ax.plot(middle, 'k-', alpha=0.6, label=cond)
+    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs), 
+                    color='k', alpha=0.2)
+    # difference
+    ax = axes[4]
+    ax.set_title('difference')
     diff = data_cond.mean(axis=1) - data_ref.mean(axis=1)
     ax.plot(diff, '-g', 
             linewidth=2, alpha=0.8, label = 'diff')
     x = diff.index.values
     ax.fill_between(x=x, y1=diff,color='g', alpha=0.3)
-    # ax.legend()
-    ax = fig.add_subplot(414)
+    
+    #derive
+    ax = axes[5]
+    ax.plot(diff.diff())
+
+    # cum sum
+    ax = axes[6]
+    ax.set_title('cum sum')
     ax.plot(np.cumsum(diff), label='cumsum')
     ax.plot(np.cumsum(diff -diff.mean()), label='-mean & cumsum')
-    # ax.legend()
+    # 
+    ax = axes[7]
+ 
+
     for i, ax in enumerate(fig.get_axes()):
-        ax.legend()
-        for loca in ['top', 'right']:
+        ax.set_xlim(-200, 200)
+        for loca in ['left', 'top', 'right', 'bottom']:
             ax.spines[loca].set_visible(False)
+            ax.xaxis.set_visible(False)
+        ax.yaxis.set_visible(False)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
-        if i <4:
-            ax.xaxis.set_visible(False)
-            ax.spines['bottom'].set_visible(False)
-            #fig.legend()        
+        
     fig.tight_layout()
     
-testPlot(vm_dico)
-#%%
-def load_speed_vm_traces(speed_info_df):
-    stims = [item for item in os.listdir(os.path.join(paths['traces'], 'vm', 'speed'))
-             if item[0] != '.']
-    # remove dir
-    for stim in stims:
-        if not os.path.isfile(os.path.join(paths['traces'], 'vm', stim)):
-             stims.remove(stim)
-    dico = {}
-    for stim in stims:
-        filename = os.path.join(paths['traces'], 'vm', 'speed', stim)
-        df = pd.read_csv(filename, sep='\t', header=None)
-        df.columns = speed_info_df.Neuron.to_list()
-        # center and scale
-        df.index -= df.index.max()/2
-        df.index /= 10
-        dico[stim] = df.copy()
-    return dico
-
-
-speed_dico = load_speed_vm_traces(speed_info_df)
-
+testPlot(vm_dico, vm_sig_cells)
 #%%
