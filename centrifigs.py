@@ -1715,6 +1715,45 @@ fig = plot_figure6()
 #%%
 plt.close('all')
 
+def align_center(adf, showPlot=False):
+    df = adf.copy()
+    ref = df['Center_Only'].copy()
+    cp = df.Surround_then_Center.copy()  
+    ref50_y = (ref.loc[30:80].max() - ref.loc[30:80].min()) / 2
+    ref50_x = (ref.loc[30:80] - ref50_y).abs().sort_values().index[0]
+    cp50_y = ref50_y
+    cp50_x = ((cp.loc[30:70] - cp50_y)).abs().sort_values().index[0]
+    
+    if showPlot:
+        fig =  plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(ref, '-k', alpha = 0.5, label='ref')
+        ax.plot(cp, '-r', alpha = 0.6, label='cp')
+        ax.set_xlim(0, 100)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)   
+        limx = ax.get_xlim()
+        limy = ax.get_ylim()
+        ax.hlines(ref50_y, limx[0], limx[1], alpha=0.3)
+        ax.vlines(ref50_x, limy[0], limy[1], alpha=0.3)
+        ax.vlines(cp50_x, limy[0], limy[1], 'r', alpha=0.4)
+        adv = cp50_x - ref50_x
+        print('adv=', adv)
+        ax.plot(ref.shift(int(10*adv)), ':k', alpha=0.5, label='ref_corr',
+                linewidth=2)
+        ref_corr = ref.shift(int(10*adv))
+    
+        ax.plot(cp - ref, '-b', alpha=0.5, label='cp - ref')
+        ax.plot(cp - ref_corr, ':b', alpha=0.5, label='cp - ref_corr',
+                linewidth=2)
+        ax.legend()
+        fig.tight_layout()
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    return ref_corr    
+
 
 def plot_figure6_bis(linear=True, substract=False):
     """
@@ -1728,18 +1767,18 @@ def plot_figure6_bis(linear=True, substract=False):
     df.index = df.index/10
     # rename columns
     cols = df.columns
-    cols = ['Center-Only', 'Surround-then-Center', 'Surround-Only',
-            'Static linear prediction']
+    cols = ['Center_Only', 'Surround_then_Center', 'Surround_Only',
+            'Static_linear_prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # substract
-
-    ref = df['Center-Only'].copy()
-    df['Surround-then-Center'] = df['Surround-then-Center'] - ref
-    df['Center-Only'] -= ref
+    # build a time shifted reference (centerOnly) to perfome the substraction
+    ref_shift = align_center(df, showPlot=True)
+    df['Surround_then_Center'] = df['Surround_then_Center'] - ref_shift
+   # df['Center_Only'] -= ref
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
 #    fig.suptitle(os.path.basename(filename))
@@ -1811,7 +1850,7 @@ def plot_figure6_bis(linear=True, substract=False):
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # response start
     x = 41
-    y = df['Center-Only'].loc[x]
+    y = df['Center_Only'].loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
               linestyle=':', alpha=0.8)
