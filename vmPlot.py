@@ -284,7 +284,7 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
              'bleu' :	[x/256 for x in [0, 125, 218]],
              'jaune' :	[x/256 for x in [238, 181, 0]]}
     
-    if 'cpsiso' in cond:
+    if 'cpiso' in cond:
         color = stdColors['rouge']
     elif 'cfiso'in cond:
         color = stdColors['vert']
@@ -406,12 +406,12 @@ def extract_data(cells, cond='cpisosec', sort_by='lag'):
 # fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=False)
     
 for cond in sigcell_dico.keys():
-    # cells = sigcell_dico[cond]
-    cells = all_cells
+    cells = sigcell_dico[cond]
+    # cells = all_cells
     _, s_cells, s_dfs, s_lags = extract_data(cells, cond=cond, sort_by='lag')
     fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=True)
     # filename =  os.path.join(paths['cgFig'], 'pythonPreview', 
-    #                          'fillingIn', 'allCells', cond + 'All.png')
+    #                           'fillingIn', 'sig', cond + '.png')
     # fig.savefig(filename, format='png')
 
 
