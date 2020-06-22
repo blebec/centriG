@@ -243,4 +243,99 @@ def testPlot(dico, sig_cells):
     fig.tight_layout()
     
 testPlot(vm_dico, vm_sig_cells)
-#%%
+#%% no center
+cells = vm_dico['ctronly.txt'].columns.to_list()
+no_center_list = [item for item in vm_dico.keys() if 'cp' in item and 'woct' in item]
+center_only = ['ctronly.txt']
+
+column_list_fig6 = ['Center_Only', 'Surround_then_Center', 'Surround_Only',
+       'Static_linear_prediction']
+column_list = ['center_only', 'surround_then_center', 'surround_only',
+       'static_linear_prediction']
+
+
+def extract_cell_data(cell):
+    df = pd.DataFrame()
+    df['center_only'] = vm_dico['ctronly.txt'][cell]
+    df['surround_then_center'] = vm_dico['cpisosec.txt'][cell]
+    df['surround_only'] = vm_dico['cpisosecwoctr.txt'][cell]
+    return df
+
+
+def simple_plot(df_list):
+    fig, axes = plt.subplots(nrows=6 , ncols= 7, sharex=True)#, sharey=True)
+    axes = axes.flatten()
+    for i, df in enumerate(df_list): 
+        ax = axes[i]
+        ax.plot(df.center_only, '-k', alpha = 0.5, label='ref')
+        ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
+        ax.plot(df.surround_only, '-g', alpha=0.6, label='so')
+        ax.set_xlim(-50, 150)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)   
+        limx = ax.get_xlim()
+        limy = ax.get_ylim()
+        ax.fill_between(df.surround_only, 'g', alpha=0.3)
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    fig.tight_layout()
+    
+    
+# =============================================================================
+# def align_center(adf, showPlot=False):
+#     df = adf.copy()
+#     ref = df['center_only'].copy()        
+#     cp = df.surround_then_center.copy()  
+#     ref50_y = (ref.loc[30:80].max() - ref.loc[30:80].min()) / 2
+#     ref50_x = (ref.loc[30:80] - ref50_y).abs().sort_values().index[0]
+#     cp50_y = ref50_y
+#     cp50_x = ((cp.loc[30:70] - cp50_y)).abs().sort_values().index[0]
+#     
+#     if showPlot:
+#         fig =  plt.figure()
+#         ax = fig.add_subplot(111)
+#         ax.plot(ref, '-k', alpha = 0.5, label='ref')
+#         ax.plot(cp, '-r', alpha = 0.6, label='cp')
+#         ax.set_xlim(-50, 150)
+#         lims = ax.get_xlim()
+#         ax.hlines(0, lims[0], lims[1], alpha=0.3)
+#         lims = ax.get_ylim()
+#         ax.vlines(0, lims[0], lims[1], alpha=0.2)   
+#         limx = ax.get_xlim()
+#         limy = ax.get_ylim()
+#         ax.hlines(ref50_y, limx[0], limx[1], alpha=0.3)
+#         ax.vlines(ref50_x, limy[0], limy[1], alpha=0.3)
+#         ax.vlines(cp50_x, limy[0], limy[1], 'r', alpha=0.4)
+#         adv = cp50_x - ref50_x
+#         print('adv=', adv)
+#         ax.plot(ref.shift(int(10*adv)), ':k', alpha=0.5, label='ref_corr',
+#                 linewidth=2)
+#         ref_corr = ref.shift(int(10*adv))
+#     
+#         ax.plot(cp - ref, '-b', alpha=0.5, label='cp - ref')
+#         ax.plot(cp - ref_corr, ':b', alpha=0.5, label='cp - ref_corr',
+#                 linewidth=2)
+#         ax.legend()
+#         fig.tight_layout()
+#         for spine in ['top', 'right']:
+#             ax.spines[spine].set_visible(False)
+#     return ref_corr    
+#     
+# =============================================================================
+
+
+plt.close('all')
+
+cell = cells[0]
+cell_df = extract_cell_data(cell)
+#align_center(cell_df)
+alist = []
+for cell in cells:
+    alist.append(extract_cell_data(cell))
+simple_plot(alist)
+    
+    
+    

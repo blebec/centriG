@@ -1717,8 +1717,8 @@ plt.close('all')
 
 def align_center(adf, showPlot=False):
     df = adf.copy()
-    ref = df['Center_Only'].copy()
-    cp = df.Surround_then_Center.copy()  
+    ref = df['center_only'].copy()        
+    cp = df.surround_then_center.copy()  
     ref50_y = (ref.loc[30:80].max() - ref.loc[30:80].min()) / 2
     ref50_x = (ref.loc[30:80] - ref50_y).abs().sort_values().index[0]
     cp50_y = ref50_y
@@ -1767,8 +1767,8 @@ def plot_figure6_bis(linear=True, substract=False):
     df.index = df.index/10
     # rename columns
     cols = df.columns
-    cols = ['Center_Only', 'Surround_then_Center', 'Surround_Only',
-            'Static_linear_prediction']
+    cols = ['center_only', 'surround_then_center', 'surround_only',
+            'static_linear_prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
@@ -1777,7 +1777,7 @@ def plot_figure6_bis(linear=True, substract=False):
     # substract
     # build a time shifted reference (centerOnly) to perfome the substraction
     ref_shift = align_center(df, showPlot=True)
-    df['Surround_then_Center'] = df['Surround_then_Center'] - ref_shift
+    df['surround_then_center'] = df['surround_then_center'] - ref_shift
    # df['Center_Only'] -= ref
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
@@ -1837,7 +1837,7 @@ def plot_figure6_bis(linear=True, substract=False):
     #                  alpha=0.6, edgecolor='w', facecolor=colors[0])
     # ax.add_patch(rect)
 #    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
-    for i, st in enumerate(['Surround-Only']):
+    for i, st in enumerate(['surround-only']):
         ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
                     annotation_clip=False, fontsize='small')
 
@@ -1850,7 +1850,7 @@ def plot_figure6_bis(linear=True, substract=False):
     ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # response start
     x = 41
-    y = df['Center_Only'].loc[x]
+    y = df['center_only'].loc[x]
     ax.plot(x, y, 'o', color=stdColors['bleu'])
     ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
               linestyle=':', alpha=0.8)
