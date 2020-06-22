@@ -8,6 +8,8 @@ import getpass
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+from more_itertools import sort_together
+from datetime import datetime
 
  
 # =============================================================================
@@ -50,7 +52,7 @@ def config():
         paths['traces'] = '/Users/cdesbois/ownCloud/cgFigures/averageTraces'
     return paths
 
-
+anot = True
 paths = config()
 vm_info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
 speed_info_df = pd.read_excel(
@@ -244,7 +246,18 @@ def testPlot(dico, sig_cells):
     
 testPlot(vm_dico, vm_sig_cells)
 #%% no center
-cells = vm_dico['ctronly.txt'].columns.to_list()
+
+def extract_cell_significativity():
+    sigcell_df = pd.read_csv(os.path.join('data', filename), sep=';')
+    dico = {}
+    for cond in sigcell_df.columns[1:]:
+        alist = sigcell_df.loc[sigcell_df[cond] > 0, 'Neuron'].to_list()
+        dico[cond] = alist
+    return dico 
+
+all_cells = vm_dico['ctronly.txt'].columns.to_list()
+sigcell_dico = extract_cell_significativity()
+
 no_center_list = [item for item in vm_dico.keys() if 'cp' in item and 'woct' in item]
 center_only = ['ctronly.txt']
 
@@ -252,6 +265,9 @@ column_list_fig6 = ['Center_Only', 'Surround_then_Center', 'Surround_Only',
        'Static_linear_prediction']
 column_list = ['center_only', 'surround_then_center', 'surround_only',
        'static_linear_prediction']
+
+#%%
+
 
 
 def extract_cell_data(cell):
@@ -262,26 +278,56 @@ def extract_cell_data(cell):
     return df
 
 
-def simple_plot(df_list):
-    fig, axes = plt.subplots(nrows=6 , ncols= 7, sharex=True)#, sharey=True)
-    axes = axes.flatten()
+def simple_plot(cell_list, df_list, lag_list, traces=True):
+    if len(cell_list) > 12:
+        fig, axes = plt.subplots(nrows=6 , ncols= 7, sharex=True)#, sharey=True)
+    else:
+        fig, axes = plt.subplots(nrows=3 , ncols= 4, sharex=True, sharey=True)
+    axes = axes.T.flatten()
+    fig.suptitle('no center & diff')
     for i, df in enumerate(df_list): 
         ax = axes[i]
-        ax.plot(df.center_only, '-k', alpha = 0.5, label='ref')
-        ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
-        ax.plot(df.surround_only, '-g', alpha=0.6, label='so')
-        ax.set_xlim(-50, 150)
+        ax.set_title(cell_list[i].split('_')[0])
+        if traces:
+            ax.plot(df.center_only, '-k', alpha = 0.5, label='ref')
+            ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
+        ax.plot(df.surround_only, '-g', alpha=0.6, label='no_cent')
+        diff = df.surround_then_center - df.center_only
+        addition = False
+        if addition:
+            add = df.surround_then_center + df.center_only
+            ax.plot(add, ':g', alpha = 0.8, linewidth=2, label='add')
+            ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
+        
+        ax.plot(diff, ':r', linewidth=2, alpha=0.8, label='diff')
+        ax.set_xlim(-50, 200)
         lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        ax.hlines(0, lims[0], lims[1], alpha=0.4)
         lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)   
+        ax.vlines(0, 0, lims[1], alpha=0.4)   
         limx = ax.get_xlim()
         limy = ax.get_ylim()
-        ax.fill_between(df.surround_only, 'g', alpha=0.3)
-    for ax in axes:
+        ax.fill_between(df.index, df.surround_only, color='g', alpha=0.3)
+        ax.plot(lag_list[i], df.loc[lag_list[i], ['surround_only']], '+g',
+                alpha=0.8)
+        # ax.vlines(lag_list[i], limy[0], 0.5, color='g')
+    for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
+        ax.set_ylim(-0.3, 1.5)
+        custom_ticks = np.arange(0, 1.1, 0.5)
+        ax.set_yticks(custom_ticks)
+        # ax.legend()
+        if i > 2:
+            ax.spines['left'].set_visible(False)
+            ax.yaxis.set_visible(False)
     fig.tight_layout()
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'vmPlot.py:simple_plot',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
     
     
 # =============================================================================
@@ -329,13 +375,32 @@ def simple_plot(df_list):
 
 plt.close('all')
 
-cell = cells[0]
+cell = all_cells[0]
 cell_df = extract_cell_data(cell)
 #align_center(cell_df)
-alist = []
+
+#
+dfs = []
+lags = []
+amps = []
+#for cell in cells:
+cells = sigcell_dico['cpisosec']
 for cell in cells:
-    alist.append(extract_cell_data(cell))
-simple_plot(alist)
+    df = extract_cell_data(cell)
+    dfs.append(df)
+    lags.append(df.loc[0:120, ['surround_only']].idxmax()[0])
+    amps.append(df.loc[0:120, ['surround_only']].max()[0])
+
+# sort by amp
+s_amps, s_lags, s_cells, s_dfs = sort_together([amps, lags, cells, dfs], 
+                                               reverse=True)
+
+# sort by lag
+s_lags, s_cells, s_dfs = sort_together([lags, cells, dfs])
+
+fig = simple_plot(cells, dfs, lags, traces=True)
+fig = simple_plot(s_cells, s_dfs, s_lags, traces=False)
     
     
-    
+# max location of no center:
+#     df.loc[-50:80, ['surround_only']].idxmax()
