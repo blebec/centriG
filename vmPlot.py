@@ -248,6 +248,7 @@ testPlot(vm_dico, vm_sig_cells)
 #%% no center
 
 def extract_cell_significativity():
+    filename = 'surroundonly_sector_sig.csv'
     sigcell_df = pd.read_csv(os.path.join('data', filename), sep=';')
     dico = {}
     for cond in sigcell_df.columns[1:]:
@@ -267,24 +268,31 @@ column_list = ['center_only', 'surround_then_center', 'surround_only',
        'static_linear_prediction']
 
 #%%
-
-
-
-def extract_cell_data(cell):
+def extract_cell_data(cell, cond='rndisofull'):
     df = pd.DataFrame()
     df['center_only'] = vm_dico['ctronly.txt'][cell]
-    df['surround_then_center'] = vm_dico['cpisosec.txt'][cell]
-    df['surround_only'] = vm_dico['cpisosecwoctr.txt'][cell]
+    df['surround_then_center'] = vm_dico[cond + '.txt'][cell]
+    df['surround_only'] = vm_dico[cond + 'woctr.txt'][cell]
     return df
 
-
-def simple_plot(cell_list, df_list, lag_list, traces=True):
+def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
+    """
+    
+    """
     if len(cell_list) > 12:
-        fig, axes = plt.subplots(nrows=6 , ncols= 7, sharex=True)#, sharey=True)
+        nrows = 6
+        ncols = 7
+#        fig, axes = plt.subplots(nrows=6 , ncols=7, sharex=True)#, sharey=True)
     else:
-        fig, axes = plt.subplots(nrows=3 , ncols= 4, sharex=True, sharey=True)
+        nrows = 3
+        ncols = 4
+        # fig, axes = plt.subplots(nrows=3 , ncols=4, sharex=True, sharey=True,
+        #                          figsize=(16, 9))
+    fig, axes = plt.subplots(nrows=nrows , ncols=ncols, 
+                             sharex=True, sharey=True, figsize=(16, 9))
     axes = axes.T.flatten()
-    fig.suptitle('no center & diff')
+    title = 'no center & diff (' + cond + ')'
+    fig.suptitle(title)
     for i, df in enumerate(df_list): 
         ax = axes[i]
         ax.set_title(cell_list[i].split('_')[0])
@@ -314,11 +322,17 @@ def simple_plot(cell_list, df_list, lag_list, traces=True):
     for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-        ax.set_ylim(-0.3, 1.5)
-        custom_ticks = np.arange(0, 1.1, 0.5)
-        ax.set_yticks(custom_ticks)
+        if traces:
+            ax.set_ylim(-0.3, 1.5)
+            custom_ticks = np.arange(0, 1.1, 0.5)
+            ax.set_yticks(custom_ticks)
+        else:
+            ax.set_ylim(-0.3, 0.9)
+            custom_ticks = np.linspace(0, 0.5, 2)
+            ax.set_yticks(custom_ticks)
+            
         # ax.legend()
-        if i > 2:
+        if i > nrows - 1:
             ax.spines['left'].set_visible(False)
             ax.yaxis.set_visible(False)
     fig.tight_layout()
@@ -329,49 +343,6 @@ def simple_plot(cell_list, df_list, lag_list, traces=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
     
-    
-# =============================================================================
-# def align_center(adf, showPlot=False):
-#     df = adf.copy()
-#     ref = df['center_only'].copy()        
-#     cp = df.surround_then_center.copy()  
-#     ref50_y = (ref.loc[30:80].max() - ref.loc[30:80].min()) / 2
-#     ref50_x = (ref.loc[30:80] - ref50_y).abs().sort_values().index[0]
-#     cp50_y = ref50_y
-#     cp50_x = ((cp.loc[30:70] - cp50_y)).abs().sort_values().index[0]
-#     
-#     if showPlot:
-#         fig =  plt.figure()
-#         ax = fig.add_subplot(111)
-#         ax.plot(ref, '-k', alpha = 0.5, label='ref')
-#         ax.plot(cp, '-r', alpha = 0.6, label='cp')
-#         ax.set_xlim(-50, 150)
-#         lims = ax.get_xlim()
-#         ax.hlines(0, lims[0], lims[1], alpha=0.3)
-#         lims = ax.get_ylim()
-#         ax.vlines(0, lims[0], lims[1], alpha=0.2)   
-#         limx = ax.get_xlim()
-#         limy = ax.get_ylim()
-#         ax.hlines(ref50_y, limx[0], limx[1], alpha=0.3)
-#         ax.vlines(ref50_x, limy[0], limy[1], alpha=0.3)
-#         ax.vlines(cp50_x, limy[0], limy[1], 'r', alpha=0.4)
-#         adv = cp50_x - ref50_x
-#         print('adv=', adv)
-#         ax.plot(ref.shift(int(10*adv)), ':k', alpha=0.5, label='ref_corr',
-#                 linewidth=2)
-#         ref_corr = ref.shift(int(10*adv))
-#     
-#         ax.plot(cp - ref, '-b', alpha=0.5, label='cp - ref')
-#         ax.plot(cp - ref_corr, ':b', alpha=0.5, label='cp - ref_corr',
-#                 linewidth=2)
-#         ax.legend()
-#         fig.tight_layout()
-#         for spine in ['top', 'right']:
-#             ax.spines[spine].set_visible(False)
-#     return ref_corr    
-#     
-# =============================================================================
-
 
 plt.close('all')
 
@@ -379,28 +350,56 @@ cell = all_cells[0]
 cell_df = extract_cell_data(cell)
 #align_center(cell_df)
 
+
+def extract_data(cells, cond='cpisosec', sort_by='lag'):
+    dfs = []
+    lags = []
+    amps = []
+    for cell in cells:
+        df = extract_cell_data(cell, cond)
+        dfs.append(df)
+        lags.append(df.loc[0:120, ['surround_only']].idxmax()[0])
+        amps.append(df.loc[0:120, ['surround_only']].max()[0])
+    if sort_by == 'amp':
+        # sort by amp
+        s_amps, s_lags, s_cells, s_dfs = sort_together([amps, lags, cells, dfs], 
+                                                       reverse=True)
+    else:
+        # sort by lag
+        s_lags, s_cells, s_dfs = sort_together([lags, cells, dfs])
+    return cond, s_cells, s_dfs, s_lags
 #
-dfs = []
-lags = []
-amps = []
-#for cell in cells:
-cells = sigcell_dico['cpisosec']
-for cell in cells:
-    df = extract_cell_data(cell)
-    dfs.append(df)
-    lags.append(df.loc[0:120, ['surround_only']].idxmax()[0])
-    amps.append(df.loc[0:120, ['surround_only']].max()[0])
+# =============================================================================
+# dfs = []
+# lags = []
+# amps = []
+# cond = 'cpisosec'
+# 
+# #for cell in cells:
+# cells = sigcell_dico[cond]
+# for cell in cells:
+#     df = extract_cell_data(cell)
+#     dfs.append(df)
+#     lags.append(df.loc[0:120, ['surround_only']].idxmax()[0])
+#     amps.append(df.loc[0:120, ['surround_only']].max()[0])
+# 
+# =============================================================================
+# cond='cpisosec'
+# cells = sigcell_dico[cond]
+# _, s_cells, s_dfs, s_lags = extract_data(cells, cond='cpisosec', sort_by='lag')
 
-# sort by amp
-s_amps, s_lags, s_cells, s_dfs = sort_together([amps, lags, cells, dfs], 
-                                               reverse=True)
-
-# sort by lag
-s_lags, s_cells, s_dfs = sort_together([lags, cells, dfs])
-
-fig = simple_plot(cells, dfs, lags, traces=True)
-fig = simple_plot(s_cells, s_dfs, s_lags, traces=False)
+# fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=False)
     
-    
+for cond in sigcell_dico.keys():
+#    cells = sigcell_dico[cond]
+    cells = all_cells
+    _, s_cells, s_dfs, s_lags = extract_data(cells, cond=cond, sort_by='lag')
+    fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=True)
+    filename =  os.path.join(paths['cgFig'], 'pythonPreview', 
+                             'fillingIn', 'sig', cond + '.png')
+    fig.savefig(filename, format='png')
+
+
+
 # max location of no center:
 #     df.loc[-50:80, ['surround_only']].idxmax()
