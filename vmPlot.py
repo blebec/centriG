@@ -279,6 +279,20 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
     """
     
     """
+    stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
+             'vert' : [x/256 for x in [127, 204, 56]],
+             'bleu' :	[x/256 for x in [0, 125, 218]],
+             'jaune' :	[x/256 for x in [238, 181, 0]]}
+    
+    if 'cpsiso' in cond:
+        color = stdColors['rouge']
+    elif 'cfiso'in cond:
+        color = stdColors['vert']
+    elif 'cross' in cond:
+        color = stdColors['jaune']
+    else:
+        color = stdColors['bleu']
+    
     if len(cell_list) > 12:
         nrows = 6
         ncols = 7
@@ -298,7 +312,8 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
         ax.set_title(cell_list[i].split('_')[0])
         if traces:
             ax.plot(df.center_only, '-k', alpha = 0.5, label='ref')
-            ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
+            ax.plot(df.surround_then_center, '-', color=color,
+                    alpha = 0.8, label='cp')
         ax.plot(df.surround_only, '-g', alpha=0.6, label='no_cent')
         diff = df.surround_then_center - df.center_only
         addition = False
@@ -307,7 +322,7 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
             ax.plot(add, ':g', alpha = 0.8, linewidth=2, label='add')
             ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
         
-        ax.plot(diff, ':r', linewidth=2, alpha=0.8, label='diff')
+        ax.plot(diff, ':', color=color, linewidth=2, alpha=1, label='diff')
         ax.set_xlim(-50, 200)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.4)
@@ -391,13 +406,13 @@ def extract_data(cells, cond='cpisosec', sort_by='lag'):
 # fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=False)
     
 for cond in sigcell_dico.keys():
-#    cells = sigcell_dico[cond]
+    # cells = sigcell_dico[cond]
     cells = all_cells
     _, s_cells, s_dfs, s_lags = extract_data(cells, cond=cond, sort_by='lag')
     fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=True)
-    filename =  os.path.join(paths['cgFig'], 'pythonPreview', 
-                             'fillingIn', 'sig', cond + '.png')
-    fig.savefig(filename, format='png')
+    # filename =  os.path.join(paths['cgFig'], 'pythonPreview', 
+    #                          'fillingIn', 'allCells', cond + 'All.png')
+    # fig.savefig(filename, format='png')
 
 
 
