@@ -197,7 +197,18 @@ def load_cell_contributions(kind='vm'):
     df.columns = cols
     return df
 
-#%%
+#%% load energy
+
+folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+filename = os.path.join(folder, '1424M_CXG16.txt')
+df = pd.read_csv(filename, sep='\t', names=cols)
+
+for item in folder:
+    if os.path.isfile(os.path.join(folder, item)):
+        df = pd.read_csv(filename, sep='\t', names=cols)
+
+
+
 
 #%%
 plt.close('all')
@@ -2158,12 +2169,14 @@ plot_figure9CD(data_df, cols_dict)
 
 plt.close('all')
 
-
 def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     """
     plot the sorted cell responses
     input = conditions parameters
-
+    overlap : boolean, overlap the different rows to superpose the plots
+    sort_all : if false, only the 'key' trace is sorted
+    key : number to choose the trace to be sorted
+    output : matplotlib plot
     """
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
@@ -2890,10 +2903,17 @@ def plot_cell_contribution(df):
 
 plot_cell_contribution(df)
 
+#%% load energy
+
+
+
+
 #%%
 plt.close('all')
 
 # plot latency (left) and gain (right
+
+
 
 plt.close('all')
 
