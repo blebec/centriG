@@ -205,21 +205,32 @@ def load_cell_contributions(kind='vm'):
 
 # 9 conditions -> 8 stats
 
-
-def load_energy_cell(cell_name = '1424M_CXG16.txt'):
-    cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
-            'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
-    folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
-    filename = os.path.join(folder, cell_name)
-    df = pd.read_csv(filename, sep='\t', names=cols)
-    return df
-
-def load_significativity():
+def load_energy_gain_index():
     """
-    pb des fichiers : les pvalues sone classées ... sans index !
+    pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
     """
+    def load_energy_cell(cell_name = '1424M_CXG16.txt'):
+        """
+        to iterate and load sicessively all the cells        
+        """
+
+        cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
+                'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
+        folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+        filename = os.path.join(folder, cell_name)
+        df = pd.read_csv(filename, sep='\t', names=cols)
+        return df
+    
+    # neurons & values
     df = pd.DataFrame()
-    #pvalues one col by condition, one line per cell
+    folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+    for name in os.listdir(folder):
+        if os.path.isfile(os.path.join(folder, name)):
+            energy_df = load_energy_cell(name)
+            # nb here i choosed the median value
+            df[os.path.splitext(name)[0]] = energy_df.median()           
+    # pvalues one col by condition, one line per cell
+    df = df.T
     folder = os.path.join(paths['cgFig'], 'index', 'pvalue')
     for name in os.listdir(folder):
         filename = os.path.join(folder, name)
@@ -232,16 +243,11 @@ def load_significativity():
                     if ']' in line:
                         line = line.replace(']', '')
                 pvals = [np.float(item) for item in line.split(',')]
-            df[cond] = pvals
+            df[cond + '_p'] = pvals
+    return df
 
 
-folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
-for name in os.listdir(folder):
-    if os.path.isfile(os.path.join(folder, name)):
-        df = load_energy_cell(name)
-        print(name, df.shape)
-
-        
+energy_df = load_energy_gain_index()
 
 #%%
 plt.close('all')
