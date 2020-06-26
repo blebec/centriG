@@ -199,16 +199,49 @@ def load_cell_contributions(kind='vm'):
 
 #%% load energy
 
+# location : ownc/cgFigure/index/...
+# energy : file = neuron, column = conditions, cells : repetition, 
+# measure = mean on a defined window
+
+# 9 conditions -> 8 stats
+
+
+def load_energy_cell(cell_name = '1424M_CXG16.txt'):
+    cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
+            'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
+    folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+    filename = os.path.join(folder, cell_name)
+    df = pd.read_csv(filename, sep='\t', names=cols)
+    return df
+
+def load_significativity():
+    """
+    pb des fichiers : les pvalues sone classées ... sans index !
+    """
+    df = pd.DataFrame()
+    #pvalues one col by condition, one line per cell
+    folder = os.path.join(paths['cgFig'], 'index', 'pvalue')
+    for name in os.listdir(folder):
+        filename = os.path.join(folder, name)
+        if os.path.isfile(filename):
+            cond = name.split('indisig')[0]
+            with open(filename, 'r') as fh:
+                for line in fh:
+                    if '[' in line:
+                        line = line.replace('[', '')
+                    if ']' in line:
+                        line = line.replace(']', '')
+                pvals = [np.float(item) for item in line.split(',')]
+            df[cond] = pvals
+
+
 folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
-filename = os.path.join(folder, '1424M_CXG16.txt')
-df = pd.read_csv(filename, sep='\t', names=cols)
+for name in os.listdir(folder):
+    if os.path.isfile(os.path.join(folder, name)):
+        df = load_energy_cell(name)
+        print(name, df.shape)
 
-for item in folder:
-    if os.path.isfile(os.path.join(folder, item)):
-        df = pd.read_csv(filename, sep='\t', names=cols)
-
-
-
+        
 
 #%%
 plt.close('all')
@@ -2902,10 +2935,6 @@ def plot_cell_contribution(df):
     fig.tight_layout()
 
 plot_cell_contribution(df)
-
-#%% load energy
-
-
 
 
 #%%
