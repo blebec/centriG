@@ -251,6 +251,14 @@ def load_energy_gain_index(sig=True):
             df[col] = df[col] - 0.05
             df.loc[df[col] > 0, [col]] = 0
             df.loc[df[col] < 0, [col]] = 1
+            df[col] = df[col].astype(int)
+        # rename
+        cols = []
+        for col in df.columns:
+            if len(col.split('_')) > 1:
+                col = col.split('_')[0] + '_sig'
+            cols.append(col)
+        df.columns = cols
     return df
 
 
@@ -3248,7 +3256,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     return df[col_list]
 
 
-def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
+def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
     """
     plot the sorted cell responses
     input = dataframes, overlap=boolean
@@ -3274,7 +3282,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         spread = 'sect'
     else:
         spread = 'full'
-    title = 'sorted_peak_responses' + ' (' + mes + ' ' + spread + ')'
+    title = 'sorted_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
     anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
@@ -3301,53 +3309,74 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         fig.suptitle(title)
     x = range(1, len(df_left) + 1)
     # plot the traces
-    # left
-    for i, name in enumerate(df_left.columns):
-        # color : white if non significant, edgecolor otherwise
-        # edgeColor = colors[i]
-        # color_dic = {0 : 'w', 1 : edgeColor}
-        # select = df[[name, sig_name]].sort_values(by=[name, sig_name],
-        #                                           ascending=False)
-        # barColors = [color_dic[x] for x in select[sig_name]]
-        ax = left_axes[i]
-        # ax.set_title(str(i))
-        ax.set_title(name)
-        # without significance
-        select = df_left[name].sort_values(ascending=False)
-        ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
-               alpha=0.8, width=0.8)
-        # # with significance
-        # select = df_left[name].sort_values(by=[name, sig_name],
-        #                                            ascending=False)
-
-        # ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
-        #        alpha=0.8, width=0.8)
-        if i == 0:
-            ax.set_title(anoty[i])
+    left_sig = True
+    if left_sig:
+        traces = [item for item in left.columns if '_sig' not in item]
+        for i, name in enumerate(traces):
+            #color : white if non significant, edgecolor otherwise
+            edgeColor = colors[i]
+            color_dic = {0 : 'w', 1 : edgeColor}
+            sig_name = name + '_sig'
+            select = df_left[[name, sig_name]].sort_values(by=[name, sig_name],
+                                                       ascending=False)
+            barColors = [color_dic[x] for x in select[sig_name]]
+            ax = left_axes[i]
+            # ax.set_title(str(i))
+            ax.set_title(name)
+            # without significance
+            #select = df_left[name].sort_values(ascending=False)
+            #ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
+            #       alpha=0.8, width=0.8)
+            # # with significance
+            select = df_left[name].sort_values(ascending=False)
+            
+            ax.bar(x, select, color=barColors, edgecolor=edgeColor,
+                    alpha=0.8, width=0.8)
+            if i == 0:
+                ax.set_title(anoty[i])
+    else:
+        for i, name in enumerate(df_left.columns):
+            ax = left_axes[i]
+            # ax.set_title(str(i))
+            ax.set_title(name)
+            # without significance
+            select = df_left[name].sort_values(ascending=False)
+            ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
+                   alpha=0.8, width=0.8)
+            if i == 0:
+                ax.set_title(anoty[i])
     #right
-    for i, name in enumerate(df_right.columns):
-        # sig_name = name + '_indisig'
-        # color : white if non significant, edgecolor otherwise
-        # edgeColor = colors[i]
-        # color_dic = {0 : 'w', 1 : edgeColor}
-        # select = df[[name, sig_name]].sort_values(by=[name, sig_name],
-        #                                           ascending=False)
-        # barColors = [color_dic[x] for x in select[sig_name]]
-        ax = right_axes[i]
-        #ax.set_title(str(i))
-        ax.set_title(name)
-        # without significance
-        select = df_right[name].sort_values(ascending=False)
-        ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
-               alpha=0.8, width=0.8)
-        # # with significance
-        # select = df[name].sort_values(by=[name, sig_name],
-        #                                            ascending=False)
-
-        # ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
-        #        alpha=0.8, width=0.8)
-        if i == 0:
-            ax.set_title(anoty[1])
+    right_sig = True
+    if right_sig:
+        traces = [item for item in right.columns if '_sig' not in item]
+        for i, name in enumerate(traces):
+            #color : white if non significant, edgecolor otherwise
+            edgeColor = colors[i]
+            color_dic = {0 : 'w', 1 : edgeColor}
+            sig_name = name + '_sig'
+            select = df_right[[name, sig_name]].sort_values(by=[name, sig_name],
+                                                       ascending=False)
+            barColors = [color_dic[x] for x in select[sig_name]]
+            ax = right_axes[i]
+            # ax.set_title(str(i))
+            ax.set_title(name)
+            select = df_right[name].sort_values(ascending=False)
+            ax.bar(x, select, color=barColors, edgecolor=edgeColor,
+                    alpha=0.8, width=0.8)
+            if i == 0:
+                ax.set_title(anoty[i])
+    else:
+        # left
+        for i, name in enumerate(df_right.columns):
+            ax = right_axes[i]
+            # ax.set_title(str(i))
+            ax.set_title(name)
+            # without significance
+            select = df_right[name].sort_values(ascending=False)
+            ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
+                   alpha=0.8, width=0.8)
+            if i == 0:
+                ax.set_title(anoty[i])
 
     # alternate the y_axis position
     axes = fig.get_axes()
@@ -3383,7 +3412,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
                 ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df_right)])
     for ax in left_axes:
-        custom_ticks = np.linspace(0, 20, 2, dtype=int)
+        custom_ticks = np.linspace(0, 0.5, 2)
         ax.set_yticks(custom_ticks)
     for ax in right_axes:
         custom_ticks = np.linspace(0, 0.5, 2)
@@ -3392,7 +3421,7 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
     if no_spines == True:
         for ax in left_axes:
             limx = ax.get_xlim()
-            ax.vlines(limx[0], 0, 20, color='k', linewidth=2)
+            ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
             # ax.vlines(limx[1], 0, -10, color='k', linewidth=2)
             for spine in ['left', 'right']:
                 ax.spines[spine].set_visible(False)
@@ -3425,14 +3454,14 @@ def plot_sorted_peak_responses(df_left, df_right, mes='', overlap=True):
         fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_peak_responses',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 
 
-def select_50(df, spread='sect', param='gain'):
+def select_50(df, spread='sect', param='gain', noSig=True):
     """
     return the selected df parts for plotting
     spread in ['sect', 'full'],
@@ -3448,8 +3477,9 @@ def select_50(df, spread='sect', param='gain'):
     col_list = [item for item in df.columns if param in item]
     # select by spread
     col_list = [item for item in col_list if spread in item]
-    # remove sig
-    col_list = [item for item in col_list if 'sig' not in item]
+    if noSig:
+        # remove sig
+        col_list = [item for item in col_list if 'sig' not in item]
     return df[col_list]
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
@@ -3960,7 +3990,7 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, mes=mes, overlap=True)
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
@@ -3975,11 +4005,37 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_peak_responses(left, right, mes=mes, overlap=True)
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 
+
+#%% plot energy vm
+def adapt_energy_to_plot(energy_df, spread='sect'):
+    df = energy_df.copy()
+    #remove stats
+#    cols = [col for col in df.columns if '_p' not in col] 
+    #select sector
+    ctr = df['ctronly'].copy()
+    cols = [col for col in df.columns if spread[:3] in col]
+    df = df[cols].copy()
+    #normalize
+    traces = [col for col in cols if '_sig' not in col]
+    for col in traces:
+        df[col] = (df[col] - ctr) / ctr
+    return df
+
+spread = 'sect'
+mes = 'vm'
+data50 = load_50vals(mes)
+gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
+left = gain_df
+
+
+
+right = adapt_energy_to_plot(energy_df)
+fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
 
 #%%cellsDepth / advance
 plt.close('all')
