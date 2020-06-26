@@ -205,13 +205,13 @@ def load_cell_contributions(kind='vm'):
 
 # 9 conditions -> 8 stats
 
-def load_energy_gain_index():
+def load_energy_gain_index(sig=True):
     """
     pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
     """
     def load_energy_cell(cell_name = '1424M_CXG16.txt'):
         """
-        to iterate and load sicessively all the cells        
+        to iterate and load sucessively all the cells        
         """
 
         cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
@@ -244,6 +244,13 @@ def load_energy_gain_index():
                         line = line.replace(']', '')
                 pvals = [np.float(item) for item in line.split(',')]
             df[cond + '_p'] = pvals
+    if sig:
+        # p to sig or non sig
+        cols = [col for col in df.columns if '_p' in col]
+        for col in cols:
+            df[col] = df[col] - 0.05
+            df.loc[df[col] > 0, [col]] = 0
+            df.loc[df[col] < 0, [col]] = 1
     return df
 
 
