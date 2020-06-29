@@ -87,6 +87,8 @@ plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
 
 energy_df = ld.load_energy_gain_index(paths)
+data50_v_df = ld.load_50vals('vm')
+data50_s_df = ld.load_50vals('spk')
 
 #%%
 plt.close('all')

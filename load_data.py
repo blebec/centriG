@@ -9,25 +9,6 @@ import os
 import pandas as pd
 import numpy as np
 
-# load the values50
-def load_50vals(kind='vm'):
-    if kind not in ['vm', 'spk']:
-        print('kind should be in [vm, spk]')
-        return
-    df = load_cell_contributions(kind)
-    trans = {'s': 'sect', 'f': 'full',
-             'dlat50': 'time50', 'dgain50': 'gain50'}
-    cols = []
-    for item in df.columns:
-        sp = item.split('_')
-        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
-        if len(sp) > 6:
-            new_name += ('_sig')
-        cols.append(new_name)
-    df.columns = cols
-    return df
-
-
 def new_columns_names(cols):
     def convert_to_snake(camel_str):
         """ camel case to snake case """
@@ -49,7 +30,6 @@ def new_columns_names(cols):
     newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
     return newcols
 
-
 def load_cell_contributions(kind='vm'):
     """
     load the corresponding xcel file
@@ -67,6 +47,25 @@ def load_cell_contributions(kind='vm'):
     cols = new_columns_names(df.columns)
     df.columns = cols
     return df
+
+# load the values50
+def load_50vals(kind='vm'):
+    if kind not in ['vm', 'spk']:
+        print('kind should be in [vm, spk]')
+        return
+    df = load_cell_contributions(kind)
+    trans = {'s': 'sect', 'f': 'full',
+             'dlat50': 'time50', 'dgain50': 'gain50'}
+    cols = []
+    for item in df.columns:
+        sp = item.split('_')
+        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
+        if len(sp) > 6:
+            new_name += ('_sig')
+        cols.append(new_name)
+    df.columns = cols
+    return df
+
 
 #%% load energy
 
@@ -99,7 +98,10 @@ def load_energy_gain_index(paths, sig=True):
         if os.path.isfile(os.path.join(folder, name)):
             energy_df = load_energy_cell(name)
             # nb here i choosed the median value
-            df[os.path.splitext(name)[0]] = energy_df.median()           
+            df[os.path.splitext(name)[0]] = energy_df.median()
+
+            df[os.path.splitext(name)[0]] = energy_df.mean()
+            
     # pvalues one col by condition, one line per cell
     df = df.T
     folder = os.path.join(paths['cgFig'], 'index', 'pvalue')
