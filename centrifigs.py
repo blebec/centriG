@@ -19,6 +19,9 @@ from matplotlib import markers
 from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
+import plot_general_functions as gf
+import load_data as ld
+
 # nb description with pandas:
 pd.options.display.max_columns = 30
 
@@ -81,188 +84,9 @@ params = {'font.sans-serif': ['Arial'],
 plt.rcParams.update(params)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
-# general functions
-def retrieve_name(var):
-    """
-    to retrieve the string value of a variable
-    """
-    callers_local_vars = inspect.currentframe().f_back.f_locals.items()
-    return [var_name for var_name, var_val in callers_local_vars if var_val is var]
 
 
-# adjust the y scale to allign plot for a value (use zero here)
-
-#alignement to be performed
-#see https://stackoverflow.com/questions/10481990/
-#matplotlib-axis-with-two-scales-shared-origin/10482477#10482477
-
-def align_yaxis(ax1, v1, ax2, v2):
-    """adjust ax2 ylimit so that v2 in ax2 is aligned to v1 in ax1"""
-    _, y1 = ax1.transData.transform((0, v1))
-    _, y2 = ax2.transData.transform((0, v2))
-    inv = ax2.transData.inverted()
-    _, dy = inv.transform((0, 0)) - inv.transform((0, y1-y2))
-    miny, maxy = ax2.get_ylim()
-    ax2.set_ylim(miny+dy, maxy+dy)
-
-
-def change_plot_trace_amplitude(ax, gain=1):
-    """change the amplitude of the plot,
-    doesn't change the zero location """
-    lims = ax.get_ylim()
-    new_lims = (lims[0]/gain, lims[1]/gain)
-    ax.set_ylim(new_lims)
-
-
-def properties(ax):
-    """
-    print size and attributes of an axe
-    """
-    size = ax.axes.xaxis.label.get_size()
-    fontname = ax.axes.xaxis.label.get_fontname()
-    print('xaxis:', fontname, size)
-    size = ax.axes.yaxis.label.get_size()
-    fontname = ax.axes.yaxis.label.get_fontname()
-    print('yaxis:', fontname, size)
-
-
-def fig_properties(afig):
-    """
-    exoplore figure properties
-    """
-    for ax in afig.get_axes():
-        properties(ax)
-
-
-def inch_to_cm(value):
-    return value/2.54
-
-
-# load the values50
-def load_50vals(kind='vm'):
-    if kind not in ['vm', 'spk']:
-        print('kind should be in [vm, spk]')
-        return
-    df = load_cell_contributions(kind)
-    trans = {'s': 'sect', 'f': 'full',
-             'dlat50': 'time50', 'dgain50': 'gain50'}
-    cols = []
-    for item in df.columns:
-        sp = item.split('_')
-        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
-        if len(sp) > 6:
-            new_name += ('_sig')
-        cols.append(new_name)
-    df.columns = cols
-    return df
-
-
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
-    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
-    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
-    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
-    return newcols
-
-
-def load_cell_contributions(kind='vm'):
-    """
-    load the corresponding xcel file
-    kind = 'vm' or 'spk'
-    """
-    if kind == 'vm':
-        filename = 'data/figSup34Vm.xlsx'
-    elif kind == 'spk':
-        filename = 'data/figSup34Spk.xlsx'
-    else:
-        print('kind should be vm or spk')
-    df = pd.read_excel(filename)
-    df.set_index('Neuron', inplace=True)
-    #rename using snake_case
-    cols = new_columns_names(df.columns)
-    df.columns = cols
-    return df
-
-#%% load energy
-
-# location : ownc/cgFigure/index/...
-# energy : file = neuron, column = conditions, cells : repetition, 
-# measure = mean on a defined window
-
-# 9 conditions -> 8 stats
-
-def load_energy_gain_index(sig=True):
-    """
-    pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
-    """
-    def load_energy_cell(cell_name = '1424M_CXG16.txt'):
-        """
-        to iterate and load sucessively all the cells        
-        """
-
-        cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
-                'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
-        folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
-        filename = os.path.join(folder, cell_name)
-        df = pd.read_csv(filename, sep='\t', names=cols)
-        return df
-    
-    # neurons & values
-    df = pd.DataFrame()
-    folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
-    for name in os.listdir(folder):
-        if os.path.isfile(os.path.join(folder, name)):
-            energy_df = load_energy_cell(name)
-            # nb here i choosed the median value
-            df[os.path.splitext(name)[0]] = energy_df.median()           
-    # pvalues one col by condition, one line per cell
-    df = df.T
-    folder = os.path.join(paths['cgFig'], 'index', 'pvalue')
-    for name in os.listdir(folder):
-        filename = os.path.join(folder, name)
-        if os.path.isfile(filename):
-            cond = name.split('indisig')[0]
-            with open(filename, 'r') as fh:
-                for line in fh:
-                    if '[' in line:
-                        line = line.replace('[', '')
-                    if ']' in line:
-                        line = line.replace(']', '')
-                pvals = [np.float(item) for item in line.split(',')]
-            df[cond + '_p'] = pvals
-    if sig:
-        # p to sig or non sig
-        cols = [col for col in df.columns if '_p' in col]
-        for col in cols:
-            df[col] = df[col] - 0.05
-            df.loc[df[col] > 0, [col]] = 0
-            df.loc[df[col] < 0, [col]] = 1
-            df[col] = df[col].astype(int)
-        # rename
-        cols = []
-        for col in df.columns:
-            if len(col.split('_')) > 1:
-                col = col.split('_')[0] + '_sig'
-            cols.append(col)
-        df.columns = cols
-    return df
-
-
-energy_df = load_energy_gain_index()
+energy_df = ld.load_energy_gain_index(paths)
 
 #%%
 plt.close('all')
@@ -524,11 +348,11 @@ def plot_figure2(data, colsdict, fill=True):
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
-    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+    gf.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    gf.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     # adjust amplitude (without moving the zero)
-    change_plot_trace_amplitude(vmaxes[1], 0.85)
-    change_plot_trace_amplitude(spkaxes[1], 0.8)
+    gf.change_plot_trace_amplitude(vmaxes[1], 0.85)
+    gf.change_plot_trace_amplitude(spkaxes[1], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -673,11 +497,11 @@ def plot_half_figure2(data, colsdict):
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
-    align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+    gf.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    gf.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     # adjust amplitude (without moving the zero)
-    change_plot_trace_amplitude(vmaxes[1], 0.85)
-    change_plot_trace_amplitude(spkaxes[1], 0.8)
+    gf.change_plot_trace_amplitude(vmaxes[1], 0.85)
+    gf.change_plot_trace_amplitude(spkaxes[1], 0.8)
     # adjust ticks
     # individuals
     ax = vmaxes[0]
@@ -904,12 +728,12 @@ def plot_3quarter_figure2(data, colsdict, fill=True):
     spkaxes[0].set_ylim(-5.5, 18)
     # align zero between plots  NB ref = first plot
     for i in [0, 1]:
-        align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
-        align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
+        gf.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
+        gf.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
     # adjust amplitude (without moving the zero)
     for i in [1, 2]:
-        change_plot_trace_amplitude(vmaxes[i], 0.85)
-        change_plot_trace_amplitude(spkaxes[i], 0.8)
+        gf.change_plot_trace_amplitude(vmaxes[i], 0.85)
+        gf.change_plot_trace_amplitude(spkaxes[i], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -1192,8 +1016,8 @@ def plot_figure2B(sig=True):
         for spine in ['left', 'top', 'right', 'bottom']:
             ax.spines[spine].set_visible(False)
     # align zero between plots
-    align_yaxis(axes[0], 0, axes[1], 0)
-    change_plot_trace_amplitude(axes[1], 0.8)
+    gf.align_yaxis(axes[0], 0, axes[1], 0)
+    gf.change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
     # anot
     if anot:
@@ -1208,7 +1032,7 @@ def plot_2B_bis():
     plot_figure2B alternative : sorted phase advance and delta response
     response are sorted only by phase
     """
-    df = load_cell_contributions('vm')
+    df = ld.load_cell_contributions('vm')
     alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
     df = df[alist].sort_values(by=alist[0], ascending=False)
     cols = df.columns[::2]
@@ -1242,8 +1066,8 @@ def plot_2B_bis():
         for spine in ['bottom', 'left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
 
-    align_yaxis(axes[0], 0, axes[1], 0)
-    change_plot_trace_amplitude(axes[1], 0.8)
+    gf.align_yaxis(axes[0], 0, axes[1], 0)
+    gf.change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
 
     if anot:
@@ -2022,8 +1846,8 @@ def plot_figure7():
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # align zero between subplots
-    align_yaxis(ax1, 0, ax2, 0)
-    change_plot_trace_amplitude(ax2, 0.9)
+    gf.align_yaxis(ax1, 0, ax2, 0)
+    gf.change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
@@ -2249,7 +2073,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
               stdColors['bleu'], stdColors['bleu'],
               stdColors['bleu'], stdColors['bleu']]
     # data (call)
-    df = load_cell_contributions('vm')
+    df = ld.load_cell_contributions('vm')
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if 's_' in item[:7]]
     # append full random
@@ -2349,9 +2173,9 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
                 ax.spines[spine].set_visible(False)
 
     # align each row yaxis on zero between subplots
-    align_yaxis(axes[0], 0, axes[1], 0)
+    gf.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    change_plot_trace_amplitude(axes[1], 0.80)
+    gf.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
     if overlap:
@@ -2807,7 +2631,7 @@ filename = 'data/figSup34Vm.xlsx'
 df = pd.read_excel(filename)
 df.set_index('Neuron', inplace=True)
 # rename using snake_case
-cols = new_columns_names(df.columns)
+cols = ld.new_columns_names(df.columns)
 df.columns = cols
 # check stimulations
 print_keys(cols)
@@ -2982,7 +2806,7 @@ def plot_sorted_responses(dico):
               stdColors['jaune'], stdColors['jaune'],
               stdColors['bleu'], stdColors['bleu']]
     # data (call)
-    df = load_cell_contributions(dico['kind'])
+    df = ld.load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread']+'_' in item[:7]]
     # filter -> only significative cells
@@ -3043,9 +2867,9 @@ def plot_sorted_responses(dico):
         custom_ticks = np.linspace(0, 1, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     # align each row yaxis on zero between subplots
-    align_yaxis(axes[0], 0, axes[1], 0)
+    gf.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    change_plot_trace_amplitude(axes[1], 0.80)
+    gf.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.subplots_adjust(hspace=0.00, wspace=0.00)
     if anot:
@@ -3673,7 +3497,7 @@ def extract_stat(onlySig=False):
     # vm
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
-    data50 = load_50vals(mes)
+    data50 = ld.load_50vals(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print(len(data50), ' cells')
@@ -3707,7 +3531,7 @@ def extract_stat(onlySig=False):
     # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
-    data50 = load_50vals(mes)
+    data50 = ld.load_50vals(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
@@ -3983,7 +3807,7 @@ plot_stat(stat_df, 'med', '50')
 plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
-    data50 = load_50vals(mes)
+    data50 = ld.load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
@@ -3998,7 +3822,7 @@ for spread in ['sect', 'full']:
 #%% spk
 for spread in ['sect', 'full']:
     mes = 'spk'
-    data50 = load_50vals(mes)
+    data50 = ld.load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
@@ -4028,7 +3852,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
 
 spread = 'sect'
 mes = 'vm'
-data50 = load_50vals(mes)
+data50 = ld.load_50vals(mes)
 gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
 left = gain_df
 
@@ -4045,7 +3869,7 @@ def plot_cellDepth():
     relation profondeur / latence
     """
     # cells
-    data50 = load_50vals('vm')
+    data50 = ld.load_50vals('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -4152,7 +3976,7 @@ def plot_cellDepth_all(spread='sect'):
     relation profondeur / latence
     """
     # cells
-    data50 = load_50vals('vm')
+    data50 = ld.load_50vals('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
