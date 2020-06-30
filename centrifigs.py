@@ -30,27 +30,24 @@ pd.options.display.max_columns = 30
 font_size = 'medium'  # large, medium
 anot = True           # to draw the date and name on the bottom of the plot
 #============================
-paths = {}
 
-
-def go_to_dir():
-    """
-    to go to the pg and file directory (spyder use)
-    """
+def build_paths():
+    paths = {}
     osname = platform.system()
     username = getpass.getuser()
     if osname == 'Windows'and username == 'Benoit':
-        os.chdir(r'D:\\travail\sourcecode\developing\paper\centriG')
+        paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
     elif osname == 'Linux' and username == 'benoit':
-        os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
+        paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
     elif osname == 'Windows'and username == 'marc':
-        os.chdir(r'H:/pg/centriG')
+        paths['pg'] = r'H:/pg/centriG'
     elif osname == 'Darwin' and username == 'cdesbois':
-        os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
-        paths['cgFig'] = os.path.expanduser('~/ownCloud/cgFigures')
-    return True
-go_to_dir()
-savePath = '/Users/cdesbois/ownCloud/cgFigures'
+        paths['pg'] = os.path.expanduser('~/pg/chrisPg/centriG')
+        paths['owncFig'] = os.path.expanduser('~/ownCloud/cgFigures')
+    return paths
+
+paths = build_paths()
+os.chdir(paths['pg'])
 
 # colors
 stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],

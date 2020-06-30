@@ -5,9 +5,26 @@ Created on Mon Jun 29 10:10:52 2020
 
 @author: cdesbois
 """
+import platform
 import os
+import getpass
 import pandas as pd
 import numpy as np
+
+def build_paths():
+    paths = {}
+    osname = platform.system()
+    username = getpass.getuser()
+    if osname == 'Windows'and username == 'Benoit':
+        paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
+    elif osname == 'Linux' and username == 'benoit':
+        paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
+    elif osname == 'Windows'and username == 'marc':
+        paths['pg'] = r'H:/pg/centriG'
+    elif osname == 'Darwin' and username == 'cdesbois':
+        paths['pg'] = os.path.expanduser('~/pg/chrisPg/centriG')
+        paths['owncFig'] = os.path.expanduser('~/ownCloud/cgFigures')
+    return paths
 
 def new_columns_names(cols):
     def convert_to_snake(camel_str):
@@ -67,7 +84,7 @@ def load_50vals(kind='vm'):
     return df
 
 
-#%% load energy
+#% load energy
 
 # location : ownc/cgFigure/index/...
 # energy : file = neuron, column = conditions, cells : repetition, 
@@ -86,14 +103,14 @@ def load_energy_gain_index(paths, sig=True):
 
         cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
                 'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
-        folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+        folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
         filename = os.path.join(folder, cell_name)
         df = pd.read_csv(filename, sep='\t', names=cols)
         return df
     
     # neurons & values
     df = pd.DataFrame()
-    folder = os.path.join(paths['cgFig'], 'index', 'energyt0baseline')
+    folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
     for name in os.listdir(folder):
         if os.path.isfile(os.path.join(folder, name)):
             energy_df = load_energy_cell(name)
@@ -104,7 +121,7 @@ def load_energy_gain_index(paths, sig=True):
             
     # pvalues one col by condition, one line per cell
     df = df.T
-    folder = os.path.join(paths['cgFig'], 'index', 'pvalue')
+    folder = os.path.join(paths['owncFig'], 'index', 'pvalue')
     for name in os.listdir(folder):
         filename = os.path.join(folder, name)
         if os.path.isfile(filename):
@@ -133,3 +150,11 @@ def load_energy_gain_index(paths, sig=True):
             cols.append(col)
         df.columns = cols
     return df
+
+
+#%%
+if __name__ == "__main__":
+    paths = build_paths()
+    energy_df = load_energy_gain_index(paths, sig=True)
+    latGain50_v_df = load_50vals('vm')
+    latGain50_s_df = load_50vals('spk')
