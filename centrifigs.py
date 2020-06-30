@@ -1050,7 +1050,7 @@ def plot_figure9CD(data, colsdict):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-# data_df, cols_dict = load2()
+# fig2_df, fig2_cols = load2()
 plot_figure9CD(fig2_df, fig2_cols)
 
 #%% plot latency (left) and gain (right)
