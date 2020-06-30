@@ -264,10 +264,10 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+    # #advance
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 # xycoords="axes fraction", ha='center')
-
     # labels
     for ax in axes:
         for spine in ['top', 'right']:
@@ -447,6 +447,16 @@ def sort_stat():
     cols = df.columns[:2]
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
+    # all cells:
+    print ('=== all cells ===')
+    all1 = df.popVmscpIsolatg
+    all2 = df.popVmscpIsoAmpg
+    for item, temp in zip(['latency', 'gain'], [all1, all2]):
+        print(item, len(temp), 'measures')
+        print('mean= {:5.2f}'.format(temp.mean()))
+        print('std= {:5.2f}'.format(temp.std()))
+        print('sem= {:5.2f}'.format(temp.sem()))
+    print ('=== sig cells ===')
     temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
     temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
