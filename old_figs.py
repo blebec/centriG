@@ -6,6 +6,7 @@ Created on Tue Jun 30 10:36:09 2020
 @author: cdesbois
 """
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import plot_general_functions as gf
@@ -13,7 +14,7 @@ from datetime import datetime
 from matplotlib.ticker import StrMethodFormatter
 
 
-def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True):
+def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     """
     plot_figure2 (individual + moy + sig + nonsig)
     """
@@ -432,31 +433,6 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
     # axes list
     vmaxes = axes[:2]      # vm axes = top row
     spkaxes = axes[2:]     # spikes axes = bottom row
-    # ____ plots individuals (first column)
-#    # individual vm
-#    cols = colsdict['indVm']
-#    ax = vmaxes[0]
-#    for i, col in enumerate(cols):
-#        ax.plot(data[col], color=colors[i], alpha=alphas[i],
-#                label=col)
-#    #individual spike
-#    cols = colsdict['indSpk']
-#    ax = spkaxes[0]
-#    for i, col in enumerate(cols[::-1]):
-#        ax.plot(data[col], color=colors[::-1][i],
-#                alpha=1, label=col, linewidth=1)
-#        ax.fill_between(data.index, data[col],
-#                        color=colors[::-1][i], alpha=0.5, label=col)
-#    #____ plots pop (column 1-3)
-#   df = data.loc[-30:35]       # limit xscale
-#    # pop vm
-#    cols = colsdict['popVm']
-#    ax = vmaxes[1]
-#    for i, col in enumerate(cols):
-#        ax.plot(df[col], color=colors[i], alpha=alphas[i],
-#                label=col)
-#    ax.annotate("n=37", xy=(0.2, 0.8),
-#                xycoords="axes fraction", ha='center')
     # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[-2]
@@ -590,3 +566,95 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
+
+def plot_3_signonsig(stdColors, anot=False, substract=False):
+    """
+    plot_figure3
+    with individually significants and non significant cells
+    """
+    filenames = {'pop' : 'data/fig3.xlsx',
+                 'sig': 'data/fig3bis1.xlsx',
+                 'nonsig': 'data/fig3bis2.xlsx'}
+    titles = {'pop' : 'recorded cells',
+              'sig': 'individually significant cells',
+              'nonsig': 'individually non significants cells'}
+    # samplesize
+    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
+    colors = ['k', stdColors['rouge'], stdColors['vert'],
+              stdColors['jaune'], stdColors['bleu']]
+    alphas = [0.8, 1, 0.8, 0.8, 0.8]
+
+    fig = plt.figure(figsize=(11.6, 6))
+    axes = []
+    for i in range(2):
+        axes.append(fig.add_subplot(1, 2, i+1))
+    for i, kind in enumerate(['sig', 'nonsig']):
+        ncells = cellnumbers[kind]
+        df = pd.read_excel(filenames[kind])
+        # centering
+        middle = (df.index.max() - df.index.min())/2
+        df.index = (df.index - middle)/10
+        df = df.loc[-45:120]
+        cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
+        df.columns = cols
+        if substract:
+            ref = df['CNT-ONLY']
+            df = df.subtract(ref, axis=0)
+        ax = axes[i]
+        ax.set_title(titles[kind])
+        ncells = cellnumbers[kind]
+        for j, col in enumerate(cols):
+            ax.plot(df[col], color=colors[j], alpha=alphas[j],
+                    label=col, linewidth=2)
+            ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+                        xycoords="axes fraction", ha='center')
+        if substract:
+            leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
+                            handlelength=0)
+        else:
+            leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
+                            handlelength=0)
+        for line, text in zip(leg.get_lines(), leg.get_texts()):
+            text.set_color(line.get_color())
+        # bleu point
+        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['bleu'])
+
+    axes[0].set_ylabel('normalized membrane potential')
+    for ax in axes:
+        ax.set_xlim(-15, 30)
+        ax.set_ylim(-0.1, 1.1)
+        lims = ax.get_ylim()
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)
+        lims = ax.get_xlim()
+        ax.hlines(0, lims[0], lims[1], alpha=0.2)
+        ax.set_xlabel('relative time (ms)')
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+
+    if substract:
+        for ax in axes:
+            ax.set_xlim(-45, 120)
+            ax.set_ylim(-0.15, 0.4)
+            custom_ticks = np.arange(-40, 110, 20)
+            ax.set_xticks(custom_ticks)
+            # max center only
+            lims = ax.get_ylim()
+            ax.vlines(21.4, lims[0], lims[1], alpha=0.5)
+            # end of center only
+            #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
+            ax.vlines(88, lims[0], lims[1], alpha=0.3)
+            ax.axvspan(0, 88, facecolor='k', alpha=0.1)
+            ax.text(0.41, 0.6, 'center only response \n start | peak | end',
+                    transform=ax.transAxes, alpha=0.5)
+        axes[0].set_ylabel('Norm vm - Norm centerOnly')
+        # axes[1].yaxis.set_visible(False)
+        # axes[1].spines['left'].set_visible(False)
+
+    fig.tight_layout()
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_3_signonsig',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig

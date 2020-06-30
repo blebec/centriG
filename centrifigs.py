@@ -22,6 +22,7 @@ from datetime import datetime
 import plot_general_functions as gf
 import load_data as ld
 import old_figs as of
+import fig_proposal as fp
 
 # nb description with pandas:
 pd.options.display.max_columns = 30
@@ -368,7 +369,7 @@ fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 # =============================================================================
 ## other views
 # #plot all
-# fig = of.plot_2_indMoySigNsig(fig2_df, fig2_cols, stdColors)
+# fig = of.plot_2_indMoySigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
 # #plot ind + pop
 # fig = of.plot_2_indMoy(fig2_df, fig2_cols, stdColors, anot)
 # #sig Nsig
@@ -381,7 +382,7 @@ fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 plt.close('all')
 
-def plot_figure2B(stdColors, sig=True):
+def plot_figure2B(stdColors, sig=True, anot=anot):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
@@ -438,55 +439,6 @@ def plot_figure2B(stdColors, sig=True):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-def plot_2B_bis(stdColors):
-    """
-    plot_figure2B alternative : sorted phase advance and delta response
-    response are sorted only by phase
-    """
-    df = ld.load_cell_contributions('vm')
-    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
-    df = df[alist].sort_values(by=alist[0], ascending=False)
-    cols = df.columns[::2]
-    sigs = df.columns[1::2]
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
-    color_dic = {0 :'w', 1 : stdColors['rouge']}
-    for i, ax in enumerate(axes):
-        colors = [color_dic[x] for x in df[sigs[i]]]
-        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
-                    color=colors, label=cols[i], alpha=0.8, width=0.8)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
-        ax.set_xticks([0, len(df)-1])
-        ax.set_xticklabels([1, len(df)])
-        ax.set_xlim(-1, len(df)+0.5)
-        if i == 0:
-            ax.vlines(-1, 0, 20, linewidth=2)
-            custom_yticks = np.linspace(0, 20, 3, dtype=int)
-            ylabel = r'$\Delta$ Phase (ms)'
-            ax.set_ylim(-6, 29)
-            x_label = 'Cell rank'
-        else:
-            ax.vlines(-1, 0, 0.6, linewidth=2)
-            custom_yticks = np.linspace(0, 0.6, 4)
-            x_label = 'Ranked cells'
-            ylabel = r'$\Delta$ Amplitude'
-        ax.set_xlabel(x_label)
-        ax.xaxis.set_label_coords(0.5, -0.025)
-        ax.set_yticks(custom_yticks)
-        ax.set_ylabel(ylabel)
-        for spine in ['bottom', 'left', 'top', 'right']:
-            ax.spines[spine].set_visible(False)
-
-    gf.align_yaxis(axes[0], 0, axes[1], 0)
-    gf.change_plot_trace_amplitude(axes[1], 0.8)
-    fig.tight_layout()
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
 
 
 def sort_stat():
@@ -495,7 +447,6 @@ def sort_stat():
     cols = df.columns[:2]
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
-
     temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
     temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
@@ -504,8 +455,8 @@ def sort_stat():
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-fig = plot_2B_bis(stdColors)
-plot_figure2B(stdColors, 'horizontal')
+fig = fp.plot_2B_bis(stdColors, anot=anot)
+plot_figure2B(stdColors, 'horizontal', anot=anot)
 #plot_figure2B(stdColors, 'vertical')
 sort_stat()
 
@@ -513,11 +464,12 @@ sort_stat()
 # plt.close('all')
 
 
-def plot_figure3(kind='sig', substract=False):
+def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
+    substract = boolan -> present data - centerOnly
     """
     filenames = {'pop' : 'data/fig3.xlsx',
                  'sig': 'data/fig3bis1.xlsx',
@@ -537,20 +489,17 @@ def plot_figure3(kind='sig', substract=False):
     df.columns = cols
     colors = ['k', stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
-    # alphas = [0.5, 0.8, 0.5, 1, 0.6]
-    alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
-
+    alphas = [0.8, 1, 0.8, 0.8, 0.8]
     if substract:
+        # subtract the centerOnly response
         ref = df['CENTER-ONLY']
         df = df.subtract(ref, axis=0)
 
     fig = plt.figure(figsize=(6.5, 5.5))
-    #  #SUGGESTION: make y dimension much larger to see maximize visual difference between traces
-    # fig.suptitle(titles[kind])
+    if anot: 
+        fig.suptitle(titles[kind], alpha=0.4)
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        #if (i == 0) or (i == 4):
-            #ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
@@ -584,7 +533,7 @@ def plot_figure3(kind='sig', substract=False):
         ax.set_xticks(custom_ticks)
         # max center only
         lims = ax.get_ylim()
-        ax.vlines(21.4, lims[0], lims[1])
+        ax.vlines(21.4, lims[0], lims[1], alpha=0.5)
         # end of center only
         #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
         ax.vlines(88, lims[0], lims[1], alpha=0.3)
@@ -601,112 +550,17 @@ def plot_figure3(kind='sig', substract=False):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figure3('pop')
-fig = plot_figure3('sig')
+fig = plot_figure3(stdColors, 'pop')
+fig = plot_figure3(stdColors, 'sig')
 #fig = plot_figure3('nonsig')
-fig = plot_figure3('sig', substract=True)
-fig2 = plot_figure3('pop', substract=True)
+fig = plot_figure3(stdColors, 'sig', substract=True)
+fig2 = plot_figure3(stdColors, 'pop', substract=True)
 
 #pop all cells
 #%% grouped sig and non sig
 plt.close('all')
-
-
-def plot_figure3_signonsig(substract=False):
-    """
-    plot_figure3
-    with individually significants and non significant cells
-    """
-    filenames = {'pop' : 'data/fig3.xlsx',
-                 'sig': 'data/fig3bis1.xlsx',
-                 'nonsig': 'data/fig3bis2.xlsx'}
-    titles = {'pop' : 'recorded cells',
-              'sig': 'individually significant cells',
-              'nonsig': 'individually non significants cells'}
-    # samplesize
-    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
-    colors = ['k', stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    alphas = [0.6, 0.8, 0.5, 1, 0.6]
-
-    fig = plt.figure(figsize=(11.6, 6))
-    axes = []
-    for i in range(2):
-        axes.append(fig.add_subplot(1, 2, i+1))
-    for i, kind in enumerate(['sig', 'nonsig']):
-        ncells = cellnumbers[kind]
-        df = pd.read_excel(filenames[kind])
-        # centering
-        middle = (df.index.max() - df.index.min())/2
-        df.index = (df.index - middle)/10
-        df = df.loc[-45:120]
-        cols = ['CNT-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-        df.columns = cols
-        if substract:
-            ref = df['CNT-ONLY']
-            df = df.subtract(ref, axis=0)
-        ax = axes[i]
-        ax.set_title(titles[kind])
-        ncells = cellnumbers[kind]
-        for j, col in enumerate(cols):
-            ax.plot(df[col], color=colors[j], alpha=alphas[j],
-                    label=col, linewidth=2)
-            ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-                        xycoords="axes fraction", ha='center')
-        if substract:
-            leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
-                            handlelength=0)
-        else:
-            leg = ax.legend(loc='lower right', markerscale=None, frameon=False,
-                            handlelength=0)
-        for line, text in zip(leg.get_lines(), leg.get_texts()):
-            text.set_color(line.get_color())
-        # bleu point
-        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['bleu'])
-
-    axes[0].set_ylabel('normalized membrane potential')
-    for ax in axes:
-        ax.set_xlim(-15, 30)
-        ax.set_ylim(-0.1, 1.1)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)
-        lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.2)
-        ax.set_xlabel('relative time (ms)')
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
-
-    if substract:
-        for ax in axes:
-            ax.set_xlim(-45, 120)
-            ax.set_ylim(-0.15, 0.4)
-            custom_ticks = np.arange(-40, 110, 20)
-            ax.set_xticks(custom_ticks)
-            # max center only
-            lims = ax.get_ylim()
-            ax.vlines(21.4, lims[0], lims[1])
-            # end of center only
-            #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
-            ax.vlines(88, lims[0], lims[1], alpha=0.3)
-            ax.axvspan(0, 88, facecolor='k', alpha=0.1)
-            ax.text(0.41, 0.6, 'center only response \n start | peak | end',
-                    transform=ax.transAxes, alpha=0.5)
-        axes[0].set_ylabel('Norm vm - Norm centerOnly')
-        # axes[1].yaxis.set_visible(False)
-        # axes[1].spines['left'].set_visible(False)
-
-    fig.tight_layout()
-
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3_signonsig',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    return fig
-
-plot_figure3_signonsig()
-fig = plot_figure3_signonsig(substract=True)
+fig = of.plot_3_signonsig(stdColors, anot=anot)
+fig2 = of.plot_3_signonsig(stdColors, substract=True, anot=anot)
 #%%
 plt.close('all')
 
