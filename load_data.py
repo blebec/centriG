@@ -47,6 +47,42 @@ def new_columns_names(cols):
     newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
     return newcols
 
+def load2():
+    """
+    import the datafile
+    return a pandasDataframe and a dictionary of contents
+    """
+    #____data
+    filename = 'data/fig2traces.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = (df.index - middle)/10
+    df = df.loc[-200:150]
+    # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
+    colsdict = {
+        'indVm': ['indiVmctr', 'indiVmscpIsoStc'],
+        'indSpk': ['indiSpkCtr', 'indiSpkscpIsoStc'],
+        'popVm': ['popVmCtr', 'popVmscpIsoStc'],
+        'popSpk': ['popSpkCtr', 'popSpkscpIsoStc'],
+        'popVmSig': ['popVmCtrSig', 'popVmscpIsoStcSig',
+                     ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+                     ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+        'popSpkSig': ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+                      ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
+                      ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+        'popVmNsig': ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                      ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
+                      ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+        'popSpkNsig': ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+                       ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+                       ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+        'sort': ['popVmscpIsolatg', 'popVmscpIsoAmpg',
+                 'lagIndiSig', 'ampIndiSig']
+                }
+    return df, colsdict
+
+
 def load_cell_contributions(kind='vm'):
     """
     load the corresponding xcel file
@@ -155,6 +191,7 @@ def load_energy_gain_index(paths, sig=True):
 #%%
 if __name__ == "__main__":
     paths = build_paths()
+    fig2_df, fig2_cols = load2()
     energy_df = load_energy_gain_index(paths, sig=True)
     latGain50_v_df = load_50vals('vm')
     latGain50_s_df = load_50vals('spk')

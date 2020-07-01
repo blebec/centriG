@@ -93,44 +93,6 @@ plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 # latGain50_v_df = ld.load_50vals('vm')
 # latGain50_s_df = ld.load_50vals('spk')
 
-#%%
-plt.close('all')
-
-
-def load2():
-    """
-    import the datafile
-    return a pandasDataframe and a dictionary of contents
-    """
-    #____data
-    filename = 'data/fig2traces.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    df = df.loc[-200:150]
-    # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
-    colsdict = {
-        'indVm': ['indiVmctr', 'indiVmscpIsoStc'],
-        'indSpk': ['indiSpkCtr', 'indiSpkscpIsoStc'],
-        'popVm': ['popVmCtr', 'popVmscpIsoStc'],
-        'popSpk': ['popSpkCtr', 'popSpkscpIsoStc'],
-        'popVmSig': ['popVmCtrSig', 'popVmscpIsoStcSig',
-                     ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                     ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-        'popSpkSig': ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                      ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
-                      ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-        'popVmNsig': ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                      ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
-                      ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-        'popSpkNsig': ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                       ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                       ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-        'sort': ['popVmscpIsolatg', 'popVmscpIsoAmpg',
-                 'lagIndiSig', 'ampIndiSig']
-                }
-    return df, colsdict
 
 #%%
 plt.close('all')
@@ -185,7 +147,6 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
-
     # ____ plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
@@ -213,7 +174,6 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
                     for j in [0, 1]:
                         ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
                                 label=col, linewidth=0.5)
-
     # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
@@ -229,7 +189,6 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
-
     # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
@@ -240,8 +199,6 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=20", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-
-
     # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
@@ -363,7 +320,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     return fig
 
 #data
-fig2_df, fig2_cols = load2()
+fig2_df, fig2_cols = ld.load2()
 fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 # =============================================================================
@@ -471,7 +428,7 @@ plot_figure2B(stdColors, 'horizontal', anot=anot)
 sort_stat()
 
 #%%
-# plt.close('all')
+plt.close('all')
 
 
 def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
@@ -479,7 +436,7 @@ def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
-    substract = boolan -> present data - centerOnly
+    substract = boolan -> present as (data - centerOnly)
     """
     filenames = {'pop' : 'data/fig3.xlsx',
                  'sig': 'data/fig3bis1.xlsx',
@@ -3095,7 +3052,6 @@ def plot_cellDepth_all(spread='sect'):
         ax.set_yticklabels(custom_ticks)
         ax.vlines(ax.get_xlim()[0], 0, 0.5, linewidth=2)
         ax.spines['left'].set_visible(False)
-
     for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -3113,7 +3069,6 @@ def plot_cellDepth_all(spread='sect'):
         ax.text(0.45, 0.85, 'layer 5', color='b', transform=ax.transAxes)
         ax.text(0.85, 0.85, 'layer 6', color='k', alpha=0.6, transform=ax.transAxes)
         ax.margins(0.01)
-
     fig.subplots_adjust(hspace=0.02)
     fig.subplots_adjust(wspace=0.2)
     fig.tight_layout()
