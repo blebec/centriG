@@ -11,9 +11,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from datetime import datetime
 
-import plot_general_functions as gf
-import load_data as ld
-
+import plot_general_functions as gfuc
+import load_data as ldat
+    
 anot=True
 
 
@@ -22,7 +22,7 @@ def plot_2B_bis(stdColors, anot=False):
     plot_figure2B alternative : sorted phase advance and delta response
     response are sorted only by phase
     """
-    df = ld.load_cell_contributions('vm')
+    df = ldat.load_cell_contributions('vm')
     alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
     df = df[alist].sort_values(by=alist[0], ascending=False)
     cols = df.columns[::2]
@@ -56,8 +56,8 @@ def plot_2B_bis(stdColors, anot=False):
         for spine in ['bottom', 'left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
 
-    gf.align_yaxis(axes[0], 0, axes[1], 0)
-    gf.change_plot_trace_amplitude(axes[1], 0.8)
+    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfuc.change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
 
     if anot:

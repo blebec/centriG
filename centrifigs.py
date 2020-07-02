@@ -16,14 +16,14 @@ from matplotlib.patches import Rectangle
 # from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as patches
 from matplotlib import markers
-from matplotlib.ticker import StrMethodFormatter
+#from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
 
 import config
-import plot_general_functions as gf
-import load_data as ld
-import old_figs as of
-import fig_proposal as fp
+import plot_general_functions as gfuc
+import load_data as ldat
+import old_figs as ofig
+import fig_proposal as figp
 
 # nb description with pandas:
 pd.options.display.max_columns = 30
@@ -56,7 +56,7 @@ speedColors = {'orangeFonce' : [x/256 for x in [237, 73, 59]],
 
 ############################
 # NB fig size : 8.5, 11.6 or 17.6 cm
-params = {'font.sans-serif': ['Arial'],
+rcParams = {'font.sans-serif': ['Arial'],
           'font.size': 14,
           'legend.fontsize': font_size,
           'figure.figsize': (11.6, 5),
@@ -66,14 +66,14 @@ params = {'font.sans-serif': ['Arial'],
           'xtick.labelsize': font_size,
           'ytick.labelsize': font_size,
           'axes.xmargin': 0}
-plt.rcParams.update(params)
+plt.rcParams.update(rcParams)
 plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
 
 
 
-# energy_df = ld.load_energy_gain_index(paths)
-# latGain50_v_df = ld.load_50vals('vm')
-# latGain50_s_df = ld.load_50vals('spk')
+# energy_df = ldat.load_energy_gain_index(paths)
+# latGain50_v_df = ldat.load_50vals('vm')
+# latGain50_s_df = ldat.load_50vals('spk')
 
 
 #%%
@@ -258,12 +258,12 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     spkaxes[0].set_ylim(-5.5, 18)
     # align zero between plots  NB ref = first plot
     for i in [0, 1]:
-        gf.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
-        gf.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
+        gfuc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
+        gfuc.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
     # adjust amplitude (without moving the zero)
     for i in [1, 2]:
-        gf.change_plot_trace_amplitude(vmaxes[i], 0.85)
-        gf.change_plot_trace_amplitude(spkaxes[i], 0.8)
+        gfuc.change_plot_trace_amplitude(vmaxes[i], 0.85)
+        gfuc.change_plot_trace_amplitude(spkaxes[i], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -302,17 +302,17 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     return fig
 
 #data
-fig2_df, fig2_cols = ld.load2()
+fig2_df, fig2_cols = ldat.load2()
 fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 # =============================================================================
 ## other views
 # #plot all
-# fig = of.plot_2_indMoySigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
+# fig = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
 # #plot ind + pop
-# fig = of.plot_2_indMoy(fig2_df, fig2_cols, stdColors, anot)
+# fig = ofig.plot_2_indMoy(fig2_df, fig2_cols, stdColors, anot)
 # #sig Nsig
-# fig = of.plot_2_sigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
+# fig = ofig.plot_2_sigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
 # =============================================================================
 
 #%% NB the length of the sorted data are not the same compared to the other traces
@@ -367,8 +367,8 @@ def plot_figure2B(stdColors, sig=True, anot=anot):
         for spine in ['left', 'top', 'right', 'bottom']:
             ax.spines[spine].set_visible(False)
     # align zero between plots
-    gf.align_yaxis(axes[0], 0, axes[1], 0)
-    gf.change_plot_trace_amplitude(axes[1], 0.8)
+    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfuc.change_plot_trace_amplitude(axes[1], 0.8)
     fig.tight_layout()
     # anot
     if anot:
@@ -403,7 +403,7 @@ def sort_stat():
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-fig = fp.plot_2B_bis(stdColors, anot=anot)
+fig = figp.plot_2B_bis(stdColors, anot=anot)
 plot_figure2B(stdColors, 'horizontal', anot=anot)
 #plot_figure2B(stdColors, 'vertical')
 sort_stat()
@@ -507,8 +507,8 @@ fig2 = plot_figure3(stdColors, 'pop', substract=True)
 #pop all cells
 #%% grouped sig and non sig
 plt.close('all')
-fig = of.plot_3_signonsig(stdColors, anot=anot)
-fig2 = of.plot_3_signonsig(stdColors, substract=True, anot=anot)
+fig = ofig.plot_3_signonsig(stdColors, anot=anot)
+fig2 = ofig.plot_3_signonsig(stdColors, substract=True, anot=anot)
 #%%
 plt.close('all')
 
@@ -817,9 +817,9 @@ fig = plot_figure6(stdColors)
 #%%
 plt.close('all')
 
-fig = fp.plot_figure6_bis(stdColors)
+fig = figp.plot_figure6_bis(stdColors)
 # fig = plot_figure6_bis(substract=True)
-fig = fp.plot_figure6_bis(stdColors, linear=False, substract=True)
+fig = figp.plot_figure6_bis(stdColors, linear=False, substract=True)
 
 
 #%%
@@ -893,8 +893,8 @@ def plot_figure7(stdColors):
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.2)
     # align zero between subplots
-    gf.align_yaxis(ax1, 0, ax2, 0)
-    gf.change_plot_trace_amplitude(ax2, 0.9)
+    gfuc.align_yaxis(ax1, 0, ax2, 0)
+    gfuc.change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
@@ -910,7 +910,7 @@ def plot_figure7(stdColors):
     return fig
 
 fig = plot_figure7(stdColors)
-fig2 = fp.plot_figure7_bis(stdColors)
+fig2 = figp.plot_figure7_bis(stdColors)
 
 
 #%% fig 9
@@ -1031,7 +1031,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
               stdColors['bleu'], stdColors['bleu'],
               stdColors['bleu'], stdColors['bleu']]
     # data (call)
-    df = ld.load_cell_contributions('vm')
+    df = ldat.load_cell_contributions('vm')
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if 's_' in item[:7]]
     # append full random
@@ -1131,9 +1131,9 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
                 ax.spines[spine].set_visible(False)
 
     # align each row yaxis on zero between subplots
-    gf.align_yaxis(axes[0], 0, axes[1], 0)
+    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    gf.change_plot_trace_amplitude(axes[1], 0.80)
+    gfuc.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
     if overlap:
@@ -1589,7 +1589,7 @@ filename = 'data/figSup34Vm.xlsx'
 df = pd.read_excel(filename)
 df.set_index('Neuron', inplace=True)
 # rename using snake_case
-cols = ld.new_columns_names(df.columns)
+cols = ldat.new_columns_names(df.columns)
 df.columns = cols
 # check stimulations
 print_keys(cols)
@@ -1764,7 +1764,7 @@ def plot_sorted_responses(dico):
               stdColors['jaune'], stdColors['jaune'],
               stdColors['bleu'], stdColors['bleu']]
     # data (call)
-    df = ld.load_cell_contributions(dico['kind'])
+    df = ldat.load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread']+'_' in item[:7]]
     # filter -> only significative cells
@@ -1825,9 +1825,9 @@ def plot_sorted_responses(dico):
         custom_ticks = np.linspace(0, 1, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     # align each row yaxis on zero between subplots
-    gf.align_yaxis(axes[0], 0, axes[1], 0)
+    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    gf.change_plot_trace_amplitude(axes[1], 0.80)
+    gfuc.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.subplots_adjust(hspace=0.00, wspace=0.00)
     if anot:
@@ -2455,7 +2455,7 @@ def extract_stat(onlySig=False):
     # vm
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
-    data50 = ld.load_50vals(mes)
+    data50 = ldat.load_50vals(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print(len(data50), ' cells')
@@ -2489,7 +2489,7 @@ def extract_stat(onlySig=False):
     # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
-    data50 = ld.load_50vals(mes)
+    data50 = ldat.load_50vals(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
@@ -2765,7 +2765,7 @@ plot_stat(stat_df, 'med', '50')
 plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
-    data50 = ld.load_50vals(mes)
+    data50 = ldat.load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
@@ -2780,7 +2780,7 @@ for spread in ['sect', 'full']:
 #%% spk
 for spread in ['sect', 'full']:
     mes = 'spk'
-    data50 = ld.load_50vals(mes)
+    data50 = ldat.load_50vals(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
@@ -2810,7 +2810,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
 
 spread = 'sect'
 mes = 'vm'
-data50 = ld.load_50vals(mes)
+data50 = ldat.load_50vals(mes)
 gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
 left = gain_df
 
