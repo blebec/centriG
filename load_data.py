@@ -41,10 +41,16 @@ def new_columns_names(cols):
         result = "".join(temp_list)
         return result.lower()
     newcols = [convert_to_snake(item) for item in cols]
-    newcols = [item.replace('vms', 'vm_s_') for item in newcols]
-    newcols = [item.replace('vmf', 'vm_f_') for item in newcols]
-    newcols = [item.replace('spks', 'spk_s_') for item in newcols]
-    newcols = [item.replace('spkf', 'spk_f_') for item in newcols]
+    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
+               'spks': 'spk_sect_', 'spkf': 'spk_full_',
+               'dlat50': 'time50', 'dgain50': 'gain50',
+               'rnd': 'rd'}
+    for key in chg_dct:
+        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
+    # newcols = [item.replace('vms', 'vm_sect_') for item in newcols]
+    # newcols = [item.replace('vmf', 'vm_full_') for item in newcols]
+    # newcols = [item.replace('spks', 'spk_sect_') for item in newcols]
+    # newcols = [item.replace('spkf', 'spk_full_') for item in newcols]
     return newcols
 
 def load2():
@@ -99,26 +105,43 @@ def load_cell_contributions(kind='vm'):
     #rename using snake_case
     cols = new_columns_names(df.columns)
     df.columns = cols
-    return df
-
-# load the values50
-def load_50vals(kind='vm'):
-    if kind not in ['vm', 'spk']:
-        print('kind should be in [vm, spk]')
-        return
-    df = load_cell_contributions(kind)
-    trans = {'s': 'sect', 'f': 'full',
-             'dlat50': 'time50', 'dgain50': 'gain50'}
+    #groupNames
     cols = []
     for item in df.columns:
         sp = item.split('_')
-        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
+        new_name = sp[2] + sp[3] + sp[1] + '_' + sp[5]
         if len(sp) > 6:
             new_name += ('_sig')
         cols.append(new_name)
     df.columns = cols
     return df
 
+# load the values50
+# def load_50vals(kind='vm'):
+#     if kind not in ['vm', 'spk']:
+#         print('kind should be in [vm, spk]')
+#         return
+#     df = load_cell_contributions(kind)
+#     # trans = {'s': 'sect', 'f': 'full',
+#     #          'dlat50': 'time50', 'dgain50': 'gain50'}
+#     cols = []
+#     for item in df.columns:
+#         sp = item.split('_')
+#         new_name = sp[2] + sp[3] + sp[1] + '_' + sp[5]
+# #        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
+#         if len(sp) > 6:
+#             new_name += ('_sig')
+#         cols.append(new_name)
+#     df.columns = cols
+#     return df
+
+#new def load_50 vals
+
+# cp, cf, rd
+# iso, crx
+# full, sect
+# time50, gain50
+# sig, nsig
 
 #% load energy
 
@@ -132,13 +155,13 @@ def load_energy_gain_index(paths, sig=True):
     """
     pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
     """
-    def load_energy_cell(cell_name = '1424M_CXG16.txt'):
+    def load_energy_cell(cell_name='1424M_CXG16.txt'):
         """
         to iterate and load sucessively all the cells        
         """
 
-        cols = ['ctronly', 'cpisosec', 'cfisosec', 'cpcrosssec', 'rndisosec', 
-                'cpisofull', 'cfisofull', 'cpcrossfull', 'rndisofull']
+        cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect', 
+                'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
         folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
         filename = os.path.join(folder, cell_name)
         df = pd.read_csv(filename, sep='\t', names=cols)
@@ -193,5 +216,5 @@ if __name__ == "__main__":
     paths = build_paths()
     fig2_df, fig2_cols = load2()
     energy_df = load_energy_gain_index(paths, sig=True)
-    latGain50_v_df = load_50vals('vm')
-    latGain50_s_df = load_50vals('spk')
+    latGain50_v_df = load_cell_contributions('vm')
+    latGain50_s_df = load_cell_contributions('spk')
