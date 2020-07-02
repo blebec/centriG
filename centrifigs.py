@@ -35,8 +35,8 @@ anot = True           # to draw the date and name on the bottom of the plot
 
 def build_paths():
     """
-    nb present also i, the load_data.py 
-    
+    nb present also i, the load_data.py
+
     """
     paths = {}
     osname = platform.system()
@@ -58,8 +58,8 @@ os.chdir(paths['pg'])
 # colors
 stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
              'vert' : [x/256 for x in [127, 204, 56]],
-             'bleu' :	[x/256 for x in [0, 125, 218]],
-             'jaune' :	[x/256 for x in [238, 181, 0]],
+             'bleu' :    [x/256 for x in [0, 125, 218]],
+             'jaune' :    [x/256 for x in [238, 181, 0]],
              'violet' : [x/256 for x in [255, 0, 255]],
              'vertSombre': [x/256 for x in [0, 150, 68]],
              'orangeFonce' : [x/256 for x in [237, 73, 59]],
@@ -397,7 +397,6 @@ def plot_figure2B(stdColors, sig=True, anot=anot):
     return fig
 
 
-
 def sort_stat():
     filename = 'data/fig2cells.xlsx'
     df = pd.read_excel(filename)
@@ -405,7 +404,7 @@ def sort_stat():
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
     # all cells:
-    print ('=== all cells ===')
+    print('=== all cells ===')
     all1 = df.popVmscpIsolatg
     all2 = df.popVmscpIsoAmpg
     for item, temp in zip(['latency', 'gain'], [all1, all2]):
@@ -413,7 +412,7 @@ def sort_stat():
         print('mean= {:5.2f}'.format(temp.mean()))
         print('std= {:5.2f}'.format(temp.std()))
         print('sem= {:5.2f}'.format(temp.sem()))
-    print ('=== sig cells ===')
+    print('=== sig cells ===')
     temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
     temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
@@ -463,7 +462,7 @@ def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
         df = df.subtract(ref, axis=0)
 
     fig = plt.figure(figsize=(6.5, 5.5))
-    if anot: 
+    if anot:
         fig.suptitle(titles[kind], alpha=0.4)
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -2119,7 +2118,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             color_dic = {0 : 'w', 1 : edgeColor}
             sig_name = name + '_sig'
             select = df_left[[name, sig_name]].sort_values(by=[name, sig_name],
-                                                       ascending=False)
+                                                           ascending=False)
             barColors = [color_dic[x] for x in select[sig_name]]
             ax = left_axes[i]
             # ax.set_title(str(i))
@@ -2130,9 +2129,9 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             #       alpha=0.8, width=0.8)
             # # with significance
             select = df_left[name].sort_values(ascending=False)
-            
+
             ax.bar(x, select, color=barColors, edgecolor=edgeColor,
-                    alpha=0.8, width=0.8)
+                   alpha=0.8, width=0.8)
             if i == 0:
                 ax.set_title(anoty[i])
     else:
@@ -2156,14 +2155,14 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             color_dic = {0 : 'w', 1 : edgeColor}
             sig_name = name + '_sig'
             select = df_right[[name, sig_name]].sort_values(by=[name, sig_name],
-                                                       ascending=False)
+                                                            ascending=False)
             barColors = [color_dic[x] for x in select[sig_name]]
             ax = right_axes[i]
             # ax.set_title(str(i))
             ax.set_title(name)
             select = df_right[name].sort_values(ascending=False)
             ax.bar(x, select, color=barColors, edgecolor=edgeColor,
-                    alpha=0.8, width=0.8)
+                   alpha=0.8, width=0.8)
             if i == 0:
                 ax.set_title(anoty[i])
     else:
@@ -2271,7 +2270,7 @@ def select_50(df, spread='sect', param='gain', noSig=True):
     if spread not in ['sect', 'full']:
         print("'spread' should be in ['sect', 'full']")
         return
-    elif param not in ['time', 'gain']:
+    if param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
         return
     # select by param (first value = control)
@@ -2816,7 +2815,7 @@ for spread in ['sect', 'full']:
 def adapt_energy_to_plot(energy_df, spread='sect'):
     df = energy_df.copy()
     #remove stats
-#    cols = [col for col in df.columns if '_p' not in col] 
+#    cols = [col for col in df.columns if '_p' not in col]
     #select sector
     ctr = df['ctronly'].copy()
     cols = [col for col in df.columns if spread[:3] in col]
@@ -2931,7 +2930,7 @@ def plot_cellDepth():
             ax.set_yticklabels(custom_ticks)
             ax.vlines(ax.get_xlim()[0], 0, 0.4, linewidth=2)
             ax.spines['left'].set_visible(False)
-            
+
         fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
