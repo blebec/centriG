@@ -18,6 +18,7 @@ import matplotlib.patches as patches
 from matplotlib import markers
 #from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
+from importlib import reload
 
 import config
 import plot_general_functions as gfuc
@@ -30,46 +31,14 @@ pd.options.display.max_columns = 30
 
 #===========================
 # global setup
-font_size = 'medium'  # large, medium
-anot = True           # to draw the date and name on the bottom of the plot
-#============================
+# NB fig size : 8.5, 11.6 or 17.6 cm
 
+anot = True           # to draw the date and name on the bottom of the plot
+stdColors = config.std_colors()
+speedColors= config.speed_colors()
+plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths['pg'])
-
-# colors
-stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
-             'vert' : [x/256 for x in [127, 204, 56]],
-             'bleu' :    [x/256 for x in [0, 125, 218]],
-             'jaune' :    [x/256 for x in [238, 181, 0]],
-             'violet' : [x/256 for x in [255, 0, 255]],
-             'vertSombre': [x/256 for x in [0, 150, 68]],
-             'orangeFonce' : [x/256 for x in [237, 73, 59]],
-             'bleuViolet': [x/256 for x in [138, 43, 226]],
-             'dark_rouge': [x/256 for x in [115, 0, 34]],
-             'dark_vert': [x/256 for x in [10, 146, 13]],
-             'dark_jaune': [x/256 for x in [163, 133, 16]],
-             'dark_bleu': [x/256 for x in [14, 73, 118]]}
-speedColors = {'orangeFonce' : [x/256 for x in [237, 73, 59]],
-               'orange' : [x/256 for x in [245, 124, 67]],
-               'jaune' : [x/256 for x in [253, 174, 74]]}
-
-############################
-# NB fig size : 8.5, 11.6 or 17.6 cm
-rcParams = {'font.sans-serif': ['Arial'],
-          'font.size': 14,
-          'legend.fontsize': font_size,
-          'figure.figsize': (11.6, 5),
-          'figure.dpi'    : 100,
-          'axes.labelsize': font_size,
-          'axes.titlesize': font_size,
-          'xtick.labelsize': font_size,
-          'ytick.labelsize': font_size,
-          'axes.xmargin': 0}
-plt.rcParams.update(rcParams)
-plt.rcParams['axes.xmargin'] = 0            # no gap between axes and traces
-
-
 
 # energy_df = ldat.load_energy_gain_index(paths)
 # latGain50_v_df = ldat.load_50vals('vm')
@@ -1089,19 +1058,6 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
             # zero line
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
-            # ticks and ticks labels on both sides (call)
-            # set_ticks_both(ax.yaxis)
-            # alternate right and left
-            # if overlap:
-            #     #label left:
-            #     if i % 2 == 0:
-            #         ax.spines['right'].set_visible(False)
-            #     #label right
-            #     else:
-            #         ax.spines['left'].set_visible(False)
-            #         ax.yaxis.tick_right()
-            # else:
-            #     ax.spines['right'].set_visible(False)
             if i != 4:
                 ax.xaxis.set_visible(False)
             else:
