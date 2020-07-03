@@ -1002,13 +1002,15 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     # data (call)
     df = ldat.load_cell_contributions('vm')
     # extract list of traces : sector vs full
-    traces = [item for item in df.columns if 's_' in item[:7]]
+#    traces = [item for item in df.columns if 's_' in item[:7]]
+    traces = [item for item in df.columns if 'sect' in item]
     # append full random
-    f_rnd = [item for item in df.columns if 'vm_f_rnd' in item]
-    for item in f_rnd:
+#    f_rnd = [item for item in df.columns if 'vm_f_rnd' in item]
+    rdfull = [item for item in df.columns if 'rdisofull' in item]
+    for item in rdfull:
         traces.append(item)
     # filter -> only significative cells
-    traces = [item for item in traces if 'indisig' not in item]
+    traces = [item for item in traces if 'sig' not in item]
     # text labels
     title = 'Vm (sector)'
     anotx = 'Cell rank'
@@ -1024,11 +1026,11 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     # use cpisotime for ref
     name = traces[0]
     name = traces[key]
-    sig_name = name + '_indisig'
+    sig_name = name + '_sig'
     df = df.sort_values(by=[name, sig_name], ascending=False)
     # plot all traces
     for i, name in enumerate(traces):
-        sig_name = name + '_indisig'
+        sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
         edgeColor = colors[i]
         color_dic = {0 : 'w', 1 : edgeColor}

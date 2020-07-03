@@ -23,7 +23,9 @@ def plot_2B_bis(stdColors, anot=False):
     response are sorted only by phase
     """
     df = ldat.load_cell_contributions('vm')
-    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
+#    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
+    alist = [item for item in df.columns if 'cpisosect' in item]
+    
     df = df[alist].sort_values(by=alist[0], ascending=False)
     cols = df.columns[::2]
     sigs = df.columns[1::2]
