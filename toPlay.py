@@ -11,6 +11,7 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 from datetime import datetime
+
 import config
 import load_data as ldat
 stdColors = config.std_colors()
@@ -122,7 +123,8 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
         spread = 'full'
     title = 'sorted_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
-    anoty = df_left.columns[0][5:]
+    anot_left = df_left.columns[0].split('_')[1]
+    anot_right = df_right.columns[0].split('_')[1]
     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #           #(fraction of Center-only response)']
     # plot
@@ -171,7 +173,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             ax.bar(x, select, color=barColors, edgecolor=edgeColor,
                    alpha=0.8, width=0.8)
             if i == 0:
-                ax.set_title(anoty[i])
+                ax.set_title(anot_left)
     else:
         for i, name in enumerate(df_left.columns):
             ax = left_axes[i]
@@ -202,7 +204,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             ax.bar(x, select, color=barColors, edgecolor=edgeColor,
                    alpha=0.8, width=0.8)
             if i == 0:
-                ax.set_title(anoty[i])
+                ax.set_title(anot_right)
     else:
         # left
         for i, name in enumerate(df_right.columns):
@@ -871,7 +873,7 @@ data50 = ldat.load_cell_contributions(mes)
 gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
 left = gain_df
 
-
-
+paths = config.build_paths()
+energy_df = ldat.load_energy_gain_index(paths)
 right = adapt_energy_to_plot(energy_df)
 fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
