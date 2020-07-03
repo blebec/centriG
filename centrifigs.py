@@ -372,10 +372,9 @@ def sort_stat():
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-fig = figp.plot_2B_bis(stdColors, anot=anot)
 plot_figure2B(stdColors, 'horizontal', anot=anot)
-#plot_figure2B(stdColors, 'vertical')
 sort_stat()
+fig = figp.plot_2B_bis(stdColors, anot=anot)
 
 #%%
 plt.close('all')

@@ -11,47 +11,10 @@ import getpass
 import pandas as pd
 import numpy as np
 
-def build_paths():
-    paths = {}
-    osname = platform.system()
-    username = getpass.getuser()
-    if osname == 'Windows'and username == 'Benoit':
-        paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
-    elif osname == 'Linux' and username == 'benoit':
-        paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
-    elif osname == 'Windows'and username == 'marc':
-        paths['pg'] = r'H:/pg/centriG'
-    elif osname == 'Darwin' and username == 'cdesbois':
-        paths['pg'] = os.path.expanduser('~/pg/chrisPg/centriG')
-        paths['owncFig'] = os.path.expanduser('~/ownCloud/cgFigures')
-    return paths
+import config
 
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
-               'spks': 'spk_sect_', 'spkf': 'spk_full_',
-               'dlat50': 'time50', 'dgain50': 'gain50',
-               'rnd': 'rd', 'cross' : 'crx'}
-    for key in chg_dct:
-        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
-    # newcols = [item.replace('vms', 'vm_sect_') for item in newcols]
-    # newcols = [item.replace('vmf', 'vm_full_') for item in newcols]
-    # newcols = [item.replace('spks', 'spk_sect_') for item in newcols]
-    # newcols = [item.replace('spkf', 'spk_full_') for item in newcols]
-    return newcols
+
+
 
 def load2():
     """
@@ -88,6 +51,30 @@ def load2():
                 }
     return df, colsdict
 
+def new_columns_names(cols):
+    def convert_to_snake(camel_str):
+        """ camel case to snake case """
+        temp_list = []
+        for letter in camel_str:
+            if letter.islower():
+                temp_list.append(letter)
+            elif letter.isdigit():
+                temp_list.append(letter)
+            else:
+                temp_list.append('_')
+                temp_list.append(letter)
+        result = "".join(temp_list)
+        return result.lower()
+    newcols = [convert_to_snake(item) for item in cols]
+    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
+               'spks': 'spk_sect_', 'spkf': 'spk_full_',
+               'dlat50': 'time50', 'dgain50': 'gain50',
+               'rnd': 'rd', 'cross' : 'crx'}
+    for key in chg_dct:
+        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
+    return newcols
+
+
 #TODO function to developp to load energy from xcel file
 def load_cell_contributions(kind='vm'):
     """
@@ -98,6 +85,7 @@ def load_cell_contributions(kind='vm'):
         filename = 'data/figSup34Vm.xlsx'
     elif kind == 'spk':
         filename = 'data/figSup34Spk.xlsx'
+# TODO ajouter les fichiers engery excel
     else:
         print('kind should be vm or spk')
     df = pd.read_excel(filename)
@@ -119,6 +107,7 @@ def load_cell_contributions(kind='vm'):
 
 def load_energy_gain_index(paths, sig=True):
     """
+    energy in files
     pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
     """
     def load_energy_cell(cell_name='1424M_CXG16.txt'):
@@ -187,7 +176,7 @@ def load_energy_gain_index(paths, sig=True):
 
 #%%
 if __name__ == "__main__":
-    paths = build_paths()
+    paths = config.build_paths()
     fig2_df, fig2_cols = load2()
     energy_df = load_energy_gain_index(paths, sig=True)
     latGain50_v_df = load_cell_contributions('vm')
