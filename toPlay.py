@@ -224,10 +224,11 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
         for i, ax in enumerate(axe):
             ax.set_facecolor('None')
             # ax.set_title(i)
-            ax.spines['top'].set_visible(False)
-            ax.ticklabel_format(useOffset=True)
-            ax.spines['bottom'].set_visible(False)
+            for spine in ['top', 'bottom']:
+                ax.spines[spine].set_visible(False)
+           # ax.ticklabel_format(useOffset=True)
             # zero line
+            ax.set_xlim(0, len(df_left)+1)
             lims = ax.get_xlim()
             ax.hlines(0, lims[0], lims[1], alpha=0.2)
             # ticks and ticks labels on both sides (call)
@@ -855,7 +856,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
     #remove stats
 #    cols = [col for col in df.columns if '_p' not in col]
     #select sector
-    ctr = df['centeronly'].copy()
+    ctr = df['centeronly_energy'].copy()
     cols = [col for col in df.columns if spread[:3] in col]
     df = df[cols].copy()
     #normalize

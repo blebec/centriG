@@ -128,6 +128,8 @@ def load_energy_gain_index(paths, sig=True):
 
         cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect', 
                 'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
+        
+        cols = [item + '_energy' for item in cols]
         folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
         filename = os.path.join(folder, cell_name)
         df = pd.read_csv(filename, sep='\t', names=cols)
@@ -150,7 +152,8 @@ def load_energy_gain_index(paths, sig=True):
     for name in os.listdir(folder):
         filename = os.path.join(folder, name)
         if os.path.isfile(filename):
-            cond = name.split('indisig')[0]
+            cond = os.path.basename(filename).split('.')[0]
+            cond = cond.split('indisig')[0] + '_' + cond.split('indisig')[1] 
             with open(filename, 'r') as fh:
                 for line in fh:
                     if '[' in line:
@@ -175,8 +178,8 @@ def load_energy_gain_index(paths, sig=True):
         # rename
         cols = []
         for col in df.columns:
-            if len(col.split('_')) > 1:
-                col = col.split('_')[0] + '_sig'
+            if len(col.split('_')) > 2:
+                col = col.split('_')[0] + '_' + col.split('_')[1] +  '_sig'
             cols.append(col)
         df.columns = cols
     return df
