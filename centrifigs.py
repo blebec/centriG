@@ -1651,12 +1651,6 @@ plot_cell_contribution(df, kind)
 #%%
 plt.close('all')
 
-# plot latency (left) and gain (right
-
-
-
-plt.close('all')
-
 # TODO: in first figure, 1st condition latency advance of CP-ISO
 # plot and fill the actual 10 and 11th df.index significant cell row
 # before the actual actual 9th
@@ -1674,16 +1668,11 @@ def plot_sorted_responses(dico):
     # data (call)
     df = ldat.load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
-    traces = [item for item in df.columns if dico['spread']+'_' in item[:7]]
+    traces = [item for item in df.columns if dico['spread'] in item]
     # filter -> only significative cells
-    traces = [item for item in traces if 'indisig' not in item]
+    traces = [item for item in traces if 'sig' not in item]
     # text labels
-    title_dico = {'spk' : 'Spikes',
-                  'vm' : 'Vm',
-                  'f' : 'Full',
-                  's' : 'Sector'
-                  }
-    title = title_dico[dico['kind']] + ' (' + title_dico[dico['spread']] + ')'
+    title = dico['kind'] + ' (' + dico['spread']+ ')'
     # title = title_dico[dico['kind']]
     anotx = 'Cell rank'
     anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
@@ -1696,7 +1685,7 @@ def plot_sorted_responses(dico):
     x = range(1, len(df)+1)
     # plot all traces
     for i, name in enumerate(traces):
-        sig_name = name + '_indisig'
+        sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
         edgeColor = colors[i]
         color_dic = {0 : 'w', 1 : edgeColor}
@@ -1748,17 +1737,21 @@ def plot_sorted_responses(dico):
 
 parameter_dico = {
         'kind' : 'vm',
-        'spread' : 's',
+        'spread' : 'sect',
         'position' : 'cp',
         'theta' : 'cross',
         'extra' : 'stc'
         }
 
 fig = plot_sorted_responses(parameter_dico)
+
+#%%
+plt.close('all')
+
 # iterate through conditions for plotting
 for kind in ['vm', 'spk']:
     parameter_dico['kind'] = kind
-    for spread in ['s', 'f']:
+    for spread in ['sect', 'full']:
         parameter_dico['spread'] = spread
         fig = plot_sorted_responses(parameter_dico)
 

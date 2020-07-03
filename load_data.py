@@ -88,7 +88,7 @@ def load2():
                 }
     return df, colsdict
 
-
+#TODO function to developp to load energy from xcel file
 def load_cell_contributions(kind='vm'):
     """
     load the corresponding xcel file
@@ -116,40 +116,6 @@ def load_cell_contributions(kind='vm'):
     df.columns = cols
     return df
 
-# load the values50
-# def load_50vals(kind='vm'):
-#     if kind not in ['vm', 'spk']:
-#         print('kind should be in [vm, spk]')
-#         return
-#     df = load_cell_contributions(kind)
-#     # trans = {'s': 'sect', 'f': 'full',
-#     #          'dlat50': 'time50', 'dgain50': 'gain50'}
-#     cols = []
-#     for item in df.columns:
-#         sp = item.split('_')
-#         new_name = sp[2] + sp[3] + sp[1] + '_' + sp[5]
-# #        new_name = sp[2] + sp[3] + trans[sp[1]] + '_' + trans[sp[5]]
-#         if len(sp) > 6:
-#             new_name += ('_sig')
-#         cols.append(new_name)
-#     df.columns = cols
-#     return df
-
-#new def load_50 vals
-
-# cp, cf, rd
-# iso, crx
-# full, sect
-# time50, gain50
-# sig, nsig
-
-#% load energy
-
-# location : ownc/cgFigure/index/...
-# energy : file = neuron, column = conditions, cells : repetition, 
-# measure = mean on a defined window
-
-# 9 conditions -> 8 stats
 
 def load_energy_gain_index(paths, sig=True):
     """
