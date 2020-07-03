@@ -43,6 +43,7 @@ for ax in axes[1::2]:
 
 def load_peakdata(name):
     'load the excel file'
+    # name = 'data/cg_peakValueTime_spk.xlsx'
     df = pd.read_excel(name)
     # replace 'sec' by 'sect' for homogeneity
     new_list = []
@@ -53,9 +54,9 @@ def load_peakdata(name):
     new_list = []
     for item in df.iloc[0].tolist():
         if 'value' in str(item):
-            new_list.append('_gain')
+            new_list.append('_gainP')
         elif 'time' in str(item):
-            new_list.append('_time')
+            new_list.append('_timeP')
         else:
             new_list.append('')
     cols = [item.split('.')[0] for item in df.columns]
@@ -67,6 +68,15 @@ def load_peakdata(name):
     df = df.drop('Unnamed: 10', axis=1)
     df = df.set_index('Neuron')
     df = df.astype('float')
+    #rename
+    cols = df.columns
+    cols = [item.replace('ctr', 'centeronly') for item in cols]
+    cols = [item.replace('rnd', 'rd') for item in cols]
+    cols = [item.replace('rdfull', 'rdisofull') for item in cols]
+    cols = [item.replace('rdsec', 'rdisosec') for item in cols]
+    cols = [item.replace('cross', 'crx') for item in cols]
+    cols = [item.replace('isosfull', 'isofull') for item in cols]   
+    df.columns = cols
     return df
 
 
@@ -528,7 +538,6 @@ def extract_stat(onlySig=False):
             + [item for item in times if 'full_' in item]
     advance_df = data50[times].copy()
     advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
-    advance_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'}, inplace=True)
     desc_df['time50_vm_mean'] = advance_df.mean()
     desc_df['time50_vm_std'] = advance_df.std()
     desc_df['time50_vm_med'] = advance_df.median()
@@ -539,13 +548,10 @@ def extract_stat(onlySig=False):
             + [item for item in gains if 'full_' in item]
     gain_df = data50[gains].copy()
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect', 'rndfull':'rndisofull'},
-                   inplace=True)
     desc_df['gain50_vm_mean'] = gain_df.mean()
     desc_df['gain50_vm_std'] = gain_df.std()
     desc_df['gain50_vm_med'] = gain_df.median()
     desc_df['gain50_vm_mad'] = gain_df.mad()
-
     # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
@@ -574,7 +580,6 @@ def extract_stat(onlySig=False):
     desc_df['gain50_spk_std'] = gain_df.std()
     desc_df['gain50_spk_med'] = gain_df.median()
     desc_df['gain50_spk_mad'] = gain_df.mad()
-
     # peak (non normalized data)
     # vm
     filename = 'data/cg_peakValueTime_vm.xlsx'
@@ -584,28 +589,23 @@ def extract_stat(onlySig=False):
     # normalise
     for item in gains[1:]:
         data[item] = data[item] / data[gains[0]]
-    # for item in times[1:]:
-    #     data[item] = data[item] / data[times[0]]
     # select
     gain_df = data[gains[1:]].copy()
     time_df = data[times[1:]].copy()
     #stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
-                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_vm_mean'] = gain_df.mean()
     desc_df['gainP_vm_std'] = gain_df.std()
     desc_df['gainP_vm_med'] = gain_df.median()
     desc_df['gainP_vm_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
-                            'rndfull':'rndisofull'}, inplace=True)
+    # time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
+    #                         'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_vm_mean'] = time_df.mean()
     desc_df['timeP_vm_std'] = time_df.std()
     desc_df['timeP_vm_med'] = time_df.median()
     desc_df['timeP_vm_mad'] = time_df.mad()
-
     # spk_time
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
@@ -614,23 +614,17 @@ def extract_stat(onlySig=False):
     # normalise
     for item in gains[1:]:
         data[item] = data[item] / data[gains[0]]
-    # for item in times[1:]:
-    #     data[item] = data[item] / data[times[0]]
     # select
     gain_df = data[gains[1:]].copy()
     time_df = data[times[1:]].copy()
     # stat
     gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    gain_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
-                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['gainP_spk_mean'] = gain_df.mean()
     desc_df['gainP_spk_std'] = gain_df.std()
     desc_df['gainP_spk_med'] = gain_df.median()
     desc_df['gainP_spk_mad'] = gain_df.mad()
 
     time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
-                            'rndfull':'rndisofull'}, inplace=True)
     desc_df['timeP_spk_mean'] = time_df.mean()
     desc_df['timeP_spk_std'] = time_df.std()
     desc_df['timeP_spk_med'] = time_df.median()
