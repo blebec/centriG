@@ -44,7 +44,7 @@ def new_columns_names(cols):
     chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
                'spks': 'spk_sect_', 'spkf': 'spk_full_',
                'dlat50': 'time50', 'dgain50': 'gain50',
-               'rnd': 'rd'}
+               'rnd': 'rd', 'cross' : 'crx'}
     for key in chg_dct:
         newcols = [item.replace(key, chg_dct[key]) for item in newcols]
     # newcols = [item.replace('vms', 'vm_sect_') for item in newcols]
@@ -158,6 +158,11 @@ def load_energy_gain_index(paths, sig=True):
                     if ']' in line:
                         line = line.replace(']', '')
                 pvals = [np.float(item) for item in line.split(',')]
+            #rename
+            cond = cond.replace('rnd', 'rd')
+            cond = cond.replace('sec', 'sect')
+            cond = cond.replace('cross', 'crx')            
+            #assign
             df[cond + '_p'] = pvals
     if sig:
         # p to sig or non sig

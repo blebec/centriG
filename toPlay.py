@@ -122,7 +122,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
         spread = 'full'
     title = 'sorted_responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
-    anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
+    anoty = df_left.columns[0][5:]
     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #           #(fraction of Center-only response)']
     # plot
@@ -511,7 +511,8 @@ def extract_stat(onlySig=False):
     # vm
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
-    data50 = ldat.load_50vals(mes)
+#    data50 = ldat.load_50vals(mes)
+    data50 = ldat.load_cell_contributions(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print(len(data50), ' cells')
@@ -545,7 +546,7 @@ def extract_stat(onlySig=False):
     # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
-    data50 = ldat.load_50vals(mes)
+    data50 = ldat.load_cell_contributions(mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
@@ -821,7 +822,7 @@ plot_stat(stat_df, 'med', '50')
 plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
-    data50 = ldat.load_50vals(mes)
+    data50 = ldat.load_cell_contributions(mes)
     advance_df = select_50(data50, spread=spread, param='time')
     left = advance_df
 
@@ -854,7 +855,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
     #remove stats
 #    cols = [col for col in df.columns if '_p' not in col]
     #select sector
-    ctr = df['ctronly'].copy()
+    ctr = df['centeronly'].copy()
     cols = [col for col in df.columns if spread[:3] in col]
     df = df[cols].copy()
     #normalize
@@ -865,7 +866,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
 
 spread = 'sect'
 mes = 'vm'
-data50 = ldat.load_50vals(mes)
+data50 = ldat.load_cell_contributions(mes)
 gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
 left = gain_df
 

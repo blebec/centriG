@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from datetime import datetime
 
+import config
 import plot_general_functions as gfuc
 import load_data as ldat
     
@@ -261,10 +262,7 @@ def plot_figure7_bis(stdColors):
     #     ref = df.centerOnly
     #     df.surroundThenCenter = df.surroundThenCenter - ref
     #     df.centerOnly = df.centerOnly - ref
-    colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
-              stdColors['bleuViolet'], stdColors['bleuViolet'],
-              stdColors['bleuViolet']]
+    #colors = ['k', 'r', 'b', 'g', 'b', 'b']
     colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
               stdColors['bleuViolet'], stdColors['rouge'],
               stdColors['bleuViolet']]
@@ -324,3 +322,13 @@ def plot_figure7_bis(stdColors):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
+
+
+if __name__ == "__main__":
+    anot = True
+    stdColors = config.std_colors()
+    plot_2B_bis(stdColors, anot=anot)
+    plot_figure6_bis(stdColors, linear=True, substract=False)
+    plot_figure6_bis(stdColors, linear=True, substract=True)
+    plot_figure7_bis(stdColors)
+    
