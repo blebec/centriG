@@ -1513,86 +1513,33 @@ def plot_figSup6(kind):
 
 fig = plot_figSup6('pop')
 
-#%% sup7 = fig5B
 
-#%% fig supp3 bars
-
-def print_keys(alist):
-    """ build a list of the keys defining a stimulation """
-    keys = []
-    for item in alist:
-        for key in item.split('_'):
-            if key not in keys:
-                keys.append(key)
-    print(keys)
-
-def build_keys_list(alist):
-    """
-    build a list to use the name of the file:
-       [[vm, spk], [s, f], [], [] ...]
-    """
-    keys = []
-    for i in range(7):
-        keys.append([])
-    for item in alist:
-        for i, key in enumerate(item.split('_')):
-            if key not in keys[i]:
-                keys[i].append(key)
-    return keys
-
-
-filename = 'data/figSup34Spk.xlsx'
-filename = 'data/figSup34Vm.xlsx'
-
-df = pd.read_excel(filename)
-df.set_index('Neuron', inplace=True)
-# rename using snake_case
-cols = ldat.new_columns_names(df.columns)
-df.columns = cols
-# check stimulations
-print_keys(cols)
-# build key listing
-# ex [['vm'],['s', 'f'],['cp', 'cf', 'rnd'],['iso', 'cross'],['stc'],
-# ['dlat50', 'dgain50'],['indisig']]
-keys = build_keys_list(cols)
-
-#%%
-# #latency advance
-# sec_lat = [item for item in cols if '_s_' in item and '_dlat50' in item]
-# adf = df[sec_lat]
-
-# # retriving the numbers:
-# # latency cpiso
-# cond = 'vm_s_cp_iso_stc_dlat50'
-# signi = cond + '_indisig'
-# mean = adf.loc[adf[signi] > 0, cond].mean()
-# std = adf.loc[adf[signi] > 0, cond].std()
-# print(cond, 'mean= %2.2f, std: %2.2f'% (mean, std))
-# # !!! doesnt suit with the figure !!!
 #%%
 plt.close("all")
 
 
-def extract_values(df, stim_kind='s', measure='lat'):
+def extract_values(df, stim='sect', mes='time'):
     """ extract pop and response dico:
         input : dataframe, stim kind (s or f) and mesaure kind (lat or gain)
     """
-    stim = '_' + stim_kind + '_'
-    mes = '_d' + measure + '50'
+    # stim = '_' + stim_kind + '_'
+    # mes = '_d' + measure + '50'
     # restrict df
+    cols = df.columns
     restricted_list = [item for item in cols if stim in item and mes in item]
     adf = df[restricted_list]
     #compute values
-    records = [item for item in restricted_list if 'indisig' not in item]
+    records = [item for item in restricted_list if 'sig' not in item]
     pop_dico = {}
     resp_dico = {}
     for cond in records:
-        signi = cond + '_indisig'
+        signi = cond + '_sig'
         pop_num = len(adf)
         signi_num = len(adf.loc[adf[signi] > 0, cond])
         percent = round((signi_num / pop_num) * 100)
-        leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
-        leg_cond = leg_cond.upper()
+        # leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
+        # leg_cond = leg_cond.upper()
+        leg_cond = cond.split('_')[0]
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
         moy = adf.loc[adf[signi] > 0, cond].mean()
@@ -1617,20 +1564,22 @@ def autolabel(ax, rects):
         #print(y)
 
 
-def plot_cell_contribution(df):
+def plot_cell_contribution(df, kind=''):
     "sup 2A"
     colors = [stdColors['rouge'], stdColors['vert'],
               stdColors['jaune'], stdColors['bleu']]
     dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
                    stdColors['dark_jaune'], stdColors['dark_bleu']]
     fig = plt.figure(figsize=(8, 8))
-    if anot:
-        fig.suptitle('vm')
+    # if anot:
+    #     fig.suptitle('vm')
     # sector phase
     ax = fig.add_subplot(221)
     ax.set_title(r'$\Delta$ Phase (% significant cells)', pad=0)
-    stim = 's'
-    mes = 'lat'
+#    stim = 's'
+    stim = 'sect'
+#    mes = 'lat'
+    mes = 'time50'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -1642,7 +1591,7 @@ def plot_cell_contribution(df):
     # sector amplitude
     ax = fig.add_subplot(222, sharey=ax)
     ax.set_title(r'$\Delta$ Amplitude (% significant cells)', pad=0)
-    stim = 's'
+    stim = 'sect'
     mes = 'gain'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
@@ -1653,8 +1602,8 @@ def plot_cell_contribution(df):
     ax.xaxis.set_visible(False)
     # full phase
     ax = fig.add_subplot(223, sharey=ax)
-    stim = 'f'
-    mes = 'lat'
+    stim = 'full'
+    mes = 'time'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -1666,7 +1615,7 @@ def plot_cell_contribution(df):
 
     # full amplitude
     ax = fig.add_subplot(224, sharey=ax)
-    stim = 'f'
+    stim = 'full'
     mes = 'gain'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
@@ -1683,8 +1632,7 @@ def plot_cell_contribution(df):
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
 
-    if filename == 'data/figSup34Spk.xlsx':
-        fig.text(0.5, 1.01, 'Spikes',
+    fig.text(0.5, 1.01, kind,
                  ha='center', va='top',
                  fontsize=18)
     if anot:
@@ -1695,7 +1643,9 @@ def plot_cell_contribution(df):
 
     fig.tight_layout()
 
-plot_cell_contribution(df)
+kind = 'vm'
+df = ldat.load_cell_contributions(kind)
+plot_cell_contribution(df, kind)
 
 
 #%%
