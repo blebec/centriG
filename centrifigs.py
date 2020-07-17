@@ -666,7 +666,7 @@ def plot_figure6(stdColors):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['red'], stdColors['vertSombre'], stdColors['vertSombre']]
+    colors = ['k', stdColors['red'], stdColors['dark_green'], stdColors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # plotting
     fig = plt.figure(figsize=(8.5, 8))
