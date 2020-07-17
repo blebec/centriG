@@ -18,7 +18,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     """
     plot_figure2 (individual + moy + sig + nonsig)
     """
-    colors = ['k', stdColors['rouge']]
+    colors = ['k', stdColors['red']]
     alphas = [0.8, 0.8]
 
     #fig = plt.figure(figsize=(inchtocm(17.6),inchtocm(12)))
@@ -49,10 +49,10 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['bleu'])
+    ax.plot(x, y, 'o', color=stdColors['blue'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
-    # invert the plot order for spikes
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'])
+    # ingreen the plot order for spikes
     inv_colors = colors[::-1]
     inv_alphas = alphas[::-1]
     # individual spike
@@ -63,12 +63,12 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
                         color=colors[::-1][i], alpha=0.5, label=col)
         ax.plot(data[col], color=inv_colors[i],
                 alpha=1, label=col)  #, linewidth=1)
-#    ax.plot(39.8, 0.1523, 'o', color= stdColors['bleu'])
+#    ax.plot(39.8, 0.1523, 'o', color= stdColors['blue'])
     x = 39.8
     y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['bleu'])
+    ax.plot(x, y, 'o', color=stdColors['blue'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['bleu'])
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'])
     # plots pop (column 1-3)
     df = data.loc[-30:35]       # limit xscale
     # pop vm
@@ -102,9 +102,9 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'])
+    ax.plot(x1, y, '|', color=stdColors['blue'])
+    ax.hlines(y, x1, x0, color=stdColors['blue'])
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popVmNsig
@@ -160,9 +160,9 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'])
+    ax.plot(x1, y, '|', color=stdColors['blue'])
+    ax.hlines(y, x1, x0, color=stdColors['blue'])
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popSpkNsig
@@ -224,7 +224,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
         ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
         # stim
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor=stdColors['rouge'])
+                         alpha=0.6, edgecolor='w', facecolor=stdColors['red'])
         ax.add_patch(rect)
         # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
@@ -280,7 +280,7 @@ def plot_2_indMoy(data, colsdict, stdColors, anot=False):
     """
     plot_2 indiv + pop
     """
-    colors = ['k', stdColors['rouge']]
+    colors = ['k', stdColors['red']]
     alphas = [0.8, 0.8]
 
     fig = plt.figure(figsize=(8.5, 8))
@@ -366,7 +366,7 @@ def plot_2_indMoy(data, colsdict, stdColors, anot=False):
         ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
         # stim
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor=stdColors['rouge'])
+                         alpha=0.6, edgecolor='w', facecolor=stdColors['red'])
         ax.add_patch(rect)
         # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
@@ -420,7 +420,7 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
     """
     plot_figure2
     """
-    colors = ['k', stdColors['rouge']]
+    colors = ['k', stdColors['red']]
     alphas = [0.8, 0.8]
     # no individual : focus on initial response
     df = data.loc[-30:35]
@@ -457,9 +457,9 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'])
+    ax.plot(x1, y, '|', color=stdColors['blue'])
+    ax.hlines(y, x1, x0, color=stdColors['blue'])
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popVmNsig
@@ -483,7 +483,7 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
     ax.annotate("n=27", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # NB for spiking response, the control should be plotted last,
-    # ie revert the order
+    # ie regreen the order
     inv_colors = colors[::-1]
     inv_alphas = alphas[::-1]
     # popSpkSig
@@ -505,9 +505,9 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True,
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.plot(x1, y, '|', color=stdColors['bleu'])
-    ax.hlines(y, x1, x0, color=stdColors['bleu'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'])
+    ax.plot(x1, y, '|', color=stdColors['blue'])
+    ax.hlines(y, x1, x0, color=stdColors['blue'])
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popSpkNsig
@@ -580,8 +580,8 @@ def plot_3_signonsig(stdColors, anot=False, substract=False):
               'nonsig': 'individually non significants cells'}
     # samplesize
     cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
-    colors = ['k', stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
+    colors = ['k', stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8]
 
     fig = plt.figure(figsize=(11.6, 6))
@@ -616,8 +616,8 @@ def plot_3_signonsig(stdColors, anot=False, substract=False):
                             handlelength=0)
         for line, text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
-        # bleu point
-        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['bleu'])
+        # blue point
+        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['blue'])
 
     axes[0].set_ylabel('normalized membrane potential')
     for ax in axes:

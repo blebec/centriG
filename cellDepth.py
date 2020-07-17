@@ -20,7 +20,8 @@ def plot_cellDepth():
     relation profondeur / latence
     """
     # cells
-    data50 = ld.load_50vals('vm')
+#    data50 = ld.load_50vals('vm')
+    data50 = ld.load_cell_contributions('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -123,7 +124,7 @@ def plot_cellDepth_all(spread='sect'):
     relation profondeur / latence
     """
     # cells
-    data50 = ld.load_50vals('vm')
+    data50 = ld.load_cell_contributions('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])

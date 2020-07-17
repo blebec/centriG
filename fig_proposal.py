@@ -31,10 +31,10 @@ def plot_2B_bis(stdColors, anot=False):
     cols = df.columns[::2]
     sigs = df.columns[1::2]
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
-    color_dic = {0 :'w', 1 : stdColors['rouge']}
+    color_dic = {0 :'w', 1 : stdColors['red']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[sigs[i]]]
-        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['rouge'],
+        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['red'],
                     color=colors, label=cols[i], alpha=0.8, width=0.8)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
@@ -65,7 +65,7 @@ def plot_2B_bis(stdColors, anot=False):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2B_bis',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure2B_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -131,7 +131,7 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['rouge'], stdColors['vertSombre'], stdColors['vertSombre']]
+    colors = ['k', stdColors['red'], stdColors['dark_green'], stdColors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # substract
     # build a time shifted reference (centerOnly) to perfome the substraction
@@ -210,14 +210,14 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     # response start
     x = 41
     y = df['center_only'].loc[x]
-    ax.plot(x, y, 'o', color=stdColors['bleu'])
-    ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
+    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.vlines(x, -0.5, lims[1], color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     for dloc in hlocs:
         ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     # end
     x = 150.1
-    ax.vlines(x, -0.5, lims[1], color=stdColors['bleu'],
+    ax.vlines(x, -0.5, lims[1], color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     # peak
     x = 63.9
@@ -234,7 +234,7 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6_bis',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure6_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
@@ -263,9 +263,9 @@ def plot_figure7_bis(stdColors):
     #     df.surroundThenCenter = df.surroundThenCenter - ref
     #     df.centerOnly = df.centerOnly - ref
     #colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['rouge'], stdColors['vertSombre'],
-              stdColors['bleuViolet'], stdColors['rouge'],
-              stdColors['bleuViolet']]
+    colors = ['k', stdColors['red'], stdColors['dark_green'],
+              stdColors['blue_violet'], stdColors['red'],
+              stdColors['blue_violet']]
     alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     # plotting
@@ -274,10 +274,10 @@ def plot_figure7_bis(stdColors):
     ax.plot(df.popfillVmscpIsoDlp, ':r', alpha=1, linewidth=2,
             label='sThenCent - cent')
     # surroundOnly
-    ax.plot(df.surroundOnlysdUp, color=stdColors['vertSombre'], alpha=0.7,
+    ax.plot(df.surroundOnlysdUp, color=stdColors['dark_green'], alpha=0.7,
             label='surroundOnly')
     ax.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                    color=stdColors['vertSombre'], alpha=0.2)
+                    color=stdColors['dark_green'], alpha=0.2)
 
     ax.set_ylabel('Normalized membrane potential')
     ax.annotate("n=12", xy=(0.1, 0.8),
@@ -292,15 +292,15 @@ def plot_figure7_bis(stdColors):
     # response start
     x0 = 0
     y = df['centerOnly'].loc[x0]
-    ax.plot(x0, y, 'o', color=stdColors['bleu'])
-    ax.vlines(x0, lims[0], lims[1], color=stdColors['bleu'],
+    ax.plot(x0, y, 'o', color=stdColors['blue'])
+    ax.vlines(x0, lims[0], lims[1], color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     # end
     x2 = 124.6
     y = df['centerOnly'].loc[x2]
     ax.vlines(x2, lims[0], lims[1], color='k',
               linestyle='-', alpha=0.2)
-    # ax.plot(x2, y, 'o', color=stdColors['bleu'])
+    # ax.plot(x2, y, 'o', color=stdColors['blue'])
     # peak
     # df.centerOnly.idxmax()
     x1 = 26.1
@@ -317,7 +317,7 @@ def plot_figure7_bis(stdColors):
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_bis',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure7_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 

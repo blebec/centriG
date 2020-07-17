@@ -26,27 +26,27 @@ plt.rcParams.update({'font.size':12})
 
 #%%
 stdColors = {
-        'rouge' : [x/256 for x in [229, 51, 51]],
-        'vert' : [x/256 for x in [127,	 204, 56]],
-        'bleu' :	[x/256 for x in [0, 125, 218]],
-        'jaune' :	[x/256 for x in [238, 181, 0]],
+        'red' : [x/256 for x in [229, 51, 51]],
+        'green' : [x/256 for x in [127,	 204, 56]],
+        'blue' :	[x/256 for x in [0, 125, 218]],
+        'yellow' :	[x/256 for x in [238, 181, 0]],
         'violet' : [x/256 for x in [255, 0, 255]]
             }
 speedColors ={
-        'orangeFonce' :     [x/256 for x in [252, 98, 48]],
+        'dark_orange' :     [x/256 for x in [252, 98, 48]],
         'orange' : [x/256 for x in [253, 174, 74]],
-        'jaune' : [x/256 for x in [254, 226, 137]]
+        'yellow' : [x/256 for x in [254, 226, 137]]
         }
 
-colors = ['k', stdColors['rouge'], speedColors['orangeFonce'], 
-              speedColors['orange'], speedColors['jaune']]
+colors = ['k', stdColors['red'], speedColors['dark_orange'], 
+              speedColors['orange'], speedColors['yellow']]
 alpha = [0.8, 1, 0.8, 0.8, 1]
 
 #colors = [stdColors['rouge'], speedColors['orangeFonce'], 
 #              speedColors['orange'], speedColors['jaune'], 'k']
 #alpha = [1, 0.8, 0.8, 1, 0.5]
 
-df = pd.read_excel('figOpt.xlsx')
+df = pd.read_excel(os.path.join('data', 'figOpt.xlsx'))
 df.set_index('time', inplace=True)
 
 # to change the order

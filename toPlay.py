@@ -105,7 +105,8 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     return df[col_list]
 
 
-def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
+def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
+                          left_sig=True, right_sig=True):
     """
     plot the sorted cell responses
     input = dataframes, overlap=boolean
@@ -121,10 +122,10 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+    colors = [stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
+    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
+                   stdColors['dark_yellow'], stdColors['dark_blue']]
 
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
@@ -159,7 +160,6 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
         fig.suptitle(title)
     x = range(1, len(df_left) + 1)
     # plot the traces
-    left_sig = True
     if left_sig:
         traces = [item for item in left.columns if '_sig' not in item]
         for i, name in enumerate(traces):
@@ -194,9 +194,8 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
                    alpha=0.8, width=0.8)
             if i == 0:
-                ax.set_title(anoty[i])
+                ax.set_title(anot_left)
     #right
-    right_sig = True
     if right_sig:
         traces = [item for item in right.columns if '_sig' not in item]
         for i, name in enumerate(traces):
@@ -216,7 +215,6 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             if i == 0:
                 ax.set_title(anot_right)
     else:
-        # left
         for i, name in enumerate(df_right.columns):
             ax = right_axes[i]
             # ax.set_title(str(i))
@@ -226,7 +224,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True):
             ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
                    alpha=0.8, width=0.8)
             if i == 0:
-                ax.set_title(anoty[i])
+                ax.set_title(anot_right)
 
     # alternate the y_axis position
     axes = fig.get_axes()
@@ -335,10 +333,10 @@ def select_50(df, spread='sect', param='gain', noSig=True):
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
 
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+    colors = [stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
+    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
+                   stdColors['dark_yellow'], stdColors['dark_blue']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
         spread = 'sect'
@@ -353,6 +351,10 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     # left
     ax = fig.add_subplot(121)
     df = df_left.sort_values(by=df_left.columns[0], ascending=True)
+    #remove sig columns
+    cols = [item for item in df.columns if '_sig' not in item]
+    df = df[cols]
+    #sort
     sorted_cells = df.index.copy()
     df = df.reset_index(drop=True)
     df.index += 1 #'cell name from 0'
@@ -368,6 +370,9 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     df = df_right.reindex(sorted_cells)
     df = df.reset_index(drop=True)
     df.index += 1
+    #remove sig columns
+    cols = [item for item in df.columns if '_sig' not in item]
+    df = df[cols]
     for i, col in enumerate(df.columns):
         ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
     ax.set_yticks([1, len(df)])
@@ -386,10 +391,10 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     return fig
 
 def scatter_lat_gain(df_left, df_right, mes=''):
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+    colors = [stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
+    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
+                   stdColors['dark_yellow'], stdColors['dark_blue']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
         spread = 'sect'
@@ -399,12 +404,17 @@ def scatter_lat_gain(df_left, df_right, mes=''):
     fig = plt.figure(figsize=(8, 8))
     fig.suptitle(title)
     ax = fig.add_subplot(111)
+    # remove sig columns
+    cols = [item for item in df_left.columns if '_sig' not in item]
+    df_left = df_left[cols]
+    cols = [item for item in df_right.columns if '_sig' not in item]
+    df_right = df_right[cols]
     for i in range(len(df_left.columns)):
         color_list = []
         for j in range(len(df_left)):
             color_list.append(colors[i])
         ax.scatter(left[df_left.columns[i]], df_right[right.columns[i]],
-                   c=color_list,
+                   c=color_list, s=100,
                    edgecolors=dark_colors[i], alpha=0.6)
     ax.set_xlabel('time')
     ax.set_ylabel('gain')
@@ -424,10 +434,10 @@ def histo_lat_gain(df_left, df_right, mes=''):
     """
     histogramme des données
     """
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
-    dark_colors = [stdColors['dark_rouge'], stdColors['dark_vert'],
-                   stdColors['dark_jaune'], stdColors['dark_bleu']]
+    colors = [stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
+    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
+                   stdColors['dark_yellow'], stdColors['dark_blue']]
 
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
@@ -442,6 +452,11 @@ def histo_lat_gain(df_left, df_right, mes=''):
     # plot
     fig = plt.figure(figsize=(8, 8))
     gs = fig.add_gridspec(4, 2)
+    # remove sig columns
+    cols = [item for item in df_left.columns if '_sig' not in item]
+    df_left = df_left[cols]
+    cols = [item for item in df_right.columns if '_sig' not in item]
+    df_right = df_right[cols]
     # left
     left_axes = []
     ax = fig.add_subplot(gs[0, 0])
@@ -656,8 +671,8 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         print('non valid loc argument')
         return
 
-    colors = [stdColors['rouge'], stdColors['vert'],
-              stdColors['jaune'], stdColors['bleu']]
+    colors = [stdColors['red'], stdColors['green'],
+              stdColors['yellow'], stdColors['blue']]
     fig = plt.figure(figsize=(8, 8))
     title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
     fig.suptitle(title)
@@ -820,13 +835,14 @@ plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
     data50 = ldat.load_cell_contributions(mes)
-    advance_df = select_50(data50, spread=spread, param='time')
+    advance_df = select_50(data50, spread=spread, param='time', noSig=False)
     left = advance_df
 
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True, 
+                                left_sig=True, right_sig=False)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
@@ -834,14 +850,15 @@ for spread in ['sect', 'full']:
 #%% spk
 for spread in ['sect', 'full']:
     mes = 'spk'
-    data50 = ldat.load_50vals(mes)
-    advance_df = select_50(data50, spread=spread, param='time')
+    data50 = ldat.load_cell_contributions(mes)
+    advance_df = select_50(data50, spread=spread, param='time', noSig=False)
     left = advance_df
 
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
+                                left_sig=True, right_sig=False)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
