@@ -5,17 +5,17 @@ Created on Tue Jun 30 13:19:26 2020
 
 @author: cdesbois
 """
+from datetime import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
-from datetime import datetime
 
 import config
 import plot_general_functions as gfuc
 import load_data as ldat
-    
-anot=True
+
+anot = True
 
 
 def plot_2B_bis(stdColors, anot=False):
@@ -26,7 +26,7 @@ def plot_2B_bis(stdColors, anot=False):
     df = ldat.load_cell_contributions('vm')
 #    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
     alist = [item for item in df.columns if 'cpisosect' in item]
-    
+
     df = df[alist].sort_values(by=alist[0], ascending=False)
     cols = df.columns[::2]
     sigs = df.columns[1::2]
@@ -72,32 +72,32 @@ def plot_2B_bis(stdColors, anot=False):
 
 
 
-#%% 
+#%%
 
 def align_center(adf, showPlot=False):
     """
-    align the traces on the center response to build figure 6    
+    align the traces on the center response to build figure 6
     """
     df = adf.copy()
-    ref = df['center_only'].copy()        
-    cp = df.surround_then_center.copy()  
+    ref = df['center_only'].copy()
+    cp = df.surround_then_center.copy()
     ref50_y = (ref.loc[30:80].max() - ref.loc[30:80].min()) / 2
     ref50_x = (ref.loc[30:80] - ref50_y).abs().sort_values().index[0]
     cp50_y = ref50_y
-    cp50_x = ((cp.loc[30:70] - cp50_y)).abs().sort_values().index[0]    
+    cp50_x = ((cp.loc[30:70] - cp50_y)).abs().sort_values().index[0]
     adv = cp50_x - ref50_x
     print('adv=', adv)
     ref_corr = ref.shift(int(10*adv))
     if showPlot:
-        fig =  plt.figure()
+        fig = plt.figure()
         ax = fig.add_subplot(111)
-        ax.plot(ref, '-k', alpha = 0.5, label='ref')
-        ax.plot(cp, '-r', alpha = 0.6, label='cp')
+        ax.plot(ref, '-k', alpha=0.5, label='ref')
+        ax.plot(cp, '-r', alpha=0.6, label='cp')
         ax.set_xlim(0, 100)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.2)   
+        ax.vlines(0, lims[0], lims[1], alpha=0.2)
         limx = ax.get_xlim()
         limy = ax.get_ylim()
         ax.hlines(ref50_y, limx[0], limx[1], alpha=0.3)
@@ -112,7 +112,7 @@ def align_center(adf, showPlot=False):
         fig.tight_layout()
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-    return ref_corr    
+    return ref_corr
 
 
 def plot_figure6_bis(stdColors, linear=True, substract=False):
@@ -326,9 +326,8 @@ def plot_figure7_bis(stdColors):
 
 if __name__ == "__main__":
     anot = True
-    stdColors = config.std_colors()
-    plot_2B_bis(stdColors, anot=anot)
-    plot_figure6_bis(stdColors, linear=True, substract=False)
-    plot_figure6_bis(stdColors, linear=True, substract=True)
-    plot_figure7_bis(stdColors)
-    
+    std_colors = config.std_colors()
+    plot_2B_bis(std_colors, anot=anot)
+    plot_figure6_bis(std_colors, linear=True, substract=False)
+    plot_figure6_bis(std_colors, linear=True, substract=True)
+    plot_figure7_bis(std_colors)

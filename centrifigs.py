@@ -4,21 +4,16 @@
 plot centrigabor figures from data stored in .xlsx files
 """
 
-#import platform
 import os
-#import getpass
-#import inspect
+from importlib import reload
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 # import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
-# from matplotlib.ticker import MaxNLocator
 import matplotlib.patches as patches
 from matplotlib import markers
-#from matplotlib.ticker import StrMethodFormatter
 from datetime import datetime
-from importlib import reload
 
 import config
 import plot_general_functions as gfuc
@@ -34,8 +29,8 @@ pd.options.display.max_columns = 30
 # NB fig size : 8.5, 11.6 or 17.6 cm
 
 anot = True           # to draw the date and name on the bottom of the plot
-stdColors = config.std_colors()
-speedColors= config.speed_colors()
+std_colors = config.std_colors()
+speedColors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths['pg'])
@@ -52,7 +47,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     """
     figure2 (individual + pop + sig)
     """
-    colors = ['k', stdColors['red']]
+    colors = ['k', std_colors['red']]
     alphas = [0.8, 0.8]
     inv_colors = colors[::-1]
     inv_alphas = alphas[::-1]
@@ -76,9 +71,9 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.plot(x, y, 'o', color=std_colors['blue'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'],
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -91,9 +86,9 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     # start point
     x = 39.8
     y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.plot(x, y, 'o', color=std_colors['blue'])
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'],
+    ax.vlines(x, lims[0], lims[1], linewidth=1, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -131,9 +126,9 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'], linestyle=':')
+    ax.plot(x0, y, 'o', color=std_colors['blue'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'])
+    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':')
 
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -166,9 +161,9 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'], linestyle=':')
+    ax.plot(x0, y, 'o', color=std_colors['blue'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'])
+    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':')
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -216,7 +211,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
         ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
         # stim
         rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor=stdColors['red'])
+                         alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
         ax.add_patch(rect)
     # center
     rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
@@ -277,11 +272,11 @@ fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 # =============================================================================
 ## other views
 # #plot all
-# fig = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
+# fig = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
 # #plot ind + pop
-# fig = ofig.plot_2_indMoy(fig2_df, fig2_cols, stdColors, anot)
+# fig = ofig.plot_2_indMoy(fig2_df, fig2_cols, std_colors, anot)
 # #sig Nsig
-# fig = ofig.plot_2_sigNsig(fig2_df, fig2_cols, stdColors, anot=anot)
+# fig = ofig.plot_2_sigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
 # =============================================================================
 
 #%% NB the length of the sorted data are not the same compared to the other traces
@@ -290,7 +285,7 @@ fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 plt.close('all')
 
-def plot_figure2B(stdColors, sig=True, anot=anot):
+def plot_figure2B(std_colors, sig=True, anot=anot):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
@@ -300,17 +295,17 @@ def plot_figure2B(stdColors, sig=True, anot=anot):
     cols = df.columns[:2]
     signs = df.columns[2:]
     df.index += 1 # cells = 1 to 37
-    color_dic = {0 :'w', 1 : stdColors['red']}
+    color_dic = {0 :'w', 1 : std_colors['red']}
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
         if sig:
-            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['red'],
+            axes[i].bar(df.index, df[cols[i]], edgecolor=std_colors['red'],
                         color=colors, label=cols[i], alpha=0.8, width=0.8)
         else:
-            axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['red'],
-                        color=stdColors['red'], label=cols[i],
+            axes[i].bar(df.index, df[cols[i]], edgecolor=std_colors['red'],
+                        color=std_colors['red'], label=cols[i],
                         alpha=0.8, width=0.8)
         # zero line
         lims = ax.get_xlim()
@@ -372,15 +367,15 @@ def sort_stat():
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-plot_figure2B(stdColors, 'horizontal', anot=anot)
+plot_figure2B(std_colors, 'horizontal', anot=anot)
 sort_stat()
-fig = figp.plot_2B_bis(stdColors, anot=anot)
+fig = figp.plot_2B_bis(std_colors, anot=anot)
 
 #%%
 plt.close('all')
 
 
-def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
+def plot_figure3(std_colors, kind='sig', substract=False, anot=anot):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -403,8 +398,8 @@ def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
     df.index = df.index/10
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
     df.columns = cols
-    colors = ['k', stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
+    colors = ['k', std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8]
     if substract:
         # subtract the centerOnly response
@@ -466,17 +461,17 @@ def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figure3(stdColors, 'pop')
-fig = plot_figure3(stdColors, 'sig')
+fig = plot_figure3(std_colors, 'pop')
+fig = plot_figure3(std_colors, 'sig')
 #fig = plot_figure3('nonsig')
-fig = plot_figure3(stdColors, 'sig', substract=True)
-fig2 = plot_figure3(stdColors, 'pop', substract=True)
+fig = plot_figure3(std_colors, 'sig', substract=True)
+fig2 = plot_figure3(std_colors, 'pop', substract=True)
 
 #pop all cells
 #%% grouped sig and non sig
 plt.close('all')
-fig = ofig.plot_3_signonsig(stdColors, anot=anot)
-fig2 = ofig.plot_3_signonsig(stdColors, substract=True, anot=anot)
+fig = ofig.plot_3_signonsig(std_colors, anot=anot)
+fig2 = ofig.plot_3_signonsig(std_colors, substract=True, anot=anot)
 #%%
 plt.close('all')
 
@@ -491,7 +486,7 @@ def plot_figure4(substract=False):
     df.index = df.index/10
     cols = ['centerOnly', '100%', '70%', '50%', '30%']
     df.columns = cols
-    colors = ['k', stdColors['red'], speedColors['dark_orange'],
+    colors = ['k', std_colors['red'], speedColors['dark_orange'],
               speedColors['orange'], speedColors['yellow']]
     alphas = [0.8, 1, 0.8, 0.8, 1]
     if substract:
@@ -532,7 +527,7 @@ def plot_figure4(substract=False):
     ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
                 xycoords="axes fraction", ha='center')
     # bluePoint
-    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=stdColors['blue'])
+    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=std_colors['blue'])
     if substract:
         ax.set_ylim(-0.05, 0.4)
         custom_ticks = np.linspace(0, 0.3, 4)
@@ -579,8 +574,8 @@ def plot_fig5():
     cols = ['scp-Iso-Stc-HighSpeed', 'scp-Cross-Stc-HighSpeed']#,
            # 'scp-Cross-Stc-LowSpeed', 'scp-Iso-Stc-LowSpeed']
     df.columns = cols
-    colors = [stdColors['red'], stdColors['yellow']]
-    darkcolors = [stdColors['dark_red'], stdColors['dark_yellow']]
+    colors = [std_colors['red'], std_colors['yellow']]
+    darkcolors = [std_colors['dark_red'], std_colors['dark_yellow']]
     alphas = [0.7, 0.7]
 
     fig = plt.figure(figsize=(4, 7))
@@ -649,7 +644,7 @@ fig = plot_fig5()
 
 plt.close('all')
 
-def plot_figure6(stdColors):
+def plot_figure6(std_colors):
     """
     plot_figure6
     """
@@ -666,7 +661,7 @@ def plot_figure6(stdColors):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['red'], stdColors['dark_green'], stdColors['dark_green']]
+    colors = ['k', std_colors['red'], std_colors['dark_green'], std_colors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # plotting
     fig = plt.figure(figsize=(8.5, 8))
@@ -761,8 +756,8 @@ def plot_figure6(stdColors):
         # response start
         x = 41
         y = df['Center-Only'].loc[x]
-        ax.plot(x, y, 'o', color=stdColors['blue'])
-        ax.vlines(x, -0.5, lims[1], color=stdColors['blue'],
+        ax.plot(x, y, 'o', color=std_colors['blue'])
+        ax.vlines(x, -0.5, lims[1], color=std_colors['blue'],
                   linestyle=':', alpha=0.8)
         for dloc in hlocs:
             ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
@@ -780,21 +775,21 @@ def plot_figure6(stdColors):
 
     return fig
 
-fig = plot_figure6(stdColors)
+fig = plot_figure6(std_colors)
 
 #%%
 plt.close('all')
 
-fig = figp.plot_figure6_bis(stdColors)
+fig = figp.plot_figure6_bis(std_colors)
 # fig = plot_figure6_bis(substract=True)
-fig = figp.plot_figure6_bis(stdColors, linear=False, substract=True)
+fig = figp.plot_figure6_bis(std_colors, linear=False, substract=True)
 
 
 #%%
 plt.close('all')
 
 
-def plot_figure7(stdColors):
+def plot_figure7(std_colors):
     """
     plot_figure7
     """
@@ -812,9 +807,9 @@ def plot_figure7(stdColors):
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['red'], stdColors['dark_green'],
-              stdColors['blue_violet'], stdColors['blue_violet'],
-              stdColors['blue_violet']]
+    colors = ['k', std_colors['red'], std_colors['dark_green'],
+              std_colors['blue_violet'], std_colors['blue_violet'],
+              std_colors['blue_violet']]
     alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     fig = plt.figure(figsize=(11.6, 5))
@@ -829,8 +824,8 @@ def plot_figure7(stdColors):
                      label=col)
     x = 0
     y = df.centerOnly.loc[0]
-    ax1.plot(x, y, 'o', color=stdColors['blue'])
-    # ax1.hlines(y, -150, 10, colors=stdColors['blue'], alpha=0.5)
+    ax1.plot(x, y, 'o', color=std_colors['blue'])
+    # ax1.hlines(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -877,8 +872,8 @@ def plot_figure7(stdColors):
 
     return fig
 
-fig = plot_figure7(stdColors)
-fig2 = figp.plot_figure7_bis(stdColors)
+fig = plot_figure7(std_colors)
+fig2 = figp.plot_figure7_bis(std_colors)
 
 
 #%% fig 9
@@ -888,7 +883,7 @@ def plot_figure9CD(data, colsdict):
     """
     plot_figure9CD
     """
-    colors = ['k', stdColors['red']]
+    colors = ['k', std_colors['red']]
     alphas = [0.8, 0.8]
     # no individual : focus on initial response
     df = data.loc[-30:35]
@@ -911,9 +906,9 @@ def plot_figure9CD(data, colsdict):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    # ax.plot(x0, y, 'o', color=stdColors['blue'])
-    # ax.plot(x1, y, '|', color=stdColors['blue'])
-    # ax.hlines(y, x1, x0, color=stdColors['blue'])
+    # ax.plot(x0, y, 'o', color=std_colors['blue'])
+    # ax.plot(x1, y, '|', color=std_colors['blue'])
+    # ax.hlines(y, x1, x0, color=std_colors['blue'])
     # ax.annotate("n=10", xy=(0.2, 0.8),
     #               xycoords="axes fraction", ha='center')
     ylabel = 'Normalized membrane potential'
@@ -941,7 +936,7 @@ def plot_figure9CD(data, colsdict):
 
     bins = np.arange(-5, 36, 5) - 2.5
     ax1.hist([sig, nsig], bins=bins, stacked=True,
-             color=[stdColors['red'], 'None'], edgecolor='k', linewidth=1)
+             color=[std_colors['red'], 'None'], edgecolor='k', linewidth=1)
     ax1.set_xlim(-10, 35)
     # adjust nb of ticks
     lims = ax1.get_ylim()
@@ -993,11 +988,11 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
             t.label2.set_visible(True)
 
     # parameter
-    colors = [stdColors['red'], stdColors['red'],
-              stdColors['green'], stdColors['green'],
-              stdColors['yellow'], stdColors['yellow'],
-              stdColors['blue'], stdColors['blue'],
-              stdColors['blue'], stdColors['blue']]
+    colors = [std_colors['red'], std_colors['red'],
+              std_colors['green'], std_colors['green'],
+              std_colors['yellow'], std_colors['yellow'],
+              std_colors['blue'], std_colors['blue'],
+              std_colors['blue'], std_colors['blue']]
     # data (call)
     df = ldat.load_cell_contributions('vm')
     # extract list of traces : sector vs full
@@ -1031,17 +1026,17 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     for i, name in enumerate(traces):
         sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
-        edgeColor = colors[i]
-        color_dic = {0 : 'w', 1 : edgeColor}
+        edge_color = colors[i]
+        color_dic = {0 : 'w', 1 : edge_color}
         if sort_all:
             select = df[[name, sig_name]].sort_values(by=[name, sig_name],
                                                       ascending=False)
         else:
             select = df[[name, sig_name]]
-        barColors = [color_dic[x] for x in select[sig_name]]
+        bar_colors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
         # ax.set_title(str(i))
-        ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
+        ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
                alpha=0.8, width=0.8)
         if i in [0, 1]:
             ax.set_title(anoty[i])
@@ -1142,8 +1137,8 @@ def plot_figSup2B(kind='pop'):
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS',
             'RND-ISO SECTOR', 'RND-ISO-FULL']
     df.columns = cols
-    colors = ['k', stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue'], stdColors['blue']]
+    colors = ['k', std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue'], std_colors['blue']]
     # alphas = [0.5, 0.8, 0.5, 1, 0.6]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
@@ -1176,7 +1171,7 @@ def plot_figSup2B(kind='pop'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # blue point
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=stdColors['blue'])
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=std_colors['blue'])
 
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -1258,12 +1253,12 @@ def plot_figSup4(kind, overlap=True):
             'RND_Iso_Stc_SeDw_Full', 'RND_Iso_Stc_Dlp_Full']
     df.columns = cols
     # colors
-    light_colors = [stdColors['red'], stdColors['green'],
-                    stdColors['yellow'], stdColors['blue'],
-                    stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue'],
-                   stdColors['dark_blue'], stdColors['dark_blue']]
+    light_colors = [std_colors['red'], std_colors['green'],
+                    std_colors['yellow'], std_colors['blue'],
+                    std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue'],
+                   std_colors['dark_blue'], std_colors['dark_blue']]
     alphas = [0.7, 0.2] # front, fillbetween
     # traces -> lists of 4 columns ie each condition (val, up, down, sum)
     col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
@@ -1365,8 +1360,8 @@ def plot_figSup3B(kind, stimmode):
     cols = ['CENTER-ONLY-SEC', 'CP-ISO-SEC', 'CF-ISO-SEC', 'CP-CROSS-SEC', 'RND-ISO-SEC',
             'CENTER-ONLY-FULL', 'CP-ISO-FULL', 'CF-ISO-FULL', 'CP-CROSS-FULL', 'RND-ISO-FULL']
     df.columns = cols
-    colors = ['k', stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
+    colors = ['k', std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
     #alphas = [0.5, 0.8, 0.5, 1, 0.6]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(6.5, 5.5))
@@ -1451,8 +1446,8 @@ def plot_figSup6(kind):
     df.index = df.index/10
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
     df.columns = cols
-    colors = ['k', stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
+    colors = ['k', std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
 
     fig = plt.figure(figsize=(6, 10))
@@ -1565,10 +1560,10 @@ def autolabel(ax, rects):
 
 def plot_cell_contribution(df, kind=''):
     "sup 2A"
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue']]
     fig = plt.figure(figsize=(8, 8))
     # if anot:
     #     fig.suptitle('vm')
@@ -1631,9 +1626,7 @@ def plot_cell_contribution(df, kind=''):
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
 
-    fig.text(0.5, 1.01, kind,
-                 ha='center', va='top',
-                 fontsize=18)
+    fig.text(0.5, 1.01, kind, ha='center', va='top', fontsize=18)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2A',
@@ -1660,10 +1653,10 @@ def plot_sorted_responses(dico):
 
     """
     # parameter
-    colors = [stdColors['red'], stdColors['red'],
-              stdColors['green'], stdColors['green'],
-              stdColors['yellow'], stdColors['yellow'],
-              stdColors['blue'], stdColors['blue']]
+    colors = [std_colors['red'], std_colors['red'],
+              std_colors['green'], std_colors['green'],
+              std_colors['yellow'], std_colors['yellow'],
+              std_colors['blue'], std_colors['blue']]
     # data (call)
     df = ldat.load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
@@ -1686,14 +1679,14 @@ def plot_sorted_responses(dico):
     for i, name in enumerate(traces):
         sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
-        edgeColor = colors[i]
-        color_dic = {0 : 'w', 1 : edgeColor}
+        edge_color = colors[i]
+        color_dic = {0 : 'w', 1 : edge_color}
         select = df[[name, sig_name]].sort_values(by=[name, sig_name],
                                                   ascending=False)
-        barColors = [color_dic[x] for x in select[sig_name]]
+        bar_colors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
         ax.set_title(name)
-        ax.bar(x, select[name], color=barColors, edgecolor=edgeColor,
+        ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
                alpha=0.8, width=0.8)
         if i in [0, 1]:
             ax.set_title(anoty[i])
@@ -1755,7 +1748,7 @@ for kind in ['vm', 'spk']:
         fig = plot_sorted_responses(parameter_dico)
 
 #%% opt
-colors = ['k', stdColors['red'], speedColors['dark_orange'],
+colors = ['k', std_colors['red'], speedColors['dark_orange'],
           speedColors['orange'], speedColors['yellow']]
 alphas = [0.8, 1, 0.8, 0.8, 1]
 
@@ -1838,7 +1831,7 @@ fig = plot_speed_multigraph()
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
 def plotSpeeddiff():
-    colors = ['k', stdColors['red'], speedColors['dark_orange'],
+    colors = ['k', std_colors['red'], speedColors['dark_orange'],
               speedColors['orange'], speedColors['yellow']]
     alphas = [0.5, 1, 0.8, 0.8, 1]
 

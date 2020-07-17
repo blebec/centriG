@@ -5,9 +5,9 @@ Created on Mon Jun 29 10:10:52 2020
 
 @author: cdesbois
 """
-import platform
+#import platform
 import os
-import getpass
+#import getpass
 import pandas as pd
 import numpy as np
 
@@ -85,7 +85,7 @@ def load_cell_contributions(kind='vm'):
         filename = 'data/figSup34Vm.xlsx'
     elif kind == 'spk':
         filename = 'data/figSup34Spk.xlsx'
-# TODO ajouter les fichiers engery excel
+# TODO ajouter les fichiers energy excel
     else:
         print('kind should be vm or spk')
     df = pd.read_excel(filename)
@@ -112,21 +112,21 @@ def load_energy_gain_index(paths, sig=True):
     """
     def load_energy_cell(cell_name='1424M_CXG16.txt'):
         """
-        to iterate and load sucessively all the cells        
+        to iterate and load sucessively all the cells
         """
 
-        cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect', 
+        cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect',
                 'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
-        
+
         cols = [item + '_energy' for item in cols]
-        folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
+        folder = os.path.join(paths['owncFig'], 'index', 'vm', 'energyt0baseline')
         filename = os.path.join(folder, cell_name)
         df = pd.read_csv(filename, sep='\t', names=cols)
         return df
-    
+
     # neurons & values
     df = pd.DataFrame()
-    folder = os.path.join(paths['owncFig'], 'index', 'energyt0baseline')
+    folder = os.path.join(paths['owncFig'], 'index', 'vm', 'energyt0baseline')
     for name in os.listdir(folder):
         if os.path.isfile(os.path.join(folder, name)):
             energy_df = load_energy_cell(name)
@@ -134,15 +134,15 @@ def load_energy_gain_index(paths, sig=True):
             df[os.path.splitext(name)[0]] = energy_df.median()
 
             df[os.path.splitext(name)[0]] = energy_df.mean()
-            
+
     # pvalues one col by condition, one line per cell
     df = df.T
-    folder = os.path.join(paths['owncFig'], 'index', 'pvalue')
+    folder = os.path.join(paths['owncFig'], 'index', 'vm', 'stats', 'pvaluesup')
     for name in os.listdir(folder):
         filename = os.path.join(folder, name)
         if os.path.isfile(filename):
             cond = os.path.basename(filename).split('.')[0]
-            cond = cond.split('indisig')[0] + '_' + cond.split('indisig')[1] 
+            cond = cond.split('indisig')[0] + '_' + cond.split('indisig')[1]
             with open(filename, 'r') as fh:
                 for line in fh:
                     if '[' in line:
@@ -153,7 +153,7 @@ def load_energy_gain_index(paths, sig=True):
             #rename
             cond = cond.replace('rnd', 'rd')
             cond = cond.replace('sec', 'sect')
-            cond = cond.replace('cross', 'crx')            
+            cond = cond.replace('cross', 'crx')
             #assign
             df[cond + '_p'] = pvals
     if sig:

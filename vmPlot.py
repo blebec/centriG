@@ -1,6 +1,7 @@
 
 
 
+from datetime import datetime
 import sys
 import platform
 import os
@@ -9,15 +10,14 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from more_itertools import sort_together
-from datetime import datetime
 
- 
+
 # =============================================================================
 # osname1 = sys.platform
 # osname = osname1
 # osname2 = platform.system()
 # username = getpass.getuser()
-# 
+#
 # =============================================================================
 ##//osname = platform.system()
 ##//username = getpass.getuser()
@@ -33,12 +33,12 @@ def config():
     username = getpass.getuser()
     osname1 = sys.platform
     osname2 = platform.system()
-    if (osname1 == 'Windows') or (osname2 =='Windows') and username == 'Benoît':
+    if (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
         os.chdir(r'D:\\travail\sourcecode\developing\paper\centriG')
         paths['cgFig'] = 'D:\\owncloud\cgFiguresSrc'
         paths['save'] = 'D:\\owncloud\cgFiguresSrc'
         paths['traces'] = 'D:\\owncloud\\cgFiguresSrc\\averageTraces\\'
-    elif (osname1 == 'linux') or (osname2 =='Linux') and username == 'benoit':
+    elif (osname1 == 'linux') or (osname2 == 'Linux') and username == 'benoit':
         os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
         paths['cgFig'] = '/media/benoit/data/owncloud/cgFiguresSrc'
         paths['save'] = '/media/benoit/data/owncloud/cgFiguresSrc'
@@ -62,8 +62,8 @@ speed_info_df = pd.read_excel(
 # elif (osname1 == 'Linux') or (osname2 == 'Linux') and username == 'benoit':
 #     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
 # elif (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
-#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')    
-# 
+#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
+#
 # =============================================================================
 #print(paths['traces'])
 #print(osname1)
@@ -73,20 +73,20 @@ speed_info_df = pd.read_excel(
 #print(username)
 #print('')
 #print(paths.keys())
-# ref = df['CENTER-ONLY'] 
+# ref = df['CENTER-ONLY']
 # df = df.subtract(ref, axis=0) #on average traces already normalized
 
 #%% to be checked:
 vm_sig_cells = ['1427A_CXG4',
-             '1429D_CXG8',
-             '1509E_CXG4',
-             '1512F_CXG6',
-             '1516F_CXG2',
-             '1516G_CXG2',
-             '1516M_CXG2',
-             '1527B_CXG2',
-             '1622H_CXG3',
-             '1638D_CXG5']
+                '1429D_CXG8',
+                '1509E_CXG4',
+                '1512F_CXG6',
+                '1516F_CXG2',
+                '1516G_CXG2',
+                '1516M_CXG2',
+                '1527B_CXG2',
+                '1622H_CXG3',
+                '1638D_CXG5']
 
 #%%
 plt.close('all')
@@ -97,7 +97,7 @@ def load_all_traces(info_df, folder='vm_all'):
     # remove dir
     for stim in stims:
         if not os.path.isfile(os.path.join(paths['traces'], folder, stim)):
-             stims.remove(stim)
+            stims.remove(stim)
     dico = {}
     for stim in stims:
         filename = os.path.join(paths['traces'], folder, stim)
@@ -133,9 +133,9 @@ def align_traces(vm_dico, info_df):
         df = vm_dico[cond].copy()
         for cell in ser.index:
             df[cell] = df[cell].shift(-int(ser[cell]*10))
-        out_dico[cond]= df
+        out_dico[cond] = df
     return out_dico
-        
+
 def plot_res(vm_dico, norm_dico):
     cells = ['1424M_CXG16', '1638D_CXG5']
     cond = 'cpisosec.txt'
@@ -148,7 +148,7 @@ def plot_res(vm_dico, norm_dico):
         axT.plot(norm_dico[cond][cell], 'k:', label=cell)
     ax.legend()
     axT.legend()
-        
+
 
 vm_dico = load_all_traces(vm_info_df, 'vm_all')
 vm_dico = normalize(vm_dico)
@@ -168,7 +168,7 @@ plt.close('all')
 def testPlot(dico, sig_cells):
     cond = 'cpisosec.txt'
     data_cond = dico[cond][sig_cells]
-    ref = 'ctronly.txt' 
+    ref = 'ctronly.txt'
     data_ref = dico[ref][sig_cells]
 
     fig, axes = plt.subplots(ncols=2, nrows=5, sharex=True)
@@ -194,30 +194,30 @@ def testPlot(dico, sig_cells):
     middle = data_ref.mean(axis=1)
     errs = data_ref.std(axis=1)
     ax.plot(middle, 'k-', alpha=0.6, label=cond)
-    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs), 
+    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs),
                     color='k', alpha=0.2)
-    # med & mad    
+    # med & mad
     ax = axes[3]
     ax.set_title('med & mad')
     middle = data_cond.median(axis=1)
     errs = data_cond.mad(axis=1)
     ax.plot(middle, 'r-', alpha=0.6, label=cond)
-    ax.fill_between(x=data_cond.index, y1=(middle - errs), y2=(middle + errs), 
+    ax.fill_between(x=data_cond.index, y1=(middle - errs), y2=(middle + errs),
                     color='r', alpha=0.3)
     middle = data_ref.median(axis=1)
     errs = data_ref.mad(axis=1)
     ax.plot(middle, 'k-', alpha=0.6, label=cond)
-    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs), 
+    ax.fill_between(x=data_ref.index, y1=(middle - errs), y2=(middle + errs),
                     color='k', alpha=0.2)
     # difference
     ax = axes[4]
     ax.set_title('difference')
     diff = data_cond.mean(axis=1) - data_ref.mean(axis=1)
-    ax.plot(diff, '-g', 
-            linewidth=2, alpha=0.8, label = 'diff')
+    ax.plot(diff, '-g',
+            linewidth=2, alpha=0.8, label='diff')
     x = diff.index.values
-    ax.fill_between(x=x, y1=diff,color='g', alpha=0.3)
-    
+    ax.fill_between(x=x, y1=diff, color='g', alpha=0.3)
+
     #derive
     ax = axes[5]
     ax.plot(diff.diff())
@@ -227,9 +227,9 @@ def testPlot(dico, sig_cells):
     ax.set_title('cum sum')
     ax.plot(np.cumsum(diff), label='cumsum')
     ax.plot(np.cumsum(diff -diff.mean()), label='-mean & cumsum')
-    # 
+    #
     ax = axes[7]
- 
+
 
     for i, ax in enumerate(fig.get_axes()):
         ax.set_xlim(-200, 200)
@@ -241,9 +241,9 @@ def testPlot(dico, sig_cells):
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
-        
+
     fig.tight_layout()
-    
+
 testPlot(vm_dico, vm_sig_cells)
 #%% no center
 
@@ -254,7 +254,7 @@ def extract_cell_significativity():
     for cond in sigcell_df.columns[1:]:
         alist = sigcell_df.loc[sigcell_df[cond] > 0, 'Neuron'].to_list()
         dico[cond] = alist
-    return dico 
+    return dico
 
 all_cells = vm_dico['ctronly.txt'].columns.to_list()
 sigcell_dico = extract_cell_significativity()
@@ -263,9 +263,9 @@ no_center_list = [item for item in vm_dico.keys() if 'cp' in item and 'woct' in 
 center_only = ['ctronly.txt']
 
 column_list_fig6 = ['Center_Only', 'Surround_then_Center', 'Surround_Only',
-       'Static_linear_prediction']
+                    'Static_linear_prediction']
 column_list = ['center_only', 'surround_then_center', 'surround_only',
-       'static_linear_prediction']
+               'static_linear_prediction']
 
 #%%
 def extract_cell_data(cell, cond='rndisofull'):
@@ -277,22 +277,22 @@ def extract_cell_data(cell, cond='rndisofull'):
 
 def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
     """
-    
+
     """
-    stdColors = {'rouge' : [x/256 for x in [229, 51, 51]],
-             'vert' : [x/256 for x in [127, 204, 56]],
-             'bleu' :	[x/256 for x in [0, 125, 218]],
-             'jaune' :	[x/256 for x in [238, 181, 0]]}
-    
+    std_colors = {'red' : [x/256 for x in [229, 51, 51]],
+                  'green' : [x/256 for x in [127, 204, 56]],
+                  'blue' :	[x/256 for x in [0, 125, 218]],
+                  'yellow' :	[x/256 for x in [238, 181, 0]]}
+
     if 'cpiso' in cond:
-        color = stdColors['rouge']
+        color = std_colors['red']
     elif 'cfiso'in cond:
-        color = stdColors['vert']
+        color = std_colors['green']
     elif 'cross' in cond:
-        color = stdColors['jaune']
+        color = std_colors['yellow']
     else:
-        color = stdColors['bleu']
-    
+        color = std_colors['blue']
+
     if len(cell_list) > 12:
         nrows = 6
         ncols = 7
@@ -302,32 +302,32 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
         ncols = 4
         # fig, axes = plt.subplots(nrows=3 , ncols=4, sharex=True, sharey=True,
         #                          figsize=(16, 9))
-    fig, axes = plt.subplots(nrows=nrows , ncols=ncols, 
+    fig, axes = plt.subplots(nrows=nrows, ncols=ncols,
                              sharex=True, sharey=True, figsize=(16, 9))
     axes = axes.T.flatten()
     title = 'no center & diff (' + cond + ')'
     fig.suptitle(title)
-    for i, df in enumerate(df_list): 
+    for i, df in enumerate(df_list):
         ax = axes[i]
         ax.set_title(cell_list[i].split('_')[0])
         if traces:
-            ax.plot(df.center_only, '-k', alpha = 0.5, label='ref')
+            ax.plot(df.center_only, '-k', alpha=0.5, label='ref')
             ax.plot(df.surround_then_center, '-', color=color,
-                    alpha = 0.8, label='cp')
+                    alpha=0.8, label='cp')
         ax.plot(df.surround_only, '-g', alpha=0.6, label='no_cent')
         diff = df.surround_then_center - df.center_only
         addition = False
         if addition:
             add = df.surround_then_center + df.center_only
-            ax.plot(add, ':g', alpha = 0.8, linewidth=2, label='add')
-            ax.plot(df.surround_then_center, '-r', alpha = 0.6, label='cp')
-        
+            ax.plot(add, ':g', alpha=0.8, linewidth=2, label='add')
+            ax.plot(df.surround_then_center, '-r', alpha=0.6, label='cp')
+
         ax.plot(diff, ':', color=color, linewidth=2, alpha=1, label='diff')
         ax.set_xlim(-50, 200)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.4)
         lims = ax.get_ylim()
-        ax.vlines(0, 0, lims[1], alpha=0.4)   
+        ax.vlines(0, 0, lims[1], alpha=0.4)
         limx = ax.get_xlim()
         limy = ax.get_ylim()
         ax.fill_between(df.index, df.surround_only, color='g', alpha=0.3)
@@ -345,7 +345,7 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
             ax.set_ylim(-0.3, 0.9)
             custom_ticks = np.linspace(0, 0.5, 2)
             ax.set_yticks(custom_ticks)
-            
+
         # ax.legend()
         if i > nrows - 1:
             ax.spines['left'].set_visible(False)
@@ -357,7 +357,7 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
-    
+
 
 plt.close('all')
 
@@ -377,7 +377,7 @@ def extract_data(cells, cond='cpisosec', sort_by='lag'):
         amps.append(df.loc[0:120, ['surround_only']].max()[0])
     if sort_by == 'amp':
         # sort by amp
-        s_amps, s_lags, s_cells, s_dfs = sort_together([amps, lags, cells, dfs], 
+        s_amps, s_lags, s_cells, s_dfs = sort_together([amps, lags, cells, dfs],
                                                        reverse=True)
     else:
         # sort by lag
@@ -389,7 +389,7 @@ def extract_data(cells, cond='cpisosec', sort_by='lag'):
 # lags = []
 # amps = []
 # cond = 'cpisosec'
-# 
+#
 # #for cell in cells:
 # cells = sigcell_dico[cond]
 # for cell in cells:
@@ -397,20 +397,20 @@ def extract_data(cells, cond='cpisosec', sort_by='lag'):
 #     dfs.append(df)
 #     lags.append(df.loc[0:120, ['surround_only']].idxmax()[0])
 #     amps.append(df.loc[0:120, ['surround_only']].max()[0])
-# 
+#
 # =============================================================================
 # cond='cpisosec'
 # cells = sigcell_dico[cond]
 # _, s_cells, s_dfs, s_lags = extract_data(cells, cond='cpisosec', sort_by='lag')
 
 # fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=False)
-    
+
 for cond in sigcell_dico.keys():
     cells = sigcell_dico[cond]
     # cells = all_cells
     _, s_cells, s_dfs, s_lags = extract_data(cells, cond=cond, sort_by='lag')
     fig = simple_plot(cond, s_cells, s_dfs, s_lags, traces=True)
-    # filename =  os.path.join(paths['cgFig'], 'pythonPreview', 
+    # filename =  os.path.join(paths['cgFig'], 'pythonPreview',
     #                           'fillingIn', 'sig', cond + '.png')
     # fig.savefig(filename, format='png')
 

@@ -6,15 +6,15 @@ Created on Thu Jul  2 11:24:28 2020
 @author: cdesbois
 """
 
+from datetime import datetime
 import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-from datetime import datetime
 
 import config
 import load_data as ldat
-stdColors = config.std_colors()
+std_colors = config.std_colors()
 anot = True
 
 #%%
@@ -75,7 +75,7 @@ def load_peakdata(name):
     cols = [item.replace('rdfull', 'rdisofull') for item in cols]
     cols = [item.replace('rdsec', 'rdisosec') for item in cols]
     cols = [item.replace('cross', 'crx') for item in cols]
-    cols = [item.replace('isosfull', 'isofull') for item in cols]   
+    cols = [item.replace('isosfull', 'isofull') for item in cols]
     df.columns = cols
     return df
 
@@ -89,7 +89,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     if spread not in ['sect', 'full']:
         print("'spread' should be in ['sect', 'full']")
         return
-    elif param not in ['time', 'gain']:
+    if param not in ['time', 'gain']:
         print("'param' should be in ['time', 'gain']")
         return
     # select by param (first value = control)
@@ -122,10 +122,10 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue']]
 
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
@@ -164,12 +164,12 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
         traces = [item for item in left.columns if '_sig' not in item]
         for i, name in enumerate(traces):
             #color : white if non significant, edgecolor otherwise
-            edgeColor = colors[i]
-            color_dic = {0 : 'w', 1 : edgeColor}
+            edge_color = colors[i]
+            color_dic = {0 : 'w', 1 : edge_color}
             sig_name = name + '_sig'
             select = df_left[[name, sig_name]].sort_values(by=[name, sig_name],
                                                            ascending=False)
-            barColors = [color_dic[x] for x in select[sig_name]]
+            bar_colors = [color_dic[x] for x in select[sig_name]]
             ax = left_axes[i]
             # ax.set_title(str(i))
             ax.set_title(name)
@@ -180,7 +180,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
             # # with significance
             select = df_left[name].sort_values(ascending=False)
 
-            ax.bar(x, select, color=barColors, edgecolor=edgeColor,
+            ax.bar(x, select, color=bar_colors, edgecolor=edge_color,
                    alpha=0.8, width=0.8)
             if i == 0:
                 ax.set_title(anot_left)
@@ -200,17 +200,17 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
         traces = [item for item in right.columns if '_sig' not in item]
         for i, name in enumerate(traces):
             #color : white if non significant, edgecolor otherwise
-            edgeColor = colors[i]
-            color_dic = {0 : 'w', 1 : edgeColor}
+            edge_color = colors[i]
+            color_dic = {0 : 'w', 1 : edge_color}
             sig_name = name + '_sig'
             select = df_right[[name, sig_name]].sort_values(by=[name, sig_name],
                                                             ascending=False)
-            barColors = [color_dic[x] for x in select[sig_name]]
+            bar_colors = [color_dic[x] for x in select[sig_name]]
             ax = right_axes[i]
             # ax.set_title(str(i))
             ax.set_title(name)
             select = df_right[name].sort_values(ascending=False)
-            ax.bar(x, select, color=barColors, edgecolor=edgeColor,
+            ax.bar(x, select, color=bar_colors, edgecolor=edge_color,
                    alpha=0.8, width=0.8)
             if i == 0:
                 ax.set_title(anot_right)
@@ -333,10 +333,10 @@ def select_50(df, spread='sect', param='gain', noSig=True):
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
 
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
         spread = 'sect'
@@ -391,10 +391,10 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     return fig
 
 def scatter_lat_gain(df_left, df_right, mes=''):
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
         spread = 'sect'
@@ -434,10 +434,10 @@ def histo_lat_gain(df_left, df_right, mes=''):
     """
     histogramme des données
     """
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
-    dark_colors = [stdColors['dark_red'], stdColors['dark_green'],
-                   stdColors['dark_yellow'], stdColors['dark_blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
+                   std_colors['dark_yellow'], std_colors['dark_blue']]
 
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
@@ -671,8 +671,8 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         print('non valid loc argument')
         return
 
-    colors = [stdColors['red'], stdColors['green'],
-              stdColors['yellow'], stdColors['blue']]
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
     fig = plt.figure(figsize=(8, 8))
     title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
     fig.suptitle(title)
@@ -841,7 +841,7 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True, 
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
                                 left_sig=True, right_sig=False)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)

@@ -5,13 +5,13 @@ Created on Tue Jun 30 10:36:09 2020
 
 @author: cdesbois
 """
+from datetime import datetime
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-import plot_general_functions as gfuc
-from datetime import datetime
 from matplotlib.ticker import StrMethodFormatter
+from matplotlib.patches import Rectangle
+import matplotlib.pyplot as plt
+import plot_general_functions as gfuc
 
 
 def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
@@ -415,8 +415,7 @@ def plot_2_indMoy(data, colsdict, stdColors, anot=False):
     return fig
 
 
-def plot_2_sigNsig(data, colsdict, stdColors, fill=True, 
-                           fillground=True, anot=False):
+def plot_2_sigNsig(data, colsdict, stdColors, fill=True, anot=False):
     """
     plot_figure2
     """

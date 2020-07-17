@@ -7,11 +7,11 @@ Created on Thu Jul  2 11:27:33 2020
 """
 import os
 
-import pandas as pd
-import load_data as ld
-import numpy as np
-import matplotlib.pyplot as plt
 from datetime import datetime
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import load_data as ld
 
 import config
 
@@ -292,10 +292,10 @@ def dotplot_cellDepth_all(spread='sect'):
     # shareX
     for i in range(0, 6, 2):
         ax = axes[0]
-        ax.get_shared_x_axes().join(ax, axes[i+2])    
+        ax.get_shared_x_axes().join(ax, axes[i+2])
     for i in range(1, 6, 2):
         ax = axes[1]
-        ax.get_shared_x_axes().join(ax, axes[i+2])    
+        ax.get_shared_x_axes().join(ax, axes[i+2])
     # fill axes
     # 'sect' or 'full'
     alist = [item for item in labelled.columns if spread in item]
@@ -347,7 +347,7 @@ def dotplot_cellDepth_all(spread='sect'):
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
         ax.set_xlabel('gain')
-        
+
     ax.set_ylim(-0.5, len(y))
     for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
@@ -389,3 +389,4 @@ if __name__ == '__main__':
     fig2 = barplot_cellDepth_all(spread='full')
     fig3 = dotplot_cellDepth_all('sect')
     fig4 = dotplot_cellDepth_all('full')
+    
