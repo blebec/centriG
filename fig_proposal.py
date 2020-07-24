@@ -17,7 +17,7 @@ import load_data as ldat
 
 anot = True
 
-
+# 
 def plot_2B_bis(stdColors, anot=False):
     """
     plot_figure2B alternative : sorted phase advance and delta response

@@ -4,6 +4,8 @@
 Created on Thu Jul  2 11:27:33 2020
 
 @author: cdesbois
+
+extration and plotting of the relations histological data <-> responses
 """
 import os
 
