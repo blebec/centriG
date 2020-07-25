@@ -888,3 +888,41 @@ paths = config.build_paths()
 energy_df = ldat.load_energy_gain_index(paths)
 right = adapt_energy_to_plot(energy_df)
 fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
+
+
+#%% test to rebuild sup1 using horizontal dot  plot
+
+mes = 'vm'
+ # nb builded on data/figSup34Vm.xlsx
+df = ldat.load_cell_contributions(mes)
+traces = [item for item in df.columns if 'sect' in item]
+# remove random sector
+traces = [item for item in traces if 'rdisosect' not in item]
+# append full random
+traces += [item for item in df.columns if 'rdisofull' in item]
+# filter -> only significative cells
+#traces = [item for item in traces if 'sig' not in item]
+left = df[[item for item in traces if 'time50' in item]]
+right = df[[item for item in traces if 'gain50' in item]]
+
+fig = horizontal_dot_plot(left, right, mes=mes)
+fig.suptitle('Vm (sector)')
+axes = fig.get_axes()
+ax = axes[0]
+ax.set_ylabel('', rotation=0)
+
+cells = left.sort_values(left.columns[0], ascending=True).index.tolist()
+names = [item.split('_')[0] for item in cells]
+ax.set_yticks(np.arange(len(cells)) + 1)
+ax.set_yticklabels(names, fontsize=8)
+lims = ax.get_xlim()
+from math import ceil
+ax.set_xlim(ceil(lims[1]), ceil(lims[0]))
+ax.set_xlim(15, -30)
+
+ax = axes[1]
+ax.set_yticks(np.arange(len(cells)) + 1)
+ax.set_yticklabels('', fontsize=8)
+ax.set_xlim(-0.6, 0.7)
+
+#TODO : implement the siginicativity & add the spikes

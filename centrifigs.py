@@ -995,6 +995,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
               std_colors['blue'], std_colors['blue'],
               std_colors['blue'], std_colors['blue']]
     # data (call)
+    # nb builded on data/figSup34Vm.xlsx
     df = ldat.load_cell_contributions('vm')
     # extract list of traces : sector vs full
 #    traces = [item for item in df.columns if 's_' in item[:7]]
