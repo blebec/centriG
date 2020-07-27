@@ -1,0 +1,20 @@
+figure 4: speed
+fig4.xlsx ==> fig4.xlsx
+
+figure 5: speed switch
+part1: figSup7a.xlsx ==> highspeed.xlsx
+part2: figSup5bis ==> lowspeed.xlsx
+
+figure 6: individual filling in
+fig5.xlsx ==> indifill.xlsx
+
+figure 7  population filling in 
+fig6.xlsx ==> popfill
+
+figure sup4: filling in conditions
+'minus': figSup2m ==> condfillminus
+'plus' : figSup2p ==> condfillplus
+
+figure plotspeedmultigraph
+figOpt.xlsx ==> speedt0.xlsx
+
