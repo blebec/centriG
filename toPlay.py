@@ -333,20 +333,6 @@ def select_50(df, spread='sect', param='gain', noSig=True):
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
 
-#////// from cells
-# =============================================================================
-#         z1 = z.copy()
-#         z2 = []
-#         for a, b in zip(z1, labelled[sig_col].to_list()):
-#             if b == 1:
-#                 z2.append(a)
-#             else:
-#                 z2.append('w')
-#         # ax.bar(x, y, color=z, alpha=0.6)
-#         ax.scatter(x=x, y=np.arange(len(y))[::-1], color=z2, edgecolors=z1,
-#                    s=100, alpha=0.6, linewidth=2)
-# =============================================================================
-
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue']]
     dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
@@ -365,30 +351,22 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     # left
     ax = fig.add_subplot(121)
     df = df_left.sort_values(by=df_left.columns[0], ascending=True)
-    #remove sig columns
     val_cols = [item for item in df.columns if '_sig' not in item]
     sig_cols = [item for item in df.columns if '_sig' in item]
 #    df = df[cols]
     #sort
     sorted_cells = df.index.copy()
-    df = df.reset_index(drop=True)
-    df.index += 1 #'cell name from 0'
-    df[val_cols] *= -1 # time
-    # for i, col in enumerate(df.columns):
     for i, col in enumerate(val_cols):
         #define colors
         # marker_edgecolor = colors[i]
         # marker_facecolor =  if stat colors[i] else 'w'
-        #base
-        z = []
         z1 = []
         for j in np.arange(len(df)):
-            z.append(dark_colors[i])
             z1.append(colors[i])
         #stat
         z2 = []
-        if col + '_sig' in df_left.columns:
-            for a, b in zip(z1, df_left[col + '_sig'].to_list()):
+        if col + '_sig' in df.columns:
+            for a, b in zip(z1, df[col + '_sig']):
                 if b == 1:
                     z2.append(a)
                 else:
@@ -398,34 +376,46 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         #plot
         yl = df.index.to_list()
         xl = df[col].tolist()
-        for x, y, e, f in zip(xl, yl, z, z2):
+        for x, y, e, f in zip(xl, yl, z1, z2):
             ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, alpha=0.8,
-                    markeredgewidth=2, markersize=6)
-        
-#        ax.plot(df[col], df.index, 'o', markeredgecolor=z1, color=z2, alpha=0.6)
-        # ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
-    ax.set_yticks([1, len(df)])
-    ax.set_ylim(-1, len(df)+1)
+                    markeredgewidth=1.5, markersize=6)      
     ax.set_xlabel('time')
     # right
     ax = fig.add_subplot(122)
-    # df = df_right.sort_values(by=df_right.columns[0], ascending=True)
     df = df_right.reindex(sorted_cells)
-    df = df.reset_index(drop=True)
-    df.index += 1
-    #remove sig columns
-    cols = [item for item in df.columns if '_sig' not in item]
-    df = df[cols]
-    for i, col in enumerate(df.columns):
-        ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
-    ax.set_yticks([1, len(df)])
-    ax.set_ylim(-1, len(df)+1)
+    val_cols = [item for item in df.columns if '_sig' not in item]
+    sig_cols = [item for item in df.columns if '_sig' in item]
+    for i, col in enumerate(val_cols):
+        #define colors
+        # marker_edgecolor = colors[i]
+        # marker_facecolor =  if stat colors[i] else 'w'
+        z1 = []
+        for j in np.arange(len(df)):
+            z1.append(colors[i])
+        #stat
+        z2 = []
+        if col + '_sig' in df.columns:
+            for a, b in zip(z1, df[col + '_sig']):
+                if b == 1:
+                    z2.append(a)
+                else:
+                    z2.append('w')
+        else:
+            z2 = z1
+        #plot
+        yl = df.index.to_list()
+        xl = df[col].tolist()
+        for x, y, e, f in zip(xl, yl, z1, z2):
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, alpha=0.8,
+                    markeredgewidth=1.5, markersize=6)      
     ax.set_xlabel('gain')
     for ax in fig.get_axes():
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], 'k', alpha=0.3)
+        ax.set_yticks([0, len(df) - 1])
+        ax.set_yticklabels([1, len(df)])
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:horizontal_dot_plot',
@@ -934,39 +924,44 @@ fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
 
 
 #%% test to rebuild sup1 using horizontal dot  plot
+plt.close('all')
 
+for mes in ['vm', 'spk']:
+    for spread in ['sect', 'full']:
+        # nb builded on data/figSup34Vm.xlsx
+        data_df = ldat.load_cell_contributions(mes)
+        traces = [item for item in data_df.columns if spread in item]
+        # remove random sector
+        traces = [item for item in traces if 'rdisosect' not in item]
+        # append rdiso
+        traces += [item for item in data_df.columns if 'rdisofull' in item]
+        #remove duplicate 
+        traces = list(dict.fromkeys(traces))
+        # filter -> only significative cells
+        #traces = [item for item in traces if 'sig' not in item]
+        left = data_df[[item for item in traces if 'time50' in item]]
+        right = data_df[[item for item in traces if 'gain50' in item]]
 
-mes = 'vm'
- # nb builded on data/figSup34Vm.xlsx
-df = ldat.load_cell_contributions(mes)
-traces = [item for item in df.columns if 'sect' in item]
-# remove random sector
-traces = [item for item in traces if 'rdisosect' not in item]
-# append full random
-traces += [item for item in df.columns if 'rdisofull' in item]
-# filter -> only significative cells
-#traces = [item for item in traces if 'sig' not in item]
-left = df[[item for item in traces if 'time50' in item]]
-right = df[[item for item in traces if 'gain50' in item]]
+        fig = horizontal_dot_plot(left, right, mes=mes)
+        fig.suptitle(mes + '  ' +  spread)
+        axes = fig.get_axes()
+        ax = axes[0]
+        ax.set_ylabel('', rotation=0)
 
-fig = horizontal_dot_plot(left, right, mes=mes)
-fig.suptitle('Vm (sector)')
-axes = fig.get_axes()
-ax = axes[0]
-ax.set_ylabel('', rotation=0)
-
-cells = left.sort_values(left.columns[0], ascending=True).index.tolist()
-names = [item.split('_')[0] for item in cells]
-ax.set_yticks(np.arange(len(cells)) + 1)
-ax.set_yticklabels(names, fontsize=8)
-lims = ax.get_xlim()
-from math import ceil
-ax.set_xlim(ceil(lims[1]), ceil(lims[0]))
-ax.set_xlim(15, -30)
-
-ax = axes[1]
-ax.set_yticks(np.arange(len(cells)) + 1)
-ax.set_yticklabels('', fontsize=8)
-ax.set_xlim(-0.6, 0.7)
+        #to label cells
+        # cells = left.sort_values(left.columns[0], ascending=True).index.tolist()
+        # names = [item.split('_')[0] for item in cells]
+        # ax.set_yticks(np.arange(len(cells)))
+        # ax.set_yticklabels(names, fontsize=8)
+        # lims = ax.get_xlim()
+        # from math import ceil
+        # ax.set_xlim(ceil(lims[1]), ceil(lims[0]))
+        # ax.set_xlim(15, -30)
+    
+        # ax = axes[1]
+        # ax.set_yticks(np.arange(len(cells)) + 1)
+        # ax.set_yticklabels('', fontsize=8)
+        
+        fig.tight_layout()
 
 #TODO : implement the siginicativity & add the spikes
