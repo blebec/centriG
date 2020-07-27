@@ -309,7 +309,6 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
     return fig
 
 
-
 def select_50(df, spread='sect', param='gain', noSig=True):
     """
     return the selected df parts for plotting
@@ -331,7 +330,22 @@ def select_50(df, spread='sect', param='gain', noSig=True):
         col_list = [item for item in col_list if 'sig' not in item]
     return df[col_list]
 
+
 def horizontal_dot_plot(df_left, df_right, mes=''):
+
+#////// from cells
+# =============================================================================
+#         z1 = z.copy()
+#         z2 = []
+#         for a, b in zip(z1, labelled[sig_col].to_list()):
+#             if b == 1:
+#                 z2.append(a)
+#             else:
+#                 z2.append('w')
+#         # ax.bar(x, y, color=z, alpha=0.6)
+#         ax.scatter(x=x, y=np.arange(len(y))[::-1], color=z2, edgecolors=z1,
+#                    s=100, alpha=0.6, linewidth=2)
+# =============================================================================
 
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue']]
@@ -352,15 +366,44 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
     ax = fig.add_subplot(121)
     df = df_left.sort_values(by=df_left.columns[0], ascending=True)
     #remove sig columns
-    cols = [item for item in df.columns if '_sig' not in item]
-    df = df[cols]
+    val_cols = [item for item in df.columns if '_sig' not in item]
+    sig_cols = [item for item in df.columns if '_sig' in item]
+#    df = df[cols]
     #sort
     sorted_cells = df.index.copy()
     df = df.reset_index(drop=True)
     df.index += 1 #'cell name from 0'
-    df *= -1 # time
-    for i, col in enumerate(df.columns):
-        ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
+    df[val_cols] *= -1 # time
+    # for i, col in enumerate(df.columns):
+    for i, col in enumerate(val_cols):
+        #define colors
+        # marker_edgecolor = colors[i]
+        # marker_facecolor =  if stat colors[i] else 'w'
+        #base
+        z = []
+        z1 = []
+        for j in np.arange(len(df)):
+            z.append(dark_colors[i])
+            z1.append(colors[i])
+        #stat
+        z2 = []
+        if col + '_sig' in df_left.columns:
+            for a, b in zip(z1, df_left[col + '_sig'].to_list()):
+                if b == 1:
+                    z2.append(a)
+                else:
+                    z2.append('w')
+        else:
+            z2 = z1
+        #plot
+        yl = df.index.to_list()
+        xl = df[col].tolist()
+        for x, y, e, f in zip(xl, yl, z, z2):
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, alpha=0.8,
+                    markeredgewidth=2, markersize=6)
+        
+#        ax.plot(df[col], df.index, 'o', markeredgecolor=z1, color=z2, alpha=0.6)
+        # ax.plot(df[col], df.index, 'o', color=colors[i], alpha=0.6)
     ax.set_yticks([1, len(df)])
     ax.set_ylim(-1, len(df)+1)
     ax.set_xlabel('time')
@@ -891,6 +934,7 @@ fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
 
 
 #%% test to rebuild sup1 using horizontal dot  plot
+
 
 mes = 'vm'
  # nb builded on data/figSup34Vm.xlsx
