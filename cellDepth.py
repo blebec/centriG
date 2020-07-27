@@ -322,8 +322,6 @@ def dotplot_cellDepth_all(spread='sect'):
         # ax.bar(x, y, color=z, alpha=0.6)
         ax.scatter(x=x, y=np.arange(len(y))[::-1], color=z2, edgecolors=z1,
                    s=100, alpha=0.6, linewidth=2)
-        lims = ax.get_xlim()
-        ax.set_xlim(lims[-1], lims[0])
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
 
@@ -344,8 +342,6 @@ def dotplot_cellDepth_all(spread='sect'):
                 z2.append('w')
         ax.scatter(x=x, y=np.arange(len(y))[::-1], color=z2, edgecolors=z1,
                    s=100, alpha=0.6, linewidth=2)
-        lims = ax.get_xlim()
-        ax.set_xlim(lims[-1], lims[0])
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
         ax.set_xlabel('gain')
