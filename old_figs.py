@@ -270,7 +270,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:old_figs.plot_2_indMoySigNsig',
+        fig.text(0.99, 0.01, 'old_figs.py:old_figs.plot_2_indMoySigNsig',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -409,7 +409,7 @@ def plot_2_indMoy(data, colsdict, stdColors, anot=False):
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_2_indMoy',
+        fig.text(0.99, 0.01, 'old_figs.py:plot_2_indMoy',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -560,7 +560,7 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True, anot=False):
     fig.subplots_adjust(hspace=0.06) #fig.subplots_adjust(hspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_2_sigNsig',
+        fig.text(0.99, 0.01, 'old_figs.py:plot_2_sigNsig',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -571,12 +571,13 @@ def plot_3_signonsig(stdColors, anot=False, substract=False):
     plot_figure3
     with individually significants and non significant cells
     """
-    filenames = {'pop' : 'data/fig3.xlsx',
-                 'sig': 'data/fig3bis1.xlsx',
-                 'nonsig': 'data/fig3bis2.xlsx'}
+    filenames = {'pop' : 'data/old/fig3.xlsx',
+                 'sig': 'data/old/fig3bis1.xlsx',
+                 'nonsig': 'data/old/fig3bis2.xlsx'}
     titles = {'pop' : 'recorded cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
+    print('>>>> beware : old data <<<<<<')
     # samplesize
     cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
     colors = ['k', stdColors['red'], stdColors['green'],
@@ -653,7 +654,7 @@ def plot_3_signonsig(stdColors, anot=False, substract=False):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_3_signonsig',
+        fig.text(0.99, 0.01, 'old_figs.py:plot_3_signonsig',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig

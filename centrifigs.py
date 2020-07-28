@@ -409,16 +409,21 @@ fig = figp.plot_2B_bis(std_colors, anot=anot)
 plt.close('all')
 
 
-def plot_figure3(std_colors, kind='sig', substract=False, anot=anot):
+def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     substract = boolan -> present as (data - centerOnly)
     """
-    filenames = {'pop' : 'data/fig3.xlsx',
-                 'sig': 'data/fig3bis1.xlsx',
-                 'nonsig': 'data/fig3bis2.xlsx'}
+    if age == 'old':
+        filenames = {'pop' : 'data/old/fig3.xlsx',
+                     'sig': 'data//old/fig3bis1.xlsx',
+                     'nonsig': 'data/old/fig3bis2.xlsx'}
+    else:
+        print('fig3 should be updated')
+        return
+
     titles = {'pop' : 'all cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
@@ -495,11 +500,11 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figure3(std_colors, 'pop')
-fig = plot_figure3(std_colors, 'sig')
+fig = plot_figure3(std_colors, 'pop', age='old')
+fig = plot_figure3(std_colors, 'sig', age='old')
 #fig = plot_figure3('nonsig')
-fig = plot_figure3(std_colors, 'sig', substract=True)
-fig2 = plot_figure3(std_colors, 'pop', substract=True)
+fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
+fig2 = plot_figure3(std_colors, 'pop', substract=True, age='old')
 
 #pop all cells
 #%% grouped sig and non sig
