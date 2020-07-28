@@ -689,7 +689,8 @@ def plot_figure6(std_colors):
     """
     plot_figure6
     """
-    filename = 'data/fig5.xlsx'
+#    filename = 'data/fig5.xlsx'
+    filename = 'data/data_to_use/indifill.xlsx'
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2
