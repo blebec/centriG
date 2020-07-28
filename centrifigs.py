@@ -516,7 +516,7 @@ plt.close('all')
 
 def plot_figure4(substract=False):
     """ speed """
-    filename = 'data/fig4.xlsx'
+    filename = 'data/data_to_use/fig4.xlsx'
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2
