@@ -286,12 +286,16 @@ fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 plt.close('all')
 
-def plot_figure2B(std_colors, sig=True, anot=anot):
+def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
     """
-    filename = 'data/fig2cells.xlsx'
+    if age =='old':
+        filename = 'data/old/fig2cells.xlsx'
+    else:
+        print('fig2cells.xlsx should be updated')
+        return
     df = pd.read_excel(filename)
     cols = df.columns[:2]
     signs = df.columns[2:]
@@ -344,32 +348,46 @@ def plot_figure2B(std_colors, sig=True, anot=anot):
     return fig
 
 
-def sort_stat():
-    filename = 'data/fig2cells.xlsx'
-    df = pd.read_excel(filename)
-    cols = df.columns[:2]
-    signs = df.columns[2:]
-    df.index += 1 # cells = 1 to 37
+def sort_stat(age='new'):
+    if age == 'old':
+        filename = 'data/old/fig2cells.xlsx'
+        print('old file fig2cells.xlsx')
+        df = pd.read_excel(filename)
+        rename_dict = {'popVmscpIsolatg' : 'cpisosect_lat50',
+                       'lagIndiSig' : 'cpisosect_lat50_sig',
+                       'popVmscpIsoAmpg' : 'cpisosect_gain50',
+                       'ampIndiSig' : 'cpisosect_gain50_sig' }
+        df.rename(columns=rename_dict, inplace=True)
+    elif age == 'new':
+        latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
+        cols = latGain50_v_df.columns
+        df = latGain50_v_df[[item for item in cols if 'cpisosect' in item]]
+    else:
+        print('fig2cells.xlsx to be updated')
+        return
+    vals = [item for item in df.columns if '_sig' not in item]
+    sigs = [item for item in df.columns if '_sig' in item]
+ #   df.index += 1 # cells = 1 to 37
     # all cells:
     print('=== all cells ===')
-    all1 = df.popVmscpIsolatg
-    all2 = df.popVmscpIsoAmpg
+    all1 = df.cpisosect_lat50
+    all2 = df.cpisosect_gain50
     for item, temp in zip(['latency', 'gain'], [all1, all2]):
         print(item, len(temp), 'measures')
         print('mean= {:5.2f}'.format(temp.mean()))
         print('std= {:5.2f}'.format(temp.std()))
         print('sem= {:5.2f}'.format(temp.sem()))
     print('=== sig cells ===')
-    temp1 = df.loc[df.lagIndiSig == 1, ['popVmscpIsolatg']]
-    temp2 = df.loc[df.ampIndiSig == 1, ['popVmscpIsoAmpg']]
+    temp1 = df.loc[df.cpisosect_lat50_sig == 1, ['cpisosect_lat50']]
+    temp2 = df.loc[df.cpisosect_gain50_sig == 1, ['cpisosect_gain50']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
         print(item, len(temp), 'measures')
         print('mean= {:5.2f}'.format(temp.mean()[0]))
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-plot_figure2B(std_colors, 'horizontal', anot=anot)
-sort_stat()
+plot_figure2B(std_colors, anot=anot, age='old')
+sort_stat('old')
 fig = figp.plot_2B_bis(std_colors, anot=anot)
 
 #%%

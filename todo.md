@@ -14,3 +14,13 @@
   - updated link to old file
   - and updated the load-contribution function to use the new files
 
+
+
+## centrifigs.py
+
+- plot_figure2
+  - OK with old file
+- plot_figure2B
+  - data/fig2cells.xlsx missing
+  - 
+

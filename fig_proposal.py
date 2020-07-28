@@ -18,12 +18,13 @@ import load_data as ldat
 anot = True
 
 # 
-def plot_2B_bis(stdColors, anot=False):
+def plot_2B_bis(stdColors, anot=False, age='new'):
     """
     plot_figure2B alternative : sorted phase advance and delta response
     response are sorted only by phase
     """
-    df = ldat.load_cell_contributions('vm')
+    
+    df = ldat.load_cell_contributions(kind='vm', amp='gain', age=age)
 #    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
     alist = [item for item in df.columns if 'cpisosect' in item]
 
