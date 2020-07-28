@@ -596,7 +596,9 @@ def plot_fig5():
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
+#    filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
+    filenames = ['data/data_to_use/highspeed.xlsx', 
+                 'data/data_to_use/lowspeed.xlsx']
     titles = ['High speed', 'Low speed']
 
     filename = filenames[0]
