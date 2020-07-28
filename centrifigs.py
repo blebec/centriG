@@ -1160,15 +1160,18 @@ fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
 plt.close('all')
 
-def plot_figSup2B(kind='pop'):
+def plot_figSup2B(kind='pop', age='new'):
     """
     plot supplementary figure 1 : Vm with random Sector control
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = {'pop' : 'data/figSup3.xlsx',
-                 'sig': 'data/figSup3bis.xlsx',
-                 'nonsig': 'data/figSup3bis2.xlsx'}
+    if age == 'old':
+        filenames = {'pop' : 'data/old/figSup3.xlsx',
+                     'sig': 'data/old/figSup3bis.xlsx',
+                     'nonsig': 'data/old/figSup3bis2.xlsx'}
+    else:
+        print('figSup3.xls file should be updated')
     titles = {'pop' : 'all cells',
               'sig': 'individually significant cells',
               'nonsig': 'individually non significants cells'}
@@ -1237,7 +1240,7 @@ def plot_figSup2B(kind='pop'):
     return fig
 
 
-fig = plot_figSup2B('pop')
+fig = plot_figSup2B('pop', age='old')
 #fig = plot_figSup2B('sig')
 #fig = plot_figSup2B('nonsig')
 
@@ -1265,8 +1268,10 @@ def plot_figSup4(kind, overlap=True):
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    filenames = {'minus': 'data/figSup2m.xlsx',
-                 'plus': 'data/figSup2p.xlsx'}
+    # filenames = {'minus' : 'data/figSup2m.xlsx',
+    #              'plus' : 'data/figSup2p.xlsx'}
+    filenames = {'minus' : 'data/data_to_use/condfillminus.xlsx',
+                 'plus' : 'data/data_to_use/condfillplus.xlsx'}
 
     titles = {'minus': 'Surround-then-center minus center only',
               'plus': 'Surround-only plus center-only'}
