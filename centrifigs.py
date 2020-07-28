@@ -1388,15 +1388,20 @@ fig = plot_figSup4('minus', overlap=True)
 plt.close('all')
 
 
-def plot_figSup3B(kind, stimmode):
+def plot_figSup3B(kind, stimmode, age='new'):
     """
     plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    filenames = {'pop' : 'data/figSup5Spk.xlsx'}#,
-                 #'sig': 'data/figSup1bis.xlsx',
-                 #'nonsig': 'data/figSup1bis2.xlsx'}
+    if age == 'old':
+        filenames = {'pop' : 'data/old/figSup5Spk.xlsx'}#,
+                     #'sig': 'data/old/figSup1bis.xlsx',
+                     #'nonsig': 'data/old/figSup1bis2.xlsx'}
+        print('>>>>> beware : old file <<<<<')
+    else:
+        print('figSup5Spk should be updated')
+        return
     titles = {'pop' : 'all cells'}#,
               #'sig': 'individually significant cells',
               #'nonsig': 'individually non significants cells'}
@@ -1466,11 +1471,9 @@ def plot_figSup3B(kind, stimmode):
     return fig
 
 
-# fig = plot_figSup3B('pop', 'sec')
-fig = plot_figSup3B('pop', 'ful')
+# fig = plot_figSup3B('pop', 'sec',  age='old')
+fig = plot_figSup3B('pop', 'ful', age='old')
 
-# fig = plot_figSup1('sig')
-# fig = plot_figSup1('nonsig')
 #%%
 plt.close('all')
 
