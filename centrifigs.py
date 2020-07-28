@@ -1477,17 +1477,22 @@ fig = plot_figSup3B('pop', 'ful', age='old')
 #%%
 plt.close('all')
 
-def plot_figSup6(kind):
+def plot_figSup6(kind, age='new'):
     """
     plot supplementary figure 2: Vm all conditions of FULL stimulation
     input : kind in ['pop': whole population,
             'sig': individually significants cells,
             'nonsig': non significant cells]
     """
-    filenames = {'pop' : 'data/figSup6.xlsx'}#,
-                 # 'sig': 'data/figSup1bis.xlsx',
-                 # 'nonsig': 'data/figSup1bis2.xlsx'}
-    titles = {'pop' : 'all cells'}#,
+    if age == 'old':
+        filenames = {'pop' : 'data/old/figSup6.xlsx'}#,
+                     # 'sig': 'data/old/figSup1bis.xlsx',
+                     # 'nonsig': 'data/old/figSup1bis2.xlsx'}
+        print(' >>>>> beware : old file <<<<< ')
+    else:
+        print('figSup6.xlsx should be updated')
+        return
+    titles = {'pop' : 'all cells'}#,1
               # 'sig': 'individually significant cells',
               # 'nonsig': 'individually non significants cells'}
     # samplesize
@@ -1559,7 +1564,7 @@ def plot_figSup6(kind):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figSup6('pop')
+fig = plot_figSup6('pop', age='old')
 
 
 #%%
