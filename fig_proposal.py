@@ -246,7 +246,7 @@ def plot_figure7_bis(stdColors):
     """
     plot_figure7 minus center
     """
-    filename = 'data/fig6.xlsx'
+    filename = 'data/data_to_use/popfill.xlsx'
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2

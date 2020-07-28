@@ -835,7 +835,8 @@ def plot_figure7(std_colors):
     """
     plot_figure7
     """
-    filename = 'data/fig6.xlsx'
+#    filename = 'data/fig6.xlsx'
+    filename = 'data/data_to_use/popfill.xlsx'
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
