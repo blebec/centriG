@@ -968,7 +968,9 @@ def plot_figure9CD(data, colsdict):
 
     # hist
     ax1 = fig.add_subplot(1, 2, 2)
-    filename = 'data/fig2cells.xlsx'
+#    filename = 'data/fig2cells.xlsx'
+    filename = 'data/old/fig2cells.xlsx'
+    print('>>>>> beware old file fig2cells <<<<<')
     df = pd.read_excel(filename)
     # cols = df.columns[:2]
     # signs = df.columns[2:]
