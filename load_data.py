@@ -74,6 +74,7 @@ def new_columns_names(cols):
     chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
                'spks': 'spk_sect_', 'spkf': 'spk_full_',
                'dlat50': 'time50', 'dgain50': 'gain50',
+               'lat50': 'time50', 
                'rnd': 'rd', 'cross' : 'crx'}
     for key in chg_dct:
         newcols = [item.replace(key, chg_dct[key]) for item in newcols]

@@ -295,8 +295,8 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
         filename = 'data/old/fig2cells.xlsx'
         print('old file fig2cells.xlsx')
         df = pd.read_excel(filename)
-        rename_dict = {'popVmscpIsolatg' : 'cpisosect_lat50',
-                        'lagIndiSig' : 'cpisosect_lat50_sig',
+        rename_dict = {'popVmscpIsolatg' : 'cpisosect_time50',
+                        'lagIndiSig' : 'cpisosect_time50_sig',
                         'popVmscpIsoAmpg' : 'cpisosect_gain50',
                         'ampIndiSig' : 'cpisosect_gain50_sig' }
         df.rename(columns=rename_dict, inplace=True)    
@@ -368,8 +368,8 @@ def sort_stat(age='new'):
         filename = 'data/old/fig2cells.xlsx'
         print('old file fig2cells.xlsx')
         df = pd.read_excel(filename)
-        rename_dict = {'popVmscpIsolatg' : 'cpisosect_lat50',
-                       'lagIndiSig' : 'cpisosect_lat50_sig',
+        rename_dict = {'popVmscpIsolatg' : 'cpisosect_time50',
+                       'lagIndiSig' : 'cpisosect_time50_sig',
                        'popVmscpIsoAmpg' : 'cpisosect_gain50',
                        'ampIndiSig' : 'cpisosect_gain50_sig' }
         df.rename(columns=rename_dict, inplace=True)
@@ -385,7 +385,7 @@ def sort_stat(age='new'):
  #   df.index += 1 # cells = 1 to 37
     # all cells:
     print('=== all cells ===')
-    all1 = df.cpisosect_lat50
+    all1 = df.cpisosect_time50
     all2 = df.cpisosect_gain50
     for item, temp in zip(['latency', 'gain'], [all1, all2]):
         print(item, len(temp), 'measures')
@@ -393,7 +393,7 @@ def sort_stat(age='new'):
         print('std= {:5.2f}'.format(temp.std()))
         print('sem= {:5.2f}'.format(temp.sem()))
     print('=== sig cells ===')
-    temp1 = df.loc[df.cpisosect_lat50_sig == 1, ['cpisosect_lat50']]
+    temp1 = df.loc[df.cpisosect_time50_sig == 1, ['cpisosect_time50']]
     temp2 = df.loc[df.cpisosect_gain50_sig == 1, ['cpisosect_gain50']]
     for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
         print(item, len(temp), 'measures')
@@ -401,8 +401,8 @@ def sort_stat(age='new'):
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-plot_figure2B(std_colors, anot=anot, age='new')
-sort_stat('new')
+plot_figure2B(std_colors, anot=anot, age='old')
+sort_stat('old')
 fig = figp.plot_2B_bis(std_colors, anot=anot)
 
 #%%
@@ -1170,6 +1170,7 @@ def plot_figSup2B(kind='pop', age='new'):
         filenames = {'pop' : 'data/old/figSup3.xlsx',
                      'sig': 'data/old/figSup3bis.xlsx',
                      'nonsig': 'data/old/figSup3bis2.xlsx'}
+        print('>>>>> files figSup3.xlsx ... should be updated <<<<<')
     else:
         print('figSup3.xls file should be updated')
     titles = {'pop' : 'all cells',
@@ -1632,7 +1633,7 @@ def plot_cell_contribution(df, kind=''):
 #    stim = 's'
     stim = 'sect'
 #    mes = 'lat'
-    mes = 'lat50'
+    mes = 'time'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -1656,7 +1657,7 @@ def plot_cell_contribution(df, kind=''):
     # full phase
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'full'
-    mes = 'lat50'
+    mes = 'time'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -1695,7 +1696,8 @@ def plot_cell_contribution(df, kind=''):
     fig.tight_layout()
 
 kind = 'vm'
-df = ldat.load_cell_contributions(kind)
+#load_cell_contributions(kind='vm', amp='gain', age='new'):
+df = ldat.load_cell_contributions(kind, age='new')
 plot_cell_contribution(df, kind)
 
 
@@ -1717,6 +1719,7 @@ def plot_sorted_responses(dico):
               std_colors['yellow'], std_colors['yellow'],
               std_colors['blue'], std_colors['blue']]
     # data (call)
+    #TODO adapty for vm, engy, ...
     df = ldat.load_cell_contributions(dico['kind'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread'] in item]
@@ -1811,7 +1814,7 @@ colors = ['k', std_colors['red'], speedColors['dark_orange'],
           speedColors['orange'], speedColors['yellow']]
 alphas = [0.8, 1, 0.8, 0.8, 1]
 
-df = pd.read_excel('data/figOpt.xlsx')
+df = pd.read_excel('data/data_to_use/speedt0.xlsx')
 df.set_index('time', inplace=True)
 
 
@@ -1894,7 +1897,7 @@ def plotSpeeddiff():
               speedColors['orange'], speedColors['yellow']]
     alphas = [0.5, 1, 0.8, 0.8, 1]
 
-    df = pd.read_excel('data/figOpt.xlsx')
+    df = pd.read_excel('data/data_to_use/speedt0.xlsx')
     df.set_index('time', inplace=True)
     # perform shift (x(t) <- x[t) - x(t-1]
     for col in df.columns:
