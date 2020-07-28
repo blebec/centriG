@@ -267,7 +267,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     return fig
 
 #data
-fig2_df, fig2_cols = ldat.load2()
+fig2_df, fig2_cols = ldat.load2('old')
 fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
 
 # =============================================================================
