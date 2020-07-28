@@ -1632,7 +1632,7 @@ def plot_cell_contribution(df, kind=''):
 #    stim = 's'
     stim = 'sect'
 #    mes = 'lat'
-    mes = 'time50'
+    mes = 'lat50'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -1656,7 +1656,7 @@ def plot_cell_contribution(df, kind=''):
     # full phase
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'full'
-    mes = 'time'
+    mes = 'lat50'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
