@@ -1,0 +1,100 @@
+centrifigs.py
+
+import load_data as ldat
+	fig2_df, fig2_cols = ldat.load2
+
+	load.data.py
+
+		def load2(): 
+ 	    	    filename = 'data/fig2traces.xlsx'
+
+
+		def load_cell_contributions(kind=''):
+		    if kind == 'vm':
+            		filename = 'data/figSup34Vm.xlsx'
+    		elif kind == 'spk':
+            		filename = 'data/figSup34Spk.xlsx'
+	    
+		def load_energy_gain(paths, sig):
+	 	To supress or displace	
+
+
+def plot_figure2B(stdcolors, sig, anot):
+	filename = 'data/fig2cells.xlsx'
+
+
+
+
+def plot_figure3(stdColors, kind='sig', substract=False, anot=anot):
+	filenames = {'pop' : 'data/fig3.xlsx',
+                     'sig': 'data/fig3bis1.xlsx',
+                     'nonsig': 'data/fig3bis2.xlsx'}
+
+
+def plot_figure9CD(data, colsdict):
+    """
+    plot_figure9CD
+    """
+
+	filename = 'data/fig2cells.xlsx'
+
+
+def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
+     """
+    plot the sorted cell responses
+    input = conditions parameters
+    overlap : boolean, overlap the different rows to superpose the plots
+    sort_all : if false, only the 'key' trace is sorted
+    key : number to choose the trace to be sorted
+    output : matplotlib plot
+    """
+
+
+
+	# data (call)
+    	df = ldat.load_cell_contributions('vm')
+
+
+def plot_figSup2B(kind='pop'):
+    """
+    plot supplementary figure 1 : Vm with random Sector control
+    input : kind in ['pop': whole population, 'sig': individually significants
+    cells, 'nonsig': non significant cells]
+    """
+	
+	filenames = {'pop' : 'data/figSup3.xlsx',
+                     'sig': 'data/figSup3bis.xlsx',
+                     'nonsig': 'data/figSup3bis2.xlsx'}
+
+def plot_figSup3B(kind, stimmode):
+    """plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations
+    input : kind in ['pop': whole population, 'sig': individually significants
+    cells, 'nonsig': non significant cells]
+	filenames = {'pop' : 'data/figSup5Spk.xlsx'}#,
+                     #'sig': 'data/figSup1bis.xlsx',
+                     #'nonsig': 'data/figSup1bis2.xlsx'}
+
+def plot_figSup6(kind):
+    """
+    plot supplementary figure 2: Vm all conditions of FULL stimulation
+    input : kind in ['pop': whole population,
+            'sig': individually significants cells,
+            'nonsig': non significant cells]
+    """
+    filenames = {'pop' : 'data/figSup6.xlsx'}#,
+                 # 'sig': 'data/figSup1bis.xlsx',                                already in def plot_figSup3B(kind, stimmode):
+                 # 'nonsig': 'data/figSup1bis2.xlsx'}				 already in def plot_figSup3B(kind, stimmode):
+
+#call of
+df = ldat.load_cell_contributions(kind)
+# to
+plot_cell_contribution(df, kind)
+
+#call of 
+fig = plot_sorted_responses(parameter_dico)
+def plot_sorted_responses(dico):
+    # data (call)
+    df = ldat.load_cell_contributions(dico['kind'])		
+
+#call of 
+fig = plot sorted_response(parameter_dico)
