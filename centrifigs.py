@@ -293,42 +293,57 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     """
     if age =='old':
         filename = 'data/old/fig2cells.xlsx'
+        print('old file fig2cells.xlsx')
+        df = pd.read_excel(filename)
+        rename_dict = {'popVmscpIsolatg' : 'cpisosect_lat50',
+                        'lagIndiSig' : 'cpisosect_lat50_sig',
+                        'popVmscpIsoAmpg' : 'cpisosect_gain50',
+                        'ampIndiSig' : 'cpisosect_gain50_sig' }
+        df.rename(columns=rename_dict, inplace=True)    
+    elif age == 'new':
+        latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
+        cols = latGain50_v_df.columns
+        df = latGain50_v_df[[item for item in cols if 'cpisosect' in item]].copy()
+        df.sort_values(by=df.columns[0], ascending=False, inplace=True)
     else:
-        print('fig2cells.xlsx should be updated')
+        print('fig2cells.xlsx to be updated')
         return
-    df = pd.read_excel(filename)
-    cols = df.columns[:2]
-    signs = df.columns[2:]
-    df.index += 1 # cells = 1 to 37
+    #    df = pd.read_excel(filename)
+    vals = [item for item in df.columns if '_sig' not in item]
+    signs = [item for item in df.columns if '_sig' in item]
+
+#    df.index += 1 # cells = 1 to 37
     color_dic = {0 :'w', 1 : std_colors['red']}
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
+        toplot = df.sort_values(by=vals[i], ascending=False)
         if sig:
-            axes[i].bar(df.index, df[cols[i]], edgecolor=std_colors['red'],
-                        color=colors, label=cols[i], alpha=0.8, width=0.8)
+            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=std_colors['red'],
+                        color=colors, label=vals[i], alpha=0.8, width=0.8)
         else:
-            axes[i].bar(df.index, df[cols[i]], edgecolor=std_colors['red'],
-                        color=std_colors['red'], label=cols[i],
+            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=std_colors['red'],
+                        color=std_colors['red'], label=vals[i],
                         alpha=0.8, width=0.8)
         # zero line
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.2)
         # ticks
-        ax.set_xlim(0, 38)
-        ax.set_xticks([df.index.min(), df.index.max()])
+        ax.set_xlim(-1, len(df))
+        ax.set_xticks([0, len(df) - 1])
+        ax.set_xticklabels([1, len(df)])
         ax.set_xlabel('Cell rank')
         ax.xaxis.set_label_coords(0.5, -0.025)
         if i == 0:
             txt = r'$\Delta$ Phase (ms)'
             ylims = (-6, 29)
-            ax.vlines(0, 0, 20, linewidth=2)
+            ax.vlines(-1, 0, 20, linewidth=2)
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
             txt = r'$\Delta$ Amplitude'
             ylims = ax.get_ylim()
-            ax.vlines(0, 0, 0.6, linewidth=2)
+            ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
         ax.set_yticks(custom_yticks)
         ax.set_ylabel(txt)
@@ -386,8 +401,8 @@ def sort_stat(age='new'):
         print('std= {:5.2f}'.format(temp.std()[0]))
         print('sem= {:5.2f}'.format(temp.sem()[0]))
 
-plot_figure2B(std_colors, anot=anot, age='old')
-sort_stat('old')
+plot_figure2B(std_colors, anot=anot, age='new')
+sort_stat('new')
 fig = figp.plot_2B_bis(std_colors, anot=anot)
 
 #%%

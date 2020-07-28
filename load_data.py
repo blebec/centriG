@@ -27,7 +27,7 @@ def load2(age='new'):
         print ('beware : old file')
     else:
         print('file fig2traces as to be updated')
-        return None
+        return None, None
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
