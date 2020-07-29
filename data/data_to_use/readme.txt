@@ -54,6 +54,9 @@ FULL
 cells subpopulation significant for the cp-iso sector combination of lat50 and energy indices:
 1427A_CXG4, 1427K_CXG4, 1440G_CXG11, 1509E_CXG4, 1516C_CXG3, 1516F_CXG2, 1516G_CXG2, 1516M_CXG2, 1527B_CXG2, 1622H_CXG3, 1638D_CXG5, 1641A_CXG5, 1649F_CXG6
 
+among those cells, the spink ones are:
+1427A_CXG4, 1427K_CXG4, 1440G_CXG11, 1509E_CXG4, 1516C_CXG3, 1641A_CXG5, 1649F_CXG6
+
 The oscillating one is : 1427K_CXG4
 The cpiso down regulated one is: 1641A_CXG5
 
