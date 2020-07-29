@@ -1,8 +1,8 @@
-files spkNorm, spkNormAligned, spkRaw, vmNorm, vmNormAligned, vmRaw (.xlsx)
+files spksectNorm, spksectNormAligned, spksectRaw, vmsectNorm, vmsectNormAligned, vmsectRaw (.xlsx)
 Al subpopulations corresponds to the cells individually significant to the cp-iso sector condition for the lat 50 and energy t0-baseline indices
 
       Norm 	  corresponds to the average traces of the subpopulation normalized but not realigned before averaging 
-      Raw  	  corresponds to the average traces of the subpopulation that are normalized and not realigned before averaging       
+      Raw  	  corresponds to the average traces of the subpopulation that are not normalized and not realigned before averaging       
       NormAligned corresponds to the average traces of the subpopulation that are normalized and realigned at the first point of the center only response tresspassing 3 stddev of the blank condition before averaging       
 
 In all files, there are keys corresponding to arguments following that order
