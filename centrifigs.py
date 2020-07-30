@@ -367,43 +367,55 @@ def sort_stat(age='new'):
     if age == 'old':
         filename = 'data/old/fig2cells.xlsx'
         print('old file fig2cells.xlsx')
-        df = pd.read_excel(filename)
+        data = pd.read_excel(filename)
         rename_dict = {'popVmscpIsolatg' : 'cpisosect_time50',
                        'lagIndiSig' : 'cpisosect_time50_sig',
                        'popVmscpIsoAmpg' : 'cpisosect_gain50',
                        'ampIndiSig' : 'cpisosect_gain50_sig' }
-        df.rename(columns=rename_dict, inplace=True)
+        data.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
         latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
         cols = latGain50_v_df.columns
-        df = latGain50_v_df[[item for item in cols if 'cpisosect' in item]]
+        data = latGain50_v_df[[item for item in cols if 'cpisosect' in item]]
     else:
         print('fig2cells.xlsx to be updated')
         return
-    vals = [item for item in df.columns if '_sig' not in item]
-    sigs = [item for item in df.columns if '_sig' in item]
- #   df.index += 1 # cells = 1 to 37
-    # all cells:
-    print('=== all cells ===')
-    all1 = df.cpisosect_time50
-    all2 = df.cpisosect_gain50
-    for item, temp in zip(['latency', 'gain'], [all1, all2]):
-        print(item, len(temp), 'measures')
-        print('mean= {:5.2f}'.format(temp.mean()))
-        print('std= {:5.2f}'.format(temp.std()))
-        print('sem= {:5.2f}'.format(temp.sem()))
-    print('=== sig cells ===')
-    temp1 = df.loc[df.cpisosect_time50_sig == 1, ['cpisosect_time50']]
-    temp2 = df.loc[df.cpisosect_gain50_sig == 1, ['cpisosect_gain50']]
-    for item, temp in zip(['latency', 'gain'], [temp1, temp2]):
-        print(item, len(temp), 'measures')
-        print('mean= {:5.2f}'.format(temp.mean()[0]))
-        print('std= {:5.2f}'.format(temp.std()[0]))
-        print('sem= {:5.2f}'.format(temp.sem()[0]))
+    # simplification
+    simple = False
+    if simple:
+        cols = [col.replace('cpisosect_', '') for col in data.columns]
+        data.columns = cols
 
-plot_figure2B(std_colors, anot=anot, age='old')
-sort_stat('old')
-fig = figp.plot_2B_bis(std_colors, anot=anot)
+    vals = [item for item in data.columns if '_sig' not in item]
+    sigs = [item for item in data.columns if '_sig' in item]
+    
+    res = pd.DataFrame(index=vals)
+    alist=[]
+    for i in range(len(vals)):
+        alist.append(len(data))
+    res['cells'] = alist
+    res['mean_all'] = data[vals].mean().tolist()
+    res['std_all'] = data[vals].std().tolist()
+    res['sem_all'] = data[vals].sem().tolist()
+    
+    ares = {'sig_cells' : [], 'mean_sig' : [], 'std_sig' : [], 'sem_sig' : []}
+    for col in vals:
+        ares['sig_cells'].append(len(data.loc[data[col + '_sig'] == 1, [col]]))
+        ares['mean_sig'].append(data.loc[data[col + '_sig'] == 1, [col]].mean()[0])
+        ares['std_sig'].append(data.loc[data[col + '_sig'] == 1, [col]].std()[0])
+        ares['sem_sig'].append(data.loc[data[col + '_sig'] == 1, [col]].sem()[0])
+    for k, v in ares.items():
+        res[k] = v
+    
+    pd.options.display.float_format = '{:,.2f}'.format
+    print(res.T)
+    return res.T
+    
+fig1 = plot_figure2B(std_colors, anot=anot, age='new')
+descr_df = sort_stat('new')
+fig2 = figp.plot_2B_bis(std_colors, anot=anot, age='new')
+
+
 
 #%%
 plt.close('all')
