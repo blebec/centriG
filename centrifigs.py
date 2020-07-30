@@ -363,7 +363,18 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     return fig
 
 
+    
+fig1 = plot_figure2B(std_colors, anot=anot, age='new')
+fig2 = figp.plot_2B_bis(std_colors, anot=anot, age='new')
+
+#%%
+plt.close('all')
+
 def sort_stat(age='new'):
+    """
+    extract description of a the measures
+    -> return a pandas dataframe     
+    """
     if age == 'old':
         filename = 'data/old/fig2cells.xlsx'
         print('old file fig2cells.xlsx')
@@ -410,13 +421,30 @@ def sort_stat(age='new'):
     pd.options.display.float_format = '{:,.2f}'.format
     print(res.T)
     return res.T
-    
-fig1 = plot_figure2B(std_colors, anot=anot, age='new')
+
+
+def plot_stat():
+    """
+    single plot of the basic parameters obtained for cp_iso    
+    comparision before and after new treatment
+    """
+    fig = plt.figure()
+    axes = fig.subplots(nrows=1, ncols=2)
+    for i, age in enumerate(['old', 'new']):
+        tab = table(axes[i], sort_stat(age).round(2), loc='center', cellLoc='center',
+                    edges='L', colLabels=['', age, '']) 
+        tab.set_fontsize(11)
+        for j, cell in enumerate(tab.get_celld().values()):
+            if j > 17:
+                cell.visible_edges = ''
+        axes[i].axis('off')
+        axes[i].text(0.5, 0.8, age + ' vm values', verticalalignment='center',
+                     fontsize=14)
+    fig.tight_layout()
+    return fig
+
 descr_df = sort_stat('new')
-fig2 = figp.plot_2B_bis(std_colors, anot=anot, age='new')
-
-
-
+plot_stat()
 #%%
 plt.close('all')
 
