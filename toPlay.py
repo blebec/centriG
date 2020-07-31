@@ -17,7 +17,7 @@ import load_data as ldat
 std_colors = config.std_colors()
 anot = True
 
-#%%
+#%% a test fig and no more
 plt.close('all')
 
 fig = plt.figure()
