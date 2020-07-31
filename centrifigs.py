@@ -9,6 +9,7 @@ import os
 from importlib import reload
 import numpy as np
 import pandas as pd
+from pandas.plotting import table
 import matplotlib.pyplot as plt
 # import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
@@ -291,15 +292,15 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
     """
-    if age =='old':
+    if age == 'old':
         filename = 'data/old/fig2cells.xlsx'
         print('old file fig2cells.xlsx')
         df = pd.read_excel(filename)
         rename_dict = {'popVmscpIsolatg' : 'cpisosect_time50',
-                        'lagIndiSig' : 'cpisosect_time50_sig',
-                        'popVmscpIsoAmpg' : 'cpisosect_gain50',
-                        'ampIndiSig' : 'cpisosect_gain50_sig' }
-        df.rename(columns=rename_dict, inplace=True)    
+                       'lagIndiSig' : 'cpisosect_time50_sig',
+                       'popVmscpIsoAmpg' : 'cpisosect_gain50',
+                       'ampIndiSig' : 'cpisosect_gain50_sig'}
+        df.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
         latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
         cols = latGain50_v_df.columns
@@ -363,7 +364,7 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     return fig
 
 
-    
+
 fig1 = plot_figure2B(std_colors, anot=anot, age='new')
 fig2 = figp.plot_2B_bis(std_colors, anot=anot, age='new')
 
@@ -373,7 +374,7 @@ plt.close('all')
 def sort_stat(age='new'):
     """
     extract description of a the measures
-    -> return a pandas dataframe     
+    -> return a pandas dataframe
     """
     if age == 'old':
         filename = 'data/old/fig2cells.xlsx'
@@ -382,7 +383,7 @@ def sort_stat(age='new'):
         rename_dict = {'popVmscpIsolatg' : 'cpisosect_time50',
                        'lagIndiSig' : 'cpisosect_time50_sig',
                        'popVmscpIsoAmpg' : 'cpisosect_gain50',
-                       'ampIndiSig' : 'cpisosect_gain50_sig' }
+                       'ampIndiSig' : 'cpisosect_gain50_sig'}
         data.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
         latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
@@ -399,16 +400,16 @@ def sort_stat(age='new'):
 
     vals = [item for item in data.columns if '_sig' not in item]
     sigs = [item for item in data.columns if '_sig' in item]
-    
+
     res = pd.DataFrame(index=vals)
-    alist=[]
+    alist = []
     for i in range(len(vals)):
         alist.append(len(data))
     res['cells'] = alist
     res['mean_all'] = data[vals].mean().tolist()
     res['std_all'] = data[vals].std().tolist()
     res['sem_all'] = data[vals].sem().tolist()
-    
+
     ares = {'sig_cells' : [], 'mean_sig' : [], 'std_sig' : [], 'sem_sig' : []}
     for col in vals:
         ares['sig_cells'].append(len(data.loc[data[col + '_sig'] == 1, [col]]))
@@ -417,7 +418,7 @@ def sort_stat(age='new'):
         ares['sem_sig'].append(data.loc[data[col + '_sig'] == 1, [col]].sem()[0])
     for k, v in ares.items():
         res[k] = v
-    
+
     pd.options.display.float_format = '{:,.2f}'.format
     print(res.T)
     return res.T
@@ -425,20 +426,20 @@ def sort_stat(age='new'):
 
 def plot_stat():
     """
-    single plot of the basic parameters obtained for cp_iso    
+    single plot of the basic parameters obtained for cp_iso
     comparision before and after new treatment
     """
     fig = plt.figure()
     axes = fig.subplots(nrows=1, ncols=2)
     for i, age in enumerate(['old', 'new']):
         tab = table(axes[i], sort_stat(age).round(2), loc='center', cellLoc='center',
-                    edges='L', colLabels=['', age, '']) 
+                    edges='L', colLabels=['', age, ''])
         tab.set_fontsize(11)
         for j, cell in enumerate(tab.get_celld().values()):
             if j > 17:
                 cell.visible_edges = ''
         axes[i].axis('off')
-        axes[i].text(0.5, 0.8, age + ' vm values', verticalalignment='center',
+        axes[i].text(0.5, 0.8, age + ' vm values', horizontalalignment='center',
                      fontsize=14)
     fig.tight_layout()
     return fig
@@ -637,7 +638,7 @@ def plot_fig5():
     cells, 'nonsig': non significant cells]
     """
 #    filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
-    filenames = ['data/data_to_use/highspeed.xlsx', 
+    filenames = ['data/data_to_use/highspeed.xlsx',
                  'data/data_to_use/lowspeed.xlsx']
     titles = ['High speed', 'Low speed']
 
