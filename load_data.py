@@ -26,8 +26,10 @@ def load2(age='new'):
         filename = 'data/old/fig2traces.xlsx'
         print ('beware : old file')
     else:
-        print('file fig2traces as to be updated')
-        return None, None
+        filename = 'data/data_to_use/fig2_2traces.xlsx'
+        print ('fig2 : new file')
+        # print('file fig2traces as to be updated')
+        # return None, None
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
@@ -202,7 +204,7 @@ def load_energy_gain_index(paths, sig=True):
 #%%
 if __name__ == "__main__":
     paths = config.build_paths()
-    fig2_df, fig2_cols = load2('old')
+    fig2_df, fig2_cols = load2('new')
     energy_df = load_energy_gain_index(paths, sig=True)
     latGain50_v_df = load_cell_contributions('vm', age='old')
     latGain50_s_df = load_cell_contributions('spk', age='old')

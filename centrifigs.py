@@ -45,7 +45,7 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 
-def plot_figure2(data, colsdict, fill=True, anot=False):
+def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
     """
     figure2 (individual + pop + sig)
     """
@@ -53,7 +53,6 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     alphas = [0.8, 0.8]
     inv_colors = colors[::-1]
     inv_alphas = alphas[::-1]
-
 
     fig = plt.figure(figsize=(17.6, 12))
     axes = []
@@ -73,9 +72,10 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
-    ax.plot(x, y, 'o', color=std_colors['blue'])
+    # ax.plot(x, y, 'o', color=std_colors['blue'])
+    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=std_colors['blue'],
+    ax.vlines(x, lims[0], lims[1], linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -86,11 +86,16 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
         ax.fill_between(data.index, data[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
     # start point
-    x = 39.8
-    y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=std_colors['blue'])
+    if age == 'old':
+        x = 39.8
+        y = data.indiSpkCtr.loc[x]
+    else:
+        y = 3.3498563766479506
+        x = abs(data.indiSpkCtr.loc[50:70] - y).sort_values().index[0]    
+        # ax.plot(x, y, 'o', color=std_colors['blue'])
+    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
-    ax.vlines(x, lims[0], lims[1], linewidth=1, color=std_colors['blue'],
+    ax.vlines(x, lims[0], lims[1], linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -114,23 +119,19 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
                 label=col)
         # errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
-            if fill:
-                ax.fill_between(df.index, df[col[0]], df[col[1]],
+            ax.fill_between(df.index, df[col[0]], df[col[1]],
                                 color=colors[i], alpha=0.2)#alphas[i]/2)
-            else:
-                for i, col in enumerate(cols[2:]):
-                    for j in [0, 1]:
-                        ax.plot(df[col[j]], color=colors[i], alpha=alphas[i],
-                                label=col, linewidth=0.5)
     # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=std_colors['blue'])
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'])
-    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':')
+    ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    # ax.plot(x0, y, 'o', color=std_colors['blue'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+            ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -163,9 +164,11 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=std_colors['blue'])
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'])
-    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':')
+    ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    # ax.plot(x0, y, 'o', color=std_colors['blue'])
+    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+            ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -194,8 +197,11 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     for ax in vmaxes[1:]:
         ax.set_ylim(-0.10, 1.2)
     for ax in spkaxes[1:]:
-        ax.set_ylim(-0.10, 1.3)
         ax.set_xlabel('Relative time (ms)')
+        if age == 'old':
+            ax.set_ylim(-0.10, 1.3)
+        else:
+            ax.set_ylim(-0.10, 1)
 
     # stimulations
     step = 28
@@ -206,22 +212,40 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
-            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
-    # stim location
-    ax = spkaxes[0]
-    for key in dico.keys():
-        ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
-        # stim
-        rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
-                         alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
-        ax.add_patch(rect)
-    # center
-    rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
-                     alpha=0.6, edgecolor='w', facecolor='k')
-    ax.add_patch(rect)
+            ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.3)
     # fit individual example
-    vmaxes[0].set_ylim(-3.5, 12)
-    spkaxes[0].set_ylim(-5.5, 18)
+    if age == 'old':
+        vmaxes[0].set_ylim(-3.5, 12)
+        spkaxes[0].set_ylim(-5.5, 18)
+        # stim location
+        ax = spkaxes[0]
+        for key in dico.keys():
+            ax.annotate(key, xy=(dico[key]+3, -3), alpha=0.6, fontsize='x-small')
+            # stim
+            rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
+                             alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
+            ax.add_patch(rect)
+        # center
+        rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor='k')
+        ax.add_patch(rect)
+
+    else:
+        vmaxes[0].set_ylim(-3.5, 12)
+        spkaxes[0].set_ylim(-8, 35)
+        # stim location
+        ax = spkaxes[0]
+        for key in dico.keys():
+            ax.annotate(key, xy=(dico[key]+3, -5), alpha=0.6, fontsize='x-small')
+            # stim
+            rect = Rectangle(xy=(dico[key], -7), width=step, height=1, fill=True,
+                             alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
+            ax.add_patch(rect)
+        # center
+        rect = Rectangle(xy=(0, -6), width=step, height=1, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor='k')
+        ax.add_patch(rect)
+        
     # align zero between plots  NB ref = first plot
     for i in [0, 1]:
         gfuc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
@@ -268,8 +292,8 @@ def plot_figure2(data, colsdict, fill=True, anot=False):
     return fig
 
 #data
-fig2_df, fig2_cols = ldat.load2('old')
-fig = plot_figure2(fig2_df, fig2_cols, anot=anot)
+fig2_df, fig2_cols = ldat.load2('new')
+fig = plot_figure2(fig2_df, fig2_cols, anot=anot, age='new')
 
 # =============================================================================
 ## other views
