@@ -216,7 +216,6 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
                 ax.set_title(anot_right)
     else:
         for i, name in enumerate(df_right.columns):
-            print(i, name)
             ax = right_axes[i]
             # ax.set_title(str(i))
             ax.set_title(name , alpha=0.5)
@@ -343,10 +342,10 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         spread = 'sect'
     else:
         spread = 'full'
-    title = 'sorted_peak_responses' + ' (' + mes + ' ' + spread + ')'
+    title = 'sorted_responses' + ' (' + mes + ' ' + spread + ')'
     anoty = 'Cell rank'
-    anotx = [df_left.columns[0][5:], df_right.columns[0][5:]]
-
+    # anotx = [df_left.columns[0][5:], df_right.columns[0][5:]]
+    anotx = [left.columns[0].split('_')[1], right.columns[0].split('_')[1]]
     fig = plt.figure()
     fig.suptitle(title)
     # left
@@ -367,21 +366,22 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         #stat
         z2 = []
         if col + '_sig' in df.columns:
+            alpha = 0.8
             for a, b in zip(z1, df[col + '_sig']):
                 if b == 1:
                     z2.append(a)
                 else:
                     z2.append('w')
         else:
+            alpha = 0.5
             z2 = z1
         #plot
         yl = df.index.to_list()
         xl = df[col].tolist()
         for x, y, e, f in zip(xl, yl, z1, z2):
-            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, alpha=0.8,
-                    markeredgewidth=1.5, markersize=6)      
-    ax.set_xlabel('time')
-    # right
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
+                    alpha=alpha, markeredgewidth=1.5, markersize=6)      
+  # right
     ax = fig.add_subplot(122)
     df = df_right.reindex(sorted_cells)
     val_cols = [item for item in df.columns if '_sig' not in item]
@@ -396,21 +396,23 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         #stat
         z2 = []
         if col + '_sig' in df.columns:
+            alpha = 0.8
             for a, b in zip(z1, df[col + '_sig']):
                 if b == 1:
                     z2.append(a)
                 else:
                     z2.append('w')
         else:
+            alpha = 0.5
             z2 = z1
         #plot
         yl = df.index.to_list()
         xl = df[col].tolist()
         for x, y, e, f in zip(xl, yl, z1, z2):
-            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, alpha=0.8,
-                    markeredgewidth=1.5, markersize=6)      
-    ax.set_xlabel('gain')
-    for ax in fig.get_axes():
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
+                    alpha=alpha, markeredgewidth=1.5, markersize=6)      
+    for i, ax in enumerate(fig.get_axes()):
+        ax.set_xlabel(anotx[i])
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
         lims = ax.get_ylim()
@@ -419,7 +421,7 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         ax.set_yticklabels([1, len(df)])
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:horizontal_dot_plot',
+        fig.text(0.99, 0.01, 'toPlay.py:horizontal_dot_plot',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -447,11 +449,15 @@ def scatter_lat_gain(df_left, df_right, mes=''):
         color_list = []
         for j in range(len(df_left)):
             color_list.append(colors[i])
-        ax.scatter(left[df_left.columns[i]], df_right[right.columns[i]],
+        x = df_left[df_left.columns[i]]
+        y = df_right[df_right.columns[i]]
+        ax.scatter(x, y,
                    c=color_list, s=100,
                    edgecolors=dark_colors[i], alpha=0.6)
     ax.set_xlabel('time')
     ax.set_ylabel('gain')
+    ax.set_xlabel(df_left.columns[0].split('_')[1])
+    ax.set_ylabel(df_right.columns[0].split('_')[1])
     lims = ax.get_xlim()
     ax.hlines(0, lims[0], lims[1], 'k', alpha=0.3)
     lims = ax.get_ylim()
@@ -459,7 +465,7 @@ def scatter_lat_gain(df_left, df_right, mes=''):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:horizontal_dot_plot',
+        fig.text(0.99, 0.01, 'toPlay.py:horizontal_dot_plot',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -478,9 +484,10 @@ def histo_lat_gain(df_left, df_right, mes=''):
         spread = 'sect'
     else:
         spread = 'full'
-    title = 'peak_responses' + ' (' + mes + ' ' + spread + ')'
+    title = 'responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
-    anoty = [df_left.columns[0][5:], df_right.columns[0][5:]]
+    anoty = [df_left.columns[0].split('_')[1], 
+             df_right.columns[0].split('_')[1]]
     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #          #(fraction of Center-only response)']
     # plot
@@ -496,13 +503,13 @@ def histo_lat_gain(df_left, df_right, mes=''):
     ax = fig.add_subplot(gs[0, 0])
     left_axes.append(ax)
     for i in range(1, 4):
-        left_axes.append(fig.add_subplot(gs[i, 0], sharex=ax))
+        left_axes.append(fig.add_subplot(gs[i, 0], sharex=ax, sharey=ax))
     # right
     right_axes = []
-    ax = fig.add_subplot(gs[0, 1])
+    ax = fig.add_subplot(gs[0, 1], sharey=ax)
     right_axes.append(ax)
     for i in range(1, 4):
-        right_axes.append(fig.add_subplot(gs[i, 1], sharex=ax))
+        right_axes.append(fig.add_subplot(gs[i, 1], sharex=ax, sharey=ax))
     # to identify the plots (uncomment to use)
     if anot:
         fig.suptitle(title)
@@ -987,7 +994,7 @@ for spread in ['sect', 'full']:
 
     fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
                                 left_sig=True, right_sig=True)
-    fig2 = horizontal_dot_plot(left, right, mes=mes)
+    fig2 = horizontal_dot_plot(right, left, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 #%% plot energy vm
