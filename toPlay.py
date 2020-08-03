@@ -573,10 +573,13 @@ def extract_stat(onlySig=False):
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
 #    data50 = ldat.load_50vals(mes)
-    data50 = ldat.load_cell_contributions(mes)
+#    data50 = ldat.load_cell_contributions(mes)
+    # amp in ['gain', 'engy']
+    amp = 'gain'
+    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
-    print(len(data50), ' cells')
+    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
     # remove the significance
     data50 = data50[[item for item in data50.columns if '_sig' not in item]]
     sigCells = data50.index.to_list()
@@ -628,6 +631,47 @@ def extract_stat(onlySig=False):
     desc_df['gain50_spk_std'] = gain_df.std()
     desc_df['gain50_spk_med'] = gain_df.median()
     desc_df['gain50_spk_mad'] = gain_df.mad()
+    # engy vm
+    mes = 'vm'
+    amp = 'engy'
+    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
+    if onlySig:
+        data50 = data50.loc[data50.cpisosect_time50_sig > 0]
+    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
+    # remove the significance
+    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    sigCells = data50.index.to_list()
+    # vm_gain50
+    engy = [item for item in data50.columns if 'engy' in item]
+    engy = [item for item in engy if 'sect_' in item] \
+            + [item for item in engy if 'full_' in item]
+    gain_df = data50[engy].copy()
+    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
+    desc_df['energy_vm_mean'] = gain_df.mean()
+    desc_df['energy_vm_std'] = gain_df.std()
+    desc_df['energy_vm_med'] = gain_df.median()
+    desc_df['energy_vm_mad'] = gain_df.mad()
+    #engy spk
+    mes = 'spk'
+    amp = 'engy'
+    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
+    if onlySig:
+        data50 = data50.loc[data50.cpisosect_time50_sig > 0]
+    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
+    # remove the significance
+    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    sigCells = data50.index.to_list()
+    # vm_gain50
+    engy = [item for item in data50.columns if 'engy' in item]
+    engy = [item for item in engy if 'sect_' in item] \
+            + [item for item in engy if 'full_' in item]
+    gain_df = data50[engy].copy()
+    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
+    desc_df['energy_spk_mean'] = gain_df.mean()
+    desc_df['energy_spk_std'] = gain_df.std()
+    desc_df['energy_spk_med'] = gain_df.median()
+    desc_df['energy_spk_mad'] = gain_df.mad()
+
     # peak (non normalized data)
     # vm
     filename = 'data/cg_peakValueTime_vm.xlsx'
@@ -686,7 +730,7 @@ plt.close('all')
 def plot_stat(stat_df, kind='mean', loc='50'):
     """
     plot the stats
-    input : stat_df, kind in ['mean', 'med'], loc in ['50', 'peak']
+    input : stat_df, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
     """
     if kind == 'mean':
@@ -700,6 +744,8 @@ def plot_stat(stat_df, kind='mean', loc='50'):
         mes = ['time50', 'gain50']
     elif loc == 'peak':
         mes = ['timeP', 'gainP']
+    elif loc == 'energy':
+        mes = ['time50', 'energy']        
     else:
         print('non valid loc argument')
         return
@@ -817,7 +863,7 @@ def plot_stat(stat_df, kind='mean', loc='50'):
     fig.subplots_adjust(wspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_stat',
+        fig.text(0.99, 0.01, 'toPlay.py:plot_stat',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -859,8 +905,15 @@ def sigNonSig_stat_plot():
 
 
 stat_df = extract_stat(onlySig=False)
+# mind : significant cells are only base on cpisosect_time50 !
 plot_stat(stat_df, 'med', 'peak')
 plot_stat(stat_df, 'med', '50')
+plot_stat(stat_df, 'med', 'energy')
+
+# savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain'
+# for measure in ['peak', '50', 'energy']:
+#     fig = plot_stat(stat_df, 'med', measure)
+#     fig.savefig(os.path.join(savePath, measure + '.png'))
 
 
 #%% vm
