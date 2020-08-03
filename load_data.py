@@ -131,83 +131,84 @@ def load_cell_contributions(kind='vm', amp='gain', age='new'):
     return df
 
 
-def load_energy_gain_index(paths, sig=True):
-    """
-    energy in files
-    pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
-    """
-    def load_energy_cell(cell_name='1424M_CXG16.txt'):
-        """
-        to iterate and load sucessively all the cells
-        """
-
-        cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect',
-                'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
-
-        cols = [item + '_energy' for item in cols]
-        folder = os.path.join(paths['owncFig'], 'data', 
-                              'index', 'vm', 'energyt0baseline')
-        filename = os.path.join(folder, cell_name)
-        df = pd.read_csv(filename, sep='\t', names=cols)
-        return df
-
-    # neurons & values
-    df = pd.DataFrame()
-    folder = os.path.join(paths['owncFig'], 'data', 
-                          'index', 'vm', 'energyt0baseline')
-    for name in os.listdir(folder):
-        if os.path.isfile(os.path.join(folder, name)):
-            energy_df = load_energy_cell(name)
-            # nb here i choosed the median value
-            df[os.path.splitext(name)[0]] = energy_df.median()
-
-            df[os.path.splitext(name)[0]] = energy_df.mean()
-
-    # pvalues one col by condition, one line per cell
-    df = df.T
-    folder = os.path.join(paths['owncFig'], 'data', 
-                          'index', 'vm', 'stats', 'pvaluesup')
-    for name in os.listdir(folder):
-        filename = os.path.join(folder, name)
-        if os.path.isfile(filename):
-            cond = os.path.basename(filename).split('.')[0]
-            cond = cond.split('indisig')[0] + '_' + cond.split('indisig')[1]
-            with open(filename, 'r') as fh:
-                for line in fh:
-                    if '[' in line:
-                        line = line.replace('[', '')
-                    if ']' in line:
-                        line = line.replace(']', '')
-                pvals = [np.float(item) for item in line.split(',')]
-            #rename
-            cond = cond.replace('rnd', 'rd')
-            cond = cond.replace('sec', 'sect')
-            cond = cond.replace('cross', 'crx')
-            #assign
-            df[cond + '_p'] = pvals
-    if sig:
-        # p to sig or non sig
-        cols = [col for col in df.columns if '_p' in col]
-        for col in cols:
-            df[col] = df[col] - 0.05
-            df.loc[df[col] > 0, [col]] = 0
-            df.loc[df[col] < 0, [col]] = 1
-            df[col] = df[col].astype(int)
-        # rename
-        cols = []
-        for col in df.columns:
-            if len(col.split('_')) > 2:
-                col = col.split('_')[0] + '_' + col.split('_')[1] +  '_sig'
-            cols.append(col)
-        df.columns = cols
-    return df
-
+# =============================================================================
+# def load_energy_gain_index(paths, sig=True):
+#     """
+#     energy in files
+#     pb des fichiers : les pvalues sone classées ... sans index ! dangereux !
+#     """
+#     def load_energy_cell(cell_name='1424M_CXG16.txt'):
+#         """
+#         to iterate and load sucessively all the cells
+#         """
+# 
+#         cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect',
+#                 'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
+# 
+#         cols = [item + '_energy' for item in cols]
+#         folder = os.path.join(paths['owncFig'], 'data', 
+#                               'index', 'vm', 'energyt0baseline')
+#         filename = os.path.join(folder, cell_name)
+#         df = pd.read_csv(filename, sep='\t', names=cols)
+#         return df
+# 
+#     # neurons & values
+#     df = pd.DataFrame()
+#     folder = os.path.join(paths['owncFig'], 'data', 
+#                           'index', 'vm', 'energyt0baseline')
+#     for name in os.listdir(folder):
+#         if os.path.isfile(os.path.join(folder, name)):
+#             energy_df = load_energy_cell(name)
+#             # nb here i choosed the median value
+#             df[os.path.splitext(name)[0]] = energy_df.median()
+# 
+#             df[os.path.splitext(name)[0]] = energy_df.mean()
+# 
+#     # pvalues one col by condition, one line per cell
+#     df = df.T
+#     folder = os.path.join(paths['owncFig'], 'data', 
+#                           'index', 'vm', 'stats', 'pvaluesup')
+#     for name in os.listdir(folder):
+#         filename = os.path.join(folder, name)
+#         if os.path.isfile(filename):
+#             cond = os.path.basename(filename).split('.')[0]
+#             cond = cond.split('indisig')[0] + '_' + cond.split('indisig')[1]
+#             with open(filename, 'r') as fh:
+#                 for line in fh:
+#                     if '[' in line:
+#                         line = line.replace('[', '')
+#                     if ']' in line:
+#                         line = line.replace(']', '')
+#                 pvals = [np.float(item) for item in line.split(',')]
+#             #rename
+#             cond = cond.replace('rnd', 'rd')
+#             cond = cond.replace('sec', 'sect')
+#             cond = cond.replace('cross', 'crx')
+#             #assign
+#             df[cond + '_p'] = pvals
+#     if sig:
+#         # p to sig or non sig
+#         cols = [col for col in df.columns if '_p' in col]
+#         for col in cols:
+#             df[col] = df[col] - 0.05
+#             df.loc[df[col] > 0, [col]] = 0
+#             df.loc[df[col] < 0, [col]] = 1
+#             df[col] = df[col].astype(int)
+#         # rename
+#         cols = []
+#         for col in df.columns:
+#             if len(col.split('_')) > 2:
+#                 col = col.split('_')[0] + '_' + col.split('_')[1] +  '_sig'
+#             cols.append(col)
+#         df.columns = cols
+#     return df
+# =============================================================================
 
 #%%
 if __name__ == "__main__":
     paths = config.build_paths()
     fig2_df, fig2_cols = load2('new')
-    energy_df = load_energy_gain_index(paths, sig=True)
+    #energy_df = load_energy_gain_index(paths, sig=True)
     latGain50_v_df = load_cell_contributions('vm', age='old')
     latGain50_s_df = load_cell_contributions('spk', age='old')
     

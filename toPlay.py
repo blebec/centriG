@@ -97,9 +97,9 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
     # normalization with center only (Y - Yref)/Yref
     ctrl = df[col_list[0]]
     for item in col_list[1:]:
-        print(df[item].mean())
+        # print(df[item].mean())
         df[item] = (df[item] - ctrl) / ctrl
-        print(df[item].mean())
+        # print(df[item].mean())
     # select by spread
     col_list = [item for item in col_list if spread in item]
     return df[col_list]
@@ -172,7 +172,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
             bar_colors = [color_dic[x] for x in select[sig_name]]
             ax = left_axes[i]
             # ax.set_title(str(i))
-            ax.set_title(name)
+            ax.set_title(name, alpha=0.5)
             # without significance
             #select = df_left[name].sort_values(ascending=False)
             #ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
@@ -188,11 +188,11 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
         for i, name in enumerate(df_left.columns):
             ax = left_axes[i]
             # ax.set_title(str(i))
-            ax.set_title(name)
+            ax.set_title(name, alpha=0.5)
             # without significance
             select = df_left[name].sort_values(ascending=False)
             ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
-                   alpha=0.8, width=0.8)
+                   alpha=0.5, width=0.8)
             if i == 0:
                 ax.set_title(anot_left)
     #right
@@ -208,7 +208,7 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
             bar_colors = [color_dic[x] for x in select[sig_name]]
             ax = right_axes[i]
             # ax.set_title(str(i))
-            ax.set_title(name)
+            ax.set_title(name, alpha=0.5)
             select = df_right[name].sort_values(ascending=False)
             ax.bar(x, select, color=bar_colors, edgecolor=edge_color,
                    alpha=0.8, width=0.8)
@@ -216,13 +216,14 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
                 ax.set_title(anot_right)
     else:
         for i, name in enumerate(df_right.columns):
+            print(i, name)
             ax = right_axes[i]
             # ax.set_title(str(i))
-            ax.set_title(name)
+            ax.set_title(name , alpha=0.5)
             # without significance
             select = df_right[name].sort_values(ascending=False)
             ax.bar(x, select, color=colors[i], edgecolor=dark_colors[i],
-                   alpha=0.8, width=0.8)
+                   alpha=0.5, width=0.8)
             if i == 0:
                 ax.set_title(anot_right)
 
@@ -260,12 +261,12 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
                 ax.set_xlabel(anotx)
                 ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df_right)])
-    for ax in left_axes:
-        custom_ticks = np.linspace(0, 0.5, 2)
-        ax.set_yticks(custom_ticks)
-    for ax in right_axes:
-        custom_ticks = np.linspace(0, 0.5, 2)
-        ax.set_yticks(custom_ticks)
+    # for ax in left_axes:
+    #     custom_ticks = np.linspace(0, 0.5, 2)
+    #     ax.set_yticks(custom_ticks)
+    # for ax in right_axes:
+    #     custom_ticks = np.linspace(0, 0.5, 2)
+    #     ax.set_yticks(custom_ticks)
     no_spines = True
     if no_spines == True:
         for ax in left_axes:
@@ -318,8 +319,8 @@ def select_50(df, spread='sect', param='gain', noSig=True):
     if spread not in ['sect', 'full']:
         print("'spread' should be in ['sect', 'full']")
         return
-    if param not in ['time', 'gain']:
-        print("'param' should be in ['time', 'gain']")
+    if param not in ['time', 'gain', 'engy']:
+        print("'param' should be in ['time', 'gain', 'engy']")
         return
     # select by param (first value = control)
     col_list = [item for item in df.columns if param in item]
@@ -920,13 +921,26 @@ plot_stat(stat_df, 'med', 'energy')
 plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
-    data50 = ldat.load_cell_contributions(mes)
+    data50 = ldat.load_cell_contributions(kind=mes, amp='gain', age='new')
     advance_df = select_50(data50, spread=spread, param='time', noSig=False)
     left = advance_df
 
     filename = 'data/cg_peakValueTime_vm.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+
+    # test for same cells
+    diff = (left.index ^ right.index).tolist()
+    if len(diff) > 0:
+        print("left and right doesn't contain the same cells !")
+        print(diff)
+    for item in diff:
+        if item in left.index:
+            left = left.drop(item)
+        elif item in right.index:
+            right = right.drop(item)
+
+
     fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
                                 left_sig=True, right_sig=False)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
@@ -943,12 +957,39 @@ for spread in ['sect', 'full']:
     filename = 'data/cg_peakValueTime_spk.xlsx'
     data = load_peakdata(filename)
     right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+
+    # test for same cells
+    diff = (left.index ^ right.index).tolist()
+    if len(diff) > 0:
+        print("left and right doesn't contain the same cells !")
+        print(diff)
+    for item in diff:
+        if item in left.index:
+            left = left.drop(item)
+        elif item in right.index:
+            right = right.drop(item)
+
     fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
                                 left_sig=True, right_sig=False)
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 
+#%% energy
+plt.close('all')
+for spread in ['sect', 'full']:
+    mes = 'vm'
+    data50 = ldat.load_cell_contributions(kind=mes, amp='gain', age='new')
+    left = select_50(data50, spread=spread, param='gain', noSig=False)
+
+    data50 = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+    right = select_50(data50, spread=spread, param='engy', noSig=False)
+
+    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
+                                left_sig=True, right_sig=True)
+    fig2 = horizontal_dot_plot(left, right, mes=mes)
+    fig3 = scatter_lat_gain(left, right, mes=mes)
+    fig4 = histo_lat_gain(left, right, mes=mes)
 #%% plot energy vm
 def adapt_energy_to_plot(energy_df, spread='sect'):
     df = energy_df.copy()
