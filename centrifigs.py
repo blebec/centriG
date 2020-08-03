@@ -7,6 +7,7 @@ plot centrigabor figures from data stored in .xlsx files
 
 import os
 from importlib import reload
+from datetime import datetime
 import numpy as np
 import pandas as pd
 from pandas.plotting import table
@@ -15,8 +16,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 from matplotlib import markers
-from datetime import datetime
-
+import itertools
 import config
 import plot_general_functions as gfuc
 import load_data as ldat
@@ -121,7 +121,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
         # errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             ax.fill_between(df.index, df[col[0]], df[col[1]],
-                                color=colors[i], alpha=0.2)#alphas[i]/2)
+                            color=colors[i], alpha=0.2)#alphas[i]/2)
     # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
@@ -246,7 +246,7 @@ def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
         rect = Rectangle(xy=(0, -6), width=step, height=1, fill=True,
                          alpha=0.6, edgecolor='w', facecolor='k')
         ax.add_patch(rect)
-        
+
     # align zero between plots  NB ref = first plot
     for i in [0, 1]:
         gfuc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
@@ -427,10 +427,7 @@ def sort_stat(age='new'):
     sigs = [item for item in data.columns if '_sig' in item]
 
     res = pd.DataFrame(index=vals)
-    alist = []
-    for i in range(len(vals)):
-        alist.append(len(data))
-    res['cells'] = alist
+    res['cells'] = [len(data)]* len(vals) # nb of cells
     res['mean_all'] = data[vals].mean().tolist()
     res['std_all'] = data[vals].std().tolist()
     res['sem_all'] = data[vals].sem().tolist()
@@ -1770,23 +1767,21 @@ plot_cell_contribution(df, kind)
 #%%
 plt.close('all')
 
-# TODO: in first figure, 1st condition latency advance of CP-ISO
-# plot and fill the actual 10 and 11th df.index significant cell row
-# before the actual actual 9th
 def plot_sorted_responses(dico):
     """
     plot the sorted cell responses
     input = conditions parameters
 
     """
-    # parameter
-    colors = [std_colors['red'], std_colors['red'],
-              std_colors['green'], std_colors['green'],
-              std_colors['yellow'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue']]
+    colors = [std_colors['red'], std_colors['green'], 
+              std_colors['yellow'], std_colors['blue']]
+    #duplicate for two columns
+    colors = \
+    list(itertools.chain.from_iterable([item, item] for item in colors))
     # data (call)
     #TODO adapty for vm, engy, ...
-    df = ldat.load_cell_contributions(dico['kind'])
+    #load_cell_contributions(kind='vm', amp='gain', age='new')
+    df = ldat.load_cell_contributions(kind=dico['kind'], amp=dico['amp'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread'] in item]
     # filter -> only significative cells
@@ -1797,6 +1792,8 @@ def plot_sorted_responses(dico):
     anotx = 'Cell rank'
     anoty = [r'$\Delta$ phase (ms)', r'$\Delta$ amplitude']
              # (fraction of Center-only response)']
+    if dico['amp'] == 'engy':
+        anoty[1] = 'energy'
     # plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
@@ -1860,7 +1857,8 @@ parameter_dico = {
         'spread' : 'sect',
         'position' : 'cp',
         'theta' : 'cross',
-        'extra' : 'stc'
+        'extra' : 'stc', 
+        'amp' : 'engy'
         }
 
 fig = plot_sorted_responses(parameter_dico)
@@ -1869,11 +1867,13 @@ fig = plot_sorted_responses(parameter_dico)
 plt.close('all')
 
 # iterate through conditions for plotting
-for kind in ['vm', 'spk']:
-    parameter_dico['kind'] = kind
-    for spread in ['sect', 'full']:
-        parameter_dico['spread'] = spread
-        fig = plot_sorted_responses(parameter_dico)
+for amp in ['gain', 'engy']:
+    parameter_dico['amp'] = amp
+    for kind in ['vm', 'spk']:
+        parameter_dico['kind'] = kind
+        for spread in ['sect', 'full']:
+            parameter_dico['spread'] = spread
+            fig = plot_sorted_responses(parameter_dico)
 
 #%% opt
 colors = ['k', std_colors['red'], speedColors['dark_orange'],

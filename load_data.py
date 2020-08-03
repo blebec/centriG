@@ -87,7 +87,9 @@ def new_columns_names(cols):
 def load_cell_contributions(kind='vm', amp='gain', age='new'):
     """
     load the corresponding xcel file
-    kind = 'vm' or 'spk'
+    age in ['old', 'new']
+    amp in ['gain', 'engy']
+    kind in ['vm' or 'spk']
     """
     if age == 'old':
         if kind == 'vm':
