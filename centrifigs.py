@@ -70,7 +70,10 @@ def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
         ax.plot(data[col], color=colors[i], alpha=alphas[i],
                 label=col)
     # start point
-    x = 41.5
+    if age == 'old':
+        x = 41.5
+    else:
+        x = 43.5
     y = data.indiVmctr.loc[x]
     # ax.plot(x, y, 'o', color=std_colors['blue'])
     ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
@@ -88,11 +91,9 @@ def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
     # start point
     if age == 'old':
         x = 39.8
-        y = data.indiSpkCtr.loc[x]
     else:
-        y = 3.3498563766479506
-        x = abs(data.indiSpkCtr.loc[50:70] - y).sort_values().index[0]    
-        # ax.plot(x, y, 'o', color=std_colors['blue'])
+        x = 55.5
+    y = data.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=2, color=std_colors['blue'],
