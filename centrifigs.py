@@ -45,7 +45,7 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 
-def plot_figure2(data, colsdict, fill=True, anot=False, age='old'):
+def plot_figure2(data, colsdict, anot=False, age='old'):
     """
     figure2 (individual + pop + sig)
     """
@@ -563,11 +563,11 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_figure3(std_colors, 'pop', age='old')
-fig = plot_figure3(std_colors, 'sig', age='old')
+fig1 = plot_figure3(std_colors, 'pop', age='old')
+fig2 = plot_figure3(std_colors, 'sig', age='old')
 #fig = plot_figure3('nonsig')
-fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
-fig2 = plot_figure3(std_colors, 'pop', substract=True, age='old')
+#fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
+#fig2 = plot_figure3(std_colors, 'pop', substract=True, age='old')
 
 #pop all cells
 #%% grouped sig and non sig
