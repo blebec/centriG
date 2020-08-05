@@ -38,6 +38,15 @@ def load_traces(paths, kind='vm', spread='sect', num=2):
     df.index = df.index/10
     
     label = file.split('.')[0]
+    
+    # rename column
+    cols = df.columns
+    cols = \
+        [item[:-3] + ('_').join(item[-3:].split('n')) for item in cols]
+    df.columns = cols
+        
+    nb_cells = list(set([item.split('_')[1] for item in data.columns]))
+
     return label, df
 
 
@@ -67,26 +76,31 @@ def plot_align_normalize(label, data, substract=False):
               std_colors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
-    fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(6, 18), 
+    cell_pop = list(set([item.split('_')[1] for item in data.columns]))
+    cell_pop = sorted([int(item) for item in cell_pop])[::-1]
+
+    fig, axes = plt.subplots(ncols=1, nrows=len(cell_pop), figsize=(6, 18), 
                              sharex=True, sharey=True)
     # fig.suptitle(label, alpha=0.4)
     fig.text(x=0.05, y= 0.95, s=label, alpha = 0.6)
-    for i, k in enumerate(['pop', 'spk', 'spk2s']):
+    #for i, k in enumerate(['pop', 'spk', 'spk2s']):
+    for i, k in enumerate(cell_pop):    
         ax = axes[i]
-        ax.set_title('pop = ' + k + ' _sig', alpha=0.6)
-        df = select_pop(data, filt=k)
-        cols = df.columns
-        # ? rename column
+        ax.set_title(str(k) + ' sig_cells', alpha=0.6)
+        #ax.set_title('pop = ' + k + ' _sig', alpha=0.6)
         cols = \
-            [item[:-3] + ('_').join(item[-3:].split('n')) for item in cols]
-        df.columns = cols
+            [item for item in data.columns if str(k) == item.split('_')[-1]]
+        df = data[cols]
+#        df = select_pop(data, filt=k)
         # remove 'rndisosect'
+ #       cols = df.columns
         cols = [item for item in cols if 'rndisosect' not in item]        
         if substract:
             # subtract the centerOnly response
-            if 'center' in df.columns:
-                ref = df['center']
-                df = df.subtract(ref, axis=0)        
+            for col in df.columns:
+                if 'center' in col:
+                    ref = df[col]
+                    df = df.subtract(ref, axis=0)        
         for j, col in enumerate(cols):
             ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col, 
                     linewidth=2)
@@ -98,7 +112,10 @@ def plot_align_normalize(label, data, substract=False):
         
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-        ax.set_ylabel('vm')
+        if 'spk' in label:
+            ax.set_ylabel('spk')
+        else:
+            ax.set_ylabel('vm')
         if i == 2:
             ax.set_xlabel('relative time (ms)')
 #    ax.set_xlim(-20, 120)
@@ -118,12 +135,12 @@ def plot_align_normalize(label, data, substract=False):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-savepath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/3'
+savepath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/alignNorm'
 save = False
 #%%
 plt.close('all')
-kind = ['vm', 'spk'][1]
-spread = ['sect', 'full'][0]
+kind = ['vm', 'spk'][0]
+spread = ['sect', 'full'][1]
 num = [0, 1, 2][0]
 
 label, data = load_traces(paths, kind=kind, spread=spread, num=num)
@@ -136,9 +153,11 @@ for kind in ['vm', 'spk']:
     for spread in ['sect', 'full']:
         for num in range(3):
             label, data = load_traces(paths, kind=kind, spread=spread, num=num)
-            fig = plot_align_normalize(label, data)
+            fig1 = plot_align_normalize(label, data)
+            fig2 = plot_align_normalize(label, data, substract=True)
             if save:
-                fig.savefig(fname = os.path.join(savepath, label + '.png'))
+                fig1.savefig(fname = os.path.join(savepath, label + '.png'))
+                fig2.savefig(fname = os.path.join(savepath, label + 'Subs.png'))
 
 #TODO to be checked
 
