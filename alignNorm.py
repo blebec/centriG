@@ -41,9 +41,7 @@ def load_traces(paths, kind='vm', spread='sect', num=2):
     return label, df
 
 
-
-
-def plot_align_normalize(label, data):
+def plot_align_normalize(label, data, substract=False):
     """
     """
     def select_pop(df, filt='pop'):
@@ -64,16 +62,10 @@ def plot_align_normalize(label, data):
             return
         return df
 
-    # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    # df.columns = cols
     colors = ['k', std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue'],
               std_colors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
-    # if substract:
-    #     # subtract the centerOnly response
-    #     ref = df['CENTER-ONLY']
-    #     df = df.subtract(ref, axis=0)
 
     fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(6, 18), 
                              sharex=True, sharey=True)
@@ -84,20 +76,39 @@ def plot_align_normalize(label, data):
         ax.set_title('pop = ' + k + ' _sig', alpha=0.6)
         df = select_pop(data, filt=k)
         cols = df.columns
+        # ? rename column
+        cols = \
+            [item[:-3] + ('_').join(item[-3:].split('n')) for item in cols]
+        df.columns = cols
+        # remove 'rndisosect'
+        cols = [item for item in cols if 'rndisosect' not in item]        
+        if substract:
+            # subtract the centerOnly response
+            if 'center' in df.columns:
+                ref = df['center']
+                df = df.subtract(ref, axis=0)        
         for j, col in enumerate(cols):
-            ax.plot(df[col], color=colors[j], alpha=alphas[j], label=col, 
+            ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col, 
                     linewidth=2)
+        #overlay of cpiso
+        for j, col in enumerate(cols):
+            if 'cpiso' in col:
+                ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col, 
+                        linewidth=3)
+        
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         ax.set_ylabel('vm')
         if i == 2:
             ax.set_xlabel('relative time (ms)')
-    ax.set_xlim(-20, 120)
+#    ax.set_xlim(-20, 120)
     for ax in axes:
         lims = ax.get_ylim()
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
+        ax.set_ylim(lims)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        
     fig.tight_layout()
 
     if anot:
@@ -109,7 +120,17 @@ def plot_align_normalize(label, data):
 
 savepath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/3'
 save = False
+#%%
+plt.close('all')
+kind = ['vm', 'spk'][1]
+spread = ['sect', 'full'][0]
+num = [0, 1, 2][0]
 
+label, data = load_traces(paths, kind=kind, spread=spread, num=num)
+fig1 = plot_align_normalize(label, data, substract=False)
+fig2 = plot_align_normalize(label, data, substract=True)
+
+#%%
 plt.close('all')
 for kind in ['vm', 'spk']:
     for spread in ['sect', 'full']:
