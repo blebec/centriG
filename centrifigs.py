@@ -1076,7 +1076,9 @@ plot_figure9CD(fig2_df, fig2_cols)
 
 plt.close('all')
 
-def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
+def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
+                               spread='sect', 
+                               kind='vm', age='old', amp='gain'):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -1103,7 +1105,8 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
               std_colors['blue'], std_colors['blue']]
     # data (call)
     # nb builded on data/figSup34Vm.xlsx
-    df = ldat.load_cell_contributions('vm')
+#    df = ldat.load_cell_contributions(kind= 'vm', age='old')
+    df = ldat.load_cell_contributions(kind=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
 #    traces = [item for item in df.columns if 's_' in item[:7]]
     traces = [item for item in df.columns if 'sect' in item]
@@ -1115,15 +1118,18 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
     # filter -> only significative cells
     traces = [item for item in traces if 'sig' not in item]
     # text labels
-    title = 'Vm (sector)'
+    title = kind + '  ' + spread
     anotx = 'Cell rank'
-    anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
-             #(fraction of Center-only response)']
+    if age == 'old':
+        anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
+             #(fraction of Center-only response)']   
+    else:
+        anoty = ['time50', amp]
     # plot
     fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
     if anot:
-        fig.suptitle(title)
+        fig.suptitle(title, alpha=0.4)
     axes = axes.flatten()
     x = range(1, len(df)+1)
     # use cpisotime for ref
@@ -1210,6 +1216,36 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0):
 
 fig = plot_sorted_responses_sup1(overlap=True)
 fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
+#%%
+kind = ['vm', 'spk'][1]
+
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, 
+                                 kind=kind, amp='engy', age='new')
+
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=True, 
+                                 kind=kind, amp='engy', age='new')
+
+
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
+                                 kind=kind, amp='engy', age='new')
+#%%
+plt.close('all')
+save = False
+savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain/sorted'
+for kind in ['vm', 'spk']:
+    for amp in ['gain', 'engy']:
+        figs=[]
+        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=True, 
+                                 kind=kind, amp=amp, age='new'))
+        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, 
+                                 kind=kind, amp=amp, age='new'))
+        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
+                                 kind=kind, amp=amp, age='new'))
+        if save :
+            for i, fig in enumerate(figs):
+                filename = os.path.join(savePath, kind + '_' + amp + str(i) + '.png')
+                fig.savefig(filename, format='png')
+
 
 # =============================================================================
 # savePath = os.path.join(paths['cgFig'], 'pythonPreview', 'sorted', 'testAllSortingKeys')
