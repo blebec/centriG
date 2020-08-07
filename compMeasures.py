@@ -3,18 +3,12 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-
+import seaborn as sns
+sns.set(style="ticks")
 import config
 import load_data as ldat
 std_colors = config.std_colors()
 anot = True
-
-#%%
-for amp in ['gain', 'engy']:
-    for kind in ['vm', 'spk']:
-        df = ldat.load_cell_contributions(kind=kind, amp=amp)
-
-res_df = pd.DataFrame()
         
 #%%
 def load_all_indices():
@@ -41,6 +35,7 @@ def load_all_indices():
             cols = params.copy()
             cols.append('kind')
             cols.append('stim')
+            cols.append('spread')
             res_df = pd.DataFrame(columns=cols)
 
         for stim in stims:
@@ -48,13 +43,17 @@ def load_all_indices():
             df = mg_df[afilter].reset_index(drop=True)
             df.columns = params
             df['kind'] = kind
-            df['stim'] = stim
+            df['stim'] = stim[:-4]
+            df['spread'] = stim[-4:]
             res_df = res_df.append(df, ignore_index=True)
 
-    #changre column order for plotting convenience
+    #change column order for plotting convenience
     cols = res_df.columns.tolist()
-    cols[0], cols[1] = cols[1], cols[0]
-    res_df = res_df.reindex(columns=cols)
+    print('pre ', cols)
+    if cols[0] != 'time50':
+        cols[0], cols[1] = cols[1], cols[0]
+        res_df = res_df.reindex(columns=cols)
+    print('post ', cols)
     return res_df
 
 indices_df = load_all_indices()
@@ -71,18 +70,54 @@ pd.plotting.scatter_matrix(indices_df, ax=ax, alpha=0.3,
 fig.suptitle('Vm')
 fig.legend()
 #%%
-import seaborn as sns
-sns.set(style="ticks")
+plt.close('all')
+
 
 #df = sns.load_dataset("iris")
-g = sns.pairplot(indices_df.loc[indices_df.kind == 'vm'], kind='reg', diag_kind='kde',
-                 markers=['p'])
+g = sns.pairplot(indices_df.loc[indices_df.kind == 'vm'], kind='reg', diag_kind='hist',
+                  hue='stim', markers=['p']) 
 g.fig.suptitle('Vm')
  
 g = sns.pairplot(indices_df.loc[indices_df.kind == 'spk'], kind='reg', diag_kind='kde',
-                 markers=['2'])
+                  hue='stim', markers=['2']*8)
 g.fig.suptitle('spk')
 
+#%%
+plt.close('all')
+
+
+def do_pair_plot(df, kind='vm', spread='sect'):
+    """
+    pair plot of indices for the different conditions
+    """    
+    if kind not in ['vm', 'spk']:
+        print('kind should be in [vm, spk]')
+        return
+    if spread not in ['sect', 'full']:
+        print('spread should be in [sect, full]')
+        return
+    colors = [std_colors[item] for item in ['blue', 'yellow', 'green', 'red']] 
+    hue_order = ['rdiso', 'cpcrx', 'cfiso', 'cpiso']
+    sns.set_palette(sns.color_palette(colors))
+    
+    nb_stims = len(df.stim.unique())
+    
+    sub_df = df.loc[df.kind == kind].copy()
+    sub_df = sub_df.loc[sub_df.spread == spread]    
+    
+    g = sns.pairplot(sub_df, kind='reg', diag_kind='kde',
+                     hue='stim', hue_order=hue_order,
+                     markers=['p']*nb_stims) 
+    title = kind + '  ' + spread
+    g.fig.suptitle(title)
+    g.fig.tight_layout()
+    g.fig.subplots_adjust(right=0.902)
+    return g.fig
+    
+for spread in ['sect', 'full']:
+    for kind in ['vm', 'spk']:
+        fig = do_pair_plot(indices_df, kind=kind, spread=spread)    
+    
 #%% see https://blog.insightdatascience.com/data-visualization-in-python-advanced-functionality-in-seaborn-20d217f1a9a6
 plt.close('all')
 g = sns.pairplot(indices_df, kind='reg', diag_kind='kde', hue='kind', palette='Set1')
