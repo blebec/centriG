@@ -85,13 +85,14 @@ def do_pair_plot(df, kind='vm', spread='sect'):
     
     g = sns.pairplot(sub_df, kind='reg', diag_kind='hist',
                      hue='stim', hue_order=hue_order,
-                     markers=['p']*nb_stims
-                     ) 
+                     markers=['p']*nb_stims,
+                     diag_kws={'alpha': 0.5, 'edgecolor':'k'},
+                     corner=True) 
     title = kind + '  ' + spread
     g.fig.suptitle(title)
     g.fig.tight_layout()
-    g.fig.subplots_adjust(top=0.96, bottom=0.088, left=0.088,
-                          right=0.932, hspace=0.129, wspace=0.115)
+    # g.fig.subplots_adjust(top=0.96, bottom=0.088, left=0.088,
+    #                       right=0.9, hspace=0.1, wspace=0.1)
     return g.fig
 
 save = False
