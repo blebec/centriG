@@ -53,11 +53,9 @@ def load_all_indices():
 
     #change column order for plotting convenience
     cols = res_df.columns.tolist()
-    print('pre ', cols)
     if cols[0] != 'time50':
         cols[0], cols[1] = cols[1], cols[0]
         res_df = res_df.reindex(columns=cols)
-    print('post ', cols)
     return res_df
 
 indices_df = load_all_indices()
@@ -85,13 +83,15 @@ def do_pair_plot(df, kind='vm', spread='sect'):
     sub_df = df.loc[df.kind == kind].copy()
     sub_df = sub_df.loc[sub_df.spread == spread]    
     
-    g = sns.pairplot(sub_df, kind='reg', diag_kind='kde',
+    g = sns.pairplot(sub_df, kind='reg', diag_kind='hist',
                      hue='stim', hue_order=hue_order,
-                     markers=['p']*nb_stims) 
+                     markers=['p']*nb_stims
+                     ) 
     title = kind + '  ' + spread
     g.fig.suptitle(title)
     g.fig.tight_layout()
-    g.fig.subplots_adjust(right=0.902)
+    g.fig.subplots_adjust(top=0.96, bottom=0.088, left=0.088,
+                          right=0.932, hspace=0.129, wspace=0.115)
     return g.fig
 
 save = False
