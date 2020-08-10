@@ -96,7 +96,7 @@ def do_pair_plot(df, kind='vm', spread='sect'):
     return g.fig
 
 save = False
-savePath =  '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain'
+savePath =  '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/5_enerPeakOrGain'
 
 for spread in ['sect', 'full']:
     for kind in ['vm', 'spk']:
@@ -135,6 +135,7 @@ def do_lmplot_plot(df, kind='vm', spread='sect'):
     if spread not in ['sect', 'full']:
         print('spread should be in [sect, full]')
         return
+    #colors
     colors = [std_colors[item] for item in ['blue', 'yellow', 'green', 'red']] 
     hue_order = ['rdiso', 'cpcrx', 'cfiso', 'cpiso']
     sns.set_palette(sns.color_palette(colors))
@@ -173,43 +174,16 @@ for spread in ['sect', 'full']:
 #%%
 plt.close('all')
 from itertools import combinations
-kinds = ['vm', 'spk']:
-spreads = ['sect', 'full']:
+kinds = ['vm', 'spk']
+spreads = ['sect', 'full']
 mes = ['time50', 'gain50', 'engy']
     
-    kind = kinds[combo[0]]
-    spread = spreads[combo[1]]
-    df = indices_df.loc[indices_df.kind == kind]
-    g = sns.jointplot(x='time50', y = 'gain50', data= df, kind='reg')
-
-
-for kind in ['vm', 'spk']:
-    for spread in ['sect', 'full']:
+for kind in kinds:
+    for spread in spreads:
         for combo in combinations(mes, 2):
             x = combo[0]
             y = combo[1]
-            df = indices_df.loc[indices_df.kind == 'kind']
-            g = sns.jointplot(x=x, y = y, data= df, kind='reg')
-            
-            
-        g = sns.jointplot(x='time50', y = 'gain50', data= df, kind='reg')
-        g.fig.suptitle(kind + '  ' + spread)
-        g = sns.jointplot(x='time50', y = 'engy', data= df, kind='reg')
-        g.fig.suptitle(kind + '  ' + spread)
-        g = sns.jointplot(x='gain50', y = 'engy', data= df, kind='reg')
-        g.fig.suptitle(kind + '  ' + spread)
+            df = indices_df.loc[indices_df.kind == kind]
+            g = sns.jointplot(x=x, y=y, data= df, kind='reg')
+            g.fig.suptitle(kind + '  ' + spread)
     
-
-#%%
-sns.set(style="ticks", color_codes=True)
-
-g = sns.JointGrid(x="time50", y="gain50", data=df)
-
-g = g.plot(sns.regplot, sns.distplot)
-
-
-#%%
-g = sns.JointGrid(x="time50", y="gain50", data=df)
-
-g = g.plot_joint(sns.scatterplot, color=".5")
-g= g.plot_marginals(sns.distplot, kde=True, color='.5')
