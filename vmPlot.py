@@ -2,79 +2,26 @@
 
 
 from datetime import datetime
-import sys
-import platform
 import os
-import getpass
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from more_itertools import sort_together
 
 
-# =============================================================================
-# osname1 = sys.platform
-# osname = osname1
-# osname2 = platform.system()
-# username = getpass.getuser()
-#
-# =============================================================================
-##//osname = platform.system()
-##//username = getpass.getuser()
-def config():
-    """
-    to go to the pg and file directory (spyder use)
-    """
-    paths = {}
 
-    osname1 = sys.platform
-    osname = osname1
-    osname2 = platform.system()
-    username = getpass.getuser()
-    osname1 = sys.platform
-    osname2 = platform.system()
-    if (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
-        os.chdir(r'D:\\travail\sourcecode\developing\paper\centriG')
-        paths['cgFig'] = 'D:\\owncloud\cgFiguresSrc'
-        paths['save'] = 'D:\\owncloud\cgFiguresSrc'
-        paths['traces'] = 'D:\\owncloud\\cgFiguresSrc\\averageTraces\\'
-    elif (osname1 == 'linux') or (osname2 == 'Linux') and username == 'benoit':
-        os.chdir(r'/media/benoit/data/travail/sourcecode/developing/paper/centriG')
-        paths['cgFig'] = '/media/benoit/data/owncloud/cgFiguresSrc'
-        paths['save'] = '/media/benoit/data/owncloud/cgFiguresSrc'
-        paths['traces'] = '/media/benoit/data/owncloud/cgFiguresSrc/averageTraces'
-    elif osname == 'Windows'and username == 'marc':
-        os.chdir(r'H:/pg/centriG')
-    elif osname == 'darwin' and username == 'cdesbois':
-        os.chdir(r'/Users/cdesbois/pg/chrisPg/centriG')
-        paths['cgFig'] = os.path.expanduser('~/ownCloud/cgFigures')
-        paths['save'] = '/Users/cdesbois/ownCloud/cgFigures'
-        paths['traces'] = '/Users/cdesbois/ownCloud/cgFigures/averageTraces'
-    return paths
+import config
+anot = True           # to draw the date and name on the bottom of the plot
+std_colors = config.std_colors()
+speedColors = config.speed_colors()
+plt.rcParams.update(config.rc_params())
+paths = config.build_paths()
+os.chdir(paths['pg'])
+paths['traces'] = os.path.join(paths['owncFig'], 'averageTraces')
 
-anot = True
-paths = config()
 vm_info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
 speed_info_df = pd.read_excel(
     os.path.join(paths['traces'], 'neuron_props_speed.xlsx'))
-# =============================================================================
-# if osname == 'darwin' and username == 'cdesbois':
-# elif (osname1 == 'Linux') or (osname2 == 'Linux') and username == 'benoit':
-#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
-# elif (osname1 == 'Windows') or (osname2 == 'Windows') and username == 'Benoît':
-#     info_df = pd.read_excel(paths['traces'] + 'neuron_props.xlsx')
-#
-# =============================================================================
-#print(paths['traces'])
-#print(osname1)
-#print('')
-#print(osname2)
-#print('')
-#print(username)
-#print('')
-#print(paths.keys())
-# ref = df['CENTER-ONLY']
-# df = df.subtract(ref, axis=0) #on average traces already normalized
 
 #%% to be checked:
 vm_sig_cells = ['1427A_CXG4',
@@ -279,10 +226,10 @@ def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
     """
 
     """
-    std_colors = {'red' : [x/256 for x in [229, 51, 51]],
-                  'green' : [x/256 for x in [127, 204, 56]],
-                  'blue' :	[x/256 for x in [0, 125, 218]],
-                  'yellow' :	[x/256 for x in [238, 181, 0]]}
+    # std_colors = {'red' : [x/256 for x in [229, 51, 51]],
+    #               'green' : [x/256 for x in [127, 204, 56]],
+    #               'blue' :	[x/256 for x in [0, 125, 218]],
+    #               'yellow' :	[x/256 for x in [238, 181, 0]]}
 
     if 'cpiso' in cond:
         color = std_colors['red']
