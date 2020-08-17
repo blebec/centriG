@@ -49,7 +49,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     # start point
     x = 41.5
     y = data.indiVmctr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.plot(x, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'])
     # ingreen the plot order for spikes
@@ -66,7 +66,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
 #    ax.plot(39.8, 0.1523, 'o', color= stdColors['blue'])
     x = 39.8
     y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.plot(x, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
     ax.vlines(x, lims[0], lims[1], linewidth=1, color=stdColors['blue'])
     # plots pop (column 1-3)
@@ -102,9 +102,9 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, '|', color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.plot(x1, y, '|', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdColors['blue'], ms=10, alpha=0.8)
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popVmNsig
@@ -160,9 +160,9 @@ def plot_2_indMoySigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, '|', color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.plot(x1, y, '|', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdColors['blue'], ms=10, alpha=0.8)
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popSpkNsig
@@ -456,9 +456,9 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, '|', color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.plot(x1, y, '|', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdColors['blue'], ms=10, alpha=0.8)
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popVmNsig
@@ -504,9 +504,9 @@ def plot_2_sigNsig(data, colsdict, stdColors, fill=True, anot=False):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.plot(x1, y, '|', color=stdColors['blue'])
-    ax.hlines(y, x1, x0, color=stdColors['blue'])
+    ax.plot(x0, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.plot(x1, y, '|', color=stdColors['blue'], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdColors['blue'], ms=10, alpha=0.8)
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popSpkNsig
@@ -617,7 +617,7 @@ def plot_3_signonsig(stdColors, anot=False, substract=False):
         for line, text in zip(leg.get_lines(), leg.get_texts()):
             text.set_color(line.get_color())
         # blue point
-        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['blue'])
+        ax.plot(0, df.loc[0]['CNT-ONLY'], 'o', color=stdColors['blue'], ms=10, alpha=0.8)
 
     axes[0].set_ylabel('normalized membrane potential')
     for ax in axes:

@@ -22,7 +22,7 @@ import plot_general_functions as gfuc
 import load_data as ldat
 import old_figs as ofig
 import fig_proposal as figp
-
+figp-
 # nb description with pandas:
 pd.options.display.max_columns = 30
 
@@ -78,7 +78,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     #blue point and vline
     ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
-    ax.axvline(x, *lims, linewidth=2, color=std_colors['blue'],
+    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -96,7 +96,9 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     y = data.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     lims = ax.get_ylim()
-    ax.axvline(x, *lims, linewidth=2, color=std_colors['blue'],
+    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
+    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -131,8 +133,9 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
             ms=10, alpha=0.8)
-    ax.axhline(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
-
+    lims = ax.get_ylim()
+    # ax.vlines(y, *lims, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # adv = str(x0 - x1)
@@ -168,7 +171,8 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
             ms=10, alpha=0.8)
-    ax.axhline(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -212,7 +216,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
-            ax.axvline(dloc, *lims, linestyle=':', alpha=0.3)
+            ax.axvline(dloc, linestyle=':', alpha=0.3)
     # fit individual example
     if age == 'old':
         vmaxes[0].set_ylim(-3.5, 12)
@@ -257,10 +261,8 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         gfuc.change_plot_trace_amplitude(spkaxes[i], 0.8)
     # zerolines
     for ax in axes:
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.2)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.2)
+        ax.axvline(0, alpha=0.4)
+        ax.axhline(0, alpha=0.4)
     # individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
@@ -523,7 +525,7 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
             ax.spines[loc].set_visible(False)
     ax.set_xlim(-15, 30)
     lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.2)
+    ax.axvline(0, *lims, alpha=0.3)
     lims = ax.get_xlim()
     ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
@@ -532,7 +534,8 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # bluePoint
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1])
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1], 
+            ms=10, alpha=0.8)
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     # leg = ax.legend(loc=2, markerscale=None, frameon=False,
                     #handlelength=0)
@@ -547,12 +550,12 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
         ax.set_xticks(custom_ticks)
         # max center only
         lims = ax.get_ylim()
-        ax.axvline(21.4, *lims, alpha=0.5)
+        ax.axvline(21.4, alpha=0.5, color='k')
         # end of center only
         #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
-        ax.axvline(88, *lims, alpha=0.3)
-        ax.axvspan(0, 88, facecolor='k', alpha=0.2)
-        ax.text(0.4, 0.9, 'center only response \n start | peak | end',
+        ax.axvline(88, alpha=0.3)
+        ax.axvspan(0, 88, facecolor='k', alpha=0.3)
+        ax.text(0.45, 0.9, 'center only response \n start | peak | end',
                 transform=ax.transAxes, alpha=0.5)
         ax.set_ylabel('Norm vm - Norm centerOnly')
     fig.tight_layout()
@@ -630,7 +633,8 @@ def plot_figure4(substract=False):
     ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
                 xycoords="axes fraction", ha='center')
     # bluePoint
-    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=std_colors['blue'])
+    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=std_colors['blue'],
+            ms=10, alpha=0.8)
     if substract:
         ax.set_ylim(-0.05, 0.4)
         custom_ticks = np.linspace(0, 0.3, 4)
@@ -863,7 +867,7 @@ def plot_figure6(std_colors):
         # response start
         x = 41
         y = df['Center-Only'].loc[x]
-        ax.plot(x, y, 'o', color=std_colors['blue'])
+        ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
         ax.vlines(x, -1, 2, color=std_colors['blue'],
                   linestyle=':', alpha=0.8)
         for dloc in hlocs:
@@ -1010,19 +1014,18 @@ def plot_figure9CD(data, colsdict):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    # ax.plot(x0, y, 'o', color=std_colors['blue'])
-    # ax.plot(x1, y, '|', color=std_colors['blue'])
-    # ax.axhline(y, x1, x0, color=std_colors['blue'])
+    # ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    # ax.plot(x1, y, '|', color=std_colors['blue'], ms=10, alpha=0.8)
+    # ax.axhline(y, x1, x0, color=std_colors['blue'], ms=10, alpha=0.8)
     # ax.annotate("n=10", xy=(0.2, 0.8),
     #               xycoords="axes fraction", ha='center')
     ylabel = 'Normalized membrane potential'
     ax0.set_ylabel(ylabel)
     ax0.set_ylim(-0.10, 1.2)
     ax0.set_xlabel('Relative time (ms)')
-    lims = ax0.get_ylim()
-    ax0.axvline(0, *lims, alpha=0.2)
+    ax0.axvline(0, alpha=0.3)
     lims = ax0.get_xlim()
-    ax0.axhline(0, *lims, alpha=0.2)
+    ax0.axhline(0, alpha=0.3)
     # lims = ax1.get_ylim()
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax0.set_yticks(custom_ticks)
@@ -1050,7 +1053,7 @@ def plot_figure9CD(data, colsdict):
     # custom_ticks = np.arange(0, 13, 4)
     ax1.set_yticks(custom_ticks)
     ax1.set_yticklabels(custom_ticks)
-    ax1.axvline(0, *lims, linestyle='--')
+    ax1.axvline(0, linestyle='--', color='k')
     ax1.set_ylabel('Number of cells')
     ax1.set_xlabel(r'$\Delta$ Phase (ms)')
 
@@ -1318,7 +1321,8 @@ def plot_figSup2B(kind='pop', age='new'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # blue point
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=std_colors['blue'])
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=std_colors['blue'], 
+            ms=10, alpha=0.8)
 
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -1550,7 +1554,8 @@ def plot_figSup3B(kind, stimmode, age='new'):
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
     # bluePoint
-    ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1])
+    ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1], 
+            ms=10, alpha=0.8)
 
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     leg = ax.legend(loc=2, markerscale=None, frameon=False,

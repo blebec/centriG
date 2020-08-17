@@ -205,18 +205,20 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
     #zero lines and stim limist
-    lims = ax.get_xlim()
-    ax.axhline(0, *lims, alpha=0.3)
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.3)
+    # ax.axhline(0, *lims, alpha=0.3)
+    # lims = ax.get_ylim()
+    # ax.axvline(0, *lims, alpha=0.3)
+    ax.axhline(0, alpha=0.4)
+    ax.axvline(0, alpha=0.4)
     for dloc in hlocs:
-        ax.axvline(dloc, *lims, linestyle=':', alpha=0.3)
+        ax.axvline(dloc, linestyle=':', alpha=0.3)
     # response
+    lims = ax.get_ylim()
     lims = (-0.5, lims[1])  # to avoid overlap with the legend
     #start
     x = 41
     y = df['center_only'].loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'])
+    ax.plot(x, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
     ax.vlines(x, *lims, color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     # end
@@ -226,7 +228,9 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     # peak
     x = 63.9
     ax.vlines(x, *lims, 'k', alpha=0.5)
-    ax.axvspan(41, 150.1, *lims, color='k', alpha=0.1)
+    # y in ax coordinates (ie in [0,1])
+    _, y0 = gfuc.axis_data_coords_sys_transform(ax, 150.1, 0, True)
+    ax.axvspan(41, 150.1, y0, 1 , color='k', alpha=0.1)
     # ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
