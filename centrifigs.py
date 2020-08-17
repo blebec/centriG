@@ -131,7 +131,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
             ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.axhline(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -168,7 +168,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
             ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.axhline(y, x1, x0, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -260,7 +260,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         lims = ax.get_ylim()
         ax.axvline(0, *lims, alpha=0.2)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.2)
+        ax.axhline(0, *lims, alpha=0.2)
     # individuals
     ax = vmaxes[0]
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
@@ -337,9 +337,8 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
     else:
         print('fig2cells.xlsx to be updated')
         return
-    #    df = pd.read_excel(filename)
-    vals = [item for item in df.columns if '_sig' not in item]
-    signs = [item for item in df.columns if '_sig' in item]
+    vals = [item for item in df.columns if not item.endswith('_sig')]
+    signs = [item for item in df.columns if item.endswith('_sig')]
 
 #    df.index += 1 # cells = 1 to 37
     color_dic = {0 :'w', 1 : std_colors['red']}
@@ -357,7 +356,7 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
                         alpha=0.8, width=0.8)
         # zero line
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.2)
+        ax.axhline(0, *lims, alpha=0.4)
         # ticks
         ax.set_xlim(-1, len(df))
         ax.set_xticks([0, len(df) - 1])
@@ -367,12 +366,12 @@ def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
         if i == 0:
             txt = r'$\Delta$ Phase (ms)'
             ylims = (-6, 29)
-            ax.axvline(-1, 0, 20, linewidth=2)
+            ax.vlines(-1, 0, 20, linewidth=2)
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
             txt = r'$\Delta$ Amplitude'
             ylims = ax.get_ylim()
-            ax.axvline(-1, 0, 0.6, linewidth=2)
+            ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
         ax.set_yticks(custom_yticks)
         ax.set_ylabel(txt)
@@ -527,7 +526,7 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     ax.axvline(0, *lims, alpha=0.2)
     # ax.axvline(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, *lims, alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
@@ -621,7 +620,7 @@ def plot_figure4(substract=False):
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, *lims, alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.2)
     custom_ticks = np.linspace(-40, 40, 5)
     ax.set_xticks(custom_ticks)
 
@@ -729,7 +728,7 @@ def plot_fig5():
         lims = ax.get_ylim()
         ax.axvline(0, *lims, alpha=0.1)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.1)
+        ax.axhline(0, *lims, alpha=0.1)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
 
@@ -858,7 +857,7 @@ def plot_figure6(std_colors):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.2)
+        ax.axhline(0, *lims, alpha=0.2)
         lims = ax.get_ylim()
         ax.axvline(0, *lims, alpha=0.2)
         # response start
@@ -934,7 +933,7 @@ def plot_figure7(std_colors):
     x = 0
     y = df.centerOnly.loc[0]
     ax1.plot(x, y, 'o', color=std_colors['blue'])
-    # ax1.hlines(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
+    # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     ax1.set_ylim(-0.2, 1)
     ax2 = fig.add_subplot(122, sharex=ax1)
     for i in [2, 5]:
@@ -961,7 +960,7 @@ def plot_figure7(std_colors):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.2)
+        ax.axhline(0, *lims, alpha=0.2)
         lims = ax.get_ylim()
         ax.axvline(0, *lims, alpha=0.2)
     # align zero between subplots
@@ -1017,7 +1016,7 @@ def plot_figure9CD(data, colsdict):
     x1 = adf.index[i1]
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     # ax.plot(x1, y, '|', color=std_colors['blue'])
-    # ax.hlines(y, x1, x0, color=std_colors['blue'])
+    # ax.axhline(y, x1, x0, color=std_colors['blue'])
     # ax.annotate("n=10", xy=(0.2, 0.8),
     #               xycoords="axes fraction", ha='center')
     ylabel = 'Normalized membrane potential'
@@ -1027,7 +1026,7 @@ def plot_figure9CD(data, colsdict):
     lims = ax0.get_ylim()
     ax0.axvline(0, *lims, alpha=0.2)
     lims = ax0.get_xlim()
-    ax0.hlines(0, *lims, alpha=0.2)
+    ax0.axhline(0, *lims, alpha=0.2)
     # lims = ax1.get_ylim()
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax0.set_yticks(custom_ticks)
@@ -1171,7 +1170,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
             ax.spines['bottom'].set_visible(False)
             # zero line
             lims = ax.get_xlim()
-            ax.hlines(0, *lims, alpha=0.2)
+            ax.axhline(0, *lims, alpha=0.2)
             if i != 4:
                 ax.xaxis.set_visible(False)
             else:
@@ -1315,8 +1314,8 @@ def plot_figSup2B(kind='pop', age='new'):
     ax.axvline(0, *lims, alpha=0.2)
     # ax.axvline(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
-    ax.hlines(0, *lims, alpha=0.2)
-    ax.hlines(0, *lims, alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.1, 1)
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
@@ -1459,7 +1458,7 @@ def plot_figSup4(kind, overlap=True):
         # lims = ax.get_ylim()
         # ax.axvline(0, *lims, alpha=0.3)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.3)
+        ax.axhline(0, *lims, alpha=0.3)
         custom_ticks = np.arange(-0.1, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
 
@@ -1548,7 +1547,7 @@ def plot_figSup3B(kind, stimmode, age='new'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     lims = ax.get_xlim()
-    ax.hlines(0, *lims, alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
@@ -1650,7 +1649,7 @@ def plot_figSup6(kind, age='new'):
         lims = ax.get_ylim()
         ax.axvline(0, *lims, alpha=0.1)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.1)
+        ax.axhline(0, *lims, alpha=0.1)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
 
@@ -1857,7 +1856,7 @@ def plot_sorted_responses(dico):
     for i, ax in enumerate(axes):
         ax.ticklabel_format(useOffset=True)
         lims = ax.get_xlim()
-        ax.hlines(0, *lims, alpha=0.3, linestyle=':')
+        ax.axhline(0, *lims, alpha=0.3, linestyle=':')
         for spine in ['left', 'top', 'right', 'bottom']:
             ax.spines[spine].set_visible(False)
         if i in range(6):
@@ -1967,7 +1966,7 @@ def plot_speed_multigraph():
         right_ax.plot(df.loc[40:100, [col]], color=colors[i],
                       label=col, alpha=alphas[i])
         maxi = float(df.loc[30:200, [col]].max())
-        right_ax.hlines(maxi, 40, 50, color=colors[i])
+        right_ax.axhline(maxi, 40, 50, color=colors[i])
     right_ax.set_xlabel('Relative time to center-only onset (ms)')
     # adjust
     for ax in fig.get_axes():

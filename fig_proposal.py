@@ -25,20 +25,19 @@ def plot_2B_bis(stdColors, anot=False, age='new'):
     """
     
     df = ldat.load_cell_contributions(kind='vm', amp='gain', age=age)
-#    alist = [item for item in df.columns if 'vm_s_cp_iso_' in item]
-    alist = [item for item in df.columns if 'cpisosect' in item]
-
-    df = df[alist].sort_values(by=alist[0], ascending=False)
-    cols = df.columns[::2]
-    sigs = df.columns[1::2]
+    traces = [item for item in df.columns if item.startswith('cpisosect')]
+    df = df[traces].sort_values(by=traces[0], ascending=False)
+    vals = [item for item in df.columns if not item.endswith('_sig')]
+    sigs = [item for item in df.columns if item.endswith('_sig')]
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     color_dic = {0 :'w', 1 : stdColors['red']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[sigs[i]]]
-        axes[i].bar(df.index, df[cols[i]], edgecolor=stdColors['red'],
-                    color=colors, label=cols[i], alpha=0.8, width=0.8)
+        label = vals[i].split('_')[1]
+        axes[i].bar(df.index, df[vals[i]], edgecolor=stdColors['red'],
+                    color=colors, label=label, alpha=0.8, width=0.8)
         lims = ax.get_xlim()
-        ax.hlines(0, lims[0], lims[1], alpha=0.3)
+        ax.axhline(0, *lims, alpha=0.4)
         ax.set_xticks([0, len(df)-1])
         ax.set_xticklabels([1, len(df)])
         ax.set_xlim(-1, len(df)+0.5)
@@ -60,8 +59,8 @@ def plot_2B_bis(stdColors, anot=False, age='new'):
         for spine in ['bottom', 'left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
 
-    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
     gfuc.change_plot_trace_amplitude(axes[1], 0.8)
+    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
     fig.tight_layout()
 
     if anot:
