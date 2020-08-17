@@ -60,11 +60,14 @@ def std_colors():
               'dark_green': [x/256 for x in [10, 146, 13]],
               'dark_blue': [x/256 for x in [14, 73, 118]],
               'dark_yellow': [x/256 for x in [163, 133, 16]],
-              'blue_violet': [x/256 for x in [138, 43, 226]]}
+              'blue_violet': [x/256 for x in [138, 43, 226]],
+              'k' : [0, 0, 0]}
     return colors
 
 def speed_colors():
-    colors = { 'yellow' : [x/256 for x in [253, 174, 74]],
-               'orange' : [x/256 for x in [245, 124, 67]],
-               'dark_orange' : [x/256 for x in [237, 73, 59]]}
+    colors = {'yellow' : [x/256 for x in [253, 174, 74]],
+              'orange' : [x/256 for x in [245, 124, 67]],
+              'dark_orange' : [x/256 for x in [237, 73, 59]],
+              'red' : [x/256 for x in [229, 51, 51]],
+              'k' : [0, 0, 0]}
     return colors

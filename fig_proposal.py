@@ -271,9 +271,8 @@ def plot_figure7_bis(stdColors):
     #     df.surroundThenCenter = df.surroundThenCenter - ref
     #     df.centerOnly = df.centerOnly - ref
     #colors = ['k', 'r', 'b', 'g', 'b', 'b']
-    colors = ['k', stdColors['red'], stdColors['dark_green'],
-              stdColors['blue_violet'], stdColors['red'],
-              stdColors['blue_violet']]
+    colors = [std_colors[item] for item in \
+             ['k', 'red', 'dark_green', 'blue_violet', 'red', 'blue_violet']]    
     alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     # plotting

@@ -1099,25 +1099,20 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
             t.label2.set_visible(True)
 
     # parameter
-    colors = [std_colors['red'], std_colors['red'],
-              std_colors['green'], std_colors['green'],
-              std_colors['yellow'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue'],
-              std_colors['blue'], std_colors['blue']]
+    cols = [std_colors[item] \
+              for item in ['red', 'green', 'yellow', 'blue', 'blue']]
+    colors = []
+    for item in zip(cols, cols):
+        colors.extend(item)
     # data (call)
-    # nb builded on data/figSup34Vm.xlsx
-#    df = ldat.load_cell_contributions(kind= 'vm', age='old')
     df = ldat.load_cell_contributions(kind=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
-#    traces = [item for item in df.columns if 's_' in item[:7]]
     traces = [item for item in df.columns if 'sect' in item]
     # append full random
-#    f_rnd = [item for item in df.columns if 'vm_f_rnd' in item]
     rdfull = [item for item in df.columns if 'rdisofull' in item]
-    for item in rdfull:
-        traces.append(item)
+    traces.extend(rdfull)
     # filter -> only significative cells
-    traces = [item for item in traces if 'sig' not in item]
+    traces = [item for item in traces if not item.endswith('sig')]
     # text labels
     title = kind + '  ' + spread
     anotx = 'Cell rank'
@@ -1168,8 +1163,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
             ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
             # zero line
-            lims = ax.get_xlim()
-            ax.axhline(0, *lims, alpha=0.2)
+            ax.axhline(0, alpha=0.3)
             if i != 4:
                 ax.xaxis.set_visible(False)
             else:
@@ -1187,13 +1181,12 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
     if no_spines == True:
         for ax in left_axes:
             limx = ax.get_xlim()
-            ax.axvline(limx[0], 0, 10, color='k', linewidth=2)
-            # ax.axvline(limx[1], 0, -10, color='k', linewidth=2)
+            ax.vlines(limx[0], 0, 10, color='k', linewidth=2)
             for spine in ['left', 'right']:
-                ax.spines[spine].set_visible(False)
+                ax.spines[spine].set_visible(False) 
         for ax in right_axes:
             limx = ax.get_xlim()
-            ax.axvline(limx[0], 0, 0.5, color='k', linewidth=2)
+            ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
             # ax.axvline(limx[1], 0, -0.5, color='k', linewidth=2)
             for spine in ['left', 'right']:
                 ax.spines[spine].set_visible(False)
@@ -1309,12 +1302,8 @@ def plot_figSup2B(kind='pop', age='new'):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
     ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.2)
-    # ax.axvline(0, -0.2, 1.1, alpha=0.2)
-    lims = ax.get_xlim()
-    ax.axhline(0, *lims, alpha=0.2)
-    ax.axhline(0, *lims, alpha=0.2)
+    ax.axhline(0, alpha=0.3)
+    ax.axvline(0, alpha=0.3)
     ax.set_ylim(-0.1, 1)
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
@@ -1438,7 +1427,7 @@ def plot_figSup4(kind, overlap=True):
         ax.spines['top'].set_visible(False)
         ax.set_facecolor('None')
         # axis on both sides
-        set_ticks_both(ax.yaxis)
+        #set_ticks_both(ax.yaxis)
         # if overlap:
         #     #label left:
         #     if i % 2 == 0:
@@ -1457,16 +1446,17 @@ def plot_figSup4(kind, overlap=True):
     for i, ax in enumerate(fig.get_axes()):
         # lims = ax.get_ylim()
         # ax.axvline(0, *lims, alpha=0.3)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.3)
-        custom_ticks = np.arange(-0.1, 0.3, 0.1)
+        ax.axhline(0,  alpha=0.3)
+        custom_ticks = np.arange(0, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
-
+        for spine in ['left', 'right']:
+            ax.spines[spine].set_visible(False)
+        ax.vlines(ax.get_xlim()[0], 0, 0.2)
     for ax in fig.get_axes():
         lims = ax.get_ylim()
         print(lims)
         r1 = patches.Rectangle((0, 0), 50, 0.4, color='grey',#ax.get_ylim()[1]
-                               alpha=0.1)
+                               alpha=0.2)
         ax.add_patch(r1)
 
     fig.tight_layout()
@@ -1722,10 +1712,10 @@ def autolabel(ax, rects):
 
 def plot_cell_contribution(df, kind=''):
     "sup 2A"
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
-    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
-                   std_colors['dark_yellow'], std_colors['dark_blue']]
+    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in \
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+        
     fig = plt.figure(figsize=(8, 8))
     # if anot:
     #     fig.suptitle('vm')
@@ -1812,12 +1802,11 @@ def plot_sorted_responses(dico):
     input = conditions parameters
 
     """
-    colors = [std_colors['red'], std_colors['green'], 
-              std_colors['yellow'], std_colors['blue']]
+    cols = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
     #duplicate for two columns
-    colors = \
-    list(itertools.chain.from_iterable([item, item] for item in colors))
-    # data (call)
+    colors = []
+    for item in zip(cols, cols):
+        colors.extend(item)    # data (call)
     #TODO adapty for vm, engy, ...
     #load_cell_contributions(kind='vm', amp='gain', age='new')
     df = ldat.load_cell_contributions(kind=dico['kind'], amp=dico['amp'])
@@ -1869,12 +1858,12 @@ def plot_sorted_responses(dico):
             ax.set_xlim(0, len(df)+2)
     # left
     for ax in axes[::2]:
-        ax.axvline(0, 0, 20, color='k', linewidth=2)
+        ax.vlines(0, 0, 20, color='k', linewidth=2)
         custom_ticks = np.linspace(0, 20, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     # right
     for ax in axes[1::2]:
-        ax.axvline(0, 0, 1, color='k', linewidth=2)
+        ax.vlines(0, 0, 1, color='k', linewidth=2)
         custom_ticks = np.linspace(0, 1, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     # align each row yaxis on zero between subplots
@@ -1889,6 +1878,7 @@ def plot_sorted_responses(dico):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
+    fig.subplots_adjust(hspace=0.1)
     return fig
 
 parameter_dico = {
@@ -1915,8 +1905,8 @@ for amp in ['gain', 'engy']:
             fig = plot_sorted_responses(parameter_dico)
 
 #%% opt
-colors = ['k', std_colors['red'], speedColors['dark_orange'],
-          speedColors['orange'], speedColors['yellow']]
+
+colors = [speedColors[item] for item in ['k', 'red', 'dark_orange', 'orange', 'yellow']]
 alphas = [0.8, 1, 0.8, 0.8, 1]
 
 df = pd.read_excel('data/data_to_use/speedt0.xlsx')
@@ -1950,7 +1940,7 @@ def plot_speed_multigraph():
         ax.plot(df.loc[-140:40, [cols[i]]], color='black', scalex=False,
                 scaley=False, label=cols[i])
         ax.fill_between(df.index, df[cols[i]], color=colors[i])
-        ax.yaxis.set_ticks(np.arange(-0.15, 0.25, 0.1))
+        ax.yaxis.set_ticks([0, 0.1])
         ax.set_xlim(-140, 40)
         ax.set_ylim(-0.15, 0.25)
     # add labels
@@ -1998,8 +1988,8 @@ fig = plot_speed_multigraph()
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
 def plotSpeeddiff():
-    colors = ['k', std_colors['red'], speedColors['dark_orange'],
-              speedColors['orange'], speedColors['yellow']]
+    colors = [speedColors[item] for item in \
+        ['k', 'red', 'dark_orange', 'orange', 'yellow']]
     alphas = [0.5, 1, 0.8, 0.8, 1]
 
     df = pd.read_excel('data/data_to_use/speedt0.xlsx')
