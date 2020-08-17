@@ -57,3 +57,23 @@ def fig_properties(afig):
 
 def inch_to_cm(value):
     return value/2.54
+
+
+def axis_data_coords_sys_transform(axis_obj_in,xin,yin,inverse=False):
+    """ inverse = False : Axis => Data
+                = True  : Data => Axis
+    """
+    xlim = axis_obj_in.get_xlim()
+    ylim = axis_obj_in.get_ylim()
+
+    xdelta = xlim[1] - xlim[0]
+    ydelta = ylim[1] - ylim[0]
+    if not inverse:
+        xout =  xlim[0] + xin * xdelta
+        yout =  ylim[0] + yin * ydelta
+    else:
+        xdelta2 = xin - xlim[0]
+        ydelta2 = yin - ylim[0]
+        xout = xdelta2 / xdelta
+        yout = ydelta2 / ydelta
+    return xout,yout

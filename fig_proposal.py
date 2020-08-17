@@ -289,27 +289,28 @@ def plot_figure7_bis(stdColors):
     ax.set_xlabel('Relative time (ms)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.3)
-    lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.3)
+    ax.axhline(0, alpha=0.3)
+    ax.axvline(0, alpha=0.3)
     # response start
+    lims = (0, ax.get_ylim()[1])
     x0 = 0
     y = df['centerOnly'].loc[x0]
     ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.vlines(x0, lims[0], lims[1], color=stdColors['blue'],
+    ax.vlines(x0, *lims, color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     # end
     x2 = 124.6
     y = df['centerOnly'].loc[x2]
-    ax.vlines(x2, lims[0], lims[1], color='k',
+    ax.vlines(x2, *lims, color='k',
               linestyle='-', alpha=0.2)
     # ax.plot(x2, y, 'o', color=stdColors['blue'])
     # peak
     # df.centerOnly.idxmax()
     x1 = 26.1
-    ax.vlines(x1, 0, lims[1], 'k', alpha=0.3)
-    ax.axvspan(x0, x2, color='k', alpha=0.1)
+    ax.vlines(x1, *lims, 'k', alpha=0.3)
+    # build shaded area : x in data coordinates, y in figure coordinates
+    _, y2 = gfuc.axis_data_coords_sys_transform(ax, 0, 0, True)
+    ax.axvspan(x0, x2, y2, 1, color='k', alpha=0.1)
     #ticks
     custom_ticks = np.linspace(0, 0.4, 3)
     ax.set_yticks(custom_ticks)

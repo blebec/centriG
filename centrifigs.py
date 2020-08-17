@@ -914,7 +914,6 @@ def plot_figure7(std_colors):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     cols = df.columns
-    colors = ['k', 'r', 'b', 'g', 'b', 'b']
     colors = ['k', std_colors['red'], std_colors['dark_green'],
               std_colors['blue_violet'], std_colors['blue_violet'],
               std_colors['blue_violet']]
@@ -956,13 +955,10 @@ def plot_figure7(std_colors):
         # ax.set_xlim(-150, 150)
         # set fontname and fontsize for x label
         ax.set_xlabel('Relative time (ms)')
-        #, fontname = 'Arial', fontsize = 14)
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.2)
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.2)
+        ax.axhline(0, alpha=0.3)
+        ax.axvline(0, alpha=0.3)
     # align zero between subplots
     gfuc.align_yaxis(ax1, 0, ax2, 0)
     gfuc.change_plot_trace_amplitude(ax2, 0.9)
