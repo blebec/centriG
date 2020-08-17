@@ -524,7 +524,6 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     ax.set_xlim(-15, 30)
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
-    # ax.axvline(0, -0.2, 1.1, alpha=0.2)
     lims = ax.get_xlim()
     ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
@@ -763,12 +762,13 @@ def plot_figure6(std_colors):
     df.index = df.index/10
     # rename columns
     cols = df.columns
-    cols = ['Center-Only', 'Surround-then-Center', 'Surround-Only',
-            'Static linear prediction']
+    cols = ['Center-Only', 'Surround-then-Center', 
+            'Surround-Only', 'Static linear prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', std_colors['red'], std_colors['dark_green'], std_colors['dark_green']]
+    colors = ['k', std_colors['red'], 
+              std_colors['dark_green'], std_colors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # plotting
     fig = plt.figure(figsize=(8.5, 8))
@@ -864,7 +864,7 @@ def plot_figure6(std_colors):
         x = 41
         y = df['Center-Only'].loc[x]
         ax.plot(x, y, 'o', color=std_colors['blue'])
-        ax.axvline(x, -0.5, lims[1], color=std_colors['blue'],
+        ax.vlines(x, -1, 2, color=std_colors['blue'],
                   linestyle=':', alpha=0.8)
         for dloc in hlocs:
             ax.axvline(dloc, *lims, linestyle=':', alpha=0.2)

@@ -126,12 +126,13 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     df.index = df.index - middle
     df.index = df.index/10
     # rename columns
-    cols = ['center_only', 'surround_then_center', 'surround_only',
-            'static_linear_prediction']
+    cols = ['center_only', 'surround_then_center', 
+            'surround_only', 'static_linear_prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['red'], stdColors['dark_green'], stdColors['dark_green']]
+    colors = ['k', stdColors['red'], 
+              stdColors['dark_green'], stdColors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # substract
     # build a time shifted reference (centerOnly) to perfome the substraction
@@ -162,7 +163,8 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
-    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    
+    names = ['D' + str(i) for i in range(6)]
     # vlocs = np.linspace(-0.7, -1.7, 4)
     # vlocs = np.linspace(-1.4, -2.4, 4)
     vlocs = np.linspace(-0.8, -1.5, 4)
@@ -171,8 +173,8 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     # ax
     for key in dico.keys():
         # names
-        ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
-                    annotation_clip=False, fontsize='small')
+        ax.annotate(key, xy=(dico[key]+step/2, vlocs[0]), alpha=0.6,
+                    annotation_clip=False, fontsize='small', ha='center')
         #stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.2,
                          fill=True, alpha=1, edgecolor='w',
@@ -197,32 +199,34 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     # ax.add_patch(rect)
 #    for i, st in enumerate(['Surround-Only', 'Surround-then-Center minus Center']):
     for i, st in enumerate(['surround-only']):
-        ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
-                    annotation_clip=False, fontsize='small')
-
+        ax.annotate(st, xy=(30, vlocs[i+1]+0.05), color=colors[2-i],
+                    annotation_clip=False, fontsize='small', va='bottom')
     ax.set_ylabel('Membrane potential (mV)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
+    #zero lines and stim limist
     lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.2)
+    ax.axhline(0, *lims, alpha=0.3)
     lims = ax.get_ylim()
-    ax.vlines(0, lims[0], lims[1], alpha=0.2)
-    # response start
+    ax.axvline(0, *lims, alpha=0.3)
+    for dloc in hlocs:
+        ax.axvline(dloc, *lims, linestyle=':', alpha=0.3)
+    # response
+    lims = (-0.5, lims[1])  # to avoid overlap with the legend
+    #start
     x = 41
     y = df['center_only'].loc[x]
     ax.plot(x, y, 'o', color=stdColors['blue'])
-    ax.vlines(x, -0.5, lims[1], color=stdColors['blue'],
+    ax.vlines(x, *lims, color=stdColors['blue'],
               linestyle=':', alpha=0.8)
-    for dloc in hlocs:
-        ax.vlines(dloc, lims[0], lims[1], linestyle=':', alpha=0.2)
     # end
     x = 150.1
-    ax.vlines(x, -0.5, lims[1], color=stdColors['blue'],
+    ax.vlines(x, *lims, color=stdColors['blue'],
               linestyle=':', alpha=0.8)
     # peak
     x = 63.9
-    ax.vlines(x, -0.5, lims[1], 'k', alpha=0.5)
-    ax.axvspan(41, 150.1, ymin=0.28, color='k', alpha=0.1)
+    ax.vlines(x, *lims, 'k', alpha=0.5)
+    ax.axvspan(41, 150.1, *lims, color='k', alpha=0.1)
     # ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
