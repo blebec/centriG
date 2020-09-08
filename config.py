@@ -22,8 +22,9 @@ def build_paths():
     paths = {}
     osname = platform.system()
     username = getpass.getuser()
-    if osname == 'Windows'and username == 'Benoit':
+    if osname == 'Windows'and username == 'Benoît':
         paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
+        paths['owncFig'] = 'D:\\ownCloud\cgFiguresSrc'
     elif osname == 'Linux' and username == 'benoit':
         paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
     elif osname == 'Windows'and username == 'marc':
@@ -32,7 +33,6 @@ def build_paths():
         paths['pg'] = os.path.expanduser('~/pg/chrisPg/centriG')
         paths['owncFig'] = os.path.expanduser('~/ownCloud/cgFigures')
     return paths
-
 
 def rc_params(font_size = 'medium'):  # large, medium
     """

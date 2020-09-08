@@ -488,6 +488,7 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
                      'sig': 'data//old/fig3bis1.xlsx',
                      'nonsig': 'data/old/fig3bis2.xlsx'}
     else:
+        #TO DO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
         print('fig3 should be updated')
         return
 
