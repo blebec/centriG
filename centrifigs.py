@@ -22,7 +22,6 @@ import plot_general_functions as gfuc
 import load_data as ldat
 import old_figs as ofig
 import fig_proposal as figp
-figp-
 # nb description with pandas:
 pd.options.display.max_columns = 30
 
@@ -317,7 +316,7 @@ fig = plot_figure2(data=fig2_df, colsdict=fig2_cols, anot=anot, age='new')
 
 plt.close('all')
 
-def plot_figure2B(std_colors, sig=True, anot=anot, age='new'):
+def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
