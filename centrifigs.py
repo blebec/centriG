@@ -8,6 +8,8 @@ plot centrigabor figures from data stored in .xlsx files
 import os
 from importlib import reload
 from datetime import datetime
+import itertools
+
 import numpy as np
 import pandas as pd
 from pandas.plotting import table
@@ -16,7 +18,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 from matplotlib import markers
-import itertools
+
 import config
 import plot_general_functions as gfuc
 import load_data as ldat
@@ -50,14 +52,9 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     """
     colors = ['k', std_colors['red']]
     alphas = [0.8, 0.8]
-    inv_colors = colors[::-1]
-    inv_alphas = alphas[::-1]
 
     fig = plt.figure(figsize=(17.6, 12))
-    axes = []
-    for i in range(1, 7):
-        axes.append(fig.add_subplot(2, 3, i))
-
+    axes = [fig.add_subplot(2, 3, i) for i in range(1, 7)]
     # axes list
     vmaxes = axes[:3]      # vm axes = top row
     spkaxes = axes[3:]     # spikes axes = bottom row
@@ -155,11 +152,11 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax = spkaxes[2]
     # traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.plot(df[col], color=inv_colors[i], alpha=1, label=col)
+        ax.plot(df[col], color=colors[::-1][i], alpha=1, label=col)
     # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-                        alpha=inv_alphas[i]/2)# label=col, linewidth=0.5)
+                        alpha=alphas[::-1][i]/2)# label=col, linewidth=0.5)
     # advance
     x0 = 0
     y = df.loc[x0][cols[0]]
@@ -239,7 +236,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         # stim location
         ax = spkaxes[0]
         for key in dico.keys():
-            ax.annotate(key, xy=(dico[key]+step/2, -5), alpha=0.6, 
+            ax.annotate(key, xy=(dico[key]+step/2, -5), alpha=0.6,
                         ha='center', fontsize='x-small')
             # stim
             rect = Rectangle(xy=(dico[key], -9), width=step, height=2, fill=True,
@@ -271,7 +268,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     if  age == 'old':
         custom_ticks = np.linspace(0, 15, 4, dtype=int)
     else:
-        custom_ticks = np.linspace(0, 30, 4, dtype=int)        
+        custom_ticks = np.linspace(0, 30, 4, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
     # pop
@@ -473,9 +470,9 @@ descr_df = sort_stat('new')
 plot_stat()
 #%%
 plt.close('all')
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-
-def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
+def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -500,12 +497,11 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     df = pd.read_excel(filenames[kind])
     # centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
     df.columns = cols
-    colors = ['k', std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
+    colors = ['k', stdcolors['red'], stdcolors['green'],
+              stdcolors['yellow'], stdcolors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8]
     if substract:
         # subtract the centerOnly response
@@ -517,7 +513,8 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
         fig.suptitle(titles[kind], alpha=0.4)
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=2)
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, 
+                linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
@@ -534,7 +531,7 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # bluePoint
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1], 
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1],
             ms=10, alpha=0.8)
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     # leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -543,6 +540,23 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
         # text.set_color(line.get_color())
     ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
                 xycoords="axes fraction", ha='center')
+    insert = False
+    if insert:
+#        axins = inset_axes(ax, width="50%", height="30%", loc=4)
+        
+        axins = fig.add_axes([.5, .21, .42, .25], facecolor='w', alpha=0.2)
+        for i, col in enumerate(cols):
+            if i in [0,4]:
+                axins.plot(df[col], color=colors[i], alpha=alphas[i], label=col, 
+                        linewidth=2)
+        axins.set_xlim(-150, 30)
+        for spine in ['left', 'top']:
+            axins.spines[spine].set_visible(False)
+        axins.yaxis.tick_right()
+        axins.patch.set_edgecolor('w')
+        axins.patch.set_alpha(0)
+        axins.axvline(0, alpha=0.3)
+
     if substract:
         ax.set_xlim(-45, 120)
         ax.set_ylim(-0.15, 0.4)
@@ -567,7 +581,7 @@ def plot_figure3(std_colors, kind='sig', substract=False, anot=anot, age='new'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig1 = plot_figure3(std_colors, 'pop', age='old')
+fig1 = plot_figure3(std_colors, 'pop', age='new')
 fig2 = plot_figure3(std_colors, 'sig', age='old')
 #fig = plot_figure3('nonsig')
 #fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
@@ -651,9 +665,25 @@ def plot_figure4(substract=False):
 
     return fig
 
-fig = plot_figure4()
-fig = plot_figure4(substract=True)
+fig1 = plot_figure4()
+fig2 = plot_figure4(substract=True)
 ## alpha=0.8, figsize = 8,6, ha = 'left'
+
+#%% test to change the x scale
+
+def adjust_scale(figlist, lims):
+    for fig in [fig1, fig2]:
+        ax = fig.get_axes()[0]
+        ax.set_xlim(lims)
+        left = list(np.arange(lims[0], 0, 25))[1:]
+        right = list(np.arange(0, lims[1], 25))
+        custom_ticks = left + right        
+        ax.set_xticks(custom_ticks)
+
+fig_list = [fig1, fig2]
+lims= (-120, 65)
+adjust_scale(fig_list, lims)
+
 #%% fig 5 <-> sup 7
 
 plt.close('all')
@@ -766,12 +796,12 @@ def plot_figure6(std_colors):
     df.index = df.index/10
     # rename columns
     cols = df.columns
-    cols = ['Center-Only', 'Surround-then-Center', 
+    cols = ['Center-Only', 'Surround-then-Center',
             'Surround-Only', 'Static linear prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', std_colors['red'], 
+    colors = ['k', std_colors['red'],
               std_colors['dark_green'], std_colors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # plotting
@@ -1078,7 +1108,7 @@ plot_figure9CD(fig2_df, fig2_cols)
 plt.close('all')
 
 def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
-                               spread='sect', 
+                               spread='sect',
                                kind='vm', age='old', amp='gain'):
     """
     plot the sorted cell responses
@@ -1118,7 +1148,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
     anotx = 'Cell rank'
     if age == 'old':
         anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
-             #(fraction of Center-only response)']   
+             #(fraction of Center-only response)']
     else:
         anoty = ['time50', amp]
     # plot
@@ -1183,7 +1213,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
             limx = ax.get_xlim()
             ax.vlines(limx[0], 0, 10, color='k', linewidth=2)
             for spine in ['left', 'right']:
-                ax.spines[spine].set_visible(False) 
+                ax.spines[spine].set_visible(False)
         for ax in right_axes:
             limx = ax.get_xlim()
             ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
@@ -1213,10 +1243,10 @@ fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
 kind = ['vm', 'spk'][1]
 
-fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, 
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=False,
                                  kind=kind, amp='engy', age='new')
 
-fig = plot_sorted_responses_sup1(overlap=True, sort_all=True, 
+fig = plot_sorted_responses_sup1(overlap=True, sort_all=True,
                                  kind=kind, amp='engy', age='new')
 
 
@@ -1228,14 +1258,14 @@ save = False
 savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain/sorted'
 for kind in ['vm', 'spk']:
     for amp in ['gain', 'engy']:
-        figs=[]
-        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=True, 
-                                 kind=kind, amp=amp, age='new'))
-        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, 
-                                 kind=kind, amp=amp, age='new'))
+        figs = []
+        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=True,
+                                               kind=kind, amp=amp, age='new'))
+        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False,
+                                               kind=kind, amp=amp, age='new'))
         figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
-                                 kind=kind, amp=amp, age='new'))
-        if save :
+                                               kind=kind, amp=amp, age='new'))
+        if save:
             for i, fig in enumerate(figs):
                 filename = os.path.join(savePath, kind + '_' + amp + str(i) + '.png')
                 fig.savefig(filename, format='png')
@@ -1310,7 +1340,7 @@ def plot_figSup2B(kind='pop', age='new'):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # blue point
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=std_colors['blue'], 
+    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=std_colors['blue'],
             ms=10, alpha=0.8)
 
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
@@ -1446,7 +1476,7 @@ def plot_figSup4(kind, overlap=True):
     for i, ax in enumerate(fig.get_axes()):
         # lims = ax.get_ylim()
         # ax.axvline(0, *lims, alpha=0.3)
-        ax.axhline(0,  alpha=0.3)
+        ax.axhline(0, alpha=0.3)
         custom_ticks = np.arange(0, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
         for spine in ['left', 'right']:
@@ -1544,7 +1574,7 @@ def plot_figSup3B(kind, stimmode, age='new'):
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
     # bluePoint
-    ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1], 
+    ax.plot(0, df.loc[0]['CENTER-ONLY-FULL'], 'o', color=colors[-1],
             ms=10, alpha=0.8)
 
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
@@ -1715,7 +1745,7 @@ def plot_cell_contribution(df, kind=''):
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
-        
+
     fig = plt.figure(figsize=(8, 8))
     # if anot:
     #     fig.suptitle('vm')
@@ -1886,7 +1916,7 @@ parameter_dico = {
         'spread' : 'sect',
         'position' : 'cp',
         'theta' : 'cross',
-        'extra' : 'stc', 
+        'extra' : 'stc',
         'amp' : 'engy'
         }
 
@@ -1988,6 +2018,7 @@ fig = plot_speed_multigraph()
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
 def plotSpeeddiff():
+    """ speed diff """
     colors = [speedColors[item] for item in \
         ['k', 'red', 'dark_orange', 'orange', 'yellow']]
     alphas = [0.5, 1, 0.8, 0.8, 1]

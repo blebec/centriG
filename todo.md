@@ -1,4 +1,4 @@
-# suite à discussion avec Yves (7 août)
+## suite à discussion avec Yves (7 août)
 
 ## changement d'index
 
@@ -8,8 +8,8 @@
 
 étapes: 
 
-- reconstruire la nouvelle sous-pop individuellement significative (vm n = 15 sector, n = 13 Full)
-  ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 491 
+- reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
+  ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 488 
   ==> TODO ajouter traces spikantes (sélectionner avec cellules oscillatoire ou non?)
 - fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
 - en énergie
@@ -25,12 +25,14 @@
 
 ## fig_4 : élargir pour montrer la construction de la réponse
 
-- bumps successifs
-- effet vitesse
+- ~~bumps successifs~~
+
+- ~~effet vitesse~~
+- ->  updated the code to allow an online update
 
 ## fig_3 
 
-- insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly
+- ~~insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly~~
 
 ## fig_sup waterfall cf indiSig cfIso
 
