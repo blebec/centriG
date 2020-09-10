@@ -18,23 +18,23 @@ import load_data as ldat
 anot = True
 
 # 
-def plot_2B_bis(stdColors, anot=False, age='new'):
+def plot_2B_bis(stdcolors, anot=False, age='new'):
     """
     plot_figure2B alternative : sorted phase advance and delta response
     response are sorted only by phase
     """
-    
-    df = ldat.load_cell_contributions(kind='vm', amp='gain', age=age)
+    amp = 'engy' # 'gain'
+    df = ldat.load_cell_contributions(kind='vm', amp=amp, age=age)
     traces = [item for item in df.columns if item.startswith('cpisosect')]
     df = df[traces].sort_values(by=traces[0], ascending=False)
     vals = [item for item in df.columns if not item.endswith('_sig')]
     sigs = [item for item in df.columns if item.endswith('_sig')]
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
-    color_dic = {0 :'w', 1 : stdColors['red']}
+    color_dic = {0 :'w', 1 : stdcolors['red']}
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[sigs[i]]]
         label = vals[i].split('_')[1]
-        axes[i].bar(df.index, df[vals[i]], edgecolor=stdColors['red'],
+        axes[i].bar(df.index, df[vals[i]], edgecolor=stdcolors['red'],
                     color=colors, label=label, alpha=0.8, width=0.8)
         lims = ax.get_xlim()
         ax.axhline(0, *lims, alpha=0.4)
@@ -46,12 +46,17 @@ def plot_2B_bis(stdColors, anot=False, age='new'):
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
             ylabel = r'$\Delta$ Phase (ms)'
             ax.set_ylim(-6, 29)
+            if amp == 'engy':
+                ax.set_ylim(-10, 29)    
             x_label = 'Cell rank'
         else:
             ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
             x_label = 'Ranked cells'
-            ylabel = r'$\Delta$ Amplitude'
+            if amp == 'gain':
+                ylabel = r'$\Delta$ Amplitude'
+            else:
+                ylabel = r'$\Delta$ Energy'                
         ax.set_xlabel(x_label)
         ax.xaxis.set_label_coords(0.5, -0.025)
         ax.set_yticks(custom_yticks)
@@ -115,7 +120,7 @@ def align_center(adf, showPlot=False):
     return ref_corr
 
 
-def plot_figure6_bis(stdColors, linear=True, substract=False):
+def plot_figure6_bis(stdcolors, linear=True, substract=False):
     """
     plot_figure6 minus center
     """
@@ -131,8 +136,8 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdColors['red'], 
-              stdColors['dark_green'], stdColors['dark_green']]
+    colors = ['k', stdcolors['red'], 
+              stdcolors['dark_green'], stdcolors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # substract
     # build a time shifted reference (centerOnly) to perfome the substraction
@@ -218,12 +223,12 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     #start
     x = 41
     y = df['center_only'].loc[x]
-    ax.plot(x, y, 'o', color=stdColors['blue'], ms=10, alpha=0.8)
-    ax.vlines(x, *lims, color=stdColors['blue'],
+    ax.plot(x, y, 'o', color=stdcolors['blue'], ms=10, alpha=0.8)
+    ax.vlines(x, *lims, color=stdcolors['blue'],
               linestyle=':', alpha=0.8)
     # end
     x = 150.1
-    ax.vlines(x, *lims, color=stdColors['blue'],
+    ax.vlines(x, *lims, color=stdcolors['blue'],
               linestyle=':', alpha=0.8)
     # peak
     x = 63.9
@@ -249,7 +254,7 @@ def plot_figure6_bis(stdColors, linear=True, substract=False):
     return fig
 
 #%%
-def plot_figure7_bis(stdColors):
+def plot_figure7_bis(stdcolors):
     """
     plot_figure7 minus center
     """
@@ -281,10 +286,10 @@ def plot_figure7_bis(stdColors):
     ax.plot(df.popfillVmscpIsoDlp, ':r', alpha=1, linewidth=2,
             label='sThenCent - cent')
     # surroundOnly
-    ax.plot(df.surroundOnlysdUp, color=stdColors['dark_green'], alpha=0.7,
+    ax.plot(df.surroundOnlysdUp, color=stdcolors['dark_green'], alpha=0.7,
             label='surroundOnly')
     ax.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                    color=stdColors['dark_green'], alpha=0.2)
+                    color=stdcolors['dark_green'], alpha=0.2)
 
     ax.set_ylabel('Normalized membrane potential')
     ax.annotate("n=12", xy=(0.1, 0.8),
@@ -298,15 +303,15 @@ def plot_figure7_bis(stdColors):
     lims = (0, ax.get_ylim()[1])
     x0 = 0
     y = df['centerOnly'].loc[x0]
-    ax.plot(x0, y, 'o', color=stdColors['blue'])
-    ax.vlines(x0, *lims, color=stdColors['blue'],
+    ax.plot(x0, y, 'o', color=stdcolors['blue'])
+    ax.vlines(x0, *lims, color=stdcolors['blue'],
               linestyle=':', alpha=0.8)
     # end
     x2 = 124.6
     y = df['centerOnly'].loc[x2]
     ax.vlines(x2, *lims, color='k',
               linestyle='-', alpha=0.2)
-    # ax.plot(x2, y, 'o', color=stdColors['blue'])
+    # ax.plot(x2, y, 'o', color=stdcolors['blue'])
     # peak
     # df.centerOnly.idxmax()
     x1 = 26.1

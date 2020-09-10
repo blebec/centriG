@@ -3,6 +3,7 @@
 ## changement d'index
 
 - $\Delta$Gain -> $\Delta$Energie
+  - OK for figure_2B
 
 ## traces soustraites et non soustraites à la même échelle
 
@@ -11,7 +12,8 @@
 - reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
   ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 488 
   ==> TODO ajouter traces spikantes (sélectionner avec cellules oscillatoire ou non?)
-- fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
+- ~~fig_3 sig non_sig soustraites on non, un panneau et même échelle en y~~
+  - -> 3_expandSameY
 - en énergie
 - données : /Users/cdesbois/ownCloud/cgFigures/data/index
   - conditions_order.xlsx, time50energySpk.xlsx, time50energyVm.xlsx, time50gain50Spk.xlsx, time50gain50Vm.xlsx

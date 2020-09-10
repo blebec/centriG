@@ -313,7 +313,7 @@ fig = plot_figure2(data=fig2_df, colsdict=fig2_cols, anot=anot, age='new')
 
 plt.close('all')
 
-def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
+def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
     """
     plot_figure2B : sorted phase advance and delta response
     sig=boolan : true <-> shown cell signification
@@ -328,9 +328,10 @@ def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
                        'ampIndiSig' : 'cpisosect_gain50_sig'}
         df.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
-        latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
-        cols = latGain50_v_df.columns
-        df = latGain50_v_df[[item for item in cols if 'cpisosect' in item]].copy()
+        amp='engy'
+        latAmp_v_df = ldat.load_cell_contributions('vm', amp='engy', age='new')
+        cols = latAmp_v_df.columns
+        df = latAmp_v_df[[item for item in cols if 'cpisosect' in item]].copy()
         df.sort_values(by=df.columns[0], ascending=False, inplace=True)
     else:
         print('fig2cells.xlsx to be updated')
@@ -339,18 +340,18 @@ def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
     signs = [item for item in df.columns if item.endswith('_sig')]
 
 #    df.index += 1 # cells = 1 to 37
-    color_dic = {0 :'w', 1 : std_colors['red']}
+    color_dic = {0 :'w', 1 : stdcolors['red']}
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
         colors = [color_dic[x] for x in df[signs[i]]]
         toplot = df.sort_values(by=vals[i], ascending=False)
         if sig:
-            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=std_colors['red'],
+            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=colors, label=vals[i], alpha=0.8, width=0.8)
         else:
-            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=std_colors['red'],
-                        color=std_colors['red'], label=vals[i],
+            axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
+                        color=stdcolors['red'], label=vals[i],
                         alpha=0.8, width=0.8)
         # zero line
         lims = ax.get_xlim()
@@ -363,11 +364,20 @@ def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
         ax.xaxis.set_label_coords(0.5, -0.025)
         if i == 0:
             txt = r'$\Delta$ Phase (ms)'
-            ylims = (-6, 29)
+            if amp == 'gain':
+                ylims = (-6, 29)
+            else:
+                ylims = (-10, 29)
+                ax.set_ylim(ylims)
             ax.vlines(-1, 0, 20, linewidth=2)
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
-            txt = r'$\Delta$ Amplitude'
+            if amp == 'gain':
+                txt = r'$\Delta$ Amplitude'                
+            elif amp == 'engy':
+                txt = r'$\Delta$ Energy'                
+            else:
+                print('amplitude unit not in [gain, energy]')
             ylims = ax.get_ylim()
             ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
@@ -378,7 +388,7 @@ def plot_figure2B(std_colors=std_colors, sig=True, anot=anot, age='new'):
             ax.spines[spine].set_visible(False)
     # align zero between plots
     gfuc.align_yaxis(axes[0], 0, axes[1], 0)
-    gfuc.change_plot_trace_amplitude(axes[1], 0.8)
+    gfuc.change_plot_trace_amplitude(axes[1], 0.75)
     fig.tight_layout()
     # anot
     if anot:
@@ -581,7 +591,7 @@ def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig1 = plot_figure3(std_colors, 'pop', age='new')
+fig1 = plot_figure3(std_colors, 'pop', age='old')
 fig2 = plot_figure3(std_colors, 'sig', age='old')
 #fig = plot_figure3('nonsig')
 #fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
@@ -590,8 +600,14 @@ fig2 = plot_figure3(std_colors, 'sig', age='old')
 #pop all cells
 #%% grouped sig and non sig
 plt.close('all')
-fig = ofig.plot_3_signonsig(std_colors, anot=anot)
+fig1 = ofig.plot_3_signonsig(std_colors, anot=anot)
 fig2 = ofig.plot_3_signonsig(std_colors, substract=True, anot=anot)
+
+#%%
+for fig in [fig1, fig2]:
+    for ax in fig.get_axes():
+        ax.set_ylim(-0.2, 1.1)
+        ax.set_xlim(-45, 120)
 #%%
 plt.close('all')
 
@@ -675,13 +691,20 @@ def adjust_scale(figlist, lims):
     for fig in [fig1, fig2]:
         ax = fig.get_axes()[0]
         ax.set_xlim(lims)
-        left = list(np.arange(lims[0], 0, 25))[1:]
+#        left = list(np.arange(lims[0], 0, 25))[1:]
+        left = list(np.arange(0, lims[0], -25))[1:][::-1]
         right = list(np.arange(0, lims[1], 25))
         custom_ticks = left + right        
         ax.set_xticks(custom_ticks)
 
 fig_list = [fig1, fig2]
+lims = (-40, 45)
+lims = (-65, 65)
 lims= (-120, 65)
+lims= (-160, 65)
+lims= (-200, 65)
+lims= (-300, 65)
+
 adjust_scale(fig_list, lims)
 
 #%% fig 5 <-> sup 7
