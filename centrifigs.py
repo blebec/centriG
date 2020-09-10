@@ -494,7 +494,7 @@ def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
                      'sig': 'data//old/fig3bis1.xlsx',
                      'nonsig': 'data/old/fig3bis2.xlsx'}
     else:
-        #TO DO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
+        # TODO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
         print('fig3 should be updated')
         return
 
@@ -1264,7 +1264,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
 fig = plot_sorted_responses_sup1(overlap=True)
 fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
-kind = ['vm', 'spk'][1]
+kind = ['vm', 'spk'][0]
 
 fig = plot_sorted_responses_sup1(overlap=True, sort_all=False,
                                  kind=kind, amp='engy', age='new')
