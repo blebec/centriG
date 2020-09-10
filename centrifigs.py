@@ -482,37 +482,60 @@ plot_stat()
 plt.close('all')
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
+#def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
+def plot_figure3(stdcolors, *args, **kwargs):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nonsig': non significant cells]
+    cells, 'nsig': non significant cells]
     substract = boolan -> present as (data - centerOnly)
     """
-    if age == 'old':
-        filenames = {'pop' : 'data/old/fig3.xlsx',
-                     'sig': 'data//old/fig3bis1.xlsx',
-                     'nonsig': 'data/old/fig3bis2.xlsx'}
-    else:
+    kind = kwargs.get('kind', 'sig')
+    substract = kwargs.get('substract', False),
+    anot = kwargs.get('anot', True),
+    age = kwargs.get('age', 'new')        
+    rec = kwargs.get('rec', 'vm')
+    spread = kwargs.get('spread' , 'sect')
         # TODO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
-        print('fig3 should be updated')
-        return
+    for k, v in kwargs.items():
+        print(k, v)
+  #  print(kind, substract, anot, age, rec, spread)
+    titles = dict(pop = 'all cells',
+                  sig = 'individually significant cells',
+                  nsig = 'individually non significants cells')
 
-    titles = {'pop' : 'all cells',
-              'sig': 'individually significant cells',
-              'nonsig': 'individually non significants cells'}
-    # samplesize
-    cellnumbers = {'pop' : 37, 'sig': 10, 'nonsig': 27}
-    ncells = cellnumbers[kind]
-    df = pd.read_excel(filenames[kind])
+    if age == 'old':
+        filenames = dict(pop = os.path.join('data', 'old', 'fig3.xlsx'),
+                         sig = os.path.join('data', 'old', 'fig3bis1.xlsx'),
+                         nsig =  os.path.join('data', 'old', 'fig3bis2.xlsx'))
+        # samplesize
+        cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
+        ncells = cellnumbers[kind]
+        df = pd.read_excel(filenames[kind])
+    else:
+        dir_name = os.path.join(paths['owncFig'], 
+                                'data', 'averageTraces', 'controlsFig')
+        file_list = os.listdir(dir_name)
+        kind = kind.lower()
+        if kind in ['pop', 'sig', 'nsig']:
+            file_list = [item for item in file_list if item.lower().startswith(kind)]
+        else:
+            print('kind should be in [pop, sig or nsig]')
+            return
+        file_list = [item for item in file_list if rec in item.lower()]
+        file_list = [item for item in file_list if spread in item.lower()]
+        file = file_list[0]
+        filename = os.path.join(dir_name, file)
+        df = pd.read_excel(filename)
+ 
     # centering
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
-    cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    df.columns = cols
+    # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
+    # df.columns = cols
     colors = ['k', stdcolors['red'], stdcolors['green'],
-              stdcolors['yellow'], stdcolors['blue']]
-    alphas = [0.8, 1, 0.8, 0.8, 0.8]
+              stdcolors['yellow'], stdcolors['blue'], stdcolors['blue']]
+    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
     if substract:
         # subtract the centerOnly response
         ref = df['CENTER-ONLY']
@@ -522,6 +545,7 @@ def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
     if anot:
         fig.suptitle(titles[kind], alpha=0.4)
     ax = fig.add_subplot(111)
+    cols = df.columns
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, 
                 linewidth=2)
@@ -587,13 +611,13 @@ def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
-                 ha='right', va='bottom', alpha=0.4)
+                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 fig1 = plot_figure3(std_colors, 'pop', age='old')
 fig2 = plot_figure3(std_colors, 'sig', age='old')
-#fig = plot_figure3('nonsig')
+#fig = plot_figure3('nsig')
 #fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
 #fig2 = plot_figure3(std_colors, 'pop', substract=True, age='old')
 
