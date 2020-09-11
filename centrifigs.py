@@ -21,7 +21,8 @@ from matplotlib import markers
 
 import centriG.config as config
 import centriG.plot_general_functions as gfuc
-import centriG.load_data as ldat
+import centriG.load.load_data as ldat
+import centriG.load.load_traces as ltra
 import centriG.old_figs as ofig
 import centriG.fig_proposal as figp
 # nb description with pandas:

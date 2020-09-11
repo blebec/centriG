@@ -11,9 +11,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-import config
-import plot_general_functions as gfuc
-import load_data as ldat
+import centriG.config as config
+import centriG.plot_general_functions as gfuc
+import centriG.load.load_data as ldat
 
 anot = True
 
