@@ -9,35 +9,14 @@ import os
 import pandas as pd
 
 import centriG.config as config
+import centriG.general_functions as gfunc
+
 
 paths = config.build_paths()
 #os.chdir(paths['pg'])
 
 
 # TODO update in load_data
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
-               'spks': 'spk_sect_', 'spkf': 'spk_full_',
-               'dlat50': 'time50', 'dgain50': 'gain50',
-               'lat50': 'time50', 'cp': 'cp', 'cf': 'cf',
-               'rnd': 'rd', 'cross' : 'cx'}
-    for key in chg_dct:
-        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
-    return newcols
 
 
 #%%
@@ -62,7 +41,7 @@ def load_intra_mean_traces(paths, **kwargs):
     spread = kwargs.get('spread' , 'sect')
     treat = kwargs.get('treat', 'normAlign')
 
-    filename = ''
+    file = ''
     df = ''
     if age == 'old':
         dirname = os.path.join(paths['owncFig'], 'data', 'old')
@@ -98,58 +77,14 @@ def load_intra_mean_traces(paths, **kwargs):
 
     #rename cols    
     cols = df.columns.to_list()
-    cols = new_columns_names(cols)
+    cols = gfunc.new_columns_names(cols)
     if file.startswith('sig'):
         cols = [item.replace('pop', 'sig') for item in cols]
     elif file.lower().startswith('nsig'):
         cols = [item.replace('pop', 'nsig') for item in cols]
     cols = [item.replace('__', '_') for item in cols]
     df.columns = cols
-    return df, filename
-
-
-
-# f1 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/popVmSectNormAlign.xlsx'
-# file = 'popVmSectNormAlign.xlsx'
-
-# df1_columns_list = ['popVmCtr', 
-#                     'popVmscpIsoStc', 
-#                     'popVmscfIsoStc', 
-#                     'popVmscrossStc', 
-#                     'popVmfrndIsoStc', 
-#                     'popVmsrndIsoStc']
-
-# f2 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/sigVmSectRaw.xlsx'
-# file = 'sigVmSectRaw.xlsx'
-
-df2_columns_list = ['popVmCtr',
-                    'popVmscpIsoStc',
-                    'popVmscfIsoStc',
-                    'popVmscrossStc',
-                    'popVmfrndIsoStc',
-                    'popVmsrndIsoStc']
-
-# f3 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/nSigVmSectNormAlign.xlsx'
-# file = 'nSigVmSectNormAlign.xlsx'
-
-# df3_columns_list = ['popVmCtr',
-#                     'popVmscpIsoStc',
-#                     'popVmscfIsoStc',
-#                     'popVmscrossStc',
-#                     'popVmfrndIsoStc',
-#                     'popVmsrndIsoStc']
-
-# s = set()
-# for l in [df1_columns_list, df2_columns_list, df3_columns_list]:
-#     for item in l:
-#         p = set(convert_to_snake(item).split('_'))
-#         s.update(p)
-
-# # cols = df.columns.to_list()
-# cols = df1.columns.to_list()
-# cols = [convert_to_snake(item) for item in l1]
-
-# # NB from load data
+    return df, file
 
 
 #%%
@@ -164,5 +99,5 @@ if __name__ == '__main__':
         spread='sect'
         )
     dico['age'] = 'old'
-    data_df = load_intra_mean_traces(paths, **dico)
+    data_df, file = load_intra_mean_traces(paths, **dico)
     print(data_df.columns.tolist())

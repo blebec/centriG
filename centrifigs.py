@@ -21,7 +21,7 @@ import matplotlib.patches as patches
 from matplotlib import markers
 
 import centriG.config as config
-import centriG.plot_general_functions as gfuc
+import centriG.general_functions as gfunc
 import centriG.load.load_data as ldat
 import centriG.load.load_traces as ltra
 import centriG.old.old_figs as ofig
@@ -251,12 +251,12 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
 
     # align zero between plots  NB ref = first plot
     for i in [0, 1]:
-        gfuc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
-        gfuc.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
+        gfunc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
+        gfunc.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
     # adjust amplitude (without moving the zero)
     for i in [1, 2]:
-        gfuc.change_plot_trace_amplitude(vmaxes[i], 0.85)
-        gfuc.change_plot_trace_amplitude(spkaxes[i], 0.8)
+        gfunc.change_plot_trace_amplitude(vmaxes[i], 0.85)
+        gfunc.change_plot_trace_amplitude(spkaxes[i], 0.8)
     # zerolines
     for ax in axes:
         ax.axvline(0, alpha=0.4)
@@ -389,8 +389,8 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         for spine in ['left', 'top', 'right', 'bottom']:
             ax.spines[spine].set_visible(False)
     # align zero between plots
-    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
-    gfuc.change_plot_trace_amplitude(axes[1], 0.75)
+    gfunc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfunc.change_plot_trace_amplitude(axes[1], 0.75)
     fig.tight_layout()
     # anot
     if anot:
@@ -1079,8 +1079,8 @@ def plot_figure7(std_colors):
         ax.axhline(0, alpha=0.3)
         ax.axvline(0, alpha=0.3)
     # align zero between subplots
-    gfuc.align_yaxis(ax1, 0, ax2, 0)
-    gfuc.change_plot_trace_amplitude(ax2, 0.9)
+    gfunc.align_yaxis(ax1, 0, ax2, 0)
+    gfunc.change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
@@ -1307,9 +1307,9 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
                 ax.spines[spine].set_visible(False)
 
     # align each row yaxis on zero between subplots
-    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfunc.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    gfuc.change_plot_trace_amplitude(axes[1], 0.80)
+    gfunc.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.tight_layout()
     if overlap:
@@ -1982,9 +1982,9 @@ def plot_sorted_responses(dico):
         custom_ticks = np.linspace(0, 1, 2, dtype=int)
         ax.set_yticks(custom_ticks)
     # align each row yaxis on zero between subplots
-    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfunc.align_yaxis(axes[0], 0, axes[1], 0)
     # keep data range whithout distortion, preserve 0 alignment
-    gfuc.change_plot_trace_amplitude(axes[1], 0.80)
+    gfunc.change_plot_trace_amplitude(axes[1], 0.80)
     # remove the space between plots
     fig.subplots_adjust(hspace=0.00, wspace=0.00)
     if anot:

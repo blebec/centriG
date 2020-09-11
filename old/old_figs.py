@@ -14,7 +14,7 @@ from matplotlib.ticker import StrMethodFormatter
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 
-import centriG.plot_general_functions as gfuc
+import centriG.general_functions as gfunc
 import centriG.config as config
 paths = config.build_paths()
 
@@ -238,11 +238,11 @@ def plot_2_indMoySigNsig(data, colsdict, stdcolors, fill=True, anot=False):
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
-    gfuc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    gfuc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+    gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     # adjust amplitude (without moving the zero)
-    gfuc.change_plot_trace_amplitude(vmaxes[1], 0.85)
-    gfuc.change_plot_trace_amplitude(spkaxes[1], 0.8)
+    gfunc.change_plot_trace_amplitude(vmaxes[1], 0.85)
+    gfunc.change_plot_trace_amplitude(spkaxes[1], 0.8)
     # zerolines
     for ax in axes:
         lims = ax.get_ylim()
@@ -380,11 +380,11 @@ def plot_2_indMoy(data, colsdict, stdcolors, anot=False):
     vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-5.5, 20)
     # align zero between plots  NB ref = first plot
-    gfuc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
-    gfuc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+    gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     # adjust amplitude (without moving the zero)
-    gfuc.change_plot_trace_amplitude(vmaxes[1], 0.85)
-    gfuc.change_plot_trace_amplitude(spkaxes[1], 0.8)
+    gfunc.change_plot_trace_amplitude(vmaxes[1], 0.85)
+    gfunc.change_plot_trace_amplitude(spkaxes[1], 0.8)
     # adjust ticks
     # individuals
     ax = vmaxes[0]

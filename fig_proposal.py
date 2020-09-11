@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 import centriG.config as config
-import centriG.plot_general_functions as gfuc
+import centriG.general_functions as gfunc
 import centriG.load.load_data as ldat
 
 anot = True
@@ -64,8 +64,8 @@ def plot_2B_bis(stdcolors, anot=False, age='new'):
         for spine in ['bottom', 'left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
 
-    gfuc.change_plot_trace_amplitude(axes[1], 0.8)
-    gfuc.align_yaxis(axes[0], 0, axes[1], 0)
+    gfunc.change_plot_trace_amplitude(axes[1], 0.8)
+    gfunc.align_yaxis(axes[0], 0, axes[1], 0)
     fig.tight_layout()
 
     if anot:
@@ -234,7 +234,7 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
     x = 63.9
     ax.vlines(x, *lims, 'k', alpha=0.5)
     # y in ax coordinates (ie in [0,1])
-    _, y0 = gfuc.axis_data_coords_sys_transform(ax, 150.1, 0, True)
+    _, y0 = gfunc.axis_data_coords_sys_transform(ax, 150.1, 0, True)
     ax.axvspan(41, 150.1, y0, 1 , color='k', alpha=0.1)
     # ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
@@ -317,7 +317,7 @@ def plot_figure7_bis(stdcolors):
     x1 = 26.1
     ax.vlines(x1, *lims, 'k', alpha=0.3)
     # build shaded area : x in data coordinates, y in figure coordinates
-    _, y2 = gfuc.axis_data_coords_sys_transform(ax, 0, 0, True)
+    _, y2 = gfunc.axis_data_coords_sys_transform(ax, 0, 0, True)
     ax.axvspan(x0, x2, y2, 1, color='k', alpha=0.1)
     #ticks
     custom_ticks = np.linspace(0, 0.4, 3)

@@ -77,3 +77,33 @@ def axis_data_coords_sys_transform(axis_obj_in,xin,yin,inverse=False):
         xout = xdelta2 / xdelta
         yout = ydelta2 / ydelta
     return xout,yout
+
+
+def new_columns_names(cols):
+    """
+    change the columns names -> snake_case explicit
+    input : list of column names
+    output: list of column names
+    """
+    def convert_to_snake(camel_str):
+        """ camel case to snake case """
+        temp_list = []
+        for letter in camel_str:
+            if letter.islower():
+                temp_list.append(letter)
+            elif letter.isdigit():
+                temp_list.append(letter)
+            else:
+                temp_list.append('_')
+                temp_list.append(letter)
+        result = "".join(temp_list)
+        return result.lower()
+    newcols = [convert_to_snake(item) for item in cols]
+    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
+               'spks': 'spk_sect_', 'spkf': 'spk_full_',
+               'dlat50': 'time50', 'dgain50': 'gain50',
+               'lat50': 'time50', 'cp': 'cp', 'cf': 'cf',
+               'rnd': 'rd', 'cross' : 'cx'}
+    for key in chg_dct:
+        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
+    return newcols
