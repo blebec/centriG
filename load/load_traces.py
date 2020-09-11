@@ -23,12 +23,15 @@ def load_intra_mean_traces(paths, **kwargs):
     """
     load intra mean traces
     old start of plot_figure3
-    input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nsig': non significant cells]
+    input : 
+        paths dico (from centriG.config.build_paths)
+        kind : in ['pop', 'sig', 'nsig'] (default = new)
+        rec : in ['vm', 'spk'] (default = vm)
+        spread : in ['sect', 'full'] (default = sect)                     
     """
     kind = kwargs.get('kind', 'sig')
-    substract = kwargs.get('substract', False),
-    anot = kwargs.get('anot', True),
+    # substract = kwargs.get('substract', False),
+    # anot = kwargs.get('anot', True),
     age = kwargs.get('age', 'new')        
     rec = kwargs.get('rec', 'vm')
     spread = kwargs.get('spread' , 'sect')
@@ -36,17 +39,18 @@ def load_intra_mean_traces(paths, **kwargs):
     for k, v in kwargs.items():
         print(k, '= ', v)
   #  print(kind, substract, anot, age, rec, spread)
-    titles = dict(pop = 'all cells',
-                  sig = 'individually significant cells',
-                  nsig = 'individually non significants cells')
+    # titles = dict(pop = 'all cells',
+    #               sig = 'individually significant cells',
+    #               nsig = 'individually non significants cells')
 
     if age == 'old':
-        filenames = dict(pop = os.path.join('data', 'old', 'fig3.xlsx'),
-                         sig = os.path.join('data', 'old', 'fig3bis1.xlsx'),
-                         nsig =  os.path.join('data', 'old', 'fig3bis2.xlsx'))
+        dirname = os.path.join(paths['owncFig'], 'data', 'old') 
+        filenames = dict(pop = os.path.join(dirname, 'fig3.xlsx'),
+                         sig = os.path.join(dirname, 'fig3bis1.xlsx'),
+                         nsig =  os.path.join(dirname, 'fig3bis2.xlsx'))
         # samplesize
-        cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
-        ncells = cellnumbers[kind]
+        # cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
+        # ncells = cellnumbers[kind]
         df = pd.read_excel(filenames[kind])
     elif age == 'new':
         dir_name = os.path.join(paths['owncFig'], 
@@ -88,5 +92,6 @@ if __name__ == '__main__':
         rec='vm',
         spread='sect'
         )
+    dico['age'] = 'old'
     data_df = load_intra_mean_traces(paths, **dico)
     print(data_df.columns.tolist())

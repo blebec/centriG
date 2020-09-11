@@ -484,7 +484,7 @@ plt.close('all')
 from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 #def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
-def plot_figure3(stdcolors, *args, **kwargs):
+def plot_figure3(datadf, stdcolors, *args, **kwargs):
     """
     plot_figure3
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -492,44 +492,58 @@ def plot_figure3(stdcolors, *args, **kwargs):
     substract = boolan -> present as (data - centerOnly)
     """
     kind = kwargs.get('kind', 'sig')
-    substract = kwargs.get('substract', False),
-    anot = kwargs.get('anot', True),
+    substract = kwargs.get('substract', False)
+    anot = kwargs.get('anot', True)
     age = kwargs.get('age', 'new')        
     rec = kwargs.get('rec', 'vm')
     spread = kwargs.get('spread' , 'sect')
-        # TODO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
+         # TODO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
     for k, v in kwargs.items():
         print(k, v)
-  #  print(kind, substract, anot, age, rec, spread)
+   #  print(kind, substract, anot, age, rec, spread)
     titles = dict(pop = 'all cells',
-                  sig = 'individually significant cells',
-                  nsig = 'individually non significants cells')
+                   sig = 'individually significant cells',
+                   nsig = 'individually non significants cells')
 
-    if age == 'old':
-        filenames = dict(pop = os.path.join('data', 'old', 'fig3.xlsx'),
-                         sig = os.path.join('data', 'old', 'fig3bis1.xlsx'),
-                         nsig =  os.path.join('data', 'old', 'fig3bis2.xlsx'))
-        # samplesize
-        cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
-        ncells = cellnumbers[kind]
-        df = pd.read_excel(filenames[kind])
-    else:
-        dir_name = os.path.join(paths['owncFig'], 
-                                'data', 'averageTraces', 'controlsFig')
-        file_list = os.listdir(dir_name)
-        kind = kind.lower()
-        if kind in ['pop', 'sig', 'nsig']:
-            file_list = [item for item in file_list if item.lower().startswith(kind)]
-        else:
-            print('kind should be in [pop, sig or nsig]')
-            return
-        file_list = [item for item in file_list if rec in item.lower()]
-        file_list = [item for item in file_list if spread in item.lower()]
-        file = file_list[0]
-        filename = os.path.join(dir_name, file)
-        df = pd.read_excel(filename)
- 
+  #   if age == 'old':
+  #       filenames = dict(pop = os.path.join('data', 'old', 'fig3.xlsx'),
+  #                        sig = os.path.join('data', 'old', 'fig3bis1.xlsx'),
+  #                        nsig =  os.path.join('data', 'old', 'fig3bis2.xlsx'))
+  #       # samplesize
+  #       cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
+  #       ncells = cellnumbers[kind]
+  #       df = pd.read_excel(filenames[kind])
+  #   else:
+  #       dir_name = os.path.join(paths['owncFig'], 
+  #                               'data', 'averageTraces', 'controlsFig')
+  #       file_list = os.listdir(dir_name)
+  #       kind = kind.lower()
+  #       if kind in ['pop', 'sig', 'nsig']:
+  #           file_list = [item for item in file_list if item.lower().startswith(kind)]
+  #       else:
+  #           print('kind should be in [pop, sig or nsig]')
+  #           return
+  #       file_list = [item for item in file_list if rec in item.lower()]
+  #       file_list = [item for item in file_list if spread in item.lower()]
+  #       file = file_list[0]
+  #       filename = os.path.join(dir_name, file)
+  #       df = pd.read_excel(filename)
+
+  #    # dico = dict(
+  #    #    kind = 'sig',
+  #    #    substract = False,
+  #    #    anot = True,
+  #    #    age = 'new',
+  #    #    rec='vm',
+  #    #    spread='sect'
+  #    #    )
+
+    #df = ltra.load_intra_mean_traces(paths, **kwargs)
+#                                age='old', kind='sig')
+
+    
     # centering
+    df = datadf.copy()
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
@@ -539,7 +553,8 @@ def plot_figure3(stdcolors, *args, **kwargs):
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
     if substract:
         # subtract the centerOnly response
-        ref = df['CENTER-ONLY']
+        # ref = df['CENTER-ONLY']
+        ref = df[df.columns[0]]
         df = df.subtract(ref, axis=0)
 
     fig = plt.figure(figsize=(6.5, 5.5))
@@ -566,7 +581,9 @@ def plot_figure3(stdcolors, *args, **kwargs):
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
     # bluePoint
-    ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1],
+    # ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1],
+    #         ms=10, alpha=0.8)
+    ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[-1],
             ms=10, alpha=0.8)
     # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
     # leg = ax.legend(loc=2, markerscale=None, frameon=False,
@@ -616,11 +633,29 @@ def plot_figure3(stdcolors, *args, **kwargs):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig1 = plot_figure3(std_colors, 'pop', age='old')
-fig2 = plot_figure3(std_colors, 'sig', age='old')
+plt.close('all')
+figs = []
+for kind in ['pop', 'sig']:
+    select = dict(age='old', kind=kind)
+    data_df = ltra.load_intra_mean_traces(paths, **select)
+    for substract in [True, False]:
+        select['substract'] = substract
+        figs.append(plot_figure3(data_df, std_colors, **select))
+lims = [0, 0]
+for fig in figs:
+    lim = fig.get_axes()[0].get_ylim()
+    if lim[0] < lims[0]:
+        lims[0] = lim[0]
+    if lim[1] > lims[1]:
+        lims[1] = lim[1]
+for fig in figs:
+    fig.get_axes()[0].set_ylim(lims)
+        
+
+
 #fig = plot_figure3('nsig')
-#fig = plot_figure3(std_colors, 'sig', substract=True, age='old')
-#fig2 = plot_figure3(std_colors, 'pop', substract=True, age='old')
+#fig = plot_figure3(std_colors, kind='sig', substract=True, age='old')
+#fig2 = plot_figure3(std_colors, kind='pop', substract=True, age='old')
 
 #pop all cells
 #%% grouped sig and non sig
