@@ -11,8 +11,8 @@ import os
 import pandas as pd
 import numpy as np
 
-import config
-
+import centriG.config as config
+import centriG.general_functions as gfunc
 
 
 
@@ -24,10 +24,10 @@ def load2(age='new'):
     #____data
     if age == 'old':
         filename = 'data/old/fig2traces.xlsx'
-        print ('beware : old file')
+        print('beware : old file')
     else:
         filename = 'data/data_to_use/fig2_2traces.xlsx'
-        print ('fig2 : new file')
+        print('fig2 : new file')
         # print('file fig2traces as to be updated')
         # return None, None
     df = pd.read_excel(filename)
@@ -58,30 +58,6 @@ def load2(age='new'):
                 }
     return df, colsdict
 
-def new_columns_names(cols):
-    def convert_to_snake(camel_str):
-        """ camel case to snake case """
-        temp_list = []
-        for letter in camel_str:
-            if letter.islower():
-                temp_list.append(letter)
-            elif letter.isdigit():
-                temp_list.append(letter)
-            else:
-                temp_list.append('_')
-                temp_list.append(letter)
-        result = "".join(temp_list)
-        return result.lower()
-    newcols = [convert_to_snake(item) for item in cols]
-    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
-               'spks': 'spk_sect_', 'spkf': 'spk_full_',
-               'dlat50': 'time50', 'dgain50': 'gain50',
-               'lat50': 'time50', 
-               'rnd': 'rd', 'cross' : 'crx'}
-    for key in chg_dct:
-        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
-    return newcols
-
 
 #TODO function to developp to load energy from xcel file
 def load_cell_contributions(kind='vm', amp='gain', age='new'):
@@ -92,32 +68,31 @@ def load_cell_contributions(kind='vm', amp='gain', age='new'):
     kind in ['vm' or 'spk']
     """
     if age == 'old':
-        if kind == 'vm':
-            filename = 'data/old/figSup34Vm.xlsx'
-        elif kind == 'spk':
-            filename = 'data/old/figSup34Spk.xlsx'
-            # TODO ajouter les fichiers energy excel
-        else:
-            print('kind should be vm or spk')
+        names_dico = dict(
+            vm=os.path.join('data', 'old', 'figSup34Vm.xlsx'),
+            spk=os.path.join('data', 'old', 'figSup34Spk.xlsx')
+            )
+        filename = names_dico.get('kind')
     elif age == 'new':
+        dirname = os.path.join('data', 'data_to_use')            
         if kind == 'vm' and amp == 'gain':
-            filename = 'data/data_to_use/time50gain50Vm.xlsx'
+            filename = os.path.join(dirname, 'time50gain50Vm.xlsx')
         elif kind == 'spk' and amp == 'gain':
-            filename = 'data/data_to_use/time50gain50Spk.xlsx'
+            filename = os.path.join(dirname, 'time50gain50Spk.xlsx')
         elif kind == 'vm' and amp == 'engy':
-            filename = 'data/data_to_use/time50engyVm.xlsx'
+            filename = os.path.join(dirname, 'time50engyVm.xlsx')
         elif kind == 'spk' and amp == 'engy':
-            filename = 'data/data_to_use/time50engySpk.xlsx'
+            filename = os.path.join(dirname, 'time50engySpk.xlsx')
         else:
             print('check the conditions')
             return
     else:
-        print ('files should be updated')
+        print('files should be updated')
         return None
     df = pd.read_excel(filename)
     df.set_index('Neuron', inplace=True)
     #rename using snake_case
-    cols = new_columns_names(df.columns)
+    cols = gfunc.new_columns_names(df.columns)
     df.columns = cols
     #groupNames
     cols = []
@@ -141,32 +116,32 @@ def load_cell_contributions(kind='vm', amp='gain', age='new'):
 #         """
 #         to iterate and load sucessively all the cells
 #         """
-# 
+#
 #         cols = ['centeronly', 'cpisosect', 'cfisosect', 'cpcrxsect', 'rdisosect',
 #                 'cpisofull', 'cfisofull', 'cpcrxfull', 'rdisofull']
-# 
+#
 #         cols = [item + '_energy' for item in cols]
-#         folder = os.path.join(paths['owncFig'], 'data', 
+#         folder = os.path.join(paths['owncFig'], 'data',
 #                               'index', 'vm', 'energyt0baseline')
 #         filename = os.path.join(folder, cell_name)
 #         df = pd.read_csv(filename, sep='\t', names=cols)
 #         return df
-# 
+#
 #     # neurons & values
 #     df = pd.DataFrame()
-#     folder = os.path.join(paths['owncFig'], 'data', 
+#     folder = os.path.join(paths['owncFig'], 'data',
 #                           'index', 'vm', 'energyt0baseline')
 #     for name in os.listdir(folder):
 #         if os.path.isfile(os.path.join(folder, name)):
 #             energy_df = load_energy_cell(name)
 #             # nb here i choosed the median value
 #             df[os.path.splitext(name)[0]] = energy_df.median()
-# 
+#
 #             df[os.path.splitext(name)[0]] = energy_df.mean()
-# 
+#
 #     # pvalues one col by condition, one line per cell
 #     df = df.T
-#     folder = os.path.join(paths['owncFig'], 'data', 
+#     folder = os.path.join(paths['owncFig'], 'data',
 #                           'index', 'vm', 'stats', 'pvaluesup')
 #     for name in os.listdir(folder):
 #         filename = os.path.join(folder, name)
@@ -211,9 +186,9 @@ if __name__ == "__main__":
     #energy_df = load_energy_gain_index(paths, sig=True)
     latGain50_v_df = load_cell_contributions('vm', age='old')
     latGain50_s_df = load_cell_contributions('spk', age='old')
-    
+
     latGain50_v_df = load_cell_contributions('vm', amp='gain', age='new')
     latGain50_s_df = load_cell_contributions('spk', amp='gain', age='new')
-    
+
     latEner50_v_df = load_cell_contributions('vm', amp='engy', age='new')
     latEner50_s_df = load_cell_contributions('spk', amp='engy', age='new')
