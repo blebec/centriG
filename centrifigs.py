@@ -17,6 +17,7 @@ import matplotlib.pyplot as plt
 # import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
+#from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib import markers
 
 import centriG.config as config
@@ -329,7 +330,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
                        'ampIndiSig' : 'cpisosect_gain50_sig'}
         df.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
-        amp='engy'
+        amp = 'engy'
         latAmp_v_df = ldat.load_cell_contributions('vm', amp='engy', age='new')
         cols = latAmp_v_df.columns
         df = latAmp_v_df[[item for item in cols if 'cpisosect' in item]].copy()
@@ -374,9 +375,9 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
             if amp == 'gain':
-                txt = r'$\Delta$ Amplitude'                
+                txt = r'$\Delta$ Amplitude'
             elif amp == 'engy':
-                txt = r'$\Delta$ Energy'                
+                txt = r'$\Delta$ Energy'
             else:
                 print('amplitude unit not in [gain, energy]')
             ylims = ax.get_ylim()
@@ -481,7 +482,6 @@ descr_df = sort_stat('new')
 plot_stat()
 #%%
 plt.close('all')
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 #def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
 def plot_figure3(datadf, stdcolors, *args, **kwargs):
@@ -494,54 +494,16 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
     kind = kwargs.get('kind', 'sig')
     substract = kwargs.get('substract', False)
     anot = kwargs.get('anot', True)
-    age = kwargs.get('age', 'new')        
+    age = kwargs.get('age', 'new')
     rec = kwargs.get('rec', 'vm')
-    spread = kwargs.get('spread' , 'sect')
-         # TODO replace paths by owncloud/cgFiguresSrc/averageTraces/controlsFig
+    spread = kwargs.get('spread', 'sect')
     for k, v in kwargs.items():
         print(k, v)
    #  print(kind, substract, anot, age, rec, spread)
-    titles = dict(pop = 'all cells',
-                   sig = 'individually significant cells',
-                   nsig = 'individually non significants cells')
+    titles = dict(pop='all cells',
+                  sig='individually significant cells',
+                  nsig='individually non significants cells')
 
-  #   if age == 'old':
-  #       filenames = dict(pop = os.path.join('data', 'old', 'fig3.xlsx'),
-  #                        sig = os.path.join('data', 'old', 'fig3bis1.xlsx'),
-  #                        nsig =  os.path.join('data', 'old', 'fig3bis2.xlsx'))
-  #       # samplesize
-  #       cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
-  #       ncells = cellnumbers[kind]
-  #       df = pd.read_excel(filenames[kind])
-  #   else:
-  #       dir_name = os.path.join(paths['owncFig'], 
-  #                               'data', 'averageTraces', 'controlsFig')
-  #       file_list = os.listdir(dir_name)
-  #       kind = kind.lower()
-  #       if kind in ['pop', 'sig', 'nsig']:
-  #           file_list = [item for item in file_list if item.lower().startswith(kind)]
-  #       else:
-  #           print('kind should be in [pop, sig or nsig]')
-  #           return
-  #       file_list = [item for item in file_list if rec in item.lower()]
-  #       file_list = [item for item in file_list if spread in item.lower()]
-  #       file = file_list[0]
-  #       filename = os.path.join(dir_name, file)
-  #       df = pd.read_excel(filename)
-
-  #    # dico = dict(
-  #    #    kind = 'sig',
-  #    #    substract = False,
-  #    #    anot = True,
-  #    #    age = 'new',
-  #    #    rec='vm',
-  #    #    spread='sect'
-  #    #    )
-
-    #df = ltra.load_intra_mean_traces(paths, **kwargs)
-#                                age='old', kind='sig')
-
-    
     # centering
     df = datadf.copy()
     middle = (df.index.max() - df.index.min())/2
@@ -560,10 +522,12 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
     fig = plt.figure(figsize=(6.5, 5.5))
     if anot:
         fig.suptitle(titles[kind], alpha=0.4)
+        title = '{} {} {} {}'.format(kind, age, rec, spread)
+        fig.suptitle(title, alpha=0.4)
     ax = fig.add_subplot(111)
     cols = df.columns
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, 
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col,
                 linewidth=2)
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
@@ -590,17 +554,17 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
                     #handlelength=0)
     # for line, text in zip(leg.get_lines(), leg.get_texts()):
         # text.set_color(line.get_color())
-    ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-                xycoords="axes fraction", ha='center')
+    # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+    #             xycoords="axes fraction", ha='center')
     insert = False
     if insert:
 #        axins = inset_axes(ax, width="50%", height="30%", loc=4)
-        
+
         axins = fig.add_axes([.5, .21, .42, .25], facecolor='w', alpha=0.2)
         for i, col in enumerate(cols):
-            if i in [0,4]:
-                axins.plot(df[col], color=colors[i], alpha=alphas[i], label=col, 
-                        linewidth=2)
+            if i in [0, 4]:
+                axins.plot(df[col], color=colors[i], alpha=alphas[i], label=col,
+                           linewidth=2)
         axins.set_xlim(-150, 30)
         for spine in ['left', 'top']:
             axins.spines[spine].set_visible(False)
@@ -627,18 +591,20 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
     fig.tight_layout()
 
     if anot:
+        ax.legend()
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
-                  ha='right', va='bottom', alpha=0.4)
+                 ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
+
 
 #%%
 plt.close('all')
 figs = []
 for kind in ['pop', 'sig']:
     select = dict(age='old', kind=kind)
-    data_df = ltra.load_intra_mean_traces(paths, **select)
+    data_df, _ = ltra.load_intra_mean_traces(paths, **select)
     for substract in [True, False]:
         select['substract'] = substract
         figs.append(plot_figure3(data_df, std_colors, **select))
@@ -651,7 +617,7 @@ for fig in figs:
         lims[1] = lim[1]
 for fig in figs:
     fig.get_axes()[0].set_ylim(lims)
-        
+
 
 
 #fig = plot_figure3('nsig')
@@ -664,11 +630,48 @@ plt.close('all')
 fig1 = ofig.plot_3_signonsig(std_colors, anot=anot)
 fig2 = ofig.plot_3_signonsig(std_colors, substract=True, anot=anot)
 
-#%%
+#%% same scale + extend
 for fig in [fig1, fig2]:
     for ax in fig.get_axes():
         ax.set_ylim(-0.2, 1.1)
         ax.set_xlim(-45, 120)
+
+#%%all conditions
+plt.close('all')
+for age in ['new']: #, 'old']:
+    for kind in ['pop', 'sig', 'nsig']:
+        for rec in ['vm', 'spk']:
+            for spread in ['sect', 'full']:
+                print('______')
+                print(kind, age, rec, spread)
+                df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age, rec=rec, spread=spread)
+                print(os.path.basename(f))
+                print(df.columns.to_list())
+                plot_figure3(df, std_colors, kind=kind, age=age, rec=rec, spread=spread)
+
+#%%
+plt.close('all')
+#%%
+dico = dict(
+    age=['old', 'new'][1],
+    kind=['pop', 'sig', 'nsig'][2],
+    spread=['sect', 'full'][0],
+    rec=['vm', 'spk'][0]
+    )
+
+dico['kind'] = 'pop'
+df1, f1 = ltra.load_intra_mean_traces(paths, **dico)
+fig1 = plot_figure3(df1, std_colors, **dico)
+
+dico['kind'] = 'sig'
+df2, f2 = ltra.load_intra_mean_traces(paths, **dico)
+fig2 = plot_figure3(df2, std_colors, **dico)
+
+dico['kind'] = 'nsig'
+df3, f3 = ltra.load_intra_mean_traces(paths, **dico)
+fig3 = plot_figure3(df3, std_colors, **dico)
+
+
 #%%
 plt.close('all')
 
@@ -755,16 +758,16 @@ def adjust_scale(figlist, lims):
 #        left = list(np.arange(lims[0], 0, 25))[1:]
         left = list(np.arange(0, lims[0], -25))[1:][::-1]
         right = list(np.arange(0, lims[1], 25))
-        custom_ticks = left + right        
+        custom_ticks = left + right
         ax.set_xticks(custom_ticks)
 
 fig_list = [fig1, fig2]
 lims = (-40, 45)
 lims = (-65, 65)
-lims= (-120, 65)
-lims= (-160, 65)
-lims= (-200, 65)
-lims= (-300, 65)
+lims = (-120, 65)
+lims = (-160, 65)
+lims = (-200, 65)
+lims = (-300, 65)
 
 adjust_scale(fig_list, lims)
 
