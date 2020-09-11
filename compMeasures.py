@@ -3,14 +3,15 @@
 
 import os
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(style="ticks")
-import config
-import load_data as ldat
+
+import centriG.config as config
+import centriG.load.load_data as ldat
 std_colors = config.std_colors()
 anot = True
         

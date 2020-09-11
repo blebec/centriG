@@ -23,7 +23,7 @@ import centriG.config as config
 import centriG.plot_general_functions as gfuc
 import centriG.load.load_data as ldat
 import centriG.load.load_traces as ltra
-import centriG.old_figs as ofig
+import centriG.old.old_figs as ofig
 import centriG.fig_proposal as figp
 # nb description with pandas:
 pd.options.display.max_columns = 30
@@ -633,6 +633,7 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
+#%%
 plt.close('all')
 figs = []
 for kind in ['pop', 'sig']:

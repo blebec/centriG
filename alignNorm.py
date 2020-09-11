@@ -1,12 +1,14 @@
 
 
 import os
-import matplotlib.pyplot as plt
-import config
-import load_data as ldat
+from datetime import datetime
+
 import numpy as np
 import  pandas as pd
-from datetime import datetime
+import matplotlib.pyplot as plt
+
+import centriG.config as config
+import centriG.load.load_data as ldat
 
 anot = True           # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()
@@ -36,16 +38,16 @@ def load_traces(paths, kind='vm', spread='sect', num=2):
     middle = (df.index.max() - df.index.min())/2
     df.index = df.index - middle
     df.index = df.index/10
-    
+
     label = file.split('.')[0]
-    
+
     # rename column
     cols = df.columns
     cols = \
         [item[:-3] + ('_').join(item[-3:].split('n')) for item in cols]
     df.columns = cols
-        
-    nb_cells = list(set([item.split('_')[1] for item in data.columns]))
+
+    nb_cells = list(set([item.split('_')[1] for item in df.columns]))
 
     return label, df
 
@@ -63,7 +65,7 @@ def plot_align_normalize(label, data, substract=False):
             spks = [item for item in cols if 'n6' in item]
             df = df[spks].copy()
             df.columns = [item.replace('n6', '') for item in spks]
-        elif filt == 'spk2s':    
+        elif filt == 'spk2s':
             spk2s = [item for item in cols if 'n5' in item]
             df = df[spk2s].copy()
             df.columns = [item.replace('n5', '') for item in spk2s]
@@ -79,12 +81,12 @@ def plot_align_normalize(label, data, substract=False):
     cell_pop = list(set([item.split('_')[1] for item in data.columns]))
     cell_pop = sorted([int(item) for item in cell_pop])[::-1]
 
-    fig, axes = plt.subplots(ncols=1, nrows=len(cell_pop), figsize=(6, 18), 
+    fig, axes = plt.subplots(ncols=1, nrows=len(cell_pop), figsize=(6, 18),
                              sharex=True, sharey=True)
     # fig.suptitle(label, alpha=0.4)
-    fig.text(x=0.05, y= 0.95, s=label, alpha = 0.6)
+    fig.text(x=0.05, y=0.95, s=label, alpha=0.6)
     #for i, k in enumerate(['pop', 'spk', 'spk2s']):
-    for i, k in enumerate(cell_pop):    
+    for i, k in enumerate(cell_pop):
         ax = axes[i]
         ax.set_title(str(k) + ' sig_cells', alpha=0.6)
         #ax.set_title('pop = ' + k + ' _sig', alpha=0.6)
@@ -94,22 +96,22 @@ def plot_align_normalize(label, data, substract=False):
 #        df = select_pop(data, filt=k)
         # remove 'rndisosect'
  #       cols = df.columns
-        cols = [item for item in cols if 'rndisosect' not in item]        
+        cols = [item for item in cols if 'rndisosect' not in item]
         if substract:
             # subtract the centerOnly response
             for col in df.columns:
                 if 'center' in col:
                     ref = df[col]
-                    df = df.subtract(ref, axis=0)        
+                    df = df.subtract(ref, axis=0)
         for j, col in enumerate(cols):
-            ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col, 
+            ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col,
                     linewidth=2)
         #overlay of cpiso
         for j, col in enumerate(cols):
             if 'cpiso' in col:
-                ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col, 
+                ax.plot(df.loc[-20:120, [col]], color=colors[j], alpha=alphas[j], label=col,
                         linewidth=3)
-        
+
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         if 'spk' in label:
@@ -125,7 +127,7 @@ def plot_align_normalize(label, data, substract=False):
         ax.set_ylim(lims)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1], alpha=0.3)
-        
+
     fig.tight_layout()
 
     if anot:
@@ -156,8 +158,8 @@ for kind in ['vm', 'spk']:
             fig1 = plot_align_normalize(label, data)
             fig2 = plot_align_normalize(label, data, substract=True)
             if save:
-                fig1.savefig(fname = os.path.join(savepath, label + '.png'))
-                fig2.savefig(fname = os.path.join(savepath, label + 'Subs.png'))
+                fig1.savefig(fname=os.path.join(savepath, label + '.png'))
+                fig2.savefig(fname=os.path.join(savepath, label + 'Subs.png'))
 
 #TODO to be checked
 

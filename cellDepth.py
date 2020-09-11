@@ -8,22 +8,22 @@ Created on Thu Jul  2 11:27:33 2020
 extration and plotting of the relations histological data <-> responses
 """
 import os
-
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import load_data as ld
 
-import config
-
+import centriG.load.load_data as ldat
+import centriG.config as config
+ 
 def plot_cellDepth():
     """
     relation profondeur / latence
     """
     # cells
 #    data50 = ld.load_50vals('vm')
-    data50 = ld.load_cell_contributions('vm')
+    data50 = ldat.load_cell_contributions('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -126,7 +126,7 @@ def barplot_cellDepth_all(spread='sect'):
     relation profondeur / latence
     """
     # cells
-    data50 = ld.load_cell_contributions('vm')
+    data50 = ldat.load_cell_contributions('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -258,7 +258,7 @@ def dotplot_cellDepth_all(spread='sect'):
     relation profondeur / latence
     """
     # cells
-    data50 = ld.load_cell_contributions('vm')
+    data50 = ldat.load_cell_contributions('vm')
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
