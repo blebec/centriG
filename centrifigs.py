@@ -19,11 +19,11 @@ from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 from matplotlib import markers
 
-import config
-import plot_general_functions as gfuc
-import load_data as ldat
-import old_figs as ofig
-import fig_proposal as figp
+import centriG.config as config
+import centriG.plot_general_functions as gfuc
+import centriG.load_data as ldat
+import centriG.old_figs as ofig
+import centriG.fig_proposal as figp
 # nb description with pandas:
 pd.options.display.max_columns = 30
 
