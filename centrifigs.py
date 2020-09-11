@@ -645,8 +645,6 @@ for age in ['new']: #, 'old']:
                 print('______')
                 print(kind, age, rec, spread)
                 df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age, rec=rec, spread=spread)
-                print(os.path.basename(f))
-                print(df.columns.to_list())
                 plot_figure3(df, std_colors, kind=kind, age=age, rec=rec, spread=spread)
 
 #%%
