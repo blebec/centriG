@@ -296,8 +296,9 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     return fig
 
 #data
-fig2_df, fig2_cols = ldat.load2('new')
-fig = plot_figure2(data=fig2_df, colsdict=fig2_cols, anot=anot, age='new')
+age = ['old', 'new'][1]
+fig2_df, fig2_cols = ldat.load2(age)
+fig = plot_figure2(data=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
 
 # =============================================================================
 ## other views

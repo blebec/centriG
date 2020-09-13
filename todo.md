@@ -56,3 +56,57 @@
 
 ≠ engy fig2B et sup1 -> ok = sup1
 
+
+
+
+
+NB : 
+
+# choose files:
+
+pb : keys = 'new',  'sec', 'vm' 
+
+files = ['sigVmSectRaw.xlsx',
+			 'sigVmSectPeak.xlsx',
+ 			'sigVmSectNormAlign.xlsx',
+ 			'popVmSectNormAlign.xlsx',
+ 			'nSigVmSectNormAlign.xlsx']
+
+only NormAlign are present in all the pop parts
+
+
+
+# columns names:
+
+all the columns names start with pop
+
+f1 = /Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/popVmSectNormAlign.xlsx
+file = popVmSectNormAlign.xlsx
+
+df1_columns_list = ['popVmCtr', 
+                    'popVmscpIsoStc', 
+                    'popVmscfIsoStc', 
+                    'popVmscrossStc', 
+                    'popVmfrndIsoStc', 
+                    'popVmsrndIsoStc']
+
+f2 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/sigVmSectRaw.xlsx'
+file = 'sigVmSectRaw.xlsx'
+
+df2_columns_list = ['popVmCtr',
+                    'popVmscpIsoStc',
+                    'popVmscfIsoStc',
+                    'popVmscrossStc',
+                    'popVmfrndIsoStc',
+                    'popVmsrndIsoStc']
+
+f3 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/nSigVmSectNormAlign.xlsx'
+file = 'nSigVmSectNormAlign.xlsx'
+
+df3_columns_list = ['popVmCtr',
+                    'popVmscpIsoStc',
+                    'popVmscfIsoStc',
+                    'popVmscrossStc',
+                    'popVmfrndIsoStc',
+                    'popVmsrndIsoStc']
+
