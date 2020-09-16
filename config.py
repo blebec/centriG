@@ -11,6 +11,7 @@ a module to build the config and general parameters
 import platform
 import os
 import getpass
+import sys
 #import inspect
 
 
@@ -24,6 +25,7 @@ def build_paths():
     username = getpass.getuser()
     if osname == 'Windows'and username == 'Benoît':
         paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
+        sys.path.insert(0, r'D:\\travail\sourcecode\developing\paper')
         paths['owncFig'] = 'D:\\ownCloud\cgFiguresSrc'
     elif osname == 'Linux' and username == 'benoit':
         paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
