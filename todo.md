@@ -39,6 +39,34 @@
 - ~~insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly~~
 - sig à gauche
 - update path (cf code)
+- secteur | full
+
+# passage de fig2 à fig 3	
+
+- scatter plot all cells -> pour Yves time energy
+
+- obj justifier les sous populations (stim)
+
+  1. figure 2 avec uniquement exemple + pop (~~sig~~)
+  2. supprime fig2B
+  3. figure stat -> définition des index + choix sous populations
+
+  - base = plot_stat
+  - en haut sect | full (all pop, vm)
+  - en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
+
+  4. figure plot_sorted_responses_sup1 (vm_engy0.png)
+
+  5. figure :
+
+| sect / vm / normAlign  | sect/ vm / raw   | full / vm / normAlign  | full/ vm / raw  |
+| ---------------------- | ---------------- | ---------------------- | --------------- |
+| sect / spk / normAlign | sect / spk / raw | sect / spk / normAlign | full/ spk / raw |
+
+ 	1. même chose alignement des pics ?
+ 	2. 
+
+ 	1. 
 
 ## fig_sup waterfall cf indiSig cfIso
 
