@@ -3,7 +3,20 @@
 ## changement d'index
 
 - $\Delta$Gain -> $\Delta$Energie
+  
   - OK for figure_2B (mais bug energy cf sup_1)
+  
+    ```python
+    #2B : OK line = 335
+    latAmp_v_df = ldat.load_cell_contributions('vm', amp='engy', age='new')
+    fig1 = plot_figure2B(std_colors, anot=anot, age='new')
+    
+    # sup1
+    fig = plot_sorted_responses_sup1(overlap=True, sort_all=True,
+                                     kind='vm', amp='engy', age='new')
+    ```
+  
+    
 
 ## traces soustraites et non soustraites à la même échelle
 

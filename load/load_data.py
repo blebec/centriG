@@ -72,7 +72,7 @@ def load_cell_contributions(kind='vm', amp='gain', age='new'):
             vm=os.path.join('data', 'old', 'figSup34Vm.xlsx'),
             spk=os.path.join('data', 'old', 'figSup34Spk.xlsx')
             )
-        filename = names_dico.get('kind')
+        filename = names_dico.get(kind)
     elif age == 'new':
         dirname = os.path.join('data', 'data_to_use')            
         if kind == 'vm' and amp == 'gain':
