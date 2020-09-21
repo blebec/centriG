@@ -1324,8 +1324,9 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_sorted_responses_sup1(overlap=True)
-fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
+#%% old
+# fig = plot_sorted_responses_sup1(overlap=True)
+# fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
 kind = ['vm', 'spk'][0]
 
