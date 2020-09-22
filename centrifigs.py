@@ -347,8 +347,9 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
-        colors = [color_dic[x] for x in df[signs[i]]]
+#        colors = [color_dic[x] for x in df[signs[i]]]
         toplot = df.sort_values(by=vals[i], ascending=False)
+        colors = [color_dic[x] for x in toplot[signs[i]]]
         if sig:
             axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=colors, label=vals[i], alpha=0.8, width=0.8)
@@ -372,7 +373,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
             else:
                 ylims = (-10, 29)
                 ax.set_ylim(ylims)
-            ax.vlines(-1, 0, 20, linewidth=2)
+            ax.vlines(-1, 0, 20, linewidth=2, color='k')
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
             if amp == 'gain':
