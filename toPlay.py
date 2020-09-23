@@ -754,147 +754,151 @@ def extract_stat(onlySig=False):
 
 plt.close('all')
 
-def plot_stat(stat_df, kind='mean', loc='50'):
-    """
-    plot the stats
-    input : stat_df, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
-    output : matplotlib figure
-    """
-    if kind == 'mean':
-        stat = ['_mean', '_std']
-    elif kind == 'med':
-        stat = ['_med', '_mad']
-    else:
-        print('non valid kind argument')
-        return
-    if loc == '50':
-        mes = ['time50', 'gain50']
-    elif loc == 'peak':
-        mes = ['timeP', 'gainP']
-    elif loc == 'energy':
-        mes = ['time50', 'energy']        
-    else:
-        print('non valid loc argument')
-        return
-
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
-    fig = plt.figure(figsize=(8, 8))
-    title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
-    fig.suptitle(title)
-    # sect vm
-    axes = []
-    ax = fig.add_subplot(221)
-    axes.append(ax)
-    ax1 = fig.add_subplot(2, 2, 2, sharex=ax, sharey=ax)
-    axes.append(ax1)
-    ax2 = fig.add_subplot(2, 2, 3, sharex=ax)
-    axes.append(ax2)
-    ax3 = fig.add_subplot(2, 2, 4, sharex=ax, sharey=ax2)
-    axes.append(ax3)
-    # vm
-    ax.set_title('vm, sector')
-    vals = [item for item in stat_df.columns if '_vm' in item]
-    # sector
-    spread = [item for item in stat_df.index if 'sect' in item]
-    df = stat_df.loc[spread].copy()
-    xvals = [item for item in vals if mes[0] in item \
-         and (stat[0] in item or stat[1] in item)]
-    yvals = [item for item in vals if mes[1] in item \
-         and (stat[0] in item or stat[1] in item)]
-
-    x = df[xvals[0]]
-    y = df[yvals[0]]
-    xerr = df[xvals[1]]
-    yerr = df[yvals[1]]
-    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
-                    fmt='s', color=ci)
-    # full
-    ax = axes[1]
-    ax.set_title('vm, full')
-    spread = [item for item in stat_df.index if 'full' in item]
-    df = stat_df.loc[spread].copy()
-    xvals = [item for item in vals if mes[0] in item \
-             and (stat[0] in item or stat[1] in item)]
-    yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]
-
-    x = df[xvals[0]]
-    y = df[yvals[0]]
-    xerr = df[xvals[1]]
-    yerr = df[yvals[1]]
-    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
-                    fmt='s', color=ci)
-    # spikes
-    ax = axes[2]
-    ax.set_title('spk, sector')
-    vals = [item for item in stat_df.columns if '_spk' in item]
-    # sector
-    spread = [item for item in stat_df.index if 'sect' in item]
-    df = stat_df.loc[spread].copy()
-    xvals = [item for item in vals if mes[0] in item \
-             and (stat[0] in item or stat[1] in item)]
-    yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]
-
-    x = df[xvals[0]]
-    y = df[yvals[0]]
-    xerr = df[xvals[1]]
-    yerr = df[yvals[1]]
-    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
-                    fmt='s', color=ci)
-    # full
-    ax = axes[3]
-    ax.set_title('spk, full')
-    spread = [item for item in stat_df.index if 'full' in item]
-    df = stat_df.loc[spread].copy()
-    xvals = [item for item in vals if mes[0] in item \
-             and (stat[0] in item or stat[1] in item)]
-    yvals = [item for item in vals if mes[1] in item \
-             and (stat[0] in item or stat[1] in item)]
-    x = df[xvals[0]]
-    y = df[yvals[0]]
-    xerr = df[xvals[1]]
-    yerr = df[yvals[1]]
-    for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
-        ax.errorbar(xi, yi, xerr=xe, yerr=ye,
-                    fmt='s', color=ci)
-
-    for i, ax in enumerate(axes):
-        # lims = ax.get_ylim()
-        # ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
-        # lims = ax.get_xlim()
-        # ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
-        for spine in ['top', 'right']:
-            ax.spines[spine].set_visible(False)
-            if i % 2 == 0:
-                ax.set_ylabel('gain')
-            else:
-                ax.spines['left'].set_visible(False)
-                ax.yaxis.set_visible(False)
-            if i > 1:
-                ax.set_xlabel('time advance (ms)')
-            else:
-                ax.spines['bottom'].set_visible(False)
-                ax.xaxis.set_visible(False)
-    # ax = axes[2]
-    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
-    # ax.set_yticks(custom_ticks)
-    # ax.set_yticklabels(custom_ticks)
-
-    fig.tight_layout()
-    fig.subplots_adjust(hspace=0.02)
-    fig.subplots_adjust(wspace=0.02)
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'toPlay.py:plot_stat',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    return fig
-
+# =============================================================================
+# moved to cross
+#_________
+# def plot_stat(stat_df, kind='mean', loc='50'):
+#     """
+#     plot the stats
+#     input : stat_df, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
+#     output : matplotlib figure
+#     """
+#     if kind == 'mean':
+#         stat = ['_mean', '_std']
+#     elif kind == 'med':
+#         stat = ['_med', '_mad']
+#     else:
+#         print('non valid kind argument')
+#         return
+#     if loc == '50':
+#         mes = ['time50', 'gain50']
+#     elif loc == 'peak':
+#         mes = ['timeP', 'gainP']
+#     elif loc == 'energy':
+#         mes = ['time50', 'energy']        
+#     else:
+#         print('non valid loc argument')
+#         return
+# 
+#     colors = [std_colors['red'], std_colors['green'],
+#               std_colors['yellow'], std_colors['blue']]
+#     fig = plt.figure(figsize=(8, 8))
+#     title = stat[0] + stat[1] + '\n' + mes[0] + mes[1]
+#     fig.suptitle(title)
+#     # sect vm
+#     axes = []
+#     ax = fig.add_subplot(221)
+#     axes.append(ax)
+#     ax1 = fig.add_subplot(2, 2, 2, sharex=ax, sharey=ax)
+#     axes.append(ax1)
+#     ax2 = fig.add_subplot(2, 2, 3, sharex=ax)
+#     axes.append(ax2)
+#     ax3 = fig.add_subplot(2, 2, 4, sharex=ax, sharey=ax2)
+#     axes.append(ax3)
+#     # vm
+#     ax.set_title('vm, sector')
+#     vals = [item for item in stat_df.columns if '_vm' in item]
+#     # sector
+#     spread = [item for item in stat_df.index if 'sect' in item]
+#     df = stat_df.loc[spread].copy()
+#     xvals = [item for item in vals if mes[0] in item \
+#          and (stat[0] in item or stat[1] in item)]
+#     yvals = [item for item in vals if mes[1] in item \
+#          and (stat[0] in item or stat[1] in item)]
+# 
+#     x = df[xvals[0]]
+#     y = df[yvals[0]]
+#     xerr = df[xvals[1]]
+#     yerr = df[yvals[1]]
+#     for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+#         ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+#                     fmt='s', color=ci)
+#     # full
+#     ax = axes[1]
+#     ax.set_title('vm, full')
+#     spread = [item for item in stat_df.index if 'full' in item]
+#     df = stat_df.loc[spread].copy()
+#     xvals = [item for item in vals if mes[0] in item \
+#              and (stat[0] in item or stat[1] in item)]
+#     yvals = [item for item in vals if mes[1] in item \
+#              and (stat[0] in item or stat[1] in item)]
+# 
+#     x = df[xvals[0]]
+#     y = df[yvals[0]]
+#     xerr = df[xvals[1]]
+#     yerr = df[yvals[1]]
+#     for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+#         ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+#                     fmt='s', color=ci)
+#     # spikes
+#     ax = axes[2]
+#     ax.set_title('spk, sector')
+#     vals = [item for item in stat_df.columns if '_spk' in item]
+#     # sector
+#     spread = [item for item in stat_df.index if 'sect' in item]
+#     df = stat_df.loc[spread].copy()
+#     xvals = [item for item in vals if mes[0] in item \
+#              and (stat[0] in item or stat[1] in item)]
+#     yvals = [item for item in vals if mes[1] in item \
+#              and (stat[0] in item or stat[1] in item)]
+# 
+#     x = df[xvals[0]]
+#     y = df[yvals[0]]
+#     xerr = df[xvals[1]]
+#     yerr = df[yvals[1]]
+#     for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+#         ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+#                     fmt='s', color=ci)
+#     # full
+#     ax = axes[3]
+#     ax.set_title('spk, full')
+#     spread = [item for item in stat_df.index if 'full' in item]
+#     df = stat_df.loc[spread].copy()
+#     xvals = [item for item in vals if mes[0] in item \
+#              and (stat[0] in item or stat[1] in item)]
+#     yvals = [item for item in vals if mes[1] in item \
+#              and (stat[0] in item or stat[1] in item)]
+#     x = df[xvals[0]]
+#     y = df[yvals[0]]
+#     xerr = df[xvals[1]]
+#     yerr = df[yvals[1]]
+#     for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+#         ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+#                     fmt='s', color=ci)
+# 
+#     for i, ax in enumerate(axes):
+#         # lims = ax.get_ylim()
+#         # ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+#         # lims = ax.get_xlim()
+#         # ax.hlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
+#         for spine in ['top', 'right']:
+#             ax.spines[spine].set_visible(False)
+#             if i % 2 == 0:
+#                 ax.set_ylabel('gain')
+#             else:
+#                 ax.spines['left'].set_visible(False)
+#                 ax.yaxis.set_visible(False)
+#             if i > 1:
+#                 ax.set_xlabel('time advance (ms)')
+#             else:
+#                 ax.spines['bottom'].set_visible(False)
+#                 ax.xaxis.set_visible(False)
+#     # ax = axes[2]
+#     # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
+#     # ax.set_yticks(custom_ticks)
+#     # ax.set_yticklabels(custom_ticks)
+# 
+#     fig.tight_layout()
+#     fig.subplots_adjust(hspace=0.02)
+#     fig.subplots_adjust(wspace=0.02)
+#     if anot:
+#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         fig.text(0.99, 0.01, 'toPlay.py:plot_stat',
+#                  ha='right', va='bottom', alpha=0.4)
+#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+#     return fig
+# 
+# =============================================================================
 # to have sig and non sig:
 def sigNonSig_stat_plot():
     """ stats for sig and non sig cells """

@@ -418,6 +418,8 @@ def scatter_lat_gain(df_left, df_right, mes=''):
 
 
 #%%%%  to build the stat representation
+plt.close('all')
+
 
 # TODO : add stat for sig
 
@@ -436,6 +438,92 @@ def build_stat_df():
         df[mes + '_mad'] = data[cols].mad()
     return df
 
+def plot_stat(statdf, kind='mean'):
+    """
+    plot the stats
+    input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
+    output : matplotlib figure
+    """
+    if kind == 'mean':
+        stat = ['_mean', '_std']
+    elif kind == 'med':
+        stat = ['_med', '_mad']
+    else:
+        print('non valid kind argument')
+        return
+
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue']]
+    
+    fig = plt.figure(figsize=(8, 8))
+    title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
+    fig.suptitle(title)
+    # sect vm
+    axes = []
+    ax0 = fig.add_subplot(221)
+    axes.append(ax0)
+    ax1 = fig.add_subplot(2, 2, 2, sharex=ax0, sharey=ax0)
+    axes.append(ax1)
+    ax2 = fig.add_subplot(2, 2, 3, sharex=ax0)
+    axes.append(ax2)
+    ax3 = fig.add_subplot(2, 2, 4, sharex=ax0, sharey=ax2)
+    axes.append(ax3)
+    
+    # plots
+    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'), 
+                              ('spk', 'sect'), ('spk', 'full')]):
+        ax = axes[i]
+        rec = cond[0]
+        spread = cond[1]
+        ax.set_title('{} {}'.format(rec, spread))
+    
+        rows = [st for st in statdf.index.tolist() if spread in st]
+        time_rows = [st for st in rows if 'time50' in st]
+        y_rows = [st for st in rows if 'engy' in st]
+    
+        cols = [col for col in statdf.columns if col.startswith(rec)]
+        cols = [st for st in cols if stat[0] in st or stat[1] in st]    
+    
+        x = statdf.loc[time_rows, cols][rec + stat[0]].values
+        xerr = statdf.loc[time_rows, cols][rec + stat[1]].values
+    
+        y = statdf.loc[y_rows, cols][rec + stat[0]].values
+        yerr = statdf.loc[y_rows, cols][rec + stat[1]].values
+    
+        for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+            ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                        fmt='s', color=ci)
+
+    #adjust
+    for i, ax in enumerate(axes):
+        ax.axvline(0, linestyle=':', alpha=0.3)
+        ax.axhline(0, linestyle=':', alpha=0.3)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+            if i % 2 == 0:
+                ax.set_ylabel('engy')
+            else:
+                ax.spines['left'].set_visible(False)
+                ax.yaxis.set_visible(False)
+            if i > 1:
+                ax.set_xlabel('time advance (ms)')
+            else:
+                ax.spines['bottom'].set_visible(False)
+                ax.xaxis.set_visible(False)
+    # ax = axes[2]
+    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
+    # ax.set_yticks(custom_ticks)
+    # ax.set_yticklabels(custom_ticks)
+
+    fig.tight_layout()
+    fig.subplots_adjust(hspace=0.02)
+    fig.subplots_adjust(wspace=0.02)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'cross.py:plot_stat',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
 
 
 #%% 
@@ -542,6 +630,17 @@ def histo_lat_gain(df_left, df_right, mes=''):
 #%%
 
 plt.close('all')
+stat_df = build_stat_df()
+fig1 = plot_stat(stat_df, kind='mean')
+fig2 = plot_stat(stat_df, kind='med')
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'meanStd.png')
+    fig1.savefig(filename)
+    filename = os.path.join(paths['save'], 'medMad.png')
+    fig2.savefig(filename)
+     
+#%%
 for spread in ['sect', 'full']:
     for mes in ['vm', 'spk']:
       #  mes = 'vm'
@@ -555,16 +654,17 @@ for spread in ['sect', 'full']:
                                     left_sig=True, right_sig=True)
         fig2 = horizontal_dot_plot(left, right, mes=mes)
         fig3 = scatter_lat_gain(left, right, mes=mes)
-        fig4 = histo_lat_gain(left, right, mes=mes)
+        
+        fig5 = histo_lat_gain(left, right, mes=mes)
 
         save=False
-        save=True
+#        save=True
         if save:
             names = []
-            for kind in ['bar', 'dot', 'scatter', 'histo']:
+            for kind in ['bar', 'dot', 'scatter', '', 'histo']:
                 name = '_'.join([kind, mes, spread])
                 names.append(name)
-            figs = [fig1, fig2, fig3, fig4]
+            figs = [fig1, fig2, fig3, fig4, fig5]
             for name, fig in zip(names, figs):
                 filename = os.path.join(paths['save'], name + '.png')
                 fig.savefig(filename)
