@@ -5,7 +5,7 @@ Created on Thu Jul  2 11:24:28 2020
 
 @author: cdesbois
 """
-
+import os
 from datetime import datetime
 import numpy as np
 import pandas as pd
@@ -16,6 +16,9 @@ import config
 import load_data as ldat
 std_colors = config.std_colors()
 anot = True
+
+plt.rcParams['axes.xmargin'] = 0.05     
+plt.rcParams['axes.ymargin'] = 0.05   
 
 #%% a test fig and no more
 plt.close('all')
@@ -303,17 +306,17 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
         fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_sorted_responses',
+        fig.text(0.99, 0.01, 'toPlay.py:plot_sorted_responses',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 
-def select_50(df, spread='sect', param='gain', noSig=True):
+def select_50(df, spread='sect', param='engy', noSig=True):
     """
     return the selected df parts for plotting
     spread in ['sect', 'full'],
-    param in ['time', 'gain']
+    param in ['time', 'gain', 'engy']
     """
     if spread not in ['sect', 'full']:
         print("'spread' should be in ['sect', 'full']")
@@ -328,7 +331,7 @@ def select_50(df, spread='sect', param='gain', noSig=True):
     if noSig:
         # remove sig
         col_list = [item for item in col_list if 'sig' not in item]
-    return df[col_list]
+    return df[col_list].copy()
 
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
@@ -445,6 +448,8 @@ def scatter_lat_gain(df_left, df_right, mes=''):
     df_left = df_left[cols]
     cols = [item for item in df_right.columns if '_sig' not in item]
     df_right = df_right[cols]
+    #labels
+    labels = [item.split('_')[0][:-4] for item in cols]
     for i in range(len(df_left.columns)):
         color_list = []
         for j in range(len(df_left)):
@@ -453,7 +458,8 @@ def scatter_lat_gain(df_left, df_right, mes=''):
         y = df_right[df_right.columns[i]]
         ax.scatter(x, y,
                    c=color_list, s=100,
-                   edgecolors=dark_colors[i], alpha=0.6)
+                   edgecolors=dark_colors[i], alpha=0.6,
+                   label = labels[i])
     ax.set_xlabel('time')
     ax.set_ylabel('gain')
     ax.set_xlabel(df_left.columns[0].split('_')[1])
@@ -462,10 +468,10 @@ def scatter_lat_gain(df_left, df_right, mes=''):
     ax.hlines(0, lims[0], lims[1], 'k', alpha=0.3)
     lims = ax.get_ylim()
     ax.vlines(0, lims[0], lims[1], 'k', alpha=0.3)
-
+    ax.legend()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'toPlay.py:horizontal_dot_plot',
+        fig.text(0.99, 0.01, 'toPlay.py:scatter_lat_gain',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -565,7 +571,7 @@ def histo_lat_gain(df_left, df_right, mes=''):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:histo_lat_gain',
+        fig.text(0.99, 0.01, 'toPlay.py:histo_lat_gain',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -924,35 +930,55 @@ plot_stat(stat_df, 'med', 'energy')
 #     fig.savefig(os.path.join(savePath, measure + '.png'))
 
 
+#%% time energy scatter
+spread = 'sect'
+mes = 'vm'
+data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+left = select_50(data, spread=spread, param='time', noSig=False)
+right = select_50(data, spread=spread, param='engy', noSig=False)
+
+
+
+
 #%% vm
+paths['save'] = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/cross/'
+
 plt.close('all')
 for spread in ['sect', 'full']:
-    mes = 'vm'
-    data50 = ldat.load_cell_contributions(kind=mes, amp='gain', age='new')
-    advance_df = select_50(data50, spread=spread, param='time', noSig=False)
-    left = advance_df
+    for mes in ['vm', 'spk']:
+      #  mes = 'vm'
+        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+        left = select_50(data, spread=spread, param='time', noSig=False)
+        right = select_50(data, spread=spread, param='engy', noSig=False)
 
-    filename = 'data/cg_peakValueTime_vm.xlsx'
-    data = load_peakdata(filename)
-    right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+        # test for same cells
+        diff = (left.index ^ right.index).tolist()
+        if len(diff) > 0:
+            print("left and right doesn't contain the same cells !")
+            print(diff)
+        for item in diff:
+            if item in left.index:
+                left = left.drop(item)
+            elif item in right.index:
+                right = right.drop(item)
 
-    # test for same cells
-    diff = (left.index ^ right.index).tolist()
-    if len(diff) > 0:
-        print("left and right doesn't contain the same cells !")
-        print(diff)
-    for item in diff:
-        if item in left.index:
-            left = left.drop(item)
-        elif item in right.index:
-            right = right.drop(item)
+        fig1 = plot_sorted_responses(left, right, mes=mes, overlap=True,
+                                    left_sig=True, right_sig=True)
+        fig2 = horizontal_dot_plot(left, right, mes=mes)
+        fig3 = scatter_lat_gain(left, right, mes=mes)
+        fig4 = histo_lat_gain(left, right, mes=mes)
 
-
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
-                                left_sig=True, right_sig=False)
-    fig2 = horizontal_dot_plot(left, right, mes=mes)
-    fig3 = scatter_lat_gain(left, right, mes=mes)
-    fig4 = histo_lat_gain(left, right, mes=mes)
+        save=False
+        save=True
+        if save:
+            names = []
+            for kind in ['bar', 'dot', 'scatter', 'histo']:
+                name = '_'.join([kind, mes, spread])
+                names.append(name)
+            figs = [fig1, fig2, fig3, fig4]
+            for name, fig in zip(names, figs):
+                filename = os.path.join(paths['save'], name + '.png')
+                fig.savefig(filename)
 
 #%% spk
 for spread in ['sect', 'full']:

@@ -2,7 +2,7 @@
 
 ## changement d'index
 
-- $\Delta$Gain -> $\Delta$Energie : FIXED
+- $\Delta$Gain -> $\Delta$Energie : FIXED bug in 2B, updated owncloud folder
   
   ```python
   # bug in plot fig2B
@@ -51,7 +51,9 @@
 
 # passage de fig2 à fig 3	
 
-- scatter plot all cells -> pour Yves time energy
+- ~~scatter plot all cells -> pour Yves time energy~~
+
+  - DONE -> owns/pythonPreview/cross
 
 - obj justifier les sous populations (stim)
 
@@ -90,7 +92,7 @@
 
 # bugs
 
-≠ engy fig2B et sup1 -> ok = sup1
+~~≠ engy fig2B et sup1 -> ok = sup1~~ DONE
 
 
 
