@@ -423,20 +423,41 @@ plt.close('all')
 
 # TODO : add stat for sig
 
-def build_stat_df():
+def build_stat_df(sig=False):
     """ extract a statistical description """
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
         #mes = 'vm'
         data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
-
-        df[mes + '_count'] = data[cols].count()
-        df[mes + '_mean'] = data[cols].mean()
-        df[mes + '_std'] = data[cols].std()
-        df[mes + '_med'] = data[cols].median()
-        df[mes + '_mad'] = data[cols].mad()
+        if sig:
+            stats= []
+            for col in cols:
+               # col = cols[0]
+               sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+               dico = {}
+               dico[mes + '_count'] = sig_df[col].count()
+               dico[mes + '_mean'] = sig_df[col].mean()
+               dico[mes + '_std'] = sig_df[col].std()
+               dico[mes + '_med'] = sig_df[col].median()
+               dico[mes + '_mad'] = sig_df[col].mad()
+               stats.append(pd.Series(dico, name=col))
+            if mes == 'vm':
+                df1 = pd.DataFrame(stats)
+            elif mes == 'spk':
+                df2 = pd.DataFrame(stats)
+            df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+        else:
+            df[mes + '_count'] = data[cols].count()
+            df[mes + '_mean'] = data[cols].mean()
+            df[mes + '_std'] = data[cols].std()
+            df[mes + '_med'] = data[cols].median()
+            df[mes + '_mad'] = data[cols].mad()
     return df
+
+
+
+
 
 def plot_stat(statdf, kind='mean'):
     """
