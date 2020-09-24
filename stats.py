@@ -15,7 +15,7 @@ from centriG.load import load_data as ldat
 
 
 paths = config.build_paths()
-paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'cross')
+paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'stat')
 std_colors = config.std_colors()
 anot = True
 
@@ -157,6 +157,7 @@ def plot_stat(statdf, kind='mean'):
     return fig
 
 #%%%%%
+plt.close('all')
 
 def extract_values(df, stim='sect', mes='time'):
     """ extract pop and response dico:
@@ -166,7 +167,7 @@ def extract_values(df, stim='sect', mes='time'):
     # mes = '_d' + measure + '50'
     # restrict df
     restricted_list = \
-    [st for st in df.cols if stim in st and mes in st]
+    [st for st in df.columns if stim in st and mes in st]
     adf = df[restricted_list]
     #compute values
     records = [item for item in restricted_list if 'sig' not in item]
@@ -182,10 +183,24 @@ def extract_values(df, stim='sect', mes='time'):
         leg_cond = cond.split('_')[0]
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
+        moy = adf.loc[adf[signi] > 0, cond].mean()
         stdm = adf.loc[adf[signi] > 0, cond].sem()
         resp_dico[leg_cond] = [moy, moy + stdm, moy - stdm]
     return pop_dico, resp_dico
 
+def autolabel(ax, rects):
+    # attach some text labels
+    for rect in rects:
+        x = rect.get_x() + rect.get_width()/2
+        height = rect.get_height()
+        y = height - 1
+        if y < 3:
+            y = height + 1
+            ax.text(x, y, '%d' % int(height) + '%',
+                    ha='center', va='bottom')
+        else:
+            ax.text(x, y, '%d' % int(height) + '%',
+                    ha='center', va='top')
 
 def plot_cell_contribution(df, kind=''):
     "sup 2A"
@@ -195,15 +210,11 @@ def plot_cell_contribution(df, kind=''):
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
 
     fig = plt.figure(figsize=(8, 8))
-    # if anot:
-    #     fig.suptitle('vm')
     # sector phase
-    ax = fig.add_subplot(221)
-    ax.set_title(r'$\Delta$ Phase (% significant cells)', pad=0)
-#    stim = 's'
     stim = 'sect'
-#    mes = 'lat'
     mes = 'time'
+    ax = fig.add_subplot(221)
+    ax.set_title(r'$\Delta$ Time (% significant cells)', pad=0)
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -212,11 +223,13 @@ def plot_cell_contribution(df, kind=''):
     autolabel(ax, bars) # call
     ax.set_ylabel('SECTOR')
     ax.xaxis.set_visible(False)
+
     # sector amplitude
-    ax = fig.add_subplot(222, sharey=ax)
-    ax.set_title(r'$\Delta$ Amplitude (% significant cells)', pad=0)
     stim = 'sect'
-    mes = 'gain'
+    mes = 'engy'
+    ax = fig.add_subplot(222, sharey=ax)
+    
+    ax.set_title(r'Energy (% significant cells)', pad=0)
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -224,6 +237,7 @@ def plot_cell_contribution(df, kind=''):
                   edgecolor=dark_colors)
     autolabel(ax, bars)
     ax.xaxis.set_visible(False)
+
     # full phase
     ax = fig.add_subplot(223, sharey=ax)
     stim = 'full'
@@ -240,7 +254,7 @@ def plot_cell_contribution(df, kind=''):
     # full amplitude
     ax = fig.add_subplot(224, sharey=ax)
     stim = 'full'
-    mes = 'gain'
+    mes = 'engy'
     pop_dico, resp_dico = extract_values(df, stim, mes)
     x = pop_dico.keys()
     height = [pop_dico[item][-1] for item in pop_dico.keys()]
@@ -255,22 +269,26 @@ def plot_cell_contribution(df, kind=''):
             ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
-
-    fig.text(0.5, 1.01, kind, ha='center', va='top', fontsize=18)
+    txt = "{} ({} cells)".format(kind, len(data))
+    fig.text(0.43, 0.90, txt, ha='center', va='top', fontsize=18)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2A',
+        fig.text(0.99, 0.01, 'stat.py:plot_cell_contribution',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     fig.tight_layout()
+    return fig
 
-kind = 'vm'
-#load_cell_contributions(kind='vm', amp='gain', age='new'):
-data = ldat.load_cell_contributions(kind, age='new', amp='engy')
-plot_cell_contribution(data, kind)
-
-
+save = True
+for kind in ['vm', 'spk']:
+    #load_cell_contributions(kind='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(kind, age='new', amp='engy')
+    fig = plot_cell_contribution(data, kind)
+    if save:
+        filename = os.path.join(paths['save'], kind + '_cell_contribution.png')
+        fig.savefig(filename)
+        
 #%%
 plt.close('all')
 stat_df = build_stat_df()

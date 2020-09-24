@@ -1781,20 +1781,6 @@ fig = plot_figSup6('pop', age='old')
 #%%
 plt.close("all")
 
-def autolabel(ax, rects):
-    # attach some text labels
-    for rect in rects:
-        x = rect.get_x() + rect.get_width()/2
-        height = rect.get_height()
-        y = height - 1
-        if y < 3:
-            y = height + 1
-            ax.text(x, y, '%d' % int(height) + '%',
-                    ha='center', va='bottom')
-        else:
-            ax.text(x, y, '%d' % int(height) + '%',
-                    ha='center', va='top')
-        #print(y)
 
 
 # =============================================================================
