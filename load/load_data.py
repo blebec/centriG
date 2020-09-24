@@ -60,7 +60,7 @@ def load2(age='new'):
 
 
 #TODO function to developp to load energy from xcel file
-def load_cell_contributions(kind='vm', amp='gain', age='new'):
+def load_cell_contributions(kind='vm', amp='engy', age='new'):
     """
     load the corresponding xcel file
     age in ['old', 'new'] (old <-> time50, gain50, old way)

@@ -1781,37 +1781,6 @@ fig = plot_figSup6('pop', age='old')
 #%%
 plt.close("all")
 
-
-def extract_values(df, stim='sect', mes='time'):
-    """ extract pop and response dico:
-        input : dataframe, stim kind (s or f) and mesaure kind (lat or gain)
-    """
-    # stim = '_' + stim_kind + '_'
-    # mes = '_d' + measure + '50'
-    # restrict df
-    cols = df.columns
-    restricted_list = [item for item in cols if stim in item and mes in item]
-    adf = df[restricted_list]
-    #compute values
-    records = [item for item in restricted_list if 'sig' not in item]
-    pop_dico = {}
-    resp_dico = {}
-    for cond in records:
-        signi = cond + '_sig'
-        pop_num = len(adf)
-        signi_num = len(adf.loc[adf[signi] > 0, cond])
-        percent = round((signi_num / pop_num) * 100)
-        # leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
-        # leg_cond = leg_cond.upper()
-        leg_cond = cond.split('_')[0]
-        pop_dico[leg_cond] = [pop_num, signi_num, percent]
-        # descr
-        moy = adf.loc[adf[signi] > 0, cond].mean()
-        stdm = adf.loc[adf[signi] > 0, cond].sem()
-        resp_dico[leg_cond] = [moy, moy + stdm, moy - stdm]
-    return pop_dico, resp_dico
-
-
 def autolabel(ax, rects):
     # attach some text labels
     for rect in rects:
@@ -1828,87 +1797,91 @@ def autolabel(ax, rects):
         #print(y)
 
 
-def plot_cell_contribution(df, kind=''):
-    "sup 2A"
-    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
-
-    fig = plt.figure(figsize=(8, 8))
-    # if anot:
-    #     fig.suptitle('vm')
-    # sector phase
-    ax = fig.add_subplot(221)
-    ax.set_title(r'$\Delta$ Phase (% significant cells)', pad=0)
-#    stim = 's'
-    stim = 'sect'
-#    mes = 'lat'
-    mes = 'time'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    heights = [pop_dico[item][-1] for item in pop_dico.keys()]
-    bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars) # call
-    ax.set_ylabel('SECTOR')
-    ax.xaxis.set_visible(False)
-    # sector amplitude
-    ax = fig.add_subplot(222, sharey=ax)
-    ax.set_title(r'$\Delta$ Amplitude (% significant cells)', pad=0)
-    stim = 'sect'
-    mes = 'gain'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-    ax.xaxis.set_visible(False)
-    # full phase
-    ax = fig.add_subplot(223, sharey=ax)
-    stim = 'full'
-    mes = 'time'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-    ax.set_ylabel('FULL')
-
-    # full amplitude
-    ax = fig.add_subplot(224, sharey=ax)
-    stim = 'full'
-    mes = 'gain'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-
-    for ax in fig.get_axes():
-        for spine in ['left', 'top', 'right']:
-            ax.spines[spine].set_visible(False)
-            ax.tick_params(axis='x', labelrotation=45)
-            ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
-
-    fig.text(0.5, 1.01, kind, ha='center', va='top', fontsize=18)
-    if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2A',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
-    fig.tight_layout()
-
-kind = 'vm'
-#load_cell_contributions(kind='vm', amp='gain', age='new'):
-df = ldat.load_cell_contributions(kind, age='new')
-plot_cell_contribution(df, kind)
+# =============================================================================
+# moved to stat 
+#
+#def plot_cell_contribution(df, kind=''):
+#     "sup 2A"
+#     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+#     dark_colors = [std_colors[item] for item in \
+#                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+# 
+#     fig = plt.figure(figsize=(8, 8))
+#     # if anot:
+#     #     fig.suptitle('vm')
+#     # sector phase
+#     ax = fig.add_subplot(221)
+#     ax.set_title(r'$\Delta$ Phase (% significant cells)', pad=0)
+# #    stim = 's'
+#     stim = 'sect'
+# #    mes = 'lat'
+#     mes = 'time'
+#     pop_dico, resp_dico = extract_values(df, stim, mes)
+#     x = pop_dico.keys()
+#     heights = [pop_dico[item][-1] for item in pop_dico.keys()]
+#     bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
+#                   edgecolor=dark_colors)
+#     autolabel(ax, bars) # call
+#     ax.set_ylabel('SECTOR')
+#     ax.xaxis.set_visible(False)
+#     # sector amplitude
+#     ax = fig.add_subplot(222, sharey=ax)
+#     ax.set_title(r'$\Delta$ Amplitude (% significant cells)', pad=0)
+#     stim = 'sect'
+#     mes = 'gain'
+#     pop_dico, resp_dico = extract_values(df, stim, mes)
+#     x = pop_dico.keys()
+#     height = [pop_dico[item][-1] for item in pop_dico.keys()]
+#     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+#                   edgecolor=dark_colors)
+#     autolabel(ax, bars)
+#     ax.xaxis.set_visible(False)
+#     # full phase
+#     ax = fig.add_subplot(223, sharey=ax)
+#     stim = 'full'
+#     mes = 'time'
+#     pop_dico, resp_dico = extract_values(df, stim, mes)
+#     x = pop_dico.keys()
+#     height = [pop_dico[item][-1] for item in pop_dico.keys()]
+#     colors = colors
+#     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+#                   edgecolor=dark_colors)
+#     autolabel(ax, bars)
+#     ax.set_ylabel('FULL')
+# 
+#     # full amplitude
+#     ax = fig.add_subplot(224, sharey=ax)
+#     stim = 'full'
+#     mes = 'gain'
+#     pop_dico, resp_dico = extract_values(df, stim, mes)
+#     x = pop_dico.keys()
+#     height = [pop_dico[item][-1] for item in pop_dico.keys()]
+#     colors = colors
+#     bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
+#                   edgecolor=dark_colors)
+#     autolabel(ax, bars)
+# 
+#     for ax in fig.get_axes():
+#         for spine in ['left', 'top', 'right']:
+#             ax.spines[spine].set_visible(False)
+#             ax.tick_params(axis='x', labelrotation=45)
+#             ax.yaxis.set_ticklabels([])
+#             ax.tick_params(axis='y', length=0)
+# 
+#     fig.text(0.5, 1.01, kind, ha='center', va='top', fontsize=18)
+#     if anot:
+#         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+#         fig.text(0.99, 0.01, 'centrifigs.py:plot_figSup2A',
+#                  ha='right', va='bottom', alpha=0.4)
+#         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+# 
+#     fig.tight_layout()
+# 
+# kind = 'vm'
+# #load_cell_contributions(kind='vm', amp='gain', age='new'):
+# df = ldat.load_cell_contributions(kind, age='new', amp='engy')
+# plot_cell_contribution(df, kind)
+# =============================================================================
 
 
 #%%
