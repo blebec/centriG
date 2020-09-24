@@ -31,22 +31,22 @@ def build_stat_df(sig=False):
     """ extract a statistical description """
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
-       # mes = 'spk'
+        # mes = 'spk'
         data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         #only sig cells
         if sig:
             stats= []
             for col in cols:
-               # col = cols[0]
-               sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-               dico = {}
-               dico[mes + '_count'] = sig_df[col].count()
-               dico[mes + '_mean'] = sig_df[col].mean()
-               dico[mes + '_std'] = sig_df[col].std()
-               dico[mes + '_med'] = sig_df[col].median()
-               dico[mes + '_mad'] = sig_df[col].mad()
-               stats.append(pd.Series(dico, name=col))
+                # col = cols[0]
+                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                dico = {}
+                dico[mes + '_count'] = sig_df[col].count()
+                dico[mes + '_mean'] = sig_df[col].mean()
+                dico[mes + '_std'] = sig_df[col].std()
+                dico[mes + '_med'] = sig_df[col].median()
+                dico[mes + '_mad'] = sig_df[col].mad()
+                stats.append(pd.Series(dico, name=col))
             df = pd.concat([df, pd.DataFrame(stats)], axis=1)
         # all cells
         else:
@@ -55,7 +55,7 @@ def build_stat_df(sig=False):
             df[mes + '_std'] = data[cols].std()
             df[mes + '_med'] = data[cols].median()
             df[mes + '_mad'] = data[cols].mad()
-    # replace nan by 0 
+    # replace nan by 0
     #(no sig cell or only one sig cell -> nan for all params or std)
     df = df.fillna(0)
     return df
@@ -104,16 +104,14 @@ def plot_stat(statdf, kind='mean'):
         # append random full
         if spread == 'sect':
             rows.extend(
-                [st for st in stat_df.index if st.startswith('rdisofull')])        
+                [st for st in stat_df.index if st.startswith('rdisofull')])
         # df indexes (for x and y)
         time_rows = [st for st in rows if 'time50' in st]
         y_rows = [st for st in rows if 'engy' in st]
         cols = [col for col in statdf.columns if col.startswith(rec)]
         cols = [st for st in cols if stat[0] in st or stat[1] in st]
         #labels
-        print('y_rows', y_rows)
         labels = [st.split('_')[0] for st in y_rows]
-        print('labels', labels)
         # values (for x an y)
         x = statdf.loc[time_rows, cols][rec + stat[0]].values
         xerr = statdf.loc[time_rows, cols][rec + stat[1]].values
@@ -178,8 +176,6 @@ def extract_values(df, stim='sect', mes='time'):
         pop_num = len(adf)
         signi_num = len(adf.loc[adf[signi] > 0, cond])
         percent = round((signi_num / pop_num) * 100)
-        # leg_cond = cond.split('_')[2] + '-' + cond.split('_')[3]
-        # leg_cond = leg_cond.upper()
         leg_cond = cond.split('_')[0]
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
@@ -209,66 +205,34 @@ def plot_cell_contribution(df, kind=''):
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
 
-    fig = plt.figure(figsize=(8, 8))
-    # sector phase
-    stim = 'sect'
-    mes = 'time'
-    ax = fig.add_subplot(221)
-    ax.set_title(r'$\Delta$ Time (% significant cells)', pad=0)
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    heights = [pop_dico[item][-1] for item in pop_dico.keys()]
-    bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars) # call
-    ax.set_ylabel('SECTOR')
-    ax.xaxis.set_visible(False)
 
-    # sector amplitude
-    stim = 'sect'
-    mes = 'engy'
-    ax = fig.add_subplot(222, sharey=ax)
-    
-    ax.set_title(r'Energy (% significant cells)', pad=0)
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-    ax.xaxis.set_visible(False)
-
-    # full phase
-    ax = fig.add_subplot(223, sharey=ax)
-    stim = 'full'
-    mes = 'time'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-    ax.set_ylabel('FULL')
-
-    # full amplitude
-    ax = fig.add_subplot(224, sharey=ax)
-    stim = 'full'
-    mes = 'engy'
-    pop_dico, resp_dico = extract_values(df, stim, mes)
-    x = pop_dico.keys()
-    height = [pop_dico[item][-1] for item in pop_dico.keys()]
-    colors = colors
-    bars = ax.bar(x, height, color=colors, width=0.95, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars)
-
-    for ax in fig.get_axes():
+    conds = [('sect', 'time'), ('sect', 'engy'),
+             ('full', 'time'), ('full', 'engy')]
+    titles = {'time' : r'$\Delta$ Time (% significant cells)',
+              'engy': r'Energy (% significant cells)',
+              'sect': 'Sector',
+              'full': 'Full'}
+    fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8,8))
+    axes = axes.flatten()
+    for i, ax in enumerate(axes):
+        ax.set_title(str(i))
+        stim, mes = conds[i]
+        ax.set_title(titles[mes], pad=0)
+        pop_dico, resp_dico = extract_values(df, stim, mes)
+        x = pop_dico.keys()
+        heights = [pop_dico[item][-1] for item in pop_dico.keys()]
+        bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
+                      edgecolor=dark_colors)
+        autolabel(ax, bars) # call
+        ax.set_ylabel(titles[stim])
+    for ax in axes:
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
             ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
             ax.tick_params(axis='y', length=0)
+    for ax in axes[:2]:
+        ax.xaxis.set_visible(False)
     txt = "{} ({} cells)".format(kind, len(data))
     fig.text(0.43, 0.90, txt, ha='center', va='top', fontsize=18)
     if anot:
@@ -280,7 +244,7 @@ def plot_cell_contribution(df, kind=''):
     fig.tight_layout()
     return fig
 
-save = True
+save = False
 for kind in ['vm', 'spk']:
     #load_cell_contributions(kind='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(kind, age='new', amp='engy')
@@ -288,7 +252,7 @@ for kind in ['vm', 'spk']:
     if save:
         filename = os.path.join(paths['save'], kind + '_cell_contribution.png')
         fig.savefig(filename)
-        
+
 #%%
 plt.close('all')
 stat_df = build_stat_df()

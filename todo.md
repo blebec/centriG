@@ -2,7 +2,7 @@
 
 ## changement d'index
 
-- $\Delta$Gain -> $\Delta$Energie : FIXED bug in 2B, updated owncloud folder
+- [x] $\Delta$Gain -> $\Delta$Energie : FIXED bug in 2B, updated owncloud folder
   
   ```python
   # bug in plot fig2B
@@ -17,14 +17,15 @@
 
 étapes: 
 
-- reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
+- [ ] reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
   ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 497
   ==> TODO ajouter traces spikantes (sélectionner avec cellules oscillatoire ou non?)
   'controlFigs'
-- ~~fig_3 sig non_sig soustraites on non, un panneau et même échelle en y~~
+- [ ] - [x] fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
+
   - -> 3_expandSameY
-- en énergie
-- données : /Users/cdesbois/ownCloud/cgFigures/data/index
+- [ ] en énergie
+- [ ] données : /Users/cdesbois/ownCloud/cgFigures/data/index
   - conditions_order.xlsx, time50energySpk.xlsx, time50energyVm.xlsx, time50gain50Spk.xlsx, time50gain50Vm.xlsx
     - -> spike données stat cellule oscilatoire changé
   - Pb sig <-> sup ou inf donc : 
@@ -37,30 +38,31 @@
 
 ## fig_4 : élargir pour montrer la construction de la réponse
 
-- ~~bumps successifs~~
+- [x] ~~bumps successifs~~
 
-- ~~effet vitesse~~
-- ->  updated the code to allow an online update (+ saved examples on )
+- [ ] ~~effet vitesse~~
+- [ ] ->  updated the code to allow an online update (+ saved examples on )
 
 ## fig_3 
 
-- ~~insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly~~
-- sig à gauche
-- update path (cf code)
-- secteur | full
+- [ ] ~~insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly~~
+- [ ] sig à gauche
+- [ ] update path (cf code)
+- [ ] secteur | full
 
 # passage de fig2 à fig 3	
 
-- ~~scatter plot all cells -> pour Yves time energy~~
+- - [ ] ~~scatter plot all cells -> pour Yves time energy~~
 
   - DONE -> owns/pythonPreview/cross
 
-- obj justifier les sous populations (stim)
+- - [ ] obj justifier les sous populations (stim)
 
+  
   1. figure 2 avec uniquement exemple + pop (~~sig~~)
   2. supprime fig2B
-  3. figure stat -> définition des index + choix sous populations
-
+3. figure stat -> définition des index + choix sous populations
+  
   - base = plot_stat
     - OK updated the code -> rebuilded with energy (check cross.py) 
   - en haut sect | full (all pop, vm)
@@ -81,20 +83,23 @@
 
 ## fig_sup waterfall cf indiSig cfIso
 
-- voir les bumps successifs
+- [ ] voir les bumps successifs
 
 
 
 ## stat
-- plot the number of cells (stat_sig.png) 
-  - see centrifigs.py/plot_cell_contribution (1831)
-- voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
+- [ ]  plot the number of cells (stat_sig.png) 
+
+- see centrifigs.py/plot_cell_contribution (1831)
+
+- [ ] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
+
   - 'time50_engyvm' et time50_engy_spk sur git
-  - basculer les données sur owncloud
+  - basculer les données sur owncloud 
 
 # bugs
 
-~~≠ engy fig2B et sup1 -> ok = sup1~~ DONE
+- [x] ≠ engy fig2B et sup1 -> ok = sup1
 
 
 
