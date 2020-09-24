@@ -14,7 +14,7 @@ import numpy as np
 import centriG.config as config
 import centriG.general_functions as gfunc
 
-
+paths = config.build_paths()
 
 def load2(age='new'):
     """
@@ -74,7 +74,8 @@ def load_cell_contributions(kind='vm', amp='engy', age='new'):
             )
         filename = names_dico.get(kind)
     elif age == 'new':
-        dirname = os.path.join('data', 'data_to_use')            
+#        dirname = os.path.join(paths['pg'], 'data', 'data_to_use')            
+        dirname = os.path.join(paths['owncFig'], 'data', 'index')
         if kind == 'vm' and amp == 'gain':
             filename = os.path.join(dirname, 'time50gain50Vm.xlsx')
         elif kind == 'spk' and amp == 'gain':
