@@ -87,6 +87,7 @@
 
 ## stat
 - plot the number of cells (stat_sig.png) 
+  - see centrifigs.py/plot_cell_contribution (1831)
 - voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
   - 'time50_engyvm' et time50_engy_spk sur git
   - basculer les données sur owncloud

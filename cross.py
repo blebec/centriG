@@ -420,9 +420,6 @@ def scatter_lat_gain(df_left, df_right, mes=''):
 #%%%%  to build the stat representation
 plt.close('all')
 
-
-# TODO : add stat for sig
-
 def build_stat_df(sig=False):
     """ extract a statistical description """
     df = pd.DataFrame()
@@ -443,12 +440,7 @@ def build_stat_df(sig=False):
                dico[mes + '_med'] = sig_df[col].median()
                dico[mes + '_mad'] = sig_df[col].mad()
                stats.append(pd.Series(dico, name=col))
-            if mes == 'vm':
-                df1 = pd.DataFrame(stats)
-            elif mes == 'spk':
-                df2 = pd.DataFrame(stats)
             df = pd.concat([df, pd.DataFrame(stats)], axis=1)
-            # NB cfisofull_time50 <-> no sig values
         # all cells
         else:
             df[mes + '_count'] = data[cols].count()
@@ -456,7 +448,8 @@ def build_stat_df(sig=False):
             df[mes + '_std'] = data[cols].std()
             df[mes + '_med'] = data[cols].median()
             df[mes + '_mad'] = data[cols].mad()
-    # replace nan by 0
+    # replace nan by 0 
+    #(no sig cell or only one sig cell -> nan for all params or std)
     df = df.fillna(0)
     return df
 
@@ -475,7 +468,8 @@ def plot_stat(statdf, kind='mean'):
         return
 
     colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
+              std_colors['yellow'], std_colors['blue'],
+              std_colors['dark_blue']]
 
     fig = plt.figure(figsize=(8, 8))
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
@@ -498,32 +492,40 @@ def plot_stat(statdf, kind='mean'):
         rec = cond[0]
         spread = cond[1]
         ax.set_title('{} {}'.format(rec, spread))
-
+        # select spread (sect, full)
         rows = [st for st in statdf.index.tolist() if spread in st]
+        # append random full
+        if spread == 'sect':
+            rows.extend(
+                [st for st in stat_df.index if st.startswith('rdisofull')])        
+        # df indexes (for x and y)
         time_rows = [st for st in rows if 'time50' in st]
         y_rows = [st for st in rows if 'engy' in st]
-
         cols = [col for col in statdf.columns if col.startswith(rec)]
         cols = [st for st in cols if stat[0] in st or stat[1] in st]
-
+        #labels
+        print('y_rows', y_rows)
+        labels = [st.split('_')[0] for st in y_rows]
+        print('labels', labels)
+        # values (for x an y)
         x = statdf.loc[time_rows, cols][rec + stat[0]].values
         xerr = statdf.loc[time_rows, cols][rec + stat[1]].values
-
         y = statdf.loc[y_rows, cols][rec + stat[0]].values
         yerr = statdf.loc[y_rows, cols][rec + stat[1]].values
-
-        for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
+        #plot
+        for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
             ax.errorbar(xi, yi, xerr=xe, yerr=ye,
-                        fmt='s', color=ci)
+                        fmt='s', color=ci, label=lbi)
+        ax.legend()
 
     #adjust
     for i, ax in enumerate(axes):
-        ax.axvline(0, linestyle=':', alpha=0.3)
-        ax.axhline(0, linestyle=':', alpha=0.3)
+        ax.axvline(0, linestyle='-', alpha=0.4)
+        ax.axhline(0, linestyle='-', alpha=0.4)
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel('engy')
+                ax.set_ylabel('energy')
             else:
                 ax.spines['left'].set_visible(False)
                 ax.yaxis.set_visible(False)
