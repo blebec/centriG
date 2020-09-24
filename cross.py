@@ -427,9 +427,10 @@ def build_stat_df(sig=False):
     """ extract a statistical description """
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
-        #mes = 'vm'
+       # mes = 'spk'
         data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
+        #only sig cells
         if sig:
             stats= []
             for col in cols:
@@ -447,17 +448,17 @@ def build_stat_df(sig=False):
             elif mes == 'spk':
                 df2 = pd.DataFrame(stats)
             df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+            # NB cfisofull_time50 <-> no sig values
+        # all cells
         else:
             df[mes + '_count'] = data[cols].count()
             df[mes + '_mean'] = data[cols].mean()
             df[mes + '_std'] = data[cols].std()
             df[mes + '_med'] = data[cols].median()
             df[mes + '_mad'] = data[cols].mad()
+    # replace nan by 0
+    df = df.fillna(0)
     return df
-
-
-
-
 
 def plot_stat(statdf, kind='mean'):
     """
