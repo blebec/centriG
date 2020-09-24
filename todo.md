@@ -62,11 +62,12 @@
   3. figure stat -> définition des index + choix sous populations
 
   - base = plot_stat
+    - OK updated the code -> rebuilded with energy (check cross.py) 
   - en haut sect | full (all pop, vm)
-  - en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
-
-  4. figure plot_sorted_responses_sup1 (vm_engy0.png)
-
+- en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
+  
+4. figure plot_sorted_responses_sup1 (vm_engy0.png)
+  
   5. figure :
 
 | sect / vm / normAlign  | sect/ vm / raw   | full / vm / normAlign  | full/ vm / raw  |

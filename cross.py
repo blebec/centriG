@@ -19,8 +19,8 @@ paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'cross')
 std_colors = config.std_colors()
 anot = True
 
-plt.rcParams['axes.xmargin'] = 0.05     
-plt.rcParams['axes.ymargin'] = 0.05   
+plt.rcParams['axes.xmargin'] = 0.05
+plt.rcParams['axes.ymargin'] = 0.05
 
 #%% manipulate dataframes
 def select_in_df(df, spread='sect', param='engy', noSig=True):
@@ -45,22 +45,22 @@ def select_in_df(df, spread='sect', param='engy', noSig=True):
     return df[col_list].copy()
 
 
-def check_for_same_index(left, right):
+def check_for_same_index(dfleft, dfright):
     """
     check the index, remove difference, return filtered dataframes
 
     """
     # test for same cells
-    diff = (left.index ^ right.index).tolist()
+    diff = (dfleft.index ^ dfright.index).tolist()
     if len(diff) > 0:
         print("left and right doesn't contain the same cells !")
         print(diff)
     for item in diff:
-        if item in left.index:
-            left = left.drop(item)
+        if item in dfleft.index:
+            dfleft = dfleft.drop(item)
         elif item in right.index:
-            right = right.drop(item)
-    return left, right
+            dfright = dfright.drop(item)
+    return dfleft, dfright
 
 #%% plot functions
 
@@ -316,8 +316,8 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         yl = df.index.to_list()
         xl = df[col].tolist()
         for x, y, e, f in zip(xl, yl, z1, z2):
-            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
-                    alpha=alpha, markeredgewidth=1.5, markersize=6)      
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f,
+                    alpha=alpha, markeredgewidth=1.5, markersize=6)
   # right
     ax = fig.add_subplot(122)
     df = df_right.reindex(sorted_cells)
@@ -346,8 +346,8 @@ def horizontal_dot_plot(df_left, df_right, mes=''):
         yl = df.index.to_list()
         xl = df[col].tolist()
         for x, y, e, f in zip(xl, yl, z1, z2):
-            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
-                    alpha=alpha, markeredgewidth=1.5, markersize=6)      
+            ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f,
+                    alpha=alpha, markeredgewidth=1.5, markersize=6)
     for i, ax in enumerate(fig.get_axes()):
         ax.set_xlabel(anotx[i])
         for spine in ['top', 'right']:
@@ -368,7 +368,7 @@ def scatter_lat_gain(df_left, df_right, mes=''):
     """
     build a scatter plot
         input = left, right : pandas dataframe
-        mes in 
+        mes in
     """
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue']]
@@ -454,7 +454,7 @@ def plot_stat(statdf, kind='mean'):
 
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue']]
-    
+
     fig = plt.figure(figsize=(8, 8))
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
     fig.suptitle(title)
@@ -468,28 +468,28 @@ def plot_stat(statdf, kind='mean'):
     axes.append(ax2)
     ax3 = fig.add_subplot(2, 2, 4, sharex=ax0, sharey=ax2)
     axes.append(ax3)
-    
+
     # plots
-    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'), 
+    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
                               ('spk', 'sect'), ('spk', 'full')]):
         ax = axes[i]
         rec = cond[0]
         spread = cond[1]
         ax.set_title('{} {}'.format(rec, spread))
-    
+
         rows = [st for st in statdf.index.tolist() if spread in st]
         time_rows = [st for st in rows if 'time50' in st]
         y_rows = [st for st in rows if 'engy' in st]
-    
+
         cols = [col for col in statdf.columns if col.startswith(rec)]
-        cols = [st for st in cols if stat[0] in st or stat[1] in st]    
-    
+        cols = [st for st in cols if stat[0] in st or stat[1] in st]
+
         x = statdf.loc[time_rows, cols][rec + stat[0]].values
         xerr = statdf.loc[time_rows, cols][rec + stat[1]].values
-    
+
         y = statdf.loc[y_rows, cols][rec + stat[0]].values
         yerr = statdf.loc[y_rows, cols][rec + stat[1]].values
-    
+
         for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
             ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci)
@@ -526,7 +526,7 @@ def plot_stat(statdf, kind='mean'):
     return fig
 
 
-#%% 
+#%%
 def histo_lat_gain(df_left, df_right, mes=''):
     """
     histogramme des données
@@ -543,7 +543,7 @@ def histo_lat_gain(df_left, df_right, mes=''):
         spread = 'full'
     title = 'responses' + ' (' + mes + ' ' + spread + ')'
     anotx = 'Cell rank'
-    anoty = [df_left.columns[0].split('_')[1], 
+    anoty = [df_left.columns[0].split('_')[1],
              df_right.columns[0].split('_')[1]]
     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
     #          #(fraction of Center-only response)']
@@ -639,7 +639,7 @@ if save:
     fig1.savefig(filename)
     filename = os.path.join(paths['save'], 'medMad.png')
     fig2.savefig(filename)
-     
+
 #%%
 for spread in ['sect', 'full']:
     for mes in ['vm', 'spk']:
@@ -654,17 +654,17 @@ for spread in ['sect', 'full']:
                                     left_sig=True, right_sig=True)
         fig2 = horizontal_dot_plot(left, right, mes=mes)
         fig3 = scatter_lat_gain(left, right, mes=mes)
-        
-        fig5 = histo_lat_gain(left, right, mes=mes)
+
+        fig4 = histo_lat_gain(left, right, mes=mes)
 
         save=False
-#        save=True
+        save=True
         if save:
             names = []
-            for kind in ['bar', 'dot', 'scatter', '', 'histo']:
+            for kind in ['bar', 'dot', 'scatter', 'histo']:
                 name = '_'.join([kind, mes, spread])
                 names.append(name)
-            figs = [fig1, fig2, fig3, fig4, fig5]
+            figs = [fig1, fig2, fig3, fig4]
             for name, fig in zip(names, figs):
                 filename = os.path.join(paths['save'], name + '.png')
                 fig.savefig(filename)
