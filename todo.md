@@ -40,8 +40,8 @@
 
 - [x] ~~bumps successifs~~
 
-- [ ] ~~effet vitesse~~
-- [ ] ->  updated the code to allow an online update (+ saved examples on )
+- [x] ~~effet vitesse~~
+- [x] ->  updated the code to allow an online update (+ saved examples on )
 
 ## fig_3 
 
@@ -62,7 +62,7 @@
   1. figure 2 avec uniquement exemple + pop (~~sig~~)
   2. supprime fig2B
 3. figure stat -> définition des index + choix sous populations
-  
+
   - base = plot_stat
     - OK updated the code -> rebuilded with energy (check cross.py) 
   - en haut sect | full (all pop, vm)

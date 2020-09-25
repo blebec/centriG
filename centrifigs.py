@@ -486,22 +486,26 @@ plot_stat()
 plt.close('all')
 
 #def plot_figure3(stdcolors, kind='sig', substract=False, anot=anot, age='new'):
-def plot_figure3(datadf, stdcolors, *args, **kwargs):
+def plot_figure3(datadf, stdcolors, **kwargs):
     """
     plot_figure3
-    input : kind in ['pop': whole population, 'sig': individually significants
-    cells, 'nsig': non significant cells]
-    substract = boolan -> present as (data - centerOnly)
+    input :
+        datadf (nb cols = ctr then 'kind_rec_spread_dir_or')
+        stdcolors
+        kwargs in (first value = default)
+            substract boolan -> present as (data - centerOnly)(False), 
+            anot boolan -> add title and footnote (True)
+            age -> data reference (new, old),
+            leg -> boolan to add legend (-False)
+    output:
+        plt.figure()
     """
-    kind = kwargs.get('kind', 'sig')
     substract = kwargs.get('substract', False)
     anot = kwargs.get('anot', True)
     age = kwargs.get('age', 'new')
-    rec = kwargs.get('rec', 'vm')
-    spread = kwargs.get('spread', 'sect')
-    for k, v in kwargs.items():
-        print(k, v)
-   #  print(kind, substract, anot, age, rec, spread)
+    leg = kwargs.get('leg', False)
+    # second column (first = ctr)
+    kind, rec, spread,  *_ = data_df.columns.to_list()[1].split('_')
     titles = dict(pop='all cells',
                   sig='individually significant cells',
                   nsig='individually non significants cells')
@@ -527,7 +531,10 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
         title = '{} {} {} {}'.format(kind, age, rec, spread)
         fig.suptitle(title, alpha=0.4)
     ax = fig.add_subplot(111)
-    cols = df.columns
+    cols = df.columns.to_list()
+    # remove rdsect
+    while any(st for st in cols if 'sect_rd' in st):
+        cols.remove(next(st for st in cols if 'sect_rd' in st))
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col,
                 linewidth=2)
@@ -593,7 +600,8 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
     fig.tight_layout()
 
     if anot:
-        ax.legend()
+        if leg:
+            ax.legend()
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
@@ -601,11 +609,25 @@ def plot_figure3(datadf, stdcolors, *args, **kwargs):
     return fig
 
 
-#%%
+
+#params (load)
+select = dict(age='new', rec='vm', kind='sig')
+
+data_df, _ = ltra.load_intra_mean_traces(paths, **select)
+
+#params (plot)
+select['substract'] = False
+select['leg'] = False
+fig = plot_figure3(data_df, std_colors, **select)
+
+
+
+#%% nb use select to change the parameters
 plt.close('all')
+
 figs = []
 for kind in ['pop', 'sig']:
-    select = dict(age='old', kind=kind)
+    select = dict(age='new', kind=kind, leg=False)
     data_df, _ = ltra.load_intra_mean_traces(paths, **select)
     for substract in [True, False]:
         select['substract'] = substract
@@ -619,7 +641,6 @@ for fig in figs:
         lims[1] = lim[1]
 for fig in figs:
     fig.get_axes()[0].set_ylim(lims)
-
 
 
 #fig = plot_figure3('nsig')
@@ -656,7 +677,7 @@ dico = dict(
     age=['old', 'new'][1],
     kind=['pop', 'sig', 'nsig'][2],
     spread=['sect', 'full'][0],
-    rec=['vm', 'spk'][0]
+    rec=['vm', 'spk'][1]
     )
 
 dico['kind'] = 'pop'
