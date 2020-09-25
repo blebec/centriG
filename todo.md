@@ -45,7 +45,7 @@
 
 ## fig_3 
 
-- [ ] ~~insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly~~
+- [x] insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly
 - [ ] sig à gauche
 - [ ] update path (cf code)
 - [ ] secteur | full
