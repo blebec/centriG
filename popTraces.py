@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from datetime import datetime
+from importlib import reload
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -27,79 +28,78 @@ def plot_figure3(datadf, stdcolors, **kwargs):
             substract boolan -> present as (data - centerOnly)(False), 
             anot boolan -> add title and footnote (True)
             age -> data reference (new, old),
-            leg -> boolan to add legend (-False)
+            addleg -> boolan to add legend (False)
+            addinsert -> boolean to add insert (False)
     output:
         plt.figure()
     """
+    # defined by kwargs
     substract = kwargs.get('substract', False)
     anot = kwargs.get('anot', True)
     age = kwargs.get('age', 'new')
-    leg = kwargs.get('leg', False)
-    # second column (first = ctr)
+    addleg = kwargs.get('addleg', False)
+    addinsert = kwargs.get('addinsert', False)
+    #defined in dataframe columns (first column = ctr))
     kind, rec, spread,  *_ = data_df.columns.to_list()[1].split('_')
     titles = dict(pop='all cells',
                   sig='individually significant cells',
                   nsig='individually non significants cells')
-
     # centering
     df = datadf.copy()
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    # df.columns = cols
     colors = ['k', stdcolors['red'], stdcolors['green'],
               stdcolors['yellow'], stdcolors['blue'], stdcolors['blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+    # subtract the centerOnly response (ref = df['CENTER-ONLY'])
     if substract:
-        # subtract the centerOnly response
-        # ref = df['CENTER-ONLY']
         ref = df[df.columns[0]]
         df = df.subtract(ref, axis=0)
-
-    fig = plt.figure(figsize=(6.5, 5.5))
-    if anot:
-        fig.suptitle(titles[kind], alpha=0.4)
-        title = '{} {} {} {}'.format(kind, age, rec, spread)
-        fig.suptitle(title, alpha=0.4)
-    ax = fig.add_subplot(111)
     cols = df.columns.to_list()
     # remove rdsect
     while any(st for st in cols if 'sect_rd' in st):
         cols.remove(next(st for st in cols if 'sect_rd' in st))
+    #buils labels
+    labels = [st.split('_')[-3] for st in cols]
+    labels[0] = 'ctr'
+    #plot
+    fig = plt.figure(figsize=(6.5, 5.5))
+    fig.suptitle(titles[kind], alpha=0.4)
+    if anot:
+        title = '{} {} ({} {})'.format(kind, age, rec, spread)
+        fig.suptitle(title, alpha=0.4)
+    ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
-        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col,
-                linewidth=2)
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
+                linewidth=2)    
+    # bluePoint
+    ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
+            ms=10, alpha=0.5)
+
+    #refs
+    ax.axvline(0, alpha=0.3)
+    ax.axhline(0, alpha=0.2)
+    #labels
     ax.set_ylabel('Normalized membrane potential')
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
+    #set limits
     ax.set_xlim(-15, 30)
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.3)
-    lims = ax.get_xlim()
-    ax.axhline(0, *lims, alpha=0.2)
     ax.set_ylim(-0.2, 1.1)
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
-    # bluePoint
-    # ax.plot(0, df.loc[0]['CENTER-ONLY'], 'o', color=colors[-1],
-    #         ms=10, alpha=0.8)
-    ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[-1],
-            ms=10, alpha=0.8)
-    # leg = ax.legend(loc='center right', markerscale=None, frameon=False,
-    # leg = ax.legend(loc=2, markerscale=None, frameon=False,
-                    #handlelength=0)
-    # for line, text in zip(leg.get_lines(), leg.get_texts()):
-        # text.set_color(line.get_color())
     # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
     #             xycoords="axes fraction", ha='center')
-    insert = False
-    if insert:
-#        axins = inset_axes(ax, width="50%", height="30%", loc=4)
-
+#    insert = False
+    if addinsert:
+        """
+        insert subplot inside this one (broader x axis)
+        """
         axins = fig.add_axes([.5, .21, .42, .25], facecolor='w', alpha=0.2)
         for i, col in enumerate(cols):
             if i in [0, 4]:
@@ -118,20 +118,20 @@ def plot_figure3(datadf, stdcolors, **kwargs):
         ax.set_ylim(-0.15, 0.4)
         custom_ticks = np.arange(-40, 110, 20)
         ax.set_xticks(custom_ticks)
-        # max center only
-        lims = ax.get_ylim()
+        # max_x center only
         ax.axvline(21.4, alpha=0.5, color='k')
-        # end of center only
+        # end_x of center only
         #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
         ax.axvline(88, alpha=0.3)
-        ax.axvspan(0, 88, facecolor='k', alpha=0.3)
+        ax.axvspan(0, 88, facecolor='k', alpha=0.2)
+        
         ax.text(0.45, 0.9, 'center only response \n start | peak | end',
                 transform=ax.transAxes, alpha=0.5)
         ax.set_ylabel('Norm vm - Norm centerOnly')
     fig.tight_layout()
 
     if anot:
-        if leg:
+        if addleg:
             ax.legend()
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'popTraces.py:plot_figure3(' + kind + ')',
@@ -140,25 +140,25 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     return fig
 
 
-
 #params (load)
 select = dict(age='new', rec='vm', kind='sig')
 
 data_df, _ = ltra.load_intra_mean_traces(paths, **select)
 
 #params (plot)
-select['substract'] = False
-select['leg'] = False
+select['substract'] = True
+select['addleg'] = True
+select['addinsert'] = False
 fig = plot_figure3(data_df, std_colors, **select)
-
-
 
 #%% nb use select to change the parameters
 plt.close('all')
 
 figs = []
 for kind in ['pop', 'sig']:
-    select = dict(age='new', kind=kind, leg=False)
+    select['age'] = 'new'
+    select['kind'] = kind
+    select['leg'] = False
     data_df, _ = ltra.load_intra_mean_traces(paths, **select)
     for substract in [True, False]:
         select['substract'] = substract
