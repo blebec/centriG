@@ -56,13 +56,15 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     if substract:
         ref = df[df.columns[0]]
         df = df.subtract(ref, axis=0)
-    cols = df.columns.to_list()
     # remove rdsect
+    cols = df.columns.to_list()
     while any(st for st in cols if 'sect_rd' in st):
         cols.remove(next(st for st in cols if 'sect_rd' in st))
     #buils labels
-    labels = [st.split('_')[-3] for st in cols]
-    labels[0] = 'ctr'
+    for i in range(3): 
+        labels = [item + '_ctr' if (len(item.split('_')) < 6) 
+                else item for item in cols]    
+    labels = [st.split('_')[-3] for st in labels]
     #plot
     fig = plt.figure(figsize=(6.5, 5.5))
     fig.suptitle(titles[kind], alpha=0.4)
@@ -76,7 +78,6 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     # bluePoint
     ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
             ms=10, alpha=0.5)
-
     #refs
     ax.axvline(0, alpha=0.3)
     ax.axhline(0, alpha=0.2)
@@ -144,7 +145,8 @@ def plot_figure3(datadf, stdcolors, **kwargs):
 select = dict(age='new', rec='vm', kind='sig')
 
 data_df, _ = ltra.load_intra_mean_traces(paths, **select)
-
+print('loaded {}'.format(_))
+# TODO recéuprer le nome du fichier pout le nombre de cellules
 #params (plot)
 select['substract'] = True
 select['addleg'] = True
@@ -196,8 +198,8 @@ for age in ['new']: #, 'old']:
     for kind in ['pop', 'sig', 'nsig']:
         for rec in ['vm', 'spk']:
             for spread in ['sect', 'full']:
-                print('______')
-                print(kind, age, rec, spread)
+                # print('______')
+                # print(kind, age, rec, spread)
                 df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age, rec=rec, spread=spread)
                 plot_figure3(df, std_colors, kind=kind, age=age, rec=rec, spread=spread)
 

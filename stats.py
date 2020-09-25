@@ -40,6 +40,7 @@ def build_stat_df(sig=False):
             for col in cols:
                 # col = cols[0]
                 sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+#TODO change for value (lat or engy) & sig > 0
                 dico = {}
                 dico[mes + '_count'] = sig_df[col].count()
                 dico[mes + '_mean'] = sig_df[col].mean()
@@ -252,7 +253,7 @@ for kind in ['vm', 'spk']:
     if save:
         filename = os.path.join(paths['save'], kind + '_cell_contribution.png')
         fig.savefig(filename)
-
+#TODO bug wigth cx_I chelc Gfunc change name
 #%%
 plt.close('all')
 stat_df = build_stat_df()
@@ -264,3 +265,4 @@ if save:
     fig1.savefig(filename)
     filename = os.path.join(paths['save'], 'medMad.png')
     fig2.savefig(filename)
+#TODO plot de droite pas de random

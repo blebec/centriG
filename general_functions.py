@@ -104,7 +104,7 @@ def new_columns_names(cols):
                'spks': 'spk_sect_', 'spkf': 'spk_full_',
                'dlat50': 'time50', 'dgain50': 'gain50',
                'lat50': 'time50', 'cp': 'cp', 'cf': 'cf',
-               'rnd': 'rd', 'cross' : 'cx_i', 'denergy' : 'engy'}
+               'rnd': 'rd', 'cross' : 'cx', 'denergy' : 'engy'}
     for key in chg_dct:
         newcols = [item.replace(key, chg_dct[key]) for item in newcols]
     return newcols
