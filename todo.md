@@ -89,6 +89,8 @@
 
 ## stat 
 - [ ] plot the number of cells (stat_sig.png) 
+- [ ] change the sig extraction
+  - [ ] cells sig for time or engy (stats.py L 45)
 - [ ] see centrifigs.py/plot_cell_contribution (1831)
 - [ ] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
 

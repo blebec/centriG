@@ -520,6 +520,8 @@ def histo_lat_gain(df_left, df_right, mes=''):
 
 
 #%%
+plt.close('all')
+
 for spread in ['sect', 'full']:
     for mes in ['vm', 'spk']:
       #  mes = 'vm'
@@ -537,7 +539,6 @@ for spread in ['sect', 'full']:
         fig4 = histo_lat_gain(left, right, mes=mes)
 
         save=False
-        save=True
         if save:
             names = []
             for kind in ['bar', 'dot', 'scatter', 'histo']:

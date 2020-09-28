@@ -42,7 +42,7 @@ def build_stat_df(sig=False):
                 sig_df = data.loc[data[col+'_sig'] > 0, [col]]
                 #only positive values
                 sig_df = sig_df.loc[sig_df[col] > 0]
-#TODO change for value (lat or engy) & sig > 0
+#TODO = union of sig time | engy
                 dico = {}
                 dico[mes + '_count'] = sig_df[col].count()
                 dico[mes + '_mean'] = sig_df[col].mean()
