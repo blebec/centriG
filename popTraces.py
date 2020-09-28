@@ -138,6 +138,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     if anot:
         if addleg:
             ax.legend()
+        fig.text(0.11, 0.91, filename)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'popTraces.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
