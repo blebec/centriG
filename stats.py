@@ -41,7 +41,7 @@ def build_stat_df(sig=False):
                 # col = cols[0]
                 sig_df = data.loc[data[col+'_sig'] > 0, [col]]
                 #only positive values
-              #  sig_df = sig_df.loc[sig_df[col] > 0]
+                sig_df = sig_df.loc[sig_df[col] > 0]
 #TODO change for value (lat or engy) & sig > 0
                 dico = {}
                 dico[mes + '_count'] = sig_df[col].count()
@@ -177,13 +177,15 @@ def extract_values(df, stim='sect', mes='time'):
     for cond in records:
         signi = cond + '_sig'
         pop_num = len(adf)
-        signi_num = len(adf.loc[adf[signi] > 0, cond])
+        extract = adf.loc[adf[signi] > 0, cond].copy()
+        extract = extract[extract > 0]
+        signi_num = len(extract)
         percent = round((signi_num / pop_num) * 100)
         leg_cond = cond.split('_')[0]
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
-        moy = adf.loc[adf[signi] > 0, cond].mean()
-        stdm = adf.loc[adf[signi] > 0, cond].sem()
+        moy = extract.mean()
+        stdm = extract.sem()
         resp_dico[leg_cond] = [moy, moy + stdm, moy - stdm]
     return pop_dico, resp_dico
 
@@ -258,12 +260,12 @@ for kind in ['vm', 'spk']:
 
 #%%
 plt.close('all')
-stat_df = build_stat_df()
+stat_df = build_stat_df(sig=True)
 fig1 = plot_stat(stat_df, kind='mean')
 fig2 = plot_stat(stat_df, kind='med')
 save = False
 if save:
-    filename = os.path.join(paths['save'], 'meanStd.png')
+    filename = os.path.join(paths['save'], 'sig_meanStd.png')
     fig1.savefig(filename)
-    filename = os.path.join(paths['save'], 'medMad.png')
+    filename = os.path.join(paths['save'], 'sig_medMad.png')
     fig2.savefig(filename)
