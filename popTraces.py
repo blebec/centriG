@@ -39,6 +39,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     age = kwargs.get('age', 'new')
     addleg = kwargs.get('addleg', False)
     addinsert = kwargs.get('addinsert', False)
+    filename = kwargs.get('file', '')
     #defined in dataframe columns (first column = ctr))
     kind, rec, spread,  *_ = data_df.columns.to_list()[1].split('_')
     titles = dict(pop='all cells',
@@ -61,9 +62,12 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     while any(st for st in cols if 'sect_rd' in st):
         cols.remove(next(st for st in cols if 'sect_rd' in st))
     #buils labels
-    for i in range(3): 
-        labels = [item + '_ctr' if (len(item.split('_')) < 6) 
-                else item for item in cols]    
+    labels = cols[:]    
+    for i in range(3):
+        for item in labels:
+            if (len(item.split('_')) < 6):
+                j = labels.index(item)
+                labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
     #plot
     fig = plt.figure(figsize=(6.5, 5.5))
@@ -144,10 +148,11 @@ def plot_figure3(datadf, stdcolors, **kwargs):
 #params (load)
 select = dict(age='new', rec='vm', kind='sig')
 
-data_df, _ = ltra.load_intra_mean_traces(paths, **select)
+data_df, file = ltra.load_intra_mean_traces(paths, **select)
 print('loaded {}'.format(_))
 # TODO recéuprer le nome du fichier pout le nombre de cellules
 #params (plot)
+select['file'] = file
 select['substract'] = True
 select['addleg'] = True
 select['addinsert'] = False
