@@ -39,20 +39,27 @@ for item in [st.split('_')[1] for st in cols]:
     if item not in params:
         params.append(item)
 
+
 cond = conds[0]
 param = params[0]
+# build list of sig cells
+cells_dict = dict()
+for cond in conds:
+    # select cell signicant for at least one of the param
+    sig_cells = set()
+    print(sig_cells)
+    for param in params:
+        print(param)
+        col = cond + '_' + param
+        sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+        sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+    print(sig_cells)
+    cells_dict[cond] = list(sig_cells)
 
-# select cell signicant for at least one of the param
-sig_cells = set()
+cells_dict = list(sig_cells)
 for param in params:
     col = cond + '_' + param
-    sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-    sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
-
-cells = list(sig_cells)
-for param in params:
-    col = cond + '_' + param
-    col_df = data.loc[cells[:]]
+    col_df = data.loc[cells[:], col]
 
 
 
