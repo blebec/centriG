@@ -25,11 +25,14 @@ plt.rcParams['axes.ymargin'] = 0.05
 
 #%%
 def build_sigpop_statdf():
-
+    """
+    load the indices and extract descriptive statistics per condition
+    NB sig cell = individual sig for latency OR energy
+    """
     df = pd.DataFrame()
 
     for mes in ['vm', 'spk']:
-        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')    
+        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         # conditions and parameter lists
         conds = []
@@ -73,7 +76,12 @@ plt.close('all')
 
 
 def build_stat_df(sig=False):
-    """ extract a statistical description """
+    """
+    extract a statistical description
+    in this approach sig cells refers for individually sig for the given
+    parameter (aka advance or energy)
+
+    """
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
         # mes = 'spk'
@@ -234,7 +242,9 @@ def extract_values(df, stim='sect', mes='time'):
     return pop_dico, resp_dico
 
 def autolabel(ax, rects):
-    # attach some text labels
+    """
+    attach the text labels to the rectangles
+    """
     for rect in rects:
         x = rect.get_x() + rect.get_width()/2
         height = rect.get_height()
@@ -248,7 +258,9 @@ def autolabel(ax, rects):
                     ha='center', va='top')
 
 def plot_cell_contribution(df, kind=''):
-    "sup 2A"
+    """
+    plot the number of significative cells contributing to the response
+    """
 
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
     dark_colors = [std_colors[item] for item in \
@@ -330,6 +342,7 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
+    here combined top = full pop, bottom : significative pop
     """
     if kind == 'mean':
         stat = ['_mean', '_std']
@@ -343,7 +356,7 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
               std_colors['yellow'], std_colors['blue'],
               std_colors['dark_blue']]
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,8), 
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,8),
                              sharex=True, sharey=True)
     axes = axes.flatten()
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
@@ -351,7 +364,7 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
 
     # plots
     for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
-                               ('vm', 'sect'), ('vm', 'full')]):        
+                               ('vm', 'sect'), ('vm', 'full')]):
         if i < 2:
             df = statdf
         else:
@@ -423,7 +436,9 @@ if save:
 
 #%% composite cell contribution
 def plot_composite_cell_contribution(df, kind=''):
-    "sup 2A"
+    """
+    cell contribution, to go to the bottom of the preceding stat description
+    """
 
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
     dark_colors = [std_colors[item] for item in \
@@ -439,11 +454,11 @@ def plot_composite_cell_contribution(df, kind=''):
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
     axes = axes.flatten()
     titles = ['sector', 'full']
-    
+
     for i, ax in enumerate(axes):
         # ax.set_title(str(i))
         stim = stims[i]
-        meas = measures[0]   
+        meas = measures[0]
         #for meas in measures
         ax.set_title(titles[i], pad=0)
         heights = []
