@@ -24,47 +24,49 @@ plt.rcParams['axes.ymargin'] = 0.05
 
 
 #%%
-mes = 'vm'
-data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
-cols = [item for item in data.columns if not item.endswith('_sig')]
+def build_sigpop_statdf():
 
-#conds = list(set(item.split('_')[0] for item in cols))
-#params = list(set(item.split('_')[1] for item in cols))
-conds = []
-for item in [st.split('_')[0] for st in cols]:
-    if item not in conds:
-        conds.append(item)
-params = []
-for item in [st.split('_')[1] for st in cols]:
-    if item not in params:
-        params.append(item)
+    df = pd.DataFrame()
+
+    for mes in ['vm', 'spk']:
+        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')    
+        cols = [item for item in data.columns if not item.endswith('_sig')]
+        # conditions and parameter lists
+        conds = []
+        for item in [st.split('_')[0] for st in cols]:
+            if item not in conds:
+                conds.append(item)
+        params = []
+        for item in [st.split('_')[1] for st in cols]:
+            if item not in params:
+                params.append(item)
+        # build dico[cond]list of sig cells
+        cells_dict = dict()
+        for cond in conds:
+            # select cell signicant for at least one of the param
+            sig_cells = set()
+            for param in params:
+                col = cond + '_' + param
+                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+            cells_dict[cond] = list(sig_cells)
+        # extract descriptive stats
+        stats= []
+        for col in cols:
+            cells = cells_dict[col.split('_')[0]]
+            ser = data.loc[cells[:], col]# col = cols[0]
+            dico = {}
+            dico[mes + '_count'] = ser.count()
+            dico[mes + '_mean'] = ser.mean()
+            dico[mes + '_std'] = ser.std()
+            dico[mes + '_med'] = ser.median()
+            dico[mes + '_mad'] = ser.mad()
+            stats.append(pd.Series(dico, name=col))
+        df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+    return df
 
 
-cond = conds[0]
-param = params[0]
-# build list of sig cells
-cells_dict = dict()
-for cond in conds:
-    # select cell signicant for at least one of the param
-    sig_cells = set()
-    print(sig_cells)
-    for param in params:
-        print(param)
-        col = cond + '_' + param
-        sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-        sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
-    print(sig_cells)
-    cells_dict[cond] = list(sig_cells)
-
-cells_dict = list(sig_cells)
-for param in params:
-    col = cond + '_' + param
-    col_df = data.loc[cells[:], col]
-
-
-
-
-
+# stat_df = build_sigpop_statdf()
 
 #%%%%  to build the stat representation
 plt.close('all')
@@ -77,7 +79,7 @@ def build_stat_df(sig=False):
         # mes = 'spk'
         data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
-        #only sig cells
+        #only sig cells, independtly for each condition and each measure
         if sig:
             stats= []
             for col in cols:
@@ -85,7 +87,6 @@ def build_stat_df(sig=False):
                 sig_df = data.loc[data[col+'_sig'] > 0, [col]]
                 #only positive values
                 sig_df = sig_df.loc[sig_df[col] > 0]
-#TODO = union of sig time | engy
                 dico = {}
                 dico[mes + '_count'] = sig_df[col].count()
                 dico[mes + '_mean'] = sig_df[col].mean()
@@ -303,12 +304,19 @@ for kind in ['vm', 'spk']:
 
 #%%
 plt.close('all')
-stat_df = build_stat_df(sig=True)
+stat_df = build_stat_df(sig=False)
+stat_df_sig = build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind='mean')
 fig2 = plot_stat(stat_df, kind='med')
+fig3 = plot_stat(stat_df_sig, kind='mean')
+fig4 = plot_stat(stat_df_sig, kind='med')
 save = False
 if save:
-    filename = os.path.join(paths['save'], 'sig_meanStd.png')
+    filename = os.path.join(paths['save'], 'meanStd.png')
     fig1.savefig(filename)
-    filename = os.path.join(paths['save'], 'sig_medMad.png')
+    filename = os.path.join(paths['save'], 'medMad.png')
     fig2.savefig(filename)
+    filename = os.path.join(paths['save'], 'sig_meanStd.png')
+    fig3.savefig(filename)
+    filename = os.path.join(paths['save'], 'sig_medMad.png')
+    fig4.savefig(filename)
