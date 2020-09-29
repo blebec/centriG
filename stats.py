@@ -23,9 +23,45 @@ plt.rcParams['axes.xmargin'] = 0.05
 plt.rcParams['axes.ymargin'] = 0.05
 
 
+#%%
+mes = 'vm'
+data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+cols = [item for item in data.columns if not item.endswith('_sig')]
+
+#conds = list(set(item.split('_')[0] for item in cols))
+#params = list(set(item.split('_')[1] for item in cols))
+conds = []
+for item in [st.split('_')[0] for st in cols]:
+    if item not in conds:
+        conds.append(item)
+params = []
+for item in [st.split('_')[1] for st in cols]:
+    if item not in params:
+        params.append(item)
+
+cond = conds[0]
+param = params[0]
+
+# select cell signicant for at least one of the param
+sig_cells = set()
+for param in params:
+    col = cond + '_' + param
+    sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+    sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+
+cells = list(sig_cells)
+for param in params:
+    col = cond + '_' + param
+    col_df = data.loc[cells[:]]
+
+
+
+
+
 
 #%%%%  to build the stat representation
 plt.close('all')
+
 
 def build_stat_df(sig=False):
     """ extract a statistical description """
