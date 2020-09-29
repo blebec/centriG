@@ -320,3 +320,106 @@ if save:
     fig3.savefig(filename)
     filename = os.path.join(paths['save'], 'sig_medMad.png')
     fig4.savefig(filename)
+
+
+
+#%% stat composite figure
+
+def plot_composite_stat(statdf, statdfsig, kind='mean'):
+    """
+    plot the stats
+    input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
+    output : matplotlib figure
+    """
+    if kind == 'mean':
+        stat = ['_mean', '_std']
+    elif kind == 'med':
+        stat = ['_med', '_mad']
+    else:
+        print('non valid kind argument')
+        return
+
+    colors = [std_colors['red'], std_colors['green'],
+              std_colors['yellow'], std_colors['blue'],
+              std_colors['dark_blue']]
+
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,8), 
+                             sharex=True, sharey=True)
+    axes = axes.flatten()
+    title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
+    fig.suptitle(title)
+
+    # plots
+    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
+                               ('vm', 'sect'), ('vm', 'full')]):        
+        if i < 2:
+            df = statdf
+        else:
+            df = statdfsig
+        ax = axes[i]
+        rec = cond[0]
+        spread = cond[1]
+        ax.set_title('{} {}'.format(rec, spread))
+        # select spread (sect, full)
+        rows = [st for st in df.index.tolist() if spread in st]
+        # append random full
+        if spread == 'sect':
+            rows.extend(
+                [st for st in stat_df.index if st.startswith('rdisofull')])
+        # df indexes (for x and y)
+        time_rows = [st for st in rows if 'time50' in st]
+        y_rows = [st for st in rows if 'engy' in st]
+        cols = [col for col in df.columns if col.startswith(rec)]
+        cols = [st for st in cols if stat[0] in st or stat[1] in st]
+        #labels
+        labels = [st.split('_')[0] for st in y_rows]
+        # values (for x an y)
+        x = df.loc[time_rows, cols][rec + stat[0]].values
+        xerr = df.loc[time_rows, cols][rec + stat[1]].values
+        y = df.loc[y_rows, cols][rec + stat[0]].values
+        yerr = df.loc[y_rows, cols][rec + stat[1]].values
+        #plot
+        for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
+            ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                        fmt='s', color=ci, label=lbi)
+        ax.legend()
+
+    #adjust
+    for i, ax in enumerate(axes):
+        ax.axvline(0, linestyle='-', alpha=0.4)
+        ax.axhline(0, linestyle='-', alpha=0.4)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+            if i % 2 == 0:
+                ax.set_ylabel('energy')
+            else:
+                ax.spines['left'].set_visible(False)
+                ax.yaxis.set_visible(False)
+            if i > 1:
+                ax.set_xlabel('time advance (ms)')
+            else:
+                ax.spines['bottom'].set_visible(False)
+                ax.xaxis.set_visible(False)
+    # ax = axes[2]
+    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
+    # ax.set_yticks(custom_ticks)
+    # ax.set_yticklabels(custom_ticks)
+
+    fig.tight_layout()
+    fig.subplots_adjust(hspace=0.02)
+    fig.subplots_adjust(wspace=0.02)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'stat.py:plot_stat',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+fig1 = plot_composite_stat(stat_df, stat_df_sig, kind='mean')
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'composite_meanStd.png')
+    fig1.savefig(filename)
+
+#%% composite cell contribution
+
