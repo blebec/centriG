@@ -96,11 +96,11 @@
 
   - 'time50_engyvm' et time50_engy_spk sur git
   - basculer les données sur owncloud 
-- [ ] fig cf plot_stat
+- [x] fig cf plot_stat
   - en haut vm sect | vm full
   - en bas vm sect | vm full (uniqt sous pop sig
     - [x] NB recalculer sig = sigCenterOnly time + sigCenterOnly engy
-    - [ ] \+ marginal cf cell_contribution 
+    - [x] \+ marginal cf cell_contribution 
 
 # bugs
 

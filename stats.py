@@ -422,4 +422,72 @@ if save:
     fig1.savefig(filename)
 
 #%% composite cell contribution
+def plot_composite_cell_contribution(df, kind=''):
+    "sup 2A"
 
+    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in \
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+
+
+    stims = ('sect', 'full')
+    measures = ('time', 'engy')
+    titles = {'time' : r'$\Delta$ Time (% significant cells)',
+              'engy': r'Energy (% significant cells)',
+              'sect': 'Sector',
+              'full': 'Full'}
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
+    axes = axes.flatten()
+    titles = ['sector', 'full']
+    
+    for i, ax in enumerate(axes):
+        # ax.set_title(str(i))
+        stim = stims[i]
+        meas = measures[0]   
+        #for meas in measures
+        ax.set_title(titles[i], pad=0)
+        heights = []
+        for meas in measures:
+            pop_dico, resp_dico = extract_values(df, stim, meas)
+            height = [pop_dico[item][-1] for item in pop_dico.keys()]
+            heights.append(height)
+        x = np.arange(len(pop_dico.keys()))
+        width = 0.45
+        bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.8,
+                      edgecolor=dark_colors)
+        autolabel(ax, bars) # call
+        bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.8,
+                      edgecolor=dark_colors)
+        autolabel(ax, bars) # call
+        # ax.set_ylabel(titles[stim])
+    for ax in axes:
+        for spine in ['left', 'top', 'right']:
+            labels = list(pop_dico.keys())
+            ax.set_xticks(range(len(labels)))
+            ax.set_xticklabels(labels)
+            ax.spines[spine].set_visible(False)
+            ax.tick_params(axis='x', labelrotation=45)
+            ax.yaxis.set_ticklabels([])
+            ax.tick_params(axis='y', length=0)
+    # for ax in axes[:2]:
+    #     ax.xaxis.set_visible(False)
+    txt = "{} ({} cells)".format(kind, len(data))
+    fig.text(0.43, 0.90, txt, ha='center', va='top', fontsize=18)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'stat.py:plot_cell_contribution',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    fig.tight_layout()
+    return fig
+
+
+save = False
+for kind in ['vm']: #, 'spk']:
+    #load_cell_contributions(kind='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(kind, age='new', amp='engy')
+    fig = plot_composite_cell_contribution(data, kind)
+    if save:
+        filename = os.path.join(paths['save'], kind + 'composite_cell_contribution.png')
+        fig.savefig(filename)
