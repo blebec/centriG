@@ -10,8 +10,8 @@ import pandas as pd
 
 import matplotlib.pyplot as plt
 
-from centriG import config
-from centriG.load import load_data as ldat
+import config
+from load import load_data as ldat
 
 
 paths = config.build_paths()

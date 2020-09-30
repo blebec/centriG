@@ -3,10 +3,11 @@
 
 from datetime import datetime
 import os
+from more_itertools import sort_together
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from more_itertools import sort_together
 
 
 

@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set(style="ticks")
 
-import centriG.config as config
-import centriG.load.load_data as ldat
+import config
+import load.load_data as ldat
 std_colors = config.std_colors()
 anot = True
         

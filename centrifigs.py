@@ -20,12 +20,12 @@ import matplotlib.patches as patches
 #from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib import markers
 
-import centriG.config as config
-import centriG.general_functions as gfunc
-import centriG.load.load_data as ldat
-import centriG.load.load_traces as ltra
-import centriG.old.old_figs as ofig
-import centriG.fig_proposal as figp
+import config
+import general_functions as gfunc
+import load.load_data as ldat
+import load.load_traces as ltra
+import old.old_figs as ofig
+import fig_proposal as figp
 # nb description with pandas:
 pd.options.display.max_columns = 30
 

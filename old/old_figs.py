@@ -14,8 +14,8 @@ from matplotlib.ticker import StrMethodFormatter
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 
-import centriG.general_functions as gfunc
-import centriG.config as config
+import general_functions as gfunc
+import config as config
 paths = config.build_paths()
 
 def plot_2_indMoySigNsig(data, colsdict, stdcolors, fill=True, anot=False):

@@ -3,6 +3,7 @@
 import platform
 import os
 import getpass
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -46,7 +47,17 @@ alpha = [0.8, 1, 0.8, 0.8, 1]
 #              speed_colors['orange'], speed_colors['jaune'], 'k']
 #alpha = [1, 0.8, 0.8, 1, 0.5]
 
+#TODO fix this : file doesn't exist
 df = pd.read_excel(os.path.join('data', 'figOpt.xlsx'))
+
+#++++
+#? 
+# filename = 'data/data_to_use/fig4.xlsx'
+# df = pd.read_excel(os.path.join(filename))
+
+#++++
+
+
 df.set_index('time', inplace=True)
 
 # to change the order

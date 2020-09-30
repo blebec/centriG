@@ -7,9 +7,9 @@ from importlib import reload
 import numpy as np
 import matplotlib.pyplot as plt
 
-from centriG import config
-import centriG.load.load_traces as ltra
-import centriG.old.old_figs as ofig
+import config
+import load.load_traces as ltra
+import old.old_figs as ofig
 
 paths = config.build_paths()
 std_colors = config.std_colors()

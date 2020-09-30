@@ -6,14 +6,15 @@ Created on Tue Jun 30 13:19:26 2020
 @author: cdesbois
 """
 from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
-import centriG.config as config
-import centriG.general_functions as gfunc
-import centriG.load.load_data as ldat
+import config
+import general_functions as gfunc
+import load.load_data as ldat
 
 anot = True
 
@@ -344,3 +345,4 @@ if __name__ == "__main__":
     plot_figure6_bis(std_colors, linear=True, substract=False)
     plot_figure6_bis(std_colors, linear=True, substract=True)
     plot_figure7_bis(std_colors)
+#TODO append the save process

@@ -14,16 +14,19 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-import centriG.load.load_data as ldat
-import centriG.config as config
- 
+# import centriG.load.load_data as ldat
+# import centriG.config as config
+import load.load_data as ldat
+import config
+
 def plot_cellDepth():
     """
     relation profondeur / latence
     """
     # cells
 #    data50 = ld.load_50vals('vm')
-    data50 = ldat.load_cell_contributions('vm')
+    amp = ['gain', 'engy'][1]
+    data50 = ldat.load_cell_contributions('vm', amp=amp)
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -59,11 +62,15 @@ def plot_cellDepth():
     # ax.bar(x, y, color = z, alpha=0.6)
     ax.set_ylabel('advance (ms)')
     ax.set_xlabel('cell')
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.3)
+    ax.axhline(0, alpha=0.3)
 
     ax = fig.add_subplot(212)
-    kind = 'cpisosect_gain50'
+    if amp == 'gain':
+        kind = 'cpisosect_gain50'
+    elif amp == 'engy':
+        kind = 'cpisosect_engy'
+    else:
+        print('amp shoud be in [gain, engy]')
     y = labelled[kind].to_list()
     # stat
     z1 = z.copy()
@@ -77,10 +84,9 @@ def plot_cellDepth():
            alpha=0.6, width=0.8)
 
     # ax.bar(x, y, color = z, alpha=0.6)
-    ax.set_ylabel('gain')
-    ax.set_xlabel('cell')
-    lims = ax.get_xlim()
-    ax.hlines(0, lims[0], lims[1], alpha=0.3)
+    ax.set_ylabel(amp)
+    ax.set_xlabel('cell')    
+    ax.axhline(0, alpha=0.3)
 
     # leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
     axes = fig.get_axes()
@@ -112,7 +118,7 @@ def plot_cellDepth():
         fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_cellDepth',
+        fig.text(0.99, 0.01, 'cellDepth.py:plot_cellDepth',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -121,12 +127,19 @@ def plot_cellDepth():
 # TODO add the significativity for each condition
 # ? grou by depth
 
-def barplot_cellDepth_all(spread='sect'):
+def barplot_cellDepth_all(spread='sect', amp='gain'):
     """
     relation profondeur / latence
+    input : 
+        spread in [sect, full]'
+        amp in [gain, engy]
+    output :
+        pyplot.figure
     """
+    if amp not in  ['gain', 'engy']:
+        print('amp should be in [gain, engy]')
     # cells
-    data50 = ldat.load_cell_contributions('vm')
+    data50 = ldat.load_cell_contributions('vm', amp=amp)
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -200,11 +213,15 @@ def barplot_cellDepth_all(spread='sect'):
         ax.vlines(ax.get_xlim()[0], 0, 10, linewidth=2)
         ax.spines['left'].set_visible(False)
     # choose gain values
-    cols = [item for item in val_list if 'gain50' in item]
-    sig_cols = [item for item in sig_list if 'gain50' in item]
+    if amp == 'gain':
+        key = 'gain50'
+    elif amp == 'engy':
+        key = amp
+    cols = [item for item in val_list if key in item]
+    sig_cols = [item for item in sig_list if key in item]
     for ax, col, sig_col in zip(axes[1::2], cols, sig_cols):
         ax.set_title(col.split('_')[0])
-        ax.set_ylabel('gain')
+        ax.set_ylabel(key)
         y = labelled[col].to_list()
         # stat z1 = list(depht_colors), z2 = list(white if non significant)
         z1 = z.copy()
@@ -247,18 +264,25 @@ def barplot_cellDepth_all(spread='sect'):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:barplot_cellDepth_all',
+        fig.text(0.99, 0.01, 'cellDepth.py:barplot_cellDepth_all',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 
-def dotplot_cellDepth_all(spread='sect'):
+def dotplot_cellDepth_all(spread='sect', amp='gain'):
     """
     relation profondeur / latence
+    input : 
+        spread in [sect, full]'
+        amp in [gain, engy]
+    output :
+        pyplot.figure
     """
+    if amp not in ['gain', 'engy']:
+        print('amp should be in [gain, engy]')
     # cells
-    data50 = ldat.load_cell_contributions('vm')
+    data50 = ldat.load_cell_contributions('vm', amp=amp)
     # retain only the neuron names
     data50.reset_index(inplace=True)
     data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
@@ -326,8 +350,12 @@ def dotplot_cellDepth_all(spread='sect'):
         ax.vlines(0, lims[0], lims[1], alpha=0.3)
 
     # choose gain values
-    cols = [item for item in val_list if 'gain50' in item]
-    sig_cols = [item for item in sig_list if 'gain50' in item]
+    if amp == 'gain':
+        key = 'gain50'
+    elif amp == 'engy':
+        key = amp
+    cols = [item for item in val_list if key in item]
+    sig_cols = [item for item in sig_list if key in item]
     for ax, col, sig_col in zip(axes[1::2], cols, sig_cols):
         #ax.set_title(col.split('_')[0])
         #ax.set_ylabel('gain')
@@ -342,9 +370,8 @@ def dotplot_cellDepth_all(spread='sect'):
                 z2.append('w')
         ax.scatter(x=x, y=np.arange(len(y))[::-1], color=z2, edgecolors=z1,
                    s=100, alpha=0.6, linewidth=2)
-        lims = ax.get_ylim()
-        ax.vlines(0, lims[0], lims[1], alpha=0.3)
-        ax.set_xlabel('gain')
+        ax.axvline(0, alpha=0.3)
+        ax.set_xlabel(amp)
 
     ax.set_ylim(-0.5, len(y))
     for i, ax in enumerate(axes):
@@ -368,7 +395,7 @@ def dotplot_cellDepth_all(spread='sect'):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:dotplot_cellDepth_all',
+        fig.text(0.99, 0.01, 'cellDepth.py:dotplot_cellDepth_all',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -381,10 +408,21 @@ plt.close('all')
 
 if __name__ == '__main__':
     paths = config.build_paths()
+    paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'byHisto')
     anot = True
+    amp = ['gain', 'engy'][1]
     fig = plot_cellDepth()
-    fig1 = barplot_cellDepth_all(spread='sect')
-    fig2 = barplot_cellDepth_all(spread='full')
-    fig3 = dotplot_cellDepth_all('sect')
-    fig4 = dotplot_cellDepth_all('full')
-    
+    fig1 = barplot_cellDepth_all(spread='sect', amp=amp)
+    fig2 = barplot_cellDepth_all(spread='full', amp=amp)
+    fig3 = dotplot_cellDepth_all('sect', amp = amp)
+    fig4 = dotplot_cellDepth_all('full', amp = amp)
+    save = False
+    if save:
+        filename = os.path.join(paths['save'], amp + '_layersSect.png')
+        fig1.savefig(filename)
+        filename = os.path.join(paths['save'], amp + '_layersFull.png')
+        fig2.savefig(filename)
+        filename = os.path.join(paths['save'], amp + '_layersSect_dot.png')
+        fig3.savefig(filename)
+        filename = os.path.join(paths['save'], amp + '_layersFull_dot.png')
+        fig4.savefig(filename)

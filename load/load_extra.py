@@ -7,8 +7,9 @@ Created on Mon Apr 13 18:08:45 2020
 """
 
 import os
-import pandas as pd
 from glob import glob
+
+import pandas as pd
 import matplotlib.pyplot as plt
 
 

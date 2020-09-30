@@ -7,8 +7,10 @@ import numpy as np
 import  pandas as pd
 import matplotlib.pyplot as plt
 
-import centriG.config as config
-import centriG.load.load_data as ldat
+# import centriG.config as config
+# import centriG.load.load_data as ldat
+import config
+import load.load_data as ldat
 
 anot = True           # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()
