@@ -28,9 +28,13 @@ def build_sigpop_statdf(amp='engy'):
     """
     load the indices and extract descriptive statistics per condition
     NB sig cell = individual sig for latency OR energy
+    input : amp in [gain, engy]
+    output:
+            pandas dataframe
+            sigcells : dictionary of sigcells namesper stim condition
     """
     df = pd.DataFrame()
-
+    sigcells = {}
     for mes in ['vm', 'spk']:
         data = ldat.load_cell_contributions(kind=mes, amp=amp, age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
@@ -66,7 +70,8 @@ def build_sigpop_statdf(amp='engy'):
             dico[mes + '_mad'] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
-    return df
+        sigcells[mes] = cells_dict.copy()
+    return df, sigcells
 
 
 # stat_df = build_sigpop_statdf()
@@ -212,15 +217,21 @@ def plot_stat(statdf, kind='mean'):
 #%%%%%
 plt.close('all')
 
-def extract_values(df, stim='sect', mes='time'):
+def extract_values(df, stim='sect', param='time'):
     """ extract pop and response dico:
-        input : dataframe, stim kind (s or f) and mesaure kind (lat or gain)
+        input : 
+            dataframe
+            stim in [sect, full]
+            param in [timme, gain, engy]
+        return:
+            pop_dico -> per condition [popNb, siginNb, %]
+            resp_dico -> per condition [moy, moy+sem, moy-sem]
     """
     # stim = '_' + stim_kind + '_'
     # mes = '_d' + measure + '50'
     # restrict df
     restricted_list = \
-    [st for st in df.columns if stim in st and mes in st]
+    [st for st in df.columns if stim in st and param in st]
     adf = df[restricted_list]
     #compute values
     records = [item for item in restricted_list if 'sig' not in item]
@@ -237,11 +248,11 @@ def extract_values(df, stim='sect', mes='time'):
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
         moy = extract.mean()
-        stdm = extract.sem()
-        resp_dico[leg_cond] = [moy, moy + stdm, moy - stdm]
+        sem = extract.sem()
+        resp_dico[leg_cond] = [moy, moy + sem, moy - sem]
     return pop_dico, resp_dico
 
-def autolabel(ax, rects):
+def autolabel(ax, rects, sup=False):
     """
     attach the text labels to the rectangles
     """
@@ -249,7 +260,7 @@ def autolabel(ax, rects):
         x = rect.get_x() + rect.get_width()/2
         height = rect.get_height()
         y = height - 1
-        if y < 3:
+        if y < 3 or sup:
             y = height + 1
             ax.text(x, y, '%d' % int(height) + '%',
                     ha='center', va='bottom')
@@ -317,7 +328,7 @@ for kind in ['vm', 'spk']:
 #%%
 plt.close('all')
 stat_df = build_stat_df()
-stat_df_sig = build_sigpop_statdf()
+stat_df_sig, sig_cells = build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind='mean')
 fig2 = plot_stat(stat_df, kind='med')
 fig3 = plot_stat(stat_df_sig, kind='mean')
@@ -337,7 +348,8 @@ if save:
 
 #%% stat composite figure
 
-def plot_composite_stat(statdf, statdfsig, kind='mean', amp='engy', mes='vm'):
+def plot_composite_stat(statdf, statdfsig, sigcells, 
+                        kind='mean', amp='engy', mes='vm'):
     """
     plot the stats 
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
@@ -365,12 +377,15 @@ def plot_composite_stat(statdf, statdfsig, kind='mean', amp='engy', mes='vm'):
                                (mes, 'sect'), (mes, 'full')]):
         if i < 2:
             df = statdf
+            pop = 'pop'
         else:
             df = statdfsig
+            pop = 'sig_pop'
         ax = axes[i]
         rec = cond[0]
         spread = cond[1]
-        ax.set_title('{} {}'.format(rec, spread))
+        ax_title = '{} ({} {})'.format(pop, rec, spread)
+        ax.set_title(ax_title)
         # select spread (sect, full)
         rows = [st for st in df.index.tolist() if spread in st]
         # append random full if sector
@@ -428,20 +443,20 @@ def plot_composite_stat(statdf, statdfsig, kind='mean', amp='engy', mes='vm'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-mes = ['vm', 'spk'][1]
-amp = ['gain', 'engy'][0]      # bug if gain
+mes = ['vm', 'spk'][0]
+amp = ['gain', 'engy'][1]      # bug if gain
 kind = ['mean', 'med'][0]
 stat_df = build_stat_df(amp = amp) # append gain to load
-stat_df_sig = build_sigpop_statdf(amp=amp) # append gain to load
-fig1 = plot_composite_stat(stat_df, stat_df_sig, kind=kind, 
-                           amp=amp, mes=mes)
+stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp) # append gain to load
+fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
+                           kind=kind, amp=amp, mes=mes)
 save = True
 if save:
     filename = os.path.join(paths['save'], mes + amp.title() + '_composite_meanStd.png')
     fig1.savefig(filename)
 
 #%% composite cell contribution
-def plot_composite_cell_contribution(df, kind='', amp='engy'):
+def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
@@ -452,7 +467,7 @@ def plot_composite_cell_contribution(df, kind='', amp='engy'):
 
     
     stims = ('sect', 'full')
-    measures = ('time', amp)
+    params = ('time', amp)
     titles = {'time' : r'$\Delta$ Time (% significant cells)',
               'engy': r'Energy (% significant cells)',
               'sect': 'Sector',
@@ -464,14 +479,18 @@ def plot_composite_cell_contribution(df, kind='', amp='engy'):
     for i, ax in enumerate(axes):
         # ax.set_title(str(i))
         stim = stims[i]
-        meas = measures[0]
-        #for meas in measures
+        param = params[0]
+        #for param in params
         ax.set_title(titles[i], pad=0)
         heights = []
-        for meas in measures:
-            pop_dico, resp_dico = extract_values(df, stim, meas)
+        for param in params:
+            pop_dico, resp_dico = extract_values(df, stim, param)
             height = [pop_dico[item][-1] for item in pop_dico.keys()]
             heights.append(height)
+        # nb of sig cells for time and amp
+        height = [round(len(sigcells['vm'][st])/len(df)*100)
+                  for st in list(pop_dico.keys())]
+        heights.append(height)
         x = np.arange(len(pop_dico.keys()))
         width = 0.45
         bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.8,
@@ -480,6 +499,11 @@ def plot_composite_cell_contribution(df, kind='', amp='engy'):
         bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.8,
                       edgecolor=dark_colors)
         autolabel(ax, bars) # call
+        if kind == 'vm':
+            'no stat for spike'
+            bars = ax.bar(x, heights[2], color='w', width=0.1, alpha=0.8,
+                          edgecolor=dark_colors)
+            autolabel(ax, bars, sup=True) # call
         # ax.set_ylabel(titles[stim])
     for ax in axes:
         for spine in ['left', 'top', 'right']:
@@ -509,7 +533,8 @@ amp = ['gain', 'engy'][1]
 for kind in ['vm', 'spk']:
     #load_cell_contributions(kind='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(kind, age='new', amp=amp)
-    fig = plot_composite_cell_contribution(data, kind,  amp=amp)
+    stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
+    fig = plot_composite_cell_contribution(data, sig_cells, kind=kind,  amp=amp)
     if save:
         filename = os.path.join(paths['save'], kind + amp.title() + '_composite_cell_contribution.png')
         fig.savefig(filename)
