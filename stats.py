@@ -23,7 +23,8 @@ plt.rcParams['axes.xmargin'] = 0.05
 plt.rcParams['axes.ymargin'] = 0.05
 
 
-#%%
+#%% extract stats values
+
 def build_sigpop_statdf(amp='engy'):
     """
     load the indices and extract descriptive statistics per condition
@@ -70,6 +71,7 @@ def build_sigpop_statdf(amp='engy'):
             dico[mes + '_mad'] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+        df.fillna(0)
         sigcells[mes] = cells_dict.copy()
     return df, sigcells
 
@@ -219,7 +221,7 @@ plt.close('all')
 
 def extract_values(df, stim='sect', param='time'):
     """ extract pop and response dico:
-        input : 
+        input :
             dataframe
             stim in [sect, full]
             param in [timme, gain, engy]
@@ -346,12 +348,12 @@ if save:
 
 
 
-#%% stat composite figure
+#%% stat composite figure (top row = pop; bottom row = sig_pop)
 
-def plot_composite_stat(statdf, statdfsig, sigcells, 
+def plot_composite_stat(statdf, statdfsig, sigcells,
                         kind='mean', amp='engy', mes='vm'):
     """
-    plot the stats 
+    plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
     here combined top = full pop, bottom : significative pop
@@ -428,11 +430,6 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
             else:
                 ax.spines['bottom'].set_visible(False)
                 ax.xaxis.set_visible(False)
-    # ax = axes[2]
-    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
-    # ax.set_yticks(custom_ticks)
-    # ax.set_yticklabels(custom_ticks)
-
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.02)
     fig.subplots_adjust(wspace=0.02)
@@ -444,10 +441,10 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
     return fig
 
 mes = ['vm', 'spk'][0]
-amp = ['gain', 'engy'][1]      # bug if gain
+amp = ['gain', 'engy'][1]
 kind = ['mean', 'med'][0]
-stat_df = build_stat_df(amp = amp) # append gain to load
-stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp) # append gain to load
+stat_df = build_stat_df(amp=amp)                        # append gain to load
+stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)   # append gain to load
 fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
                            kind=kind, amp=amp, mes=mes)
 save = True
@@ -456,6 +453,8 @@ if save:
     fig1.savefig(filename)
 
 #%% composite cell contribution
+plt.close('all')
+
 def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
@@ -465,7 +464,6 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
 
-    
     stims = ('sect', 'full')
     params = ('time', amp)
     titles = {'time' : r'$\Delta$ Time (% significant cells)',
@@ -485,31 +483,31 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
         heights = []
         for param in params:
             pop_dico, resp_dico = extract_values(df, stim, param)
-            height = [pop_dico[item][-1] for item in pop_dico.keys()]
+            height = [pop_dico[key][-1] for key in pop_dico]
             heights.append(height)
-        # nb of sig cells for time and amp
-        height = [round(len(sigcells['vm'][st])/len(df)*100)
+        # % sig cells for time and amp
+        height = [round(len(sigcells[kind][st])/len(df)*100)
                   for st in list(pop_dico.keys())]
         heights.append(height)
         x = np.arange(len(pop_dico.keys()))
         width = 0.45
-        bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.8,
-                      edgecolor=dark_colors)
+        # time
+        bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.4,
+                      edgecolor=colors)
         autolabel(ax, bars) # call
-        bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.8,
-                      edgecolor=dark_colors)
+        # amp
+        bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.4,
+                      edgecolor=colors)
         autolabel(ax, bars) # call
-        if kind == 'vm':
-            'no stat for spike'
-            bars = ax.bar(x, heights[2], color='w', width=0.1, alpha=0.8,
-                          edgecolor=dark_colors)
-            autolabel(ax, bars, sup=True) # call
-        # ax.set_ylabel(titles[stim])
+        # time OR amp
+        bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
+                      edgecolor=dark_colors)
+        autolabel(ax, bars, sup=True) # call
+        labels = list(pop_dico.keys())
+        ax.set_xticks(range(len(labels)))
+        ax.set_xticklabels(labels)
     for ax in axes:
         for spine in ['left', 'top', 'right']:
-            labels = list(pop_dico.keys())
-            ax.set_xticks(range(len(labels)))
-            ax.set_xticklabels(labels)
             ax.spines[spine].set_visible(False)
             ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
@@ -523,18 +521,18 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
         fig.text(0.99, 0.01, 'stat.py:plot_cell_contribution',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
     fig.tight_layout()
     return fig
 
 
 save = False
-amp = ['gain', 'engy'][1]
+amp = ['gain', 'engy'][0]
 for kind in ['vm', 'spk']:
     #load_cell_contributions(kind='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(kind, age='new', amp=amp)
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
     fig = plot_composite_cell_contribution(data, sig_cells, kind=kind,  amp=amp)
     if save:
-        filename = os.path.join(paths['save'], kind + amp.title() + '_composite_cell_contribution.png')
+        filename = os.path.join(paths['save'], kind + amp.title() \
+                                + '_composite_cell_contribution.png')
         fig.savefig(filename)
