@@ -75,9 +75,11 @@ def plot_align_normalize(label, data, substract=False):
             return
         return df
 
-    colors = ['k', std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue'],
-              std_colors['blue']]
+    # colors = ['k', std_colors['red'], std_colors['green'],
+    #           std_colors['yellow'], std_colors['blue'],
+    #           std_colors['blue']]
+    colors = [std_colors[color] for color in 'red green yellow blue blue'.split()]
+    colors.insert(0,  (0,0,0))
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
     cell_pop = list(set([item.split('_')[1] for item in data.columns]))

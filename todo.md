@@ -56,21 +56,24 @@
 
   - DONE -> owns/pythonPreview/cross
 
-- - [ ] obj justifier les sous populations (stim)
+- obj justifier les sous populations (stim)
 
-  
-  1. figure 2 avec uniquement exemple + pop (~~sig~~)
-  2. supprime fig2B
+  - [ ] figure 2 avec uniquement exemple + pop (~~sig~~)
+  - [ ] supprime fig2B
 3. figure stat -> définition des index + choix sous populations
 
-  - base = plot_stat
-    - OK updated the code -> rebuilded with energy (check cross.py) 
-  - en haut sect | full (all pop, vm)
-- en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
-  
+  - [x] base = plot_stat
+    - [x] OK updated the code -> rebuilded with energy (check cross.py) 
+  - [x] en haut sect | full (all pop, vm)
+- [x] en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
+
 4. figure plot_sorted_responses_sup1 (vm_engy0.png)
-  
+
+   - [x] -> centrifigs:plot_sorted_responses_sup1
+
   5. figure :
+
+     ​	first tests
 
 | sect / vm / normAlign  | sect/ vm / raw   | full / vm / normAlign  | full/ vm / raw  |
 | ---------------------- | ---------------- | ---------------------- | --------------- |
@@ -88,11 +91,11 @@
 
 
 ## stat 
-- [ ] plot the number of cells (stat_sig.png) 
+- [x] plot the number of cells (stat_sig.png) 
 - [x] change the sig extraction
   - [x] cells sig for time or engy (stats.py L 45)
 - [x] see centrifigs.py/plot_cell_contribution (1831)
-- [ ] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
+- [x] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
 
   - 'time50_engyvm' et time50_engy_spk sur git
   - basculer les données sur owncloud 
