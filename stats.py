@@ -24,7 +24,7 @@ plt.rcParams['axes.ymargin'] = 0.05
 
 
 #%%
-def build_sigpop_statdf():
+def build_sigpop_statdf(amp='engy'):
     """
     load the indices and extract descriptive statistics per condition
     NB sig cell = individual sig for latency OR energy
@@ -32,7 +32,7 @@ def build_sigpop_statdf():
     df = pd.DataFrame()
 
     for mes in ['vm', 'spk']:
-        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+        data = ldat.load_cell_contributions(kind=mes, amp=amp, age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         # conditions and parameter lists
         conds = []
@@ -75,7 +75,7 @@ def build_sigpop_statdf():
 plt.close('all')
 
 
-def build_stat_df(sig=False):
+def build_stat_df(sig=False, amp='engy'):
     """
     extract a statistical description
     in this approach sig cells refers for individually sig for the given
@@ -85,7 +85,7 @@ def build_stat_df(sig=False):
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
         # mes = 'spk'
-        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+        data = ldat.load_cell_contributions(kind=mes, amp=amp, age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         #only sig cells, independtly for each condition and each measure
         if sig:
@@ -316,7 +316,7 @@ for kind in ['vm', 'spk']:
 
 #%%
 plt.close('all')
-stat_df = build_stat_df(sig=False)
+stat_df = build_stat_df()
 stat_df_sig = build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind='mean')
 fig2 = plot_stat(stat_df, kind='med')
@@ -337,9 +337,9 @@ if save:
 
 #%% stat composite figure
 
-def plot_composite_stat(statdf, statdfsig, kind='mean'):
+def plot_composite_stat(statdf, statdfsig, kind='mean', amp='engy', mes='vm'):
     """
-    plot the stats
+    plot the stats 
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
     here combined top = full pop, bottom : significative pop
@@ -361,10 +361,8 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
     axes = axes.flatten()
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
     fig.suptitle(title)
-
-    # plots
-    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
-                               ('vm', 'sect'), ('vm', 'full')]):
+    for i, cond in enumerate([(mes, 'sect'), (mes, 'full'),
+                               (mes, 'sect'), (mes, 'full')]):
         if i < 2:
             df = statdf
         else:
@@ -375,13 +373,14 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
         ax.set_title('{} {}'.format(rec, spread))
         # select spread (sect, full)
         rows = [st for st in df.index.tolist() if spread in st]
-        # append random full
+        # append random full if sector
         if spread == 'sect':
             rows.extend(
                 [st for st in stat_df.index if st.startswith('rdisofull')])
         # df indexes (for x and y)
         time_rows = [st for st in rows if 'time50' in st]
-        y_rows = [st for st in rows if 'engy' in st]
+        y_rows = [st for st in rows if amp in st]
+        # y_rows = [st for st in rows if 'engy' in st]
         cols = [col for col in df.columns if col.startswith(rec)]
         cols = [st for st in cols if stat[0] in st or stat[1] in st]
         #labels
@@ -404,7 +403,8 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel('energy')
+                ax.set_ylabel(amp)
+#                ax.set_ylabel('energy')
             else:
                 ax.spines['left'].set_visible(False)
                 ax.yaxis.set_visible(False)
@@ -428,14 +428,20 @@ def plot_composite_stat(statdf, statdfsig, kind='mean'):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig1 = plot_composite_stat(stat_df, stat_df_sig, kind='mean')
-save = False
+mes = ['vm', 'spk'][1]
+amp = ['gain', 'engy'][0]      # bug if gain
+kind = ['mean', 'med'][0]
+stat_df = build_stat_df(amp = amp) # append gain to load
+stat_df_sig = build_sigpop_statdf(amp=amp) # append gain to load
+fig1 = plot_composite_stat(stat_df, stat_df_sig, kind=kind, 
+                           amp=amp, mes=mes)
+save = True
 if save:
-    filename = os.path.join(paths['save'], 'composite_meanStd.png')
+    filename = os.path.join(paths['save'], mes + amp.title() + '_composite_meanStd.png')
     fig1.savefig(filename)
 
 #%% composite cell contribution
-def plot_composite_cell_contribution(df, kind=''):
+def plot_composite_cell_contribution(df, kind='', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
@@ -444,9 +450,9 @@ def plot_composite_cell_contribution(df, kind=''):
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
 
-
+    
     stims = ('sect', 'full')
-    measures = ('time', 'engy')
+    measures = ('time', amp)
     titles = {'time' : r'$\Delta$ Time (% significant cells)',
               'engy': r'Energy (% significant cells)',
               'sect': 'Sector',
@@ -486,8 +492,8 @@ def plot_composite_cell_contribution(df, kind=''):
             ax.tick_params(axis='y', length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
-    txt = "{} ({} cells)".format(kind, len(data))
-    fig.text(0.43, 0.90, txt, ha='center', va='top', fontsize=18)
+    txt = "{} ({} cells)     [time | {}]".format(kind, len(data), amp)
+    fig.text(0.5, 0.97, txt, ha='center', va='top', fontsize=14)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'stat.py:plot_cell_contribution',
@@ -499,10 +505,11 @@ def plot_composite_cell_contribution(df, kind=''):
 
 
 save = False
-for kind in ['vm']: #, 'spk']:
+amp = ['gain', 'engy'][1]
+for kind in ['vm', 'spk']:
     #load_cell_contributions(kind='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(kind, age='new', amp='engy')
-    fig = plot_composite_cell_contribution(data, kind)
+    data = ldat.load_cell_contributions(kind, age='new', amp=amp)
+    fig = plot_composite_cell_contribution(data, kind,  amp=amp)
     if save:
-        filename = os.path.join(paths['save'], kind + 'composite_cell_contribution.png')
+        filename = os.path.join(paths['save'], kind + amp.title() + '_composite_cell_contribution.png')
         fig.savefig(filename)
