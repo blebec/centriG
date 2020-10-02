@@ -143,14 +143,14 @@ def plot_stat(statdf, kind='mean', legend=False):
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue'],
               std_colors['dark_blue']]
-    
+
     ref = ''
     if statdf.max().max() == 37:
         ref = 'population'
     else:
         ref = 'sub_populations'
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 8), 
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 8),
                              sharex=True, sharey=True)
     axes = axes.flatten()
     title = "{}    ({} ± {}) ".format(ref, stat[0][1:], stat[1][1:])
@@ -354,7 +354,7 @@ if save:
 #%% stat composite figure (top row = pop; bottom row = sig_pop)
 
 def plot_composite_stat(statdf, statdfsig, sigcells,
-                        kind='mean', amp='engy', mes='vm'):
+                        kind='mean', amp='engy', mes='vm', legend=False):
     """
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
@@ -362,7 +362,7 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
     here combined top = full pop, bottom : significative pop
     """
     if kind == 'mean':
-        stat = ['_mean', '_std']
+        stat = ['_mean', '_sem']
     elif kind == 'med':
         stat = ['_med', '_mad']
     else:
@@ -414,8 +414,8 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
             ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci, label=lbi)
-        ax.legend()
-
+        if legend:
+            ax.legend()
     #adjust
     for i, ax in enumerate(axes):
         ax.axvline(0, linestyle='-', alpha=0.4)
@@ -443,16 +443,16 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-mes = ['vm', 'spk'][0]
+mes = ['vm', 'spk'][1]
 amp = ['gain', 'engy'][1]
 kind = ['mean', 'med'][0]
 stat_df = build_stat_df(amp=amp)                        # append gain to load
 stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)   # append gain to load
 fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
                            kind=kind, amp=amp, mes=mes)
-save = True
+save = False
 if save:
-    filename = os.path.join(paths['save'], mes + amp.title() + '_composite_meanStd.png')
+    filename = os.path.join(paths['save'], mes + amp.title() + '_composite_meanSem.png')
     fig1.savefig(filename)
 
 #%% composite cell contribution
@@ -517,11 +517,11 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
             ax.tick_params(axis='y', length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
-    txt = "{} ({} cells)     [time | {}]".format(kind, len(data), amp)
-    fig.text(0.5, 0.97, txt, ha='center', va='top', fontsize=14)
+    txt = "{} ({} cells) [time|U|{}]".format(kind, len(data), amp)
+    fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'stat.py:plot_cell_contribution',
+        fig.text(1, 0.01, 'stat.py:plot_cell_contribution',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
