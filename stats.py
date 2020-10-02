@@ -67,11 +67,12 @@ def build_sigpop_statdf(amp='engy'):
             dico[mes + '_count'] = ser.count()
             dico[mes + '_mean'] = ser.mean()
             dico[mes + '_std'] = ser.std()
+            dico[mes + '_sem'] = ser.sem()
             dico[mes + '_med'] = ser.median()
             dico[mes + '_mad'] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
-        df.fillna(0)
+        df = df.fillna(0)
         sigcells[mes] = cells_dict.copy()
     return df, sigcells
 
@@ -81,6 +82,7 @@ def build_sigpop_statdf(amp='engy'):
 #%%%%  to build the stat representation
 plt.close('all')
 
+# check error bars
 
 def build_stat_df(sig=False, amp='engy'):
     """
@@ -106,6 +108,7 @@ def build_stat_df(sig=False, amp='engy'):
                 dico[mes + '_count'] = sig_df[col].count()
                 dico[mes + '_mean'] = sig_df[col].mean()
                 dico[mes + '_std'] = sig_df[col].std()
+                dico[mes + '_sem'] = sig_df[col].sem()
                 dico[mes + '_med'] = sig_df[col].median()
                 dico[mes + '_mad'] = sig_df[col].mad()
                 stats.append(pd.Series(dico, name=col))
@@ -115,6 +118,7 @@ def build_stat_df(sig=False, amp='engy'):
             df[mes + '_count'] = data[cols].count()
             df[mes + '_mean'] = data[cols].mean()
             df[mes + '_std'] = data[cols].std()
+            df[mes + '_sem'] = data[cols].sem()
             df[mes + '_med'] = data[cols].median()
             df[mes + '_mad'] = data[cols].mad()
     # replace nan by 0
@@ -122,14 +126,14 @@ def build_stat_df(sig=False, amp='engy'):
     df = df.fillna(0)
     return df
 
-def plot_stat(statdf, kind='mean'):
+def plot_stat(statdf, kind='mean', legend=False):
     """
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
     """
     if kind == 'mean':
-        stat = ['_mean', '_std']
+        stat = ['_mean', '_sem']
     elif kind == 'med':
         stat = ['_med', '_mad']
     else:
@@ -139,21 +143,18 @@ def plot_stat(statdf, kind='mean'):
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue'],
               std_colors['dark_blue']]
+    
+    ref = ''
+    if statdf.max().max() == 37:
+        ref = 'population'
+    else:
+        ref = 'sub_populations'
 
-    fig = plt.figure(figsize=(8, 8))
-    title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 8), 
+                             sharex=True, sharey=True)
+    axes = axes.flatten()
+    title = "{}    ({} ± {}) ".format(ref, stat[0][1:], stat[1][1:])
     fig.suptitle(title)
-    # sect vm
-    axes = []
-    ax0 = fig.add_subplot(221)
-    axes.append(ax0)
-    ax1 = fig.add_subplot(2, 2, 2, sharex=ax0, sharey=ax0)
-    axes.append(ax1)
-    ax2 = fig.add_subplot(2, 2, 3, sharex=ax0)
-    axes.append(ax2)
-    ax3 = fig.add_subplot(2, 2, 4, sharex=ax0, sharey=ax2)
-    axes.append(ax3)
-
     # plots
     for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
                               ('spk', 'sect'), ('spk', 'full')]):
@@ -183,7 +184,8 @@ def plot_stat(statdf, kind='mean'):
         for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
             ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci, label=lbi)
-        ax.legend()
+        if legend:
+            ax.legend()
 
     #adjust
     for i, ax in enumerate(axes):
@@ -296,7 +298,7 @@ def plot_cell_contribution(df, kind=''):
         x = pop_dico.keys()
         heights = [pop_dico[item][-1] for item in pop_dico.keys()]
         bars = ax.bar(x, heights, color=colors, width=0.95, alpha=0.8,
-                      edgecolor=dark_colors)
+                      edgecolor=colors)
         autolabel(ax, bars) # call
         ax.set_ylabel(titles[stim])
     for ax in axes:
@@ -329,22 +331,23 @@ for kind in ['vm', 'spk']:
 
 #%%
 plt.close('all')
+
 stat_df = build_stat_df()
 stat_df_sig, sig_cells = build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind='mean')
-fig2 = plot_stat(stat_df, kind='med')
+# fig2 = plot_stat(stat_df, kind='med')
 fig3 = plot_stat(stat_df_sig, kind='mean')
-fig4 = plot_stat(stat_df_sig, kind='med')
+# fig4 = plot_stat(stat_df_sig, kind='med')
 save = False
 if save:
-    filename = os.path.join(paths['save'], 'meanStd.png')
+    filename = os.path.join(paths['save'], 'meanSem.png')
     fig1.savefig(filename)
-    filename = os.path.join(paths['save'], 'medMad.png')
-    fig2.savefig(filename)
-    filename = os.path.join(paths['save'], 'sig_meanStd.png')
+    # filename = os.path.join(paths['save'], 'medMad.png')
+    # fig2.savefig(filename)
+    filename = os.path.join(paths['save'], 'sig_meanSem.png')
     fig3.savefig(filename)
-    filename = os.path.join(paths['save'], 'sig_medMad.png')
-    fig4.savefig(filename)
+    # filename = os.path.join(paths['save'], 'sig_medMad.png')
+    # fig4.savefig(filename)
 
 
 
