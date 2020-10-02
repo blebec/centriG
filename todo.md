@@ -46,9 +46,9 @@
 ## fig_3 
 
 - [x] insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly
-- [ ] sig à gauche
-- [ ] update path (cf code)
-- [ ] secteur | full
+- [x] sig à gauche
+- [x] update path (cf code)
+- [x] secteur | full
 
 # passage de fig2 à fig 3	
 
@@ -73,7 +73,9 @@
 
   5. figure :
 
-     ​	first tests
+     - first tests
+     
+     - plot the raws
 
 | sect / vm / normAlign  | sect/ vm / raw   | full / vm / normAlign  | full/ vm / raw  |
 | ---------------------- | ---------------- | ---------------------- | --------------- |
@@ -97,11 +99,11 @@
 - [x] see centrifigs.py/plot_cell_contribution (1831)
 - [x] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
 
-  - 'time50_engyvm' et time50_engy_spk sur git
-  - basculer les données sur owncloud 
+  - [x] 'time50_engyvm' et time50_engy_spk sur git
+  - [x] basculer les données sur owncloud 
 - [x] fig cf plot_stat
-  - en haut vm sect | vm full
-  - en bas vm sect | vm full (uniqt sous pop sig
+  - [x] en haut vm sect | vm full
+  - [x] en bas vm sect | vm full (uniqt sous pop sig
     - [x] NB recalculer sig = sigCenterOnly time + sigCenterOnly engy
     - [x] \+ marginal cf cell_contribution 
 
@@ -111,55 +113,4 @@
 
 
 
-
-
-NB : 
-
-# choose files:
-
-pb : keys = 'new',  'sec', 'vm' 
-
-files = ['sigVmSectRaw.xlsx',
-			 'sigVmSectPeak.xlsx',
- 			'sigVmSectNormAlign.xlsx',
- 			'popVmSectNormAlign.xlsx',
- 			'nSigVmSectNormAlign.xlsx']
-
-only NormAlign are present in all the pop parts
-
-
-
-# columns names:
-
-all the columns names start with pop
-
-f1 = /Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/popVmSectNormAlign.xlsx
-file = popVmSectNormAlign.xlsx
-
-df1_columns_list = ['popVmCtr', 
-                    'popVmscpIsoStc', 
-                    'popVmscfIsoStc', 
-                    'popVmscrossStc', 
-                    'popVmfrndIsoStc', 
-                    'popVmsrndIsoStc']
-
-f2 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/sigVmSectRaw.xlsx'
-file = 'sigVmSectRaw.xlsx'
-
-df2_columns_list = ['popVmCtr',
-                    'popVmscpIsoStc',
-                    'popVmscfIsoStc',
-                    'popVmscrossStc',
-                    'popVmfrndIsoStc',
-                    'popVmsrndIsoStc']
-
-f3 = '/Users/cdesbois/ownCloud/cgFigures/data/averageTraces/controlsFig/nSigVmSectNormAlign.xlsx'
-file = 'nSigVmSectNormAlign.xlsx'
-
-df3_columns_list = ['popVmCtr',
-                    'popVmscpIsoStc',
-                    'popVmscfIsoStc',
-                    'popVmscrossStc',
-                    'popVmfrndIsoStc',
-                    'popVmsrndIsoStc']
 
