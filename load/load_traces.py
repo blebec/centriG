@@ -44,6 +44,7 @@ def load_intra_mean_traces(paths, **kwargs):
     treat = kwargs.get('treat', 'normAlign')
 
     file = ''
+    file_list = ''
     df = ''
     if age == 'old':
         dirname = os.path.join(paths['owncFig'], 'data', 'old')
@@ -93,13 +94,14 @@ def load_intra_mean_traces(paths, **kwargs):
 if __name__ == '__main__':
 
     dico = dict(
-        kind = 'sig',
+        kind = 'pop',
         substract = False,
         anot = True,
         age = 'new',
         rec='vm',
         spread='sect'
         )
-    dico['age'] = 'old'
+    dico['age'] = 'new'
     data_df, file = load_intra_mean_traces(paths, **dico)
-    print(data_df.columns.tolist())
+    print(f'loaded files : {file:}')
+    print('columns : ', data_df.columns.tolist())
