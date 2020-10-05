@@ -17,15 +17,15 @@
 
 étapes: 
 
-- [ ] reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
+- [x] reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
   ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 497
   ==> TODO ajouter traces spikantes (sélectionner avec cellules oscillatoire ou non?)
   'controlFigs'
-- [ ] - [x] fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
+- [x] - [x] fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
 
   - -> 3_expandSameY
-- [ ] en énergie
-- [ ] données : /Users/cdesbois/ownCloud/cgFigures/data/index
+- [x] en énergie
+- [x] données : /Users/cdesbois/ownCloud/cgFigures/data/index
   - conditions_order.xlsx, time50energySpk.xlsx, time50energyVm.xlsx, time50gain50Spk.xlsx, time50gain50Vm.xlsx
     - -> spike données stat cellule oscilatoire changé
   - Pb sig <-> sup ou inf donc : 
@@ -52,7 +52,7 @@
 
 # passage de fig2 à fig 3	
 
-- - [ ] ~~scatter plot all cells -> pour Yves time energy~~
+- - [x] ~~scatter plot all cells -> pour Yves time energy~~
 
   - DONE -> owns/pythonPreview/cross
 

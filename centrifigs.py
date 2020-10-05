@@ -8,7 +8,7 @@ plot centrigabor figures from data stored in .xlsx files
 import os
 from importlib import reload
 from datetime import datetime
-import itertools
+# import itertools
 
 import numpy as np
 import pandas as pd
@@ -35,7 +35,7 @@ pd.options.display.max_columns = 30
 
 anot = True           # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()
-speedColors = config.speed_colors()
+speed_colors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths['pg'])
@@ -500,8 +500,8 @@ def plot_figure4(substract=False):
     df.index = df.index/10
     cols = ['centerOnly', '100%', '70%', '50%', '30%']
     df.columns = cols
-    colors = ['k', std_colors['red'], speedColors['dark_orange'],
-              speedColors['orange'], speedColors['yellow']]
+    colors = ['k', std_colors['red'], speed_colors['dark_orange'],
+              speed_colors['orange'], speed_colors['yellow']]
     alphas = [0.8, 1, 0.8, 0.8, 1]
     if substract:
         ref = df.centerOnly
@@ -1212,9 +1212,8 @@ def plot_figSup2B(kind='pop', age='new'):
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS',
             'RND-ISO SECTOR', 'RND-ISO-FULL']
     df.columns = cols
-    colors = ['k', std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue'], std_colors['blue']]
-    # alphas = [0.5, 0.8, 0.5, 1, 0.6]
+    colors = [std_colors[item] for item in 
+              "k red green yellow blue blue".split()]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
     # SUGGESTION: make y dimension much larger to see maximize visual difference between traces
@@ -1327,12 +1326,10 @@ def plot_figSup4(kind, overlap=True):
             'RND_Iso_Stc_SeDw_Full', 'RND_Iso_Stc_Dlp_Full']
     df.columns = cols
     # colors
-    light_colors = [std_colors['red'], std_colors['green'],
-                    std_colors['yellow'], std_colors['blue'],
-                    std_colors['blue']]
-    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
-                   std_colors['dark_yellow'], std_colors['dark_blue'],
-                   std_colors['dark_blue'], std_colors['dark_blue']]
+    light_colors = [std_colors[item] for item in 
+                    "red green yellow blue blue".split()]
+    dark_colors = [std_colors[item] for item in 
+                   "dark_red dark_green dark_yellow dark_blue dark_blue ".split()]
     alphas = [0.7, 0.2] # front, fillbetween
     # traces -> lists of 4 columns ie each condition (val, up, down, sum)
     col_seg = [cols[i:i+4] for i in np.arange(0, 17, 4)]
@@ -1376,8 +1373,6 @@ def plot_figSup4(kind, overlap=True):
         else:
             ax.set_xlabel('Relative time (ms)')
     for i, ax in enumerate(fig.get_axes()):
-        # lims = ax.get_ylim()
-        # ax.axvline(0, *lims, alpha=0.3)
         ax.axhline(0, alpha=0.3)
         custom_ticks = np.arange(0, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
@@ -1435,13 +1430,11 @@ def plot_figSup3B(kind, stimmode, age='new'):
     df = pd.read_excel(filenames[kind])
     #centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
     cols = ['CENTER-ONLY-SEC', 'CP-ISO-SEC', 'CF-ISO-SEC', 'CP-CROSS-SEC', 'RND-ISO-SEC',
             'CENTER-ONLY-FULL', 'CP-ISO-FULL', 'CF-ISO-FULL', 'CP-CROSS-FULL', 'RND-ISO-FULL']
     df.columns = cols
-    colors = ['k', std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
+    colors = [std_colors[item] for item in "k red green yellow blue".split()]
     #alphas = [0.5, 0.8, 0.5, 1, 0.6]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(6.5, 5.5))
@@ -1532,6 +1525,7 @@ def plot_figSup6(kind, age='new'):
     df.columns = cols
     colors = ['k', std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue']]
+    colors = [std_colors[item] for item in "k red green yellow blue".split()]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8]
 
     fig = plt.figure(figsize=(6, 10))
@@ -1600,7 +1594,7 @@ def plot_sorted_responses(dico):
     input = conditions parameters
 
     """
-    cols = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    cols = [std_colors[item] for item in "red green yellow blue".split()]
     #duplicate for two columns
     colors = []
     for item in zip(cols, cols):
@@ -1704,17 +1698,15 @@ for amp in ['gain', 'engy']:
 
 #%% opt
 
-colors = [speedColors[item] for item in ['k', 'red', 'dark_orange', 'orange', 'yellow']]
-alphas = [0.8, 1, 0.8, 0.8, 1]
 
-df = pd.read_excel('data/data_to_use/speedt0.xlsx')
-df.set_index('time', inplace=True)
-
-
-def plot_speed_multigraph():
+def plot_speed_multigraph(df, speedcolors):
     """
     plot the speed effect of centrigabor protocol
     """
+    colors = [speed_colors[item] for item in \
+        "k red dark_orange orange yellow".split()]
+    alphas = [0.8, 1, 0.8, 0.8, 1]
+ 
     fig = plt.figure(figsize=(12, 8))
     fig.suptitle('Aligned on Center-Only stimulus onset (t=0 ms)')
     # build grid
@@ -1762,8 +1754,7 @@ def plot_speed_multigraph():
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
     for ax in left_axes:
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.5)
+        ax.axvline(0, alpha=0.5)
     # adjust spacing
     gs.update(wspace=0.2, hspace=0.05)
     # add ticks to the top
@@ -1781,14 +1772,17 @@ def plot_speed_multigraph():
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_speed_multigraph()
+
+df = pd.read_excel('data/data_to_use/speedt0.xlsx')
+df.set_index('time', inplace=True)
+fig = plot_speed_multigraph(df, speed_colors)
 
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
 def plotSpeeddiff():
     """ speed diff """
-    colors = [speedColors[item] for item in \
-        ['k', 'red', 'dark_orange', 'orange', 'yellow']]
+    colors = [speed_colors[item] for item in \
+        "k red dark_orange orange yellow".split()]
     alphas = [0.5, 1, 0.8, 0.8, 1]
 
     df = pd.read_excel('data/data_to_use/speedt0.xlsx')
