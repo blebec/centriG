@@ -151,9 +151,9 @@ def plot_figure3(datadf, stdcolors, **kwargs):
 
 #params (load)
 select = dict(age='new', rec='vm', kind='sig')
+# select['align'] = 'p2p'
 
 data_df, file = ltra.load_intra_mean_traces(paths, **select)
-print('loaded {}'.format(file))
 #params (plot)
 select['file'] = file
 select['substract'] = False
@@ -164,15 +164,18 @@ fig = plot_figure3(data_df, std_colors, **select)
 #%% nb use select to change the parameters
 plt.close('all')
 
+
 figs = []
 for kind in ['pop', 'sig']:
     select['age'] = 'new'
     select['kind'] = kind
     select['leg'] = False
     data_df, _ = ltra.load_intra_mean_traces(paths, **select)
-    for substract in [True, False]:
-        select['substract'] = substract
-        figs.append(plot_figure3(data_df, std_colors, **select))
+    #no data with 'pop' and 'p2p'
+    if len(data_df) > 0:
+        for substract in [True, False]:
+            select['substract'] = substract
+            figs.append(plot_figure3(data_df, std_colors, **select))
 lims = [0, 0]
 for fig in figs:
     lim = fig.get_axes()[0].get_ylim()
@@ -218,22 +221,28 @@ plt.close('all')
 #%%
 dico = dict(
     age=['old', 'new'][1],
-    kind=['pop', 'sig', 'nsig'][2],
+    kind=['pop', 'sig', 'nsig'][1],
     spread=['sect', 'full'][0],
-    rec=['vm', 'spk'][1]
+    rec=['vm', 'spk'][0]
     )
+peak = False
+if peak:
+    dico['align'] = 'p2p'
 
 dico['kind'] = 'pop'
 df1, f1 = ltra.load_intra_mean_traces(paths, **dico)
-fig1 = plot_figure3(df1, std_colors, **dico)
+if len(df1) > 0:
+    fig1 = plot_figure3(df1, std_colors, **dico)
 
 dico['kind'] = 'sig'
 df2, f2 = ltra.load_intra_mean_traces(paths, **dico)
-fig2 = plot_figure3(df2, std_colors, **dico)
+if len(df2) > 0:
+    fig2 = plot_figure3(df2, std_colors, **dico)
 
 dico['kind'] = 'nsig'
 df3, f3 = ltra.load_intra_mean_traces(paths, **dico)
-fig3 = plot_figure3(df3, std_colors, **dico)
+if len(df3) > 0:
+    fig3 = plot_figure3(df3, std_colors, **dico)
 
 #%%
 plt.close('all')
@@ -400,7 +409,11 @@ dico = dict(
     substract = False
     )
 
+peak = False
+if peak:
+    dico['align'] = 'p2p'
+
 fig = plot_trace2x2([], std_colors, **dico)
 save = False
 if save:
-    fig.savefig(os.path.join(paths['save'], 'plot_trace2x2.png'))
+    fig.savefig(os.path.join(paths['save'], 'p2p_plot_trace2x2.png'))
