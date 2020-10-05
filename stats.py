@@ -37,7 +37,7 @@ def build_sigpop_statdf(amp='engy'):
     df = pd.DataFrame()
     sigcells = {}
     for mes in ['vm', 'spk']:
-        data = ldat.load_cell_contributions(kind=mes, amp=amp, age='new')
+        data = ldat.load_cell_contributions(rec=mes, amp=amp, age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         # conditions and parameter lists
         conds = []
@@ -94,7 +94,7 @@ def build_stat_df(sig=False, amp='engy'):
     df = pd.DataFrame()
     for mes in ['vm', 'spk']:
         # mes = 'spk'
-        data = ldat.load_cell_contributions(kind=mes, amp=amp, age='new')
+        data = ldat.load_cell_contributions(rec=mes, amp=amp, age='new')
         cols = [item for item in data.columns if not item.endswith('_sig')]
         #only sig cells, independtly for each condition and each measure
         if sig:
@@ -321,12 +321,12 @@ def plot_cell_contribution(df, kind=''):
     return fig
 
 save = False
-for kind in ['vm', 'spk']:
-    #load_cell_contributions(kind='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(kind, age='new', amp='engy')
-    fig = plot_cell_contribution(data, kind)
+for mes in ['vm', 'spk']:
+    #load_cell_contributions(mes='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(rec=mes, age='new', amp='engy')
+    fig = plot_cell_contribution(data, mes)
     if save:
-        filename = os.path.join(paths['save'], kind + '_cell_contribution.png')
+        filename = os.path.join(paths['save'], mes + '_cell_contribution.png')
         fig.savefig(filename)
 
 #%%
@@ -545,8 +545,8 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
 save = False
 amp = ['gain', 'engy'][0]
 for kind in ['vm', 'spk']:
-    #load_cell_contributions(kind='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(kind, age='new', amp=amp)
+    #load_cell_contributions(mes='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
     fig = plot_composite_cell_contribution(data, sig_cells, kind=kind,  amp=amp)
     if save:

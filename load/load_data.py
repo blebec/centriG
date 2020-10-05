@@ -19,6 +19,7 @@ import general_functions as gfunc
 
 paths = config.build_paths()
 
+
 def load2(age='new'):
     """
     import the datafile
@@ -62,8 +63,7 @@ def load2(age='new'):
     return df, colsdict
 
 
-#TODO function to developp to load energy from xcel file
-def load_cell_contributions(kind='vm', amp='engy', age='new'):
+def load_cell_contributions(rec='vm', amp='engy', age='new'):
     """
     load the corresponding xcel file
     age in ['old', 'new'] (old <-> time50, gain50, old way)
@@ -75,17 +75,17 @@ def load_cell_contributions(kind='vm', amp='engy', age='new'):
             vm=os.path.join('data', 'old', 'figSup34Vm.xlsx'),
             spk=os.path.join('data', 'old', 'figSup34Spk.xlsx')
             )
-        filename = names_dico.get(kind)
+        filename = names_dico.get(rec)
     elif age == 'new':
 #        dirname = os.path.join(paths['pg'], 'data', 'data_to_use')            
         dirname = os.path.join(paths['owncFig'], 'data', 'index')
-        if kind == 'vm' and amp == 'gain':
+        if rec == 'vm' and amp == 'gain':
             filename = os.path.join(dirname, 'time50gain50Vm.xlsx')
-        elif kind == 'spk' and amp == 'gain':
+        elif rec == 'spk' and amp == 'gain':
             filename = os.path.join(dirname, 'time50gain50Spk.xlsx')
-        elif kind == 'vm' and amp == 'engy':
+        elif rec == 'vm' and amp == 'engy':
             filename = os.path.join(dirname, 'time50engyVm.xlsx')
-        elif kind == 'spk' and amp == 'engy':
+        elif rec == 'spk' and amp == 'engy':
             filename = os.path.join(dirname, 'time50engySpk.xlsx')
         else:
             print('check the conditions')
@@ -188,11 +188,11 @@ if __name__ == "__main__":
     paths = config.build_paths()
     fig2_df, fig2_cols = load2('new')
     #energy_df = load_energy_gain_index(paths, sig=True)
-    latGain50_v_df = load_cell_contributions('vm', age='old')
-    latGain50_s_df = load_cell_contributions('spk', age='old')
+    latGain50_v_df = load_cell_contributions(rec='vm', age='old')
+    latGain50_s_df = load_cell_contributions(rec='spk', age='old')
 
-    latGain50_v_df = load_cell_contributions('vm', amp='gain', age='new')
-    latGain50_s_df = load_cell_contributions('spk', amp='gain', age='new')
+    latGain50_v_df = load_cell_contributions(rec='vm', amp='gain', age='new')
+    latGain50_s_df = load_cell_contributions(rec='spk', amp='gain', age='new')
 
-    latEner50_v_df = load_cell_contributions('vm', amp='engy', age='new')
-    latEner50_s_df = load_cell_contributions('spk', amp='engy', age='new')
+    latEner50_v_df = load_cell_contributions(rec='vm', amp='engy', age='new')
+    latEner50_s_df = load_cell_contributions(rec='spk', amp='engy', age='new')

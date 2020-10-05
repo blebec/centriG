@@ -525,7 +525,7 @@ plt.close('all')
 for spread in ['sect', 'full']:
     for mes in ['vm', 'spk']:
       #  mes = 'vm'
-        data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+        data = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
         left = select_in_df(data, spread=spread, param='time', noSig=False)
         right = select_in_df(data, spread=spread, param='engy', noSig=False)
 

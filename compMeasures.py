@@ -24,7 +24,7 @@ def load_all_indices():
         dfs = []
         for amp in ['gain', 'engy']:
             #load
-            df = ldat.load_cell_contributions(kind=kind, amp=amp)
+            df = ldat.load_cell_contributions(rec=kind, amp=amp)
             #remove sig
             cols = df.columns
             cols = [item for item in cols if '_sig' not in item]

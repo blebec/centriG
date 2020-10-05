@@ -13,7 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 import config
-import load_data as ldat
+import load.load_data as ldat
 std_colors = config.std_colors()
 anot = True
 
@@ -600,10 +600,10 @@ def extract_stat(onlySig=False):
     mes = 'vm'
     filename = 'data/cg_peakValueTime_vm.xlsx'
 #    data50 = ldat.load_50vals(mes)
-#    data50 = ldat.load_cell_contributions(mes)
+#    data50 = ldat.load_cell_contributions(rec=mes)
     # amp in ['gain', 'engy']
     amp = 'gain'
-    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
+    data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
@@ -633,7 +633,7 @@ def extract_stat(onlySig=False):
     # spike
     mes = 'spk'
     filename = 'data/cg_peakValueTime_spk.xlsx'
-    data50 = ldat.load_cell_contributions(mes)
+    data50 = ldat.load_cell_contributions(rec=mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
@@ -661,7 +661,7 @@ def extract_stat(onlySig=False):
     # engy vm
     mes = 'vm'
     amp = 'engy'
-    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
+    data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
@@ -681,7 +681,7 @@ def extract_stat(onlySig=False):
     #engy spk
     mes = 'spk'
     amp = 'engy'
-    data50 = ldat.load_cell_contributions(kind=mes, amp=amp)
+    data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
@@ -950,7 +950,7 @@ plot_stat(stat_df, 'med', 'energy')
 #%% time energy scatter
 spread = 'sect'
 mes = 'vm'
-data = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+data = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
 left = select_50(data, spread=spread, param='time', noSig=False)
 right = select_50(data, spread=spread, param='engy', noSig=False)
 
@@ -963,7 +963,7 @@ right = select_50(data, spread=spread, param='engy', noSig=False)
 #%% spk
 for spread in ['sect', 'full']:
     mes = 'spk'
-    data50 = ldat.load_cell_contributions(mes)
+    data50 = ldat.load_cell_contributions(rec=mes)
     advance_df = select_50(data50, spread=spread, param='time', noSig=False)
     left = advance_df
 
@@ -992,10 +992,10 @@ for spread in ['sect', 'full']:
 plt.close('all')
 for spread in ['sect', 'full']:
     mes = 'vm'
-    data50 = ldat.load_cell_contributions(kind=mes, amp='gain', age='new')
+    data50 = ldat.load_cell_contributions(rec=mes, amp='gain', age='new')
     left = select_50(data50, spread=spread, param='gain', noSig=False)
 
-    data50 = ldat.load_cell_contributions(kind=mes, amp='engy', age='new')
+    data50 = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
     right = select_50(data50, spread=spread, param='engy', noSig=False)
 
     fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
@@ -1020,7 +1020,7 @@ def adapt_energy_to_plot(energy_df, spread='sect'):
 
 spread = 'sect'
 mes = 'vm'
-data50 = ldat.load_cell_contributions(mes)
+data50 = ldat.load_cell_contributions(rec=mes)
 gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
 left = gain_df
 
@@ -1036,7 +1036,7 @@ plt.close('all')
 for mes in ['vm', 'spk']:
     for spread in ['sect', 'full']:
         # nb builded on data/figSup34Vm.xlsx
-        data_df = ldat.load_cell_contributions(mes)
+        data_df = ldat.load_cell_contributions(rec=mes)
         traces = [item for item in data_df.columns if spread in item]
         # remove random sector
         traces = [item for item in traces if 'rdisosect' not in item]

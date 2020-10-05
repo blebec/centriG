@@ -41,8 +41,8 @@ paths = config.build_paths()
 os.chdir(paths['pg'])
 
 # energy_df = ldat.load_energy_gain_index(paths)
-# latGain50_v_df = ldat.load_cell_contributions('vm')
-# latGain50_s_df = ldat.load_cell_contributions('spk')
+# latGain50_v_df = ldat.load_cell_contributions(rec='vm')
+# latGain50_s_df = ldat.load_cell_contributions(rec='spk')
 
 
 #%%
@@ -332,7 +332,8 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         df.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
         amp = 'engy'
-        latAmp_v_df = ldat.load_cell_contributions('vm', amp='engy', age='new')
+        latAmp_v_df = ldat.load_cell_contributions(rec='vm', 
+                                                   amp='engy', age='new')
         cols = latAmp_v_df.columns
         df = latAmp_v_df[[item for item in cols if 'cpisosect' in item]].copy()
         df.sort_values(by=df.columns[0], ascending=False, inplace=True)
@@ -425,7 +426,8 @@ def sort_stat(age='new'):
                        'ampIndiSig' : 'cpisosect_gain50_sig'}
         data.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
-        latGain50_v_df = ldat.load_cell_contributions('vm', amp='gain', age='new')
+        latGain50_v_df = ldat.load_cell_contributions(rec='vm', 
+                                                      amp='gain', age='new')
         cols = latGain50_v_df.columns
         data = latGain50_v_df[[item for item in cols if 'cpisosect' in item]]
     else:
@@ -1034,7 +1036,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
     for item in zip(cols, cols):
         colors.extend(item)
     # data (call)
-    df = ldat.load_cell_contributions(kind=kind, amp=amp, age=age)
+    df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if 'sect' in item]
     # append full random
@@ -1604,8 +1606,8 @@ def plot_sorted_responses(dico):
     for item in zip(cols, cols):
         colors.extend(item)    # data (call)
     #TODO adapty for vm, engy, ...
-    #load_cell_contributions(kind='vm', amp='gain', age='new')
-    df = ldat.load_cell_contributions(kind=dico['kind'], amp=dico['amp'])
+    #load_cell_contributions(rec='vm', amp='gain', age='new')
+    df = ldat.load_cell_contributions(rec=dico['kind'], amp=dico['amp'])
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if dico['spread'] in item]
     # filter -> only significative cells

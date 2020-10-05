@@ -25,7 +25,7 @@ def plot_2B_bis(stdcolors, anot=False, age='new'):
     response are sorted only by phase
     """
     amp = 'engy' # 'gain'
-    df = ldat.load_cell_contributions(kind='vm', amp=amp, age=age)
+    df = ldat.load_cell_contributions(rec='vm', amp=amp, age=age)
     traces = [item for item in df.columns if item.startswith('cpisosect')]
     df = df[traces].sort_values(by=traces[0], ascending=False)
     vals = [item for item in df.columns if not item.endswith('_sig')]

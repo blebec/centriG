@@ -1,11 +1,15 @@
 
 
+import os
+
+import matplotlib.pyplot as plt
+import numpy as np
 
 import centrifigs as cfig
-import os
-import matplotlib.pyplot as plt
+import config
 
 
+std_colors = config.std_colors()
 plt.close('all')
 
 #%% représentation -> scale \ controls \ diff
@@ -36,8 +40,8 @@ fig2.savefig(fname)
 #%%
 plt.close('all')
 
-fig1 = plot_figure3(std_colors, 'pop', age='old', substract=True)
-fig2 = plot_figure3(std_colors, 'sig', age='old', substract=True)
+fig1 = cfig.plot_figure3(std_colors, 'pop', age='old', substract=True)
+fig2 = cfig.plot_figure3(std_colors, 'sig', age='old', substract=True)
 
 ax1 = fig1.get_axes()[0]
 ax2 = fig2.get_axes()[0]
