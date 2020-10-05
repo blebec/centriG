@@ -5,6 +5,7 @@ Created on Tue Jun 30 13:19:26 2020
 
 @author: cdesbois
 """
+import os
 from datetime import datetime
 
 import numpy as np
@@ -17,7 +18,255 @@ import general_functions as gfunc
 import load.load_data as ldat
 
 anot = True
+std_colors = config.std_colors()
 
+paths = config.build_paths()
+paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'proposal')
+
+#%%
+plt.close('all')
+
+def plot_figure2(datadf, colsdict, anot=False, age='new'):
+    """
+    figure2 (individual + pop + sig)
+    """
+    colors = ['k', std_colors['red']]
+    alphas = [0.8, 0.8]
+
+    fig = plt.figure(figsize=(17.6, 12))
+    axes = []
+    ax= fig.add_subplot(221)
+    axes.append(ax)
+    axes.append(fig.add_subplot(223, sharex=ax))
+    ax= fig.add_subplot(222)
+    axes.append(ax)
+    axes.append(fig.add_subplot(224, sharex=ax, sharey = ax))
+
+    # axes list
+    vmaxes = (axes[0], axes[2])      # vm axes = top row
+    spkaxes = (axes[1], axes[3])     # spikes axes = bottom row
+    # ____ plots individuals (first column)
+    # individual vm
+    cols = colsdict['indVm']
+    ax = vmaxes[0]
+    for i, col in enumerate(cols):
+        ax.plot(datadf[col], color=colors[i], alpha=alphas[i],
+                label=col)
+    # response point
+    if age == 'old':
+        x = 41.5
+    else:
+        x = 43.5
+    y = datadf.indiVmctr.loc[x]
+    #blue point and vline
+    ax.plot(x, y, 'o', color=std_colors['k'], ms=10, alpha=0.5)
+    # lims = ax.get_ylim()´
+    ax.axvline(x, linewidth=2, color=std_colors['k'],
+              linestyle=':', alpha = 0.5)
+    # individual spike
+    cols = colsdict['indSpk']
+    ax = spkaxes[0]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(datadf[col], color=colors[::-1][i],
+                alpha=1, label=col, linewidth=1)
+        ax.fill_between(datadf.index, datadf[col],
+                        color=colors[::-1][i], alpha=0.5, label=col)
+    # response point
+    if age == 'old':
+        x = 39.8
+    else:
+        x = 55.5
+    y = datadf.indiSpkCtr.loc[x]
+    ax.plot(x, y, 'o', color=std_colors['k'], ms=10, alpha=0.5)
+    ax.axvline(x, linewidth=2, color=std_colors['k'],
+              linestyle=':')
+    ax.axvline(x, linewidth=2, color=std_colors['k'],
+              linestyle=':')
+    # individual spike
+    cols = colsdict['indSpk']
+    ax = spkaxes[0]
+    # ____ plots pop (column 1-3)
+    df = datadf.loc[-30:35]       # limit xscale
+    # pop vm
+    cols = colsdict['popVm']
+    ax = vmaxes[1]
+    for i, col in enumerate(cols):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+                label=col)
+    ax.annotate("n=37", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
+    # # popVmSig
+    # cols = colsdict['popVmSig']
+    # ax = vmaxes[2]
+    # # traces
+    # for i, col in enumerate(cols[:2]):
+    #     ax.plot(df[col], color=colors[i], alpha=alphas[i],
+    #             label=col)
+    #     # errors : iterate on tuples
+    #     for i, col in enumerate(cols[2:]):
+    #         ax.fill_between(df.index, df[col[0]], df[col[1]],
+    #                         color=colors[i], alpha=0.2)#alphas[i]/2)
+    # # advance
+    # x0 = 0
+    # y = df.loc[x0][cols[0]]
+    # adf = df.loc[-20:0, [cols[1]]]
+    # i1 = (adf - y).abs().values.flatten().argsort()[0]
+    # x1 = adf.index[i1]
+    # ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+    #         ms=10, alpha=0.8)
+    # lims = ax.get_ylim()
+    # # ax.vlines(y, *lims, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.annotate("n=10", xy=(0.2, 0.8),
+    #             xycoords="axes fraction", ha='center')
+    # # adv = str(x0 - x1)
+    # # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+    #             #xycoords="axes fraction", ha='center')
+    # pop spike
+    cols = colsdict['popSpk']
+    ax = spkaxes[1]
+    for i, col in enumerate(cols[::-1]):
+        ax.plot(df[col], color=colors[::-1][i],
+                alpha=1, label=col)#, linewidth=1)
+        # ax.fill_between(df.index, df[col],
+        #                 color=colors[::-1][i], alpha=0.5, label=col)
+    ax.annotate("n=20", xy=(0.2, 0.8),
+                xycoords="axes fraction", ha='center')
+    # # popSpkSig
+    # cols = colsdict['popSpkSig']
+    # ax = spkaxes[2]
+    # # traces
+    # for i, col in enumerate(cols[:2][::-1]):
+    #     ax.plot(df[col], color=colors[::-1][i], alpha=1, label=col)
+    # # errors : iterate on tuples
+    # for i, col in enumerate(cols[2:]):
+    #     ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
+    #                     alpha=alphas[::-1][i]/2)# label=col, linewidth=0.5)
+    # # advance
+    # x0 = 0
+    # y = df.loc[x0][cols[0]]
+    # adf = df.loc[-20:0, [cols[1]]]
+    # i1 = (adf - y).abs().values.flatten().argsort()[0]
+    # x1 = adf.index[i1]
+    # ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    # # ax.plot(x0, y, 'o', color=std_colors['blue'])
+    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+    #         ms=10, alpha=0.8)
+    # # ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+
+    # ax.annotate("n=5", xy=(0.2, 0.8),
+    #             xycoords="axes fraction", ha='center')
+    # # #advance
+    # # adv = str(x0 - x1)
+    # # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+    #             # xycoords="axes fraction", ha='center')
+    # labels
+    ylabels = ['Membrane potential (mV)',
+               'Firing rate (spk/sec)',
+               'Normalized membrane potential',
+               'Normalized firing rate']
+    for i, ax in enumerate(axes):
+        ax.axvline(0, alpha=0.4)
+        ax.axhline(0, alpha=0.4)
+        ax.set_ylabel(ylabels[i])
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+        if i % 2 == 0:
+            ax.spines['bottom'].set_visible(False)
+            ax.axes.get_xaxis().set_visible(False)
+        axes[1].set_xlabel('Time (ms)')
+        axes[3].set_xlabel('Relative time (ms)')
+        # normalized y
+        axes[1].set_ylim(-0.10, 1.1)
+
+    # stimulations
+    step = 28
+    xlocs = np.arange(0, -150, -step)
+    names = ['D' + str(i) for i in range(6)]
+    dico = dict(zip(names, xlocs))
+    # lines
+    for ax in axes[:2]:
+        lims = ax.get_ylim()
+        for dloc in xlocs:
+            ax.axvline(dloc, linestyle=':', alpha=0.4, color='k')
+    # fit individual example
+    if age == 'old':
+        vmaxes[0].set_ylim(-3.5, 12)
+        spkaxes[0].set_ylim(-5.5, 18)
+        # stim location
+        ax = spkaxes[0]
+        for key in dico.keys():
+            ax.annotate(key, xy=(dico[key]+step/2, -3), alpha=0.6,
+                        ha='center', fontsize='x-small')
+            # stim
+            rect = Rectangle(xy=(dico[key], -4), width=step, height=1, fill=True,
+                             alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
+            ax.add_patch(rect)
+        # center
+        rect = Rectangle(xy=(0, -5), width=step, height=1, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor='k')
+        ax.add_patch(rect)
+    else:
+        axes[0].set_ylim(-3.5, 12)
+        axes[1].set_ylim(-10, 35)
+        # stim location
+        ax = axes[1]
+        for key in dico.keys():
+            ax.annotate(key, xy=(dico[key]+step/2, -5), alpha=0.6,
+                        ha='center', fontsize='x-small')
+            # stim
+            rect = Rectangle(xy=(dico[key], -9), width=step, height=2, fill=True,
+                             alpha=0.6, edgecolor='w', facecolor=std_colors['red'])
+            ax.add_patch(rect)
+        # center
+        rect = Rectangle(xy=(0, -7), width=step, height=2, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor='k')
+        ax.add_patch(rect)
+
+    # align zero between plots  NB ref = first plot
+    gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    # adjust amplitude (without moving the zero)
+    # individuals
+    ax = vmaxes[0]
+    custom_ticks = np.linspace(-2, 10, 7, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    ax = spkaxes[0]
+    if  age == 'old':
+        custom_ticks = np.linspace(0, 15, 4, dtype=int)
+    else:
+        custom_ticks = np.linspace(0, 30, 4, dtype=int)
+    ax.set_yticks(custom_ticks)
+    ax.set_yticklabels(custom_ticks)
+    # pop
+    custom_ticks = np.linspace(0, 1, 6)
+    vmaxes[1].set_yticks(custom_ticks)
+    custom_ticks = np.linspace(0, 1, 6)
+    spkaxes[1].set_yticks(custom_ticks)
+    fig.tight_layout()
+    # remove the space between plots
+    fig.subplots_adjust(hspace=0.06, wspace=0.4)
+    # align ylabels
+    fig.align_ylabels()
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+#data
+age = ['old', 'new'][1]
+fig2_df, fig2_dict = ldat.load2(age)
+fig = plot_figure2(datadf=fig2_df, colsdict=fig2_dict, anot=anot, age=age)
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'prop_fig2.png')
+    fig.savefig(filename)
+#%%
 # 
 def plot_2B_bis(stdcolors, anot=False, age='new'):
     """
