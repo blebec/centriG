@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-""" cross time/indice """
+""" statistical extraction of cell properties """
 
 import os
 from datetime import datetime
@@ -284,8 +284,8 @@ def plot_cell_contribution(df, kind=''):
 
     conds = [('sect', 'time'), ('sect', 'engy'),
              ('full', 'time'), ('full', 'engy')]
-    titles = {'time' : r'$\Delta$ Time (% significant cells)',
-              'engy': r'Energy (% significant cells)',
+    titles = {'time' : r'$\Delta$ Latency (% significant cells)',
+              'engy': r'$\Delta$ Energy (% significant cells)',
               'sect': 'Sector',
               'full': 'Full'}
     fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8,8))
@@ -326,7 +326,7 @@ for mes in ['vm', 'spk']:
     data = ldat.load_cell_contributions(rec=mes, age='new', amp='engy')
     fig = plot_cell_contribution(data, mes)
     if save:
-        filename = os.path.join(paths['save'], mes + '_cell_contribution.png')
+        filename = os.path.join(paths['save'], 'pop', mes + '_cell_contribution.png')
         fig.savefig(filename)
 
 #%%
