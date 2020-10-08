@@ -1,4 +1,61 @@
-## suite à discussion avec Yves (7 août)
+# current
+
+- [ ] point bleu -> grey
+
+- fig2:
+
+  - [ ] pointillés qui s'étendent sur les deux graphs
+
+  - [ ] 'point bleu' en gris clair
+
+  - [ ] ? fig2 après la fig3 ?
+
+  - [ ] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
+
+- plot stat : 
+  - [ ] energy -> $\Delta$ energy
+
+  - [ ] time50 -> latency advance
+  - [ ] séparer secteur et full
+
+- cell contribution
+
+  - [ ] séparer secteur et full
+  - [ ] séparer chaque graph en time | union | engy
+  - [ ] à mettre sous 'sorted responses'
+
+- histogramme  'sorted_response':
+  - [ ] ajouter en base : les histo ('cell_contribution')
+  - à gauche time50
+  - au centre union
+  - à droite engy 
+  - (pour sect & full)
+
+ - pop_traces2X2:
+   - [ ] boolean to remove controls
+- figure4
+  - [ ] renommer -> speed
+  - [ ] nouvelles traces -> filtrage polarisation centre seul
+- fig 5 (baudot ... )
+- fig6 
+  - [ ] renommer fig6 -> indfill
+- fig7
+  - [ ] renommer fig7 -> popfill
+  - [ ] réalignement à changer (changer les traces)
+  - [ ] proposition figure 2x2)
+    - à gauche : panel de droite en dessous du pannel de G (cf fig 6)
+    - [ ] deux versions:
+      - prédicteur linéaire = surroundTheCenter - centerOnly (ref = surroundOnly)
+      - prédicteur linéaire = centerOnly + surroundOnly (ref = surroundThenCenter)
+    - à droite : vm toutes les traces (en haut) & spike toutes les traces (en bas)
+ - figure technique
+    - zones de calcul time50, énergie, type de calcul
+    - base sur l'exemple individuel de la figure 2 ?
+    - 
+
+****
+
+# suite à discussion avec Yves (7 août)
 
 ## changement d'index
 
@@ -88,7 +145,7 @@
 
 ## fig_sup waterfall cf indiSig cfIso
 
-- [ ] voir les bumps successifs
+- [x] voir les bumps successifs
 
 
 
