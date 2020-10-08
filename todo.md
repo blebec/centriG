@@ -13,9 +13,9 @@
   - [ ] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
 
 - plot stat : 
-  - [ ] energy -> $\Delta$ energy
+  - [x] energy -> $\Delta$ energy
 
-  - [ ] time50 -> latency advance
+  - [x] time50 -> latency advance
   - [ ] séparer secteur et full
 
 - cell contribution
