@@ -194,7 +194,7 @@ def plot_stat(statdf, kind='mean', legend=False):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel('energy')
+                ax.set_ylabel(r'$\Delta$ energy')
             else:
                 ax.spines['left'].set_visible(False)
                 ax.yaxis.set_visible(False)
@@ -284,7 +284,7 @@ def plot_cell_contribution(df, kind=''):
 
     conds = [('sect', 'time'), ('sect', 'engy'),
              ('full', 'time'), ('full', 'engy')]
-    titles = {'time' : r'$\Delta$ Latency (% significant cells)',
+    titles = {'time' : 'Time Advance (% significant cells)',
               'engy': r'$\Delta$ Energy (% significant cells)',
               'sect': 'Sector',
               'full': 'Full'}
@@ -369,6 +369,9 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
     else:
         print('non valid kind argument')
         return
+    
+    ylabels = dict(engy=r'$\Delta\ energy$',
+                   gain=r'$\Delta\ gain$')
 
     colors = [std_colors['red'], std_colors['green'],
               std_colors['yellow'], std_colors['blue'],
@@ -432,7 +435,7 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel(amp)
+                ax.set_ylabel(ylabels.get(amp, 'not defined'))
 #                ax.set_ylabel('energy')
             else:
                 ax.spines['left'].set_visible(False)
