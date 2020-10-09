@@ -536,14 +536,17 @@ def plot_figure4(substract=False):
             ax.spines[loc].set_visible(False)
     fig.tight_layout()
     # fig.legend()
-    ax.set_xlim(-40, 45)
-    ax.set_ylim(-0.1, 1.1)
+    # old xlims ax.set_xlim(-40, 45)
+    ax.set_xlim(-90, 65)
+    
+    ax.set_ylim(-0.15, 1.2)
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
     lims = ax.get_xlim()
     ax.axhline(0, *lims, alpha=0.2)
-    custom_ticks = np.linspace(-40, 40, 5)
-    ax.set_xticks(custom_ticks)
+    #old custom_ticks = np.linspace(-40, 40, 5)
+    #custom_ticks = np.linspace(-90, 65, 20)
+    #ax.set_xticks(custom_ticks)
 
     # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
     #                handlelength=0)
@@ -558,7 +561,8 @@ def plot_figure4(substract=False):
         ax.set_ylim(-0.05, 0.4)
         custom_ticks = np.linspace(0, 0.3, 4)
         ax.set_yticks(custom_ticks)
-        ax.set_xlim(-80, 60)
+        # old xlims ax.set_xlim(-80, 60)
+        ax.set_xlim(-90, 65)
         lims = ax.get_xlim()
         # for i, col in enumerate(df.columns)):
         #     ax.hline()
