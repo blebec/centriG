@@ -69,13 +69,6 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     vmaxes = axes[:3]      # vm axes = top row
     spkaxes = axes[3:]     # spikes axes = bottom row
 
-
-    for i, ax in enumerate(axes):
-        ax.set_title(i)
- 
- # axes = [fig.add_subplot(2, 3, i) for i in range(1, 7)]
-    # axes list
-    # ____ plots individuals (first column)
     # individual vm
     cols = colsdict['indVm']
     ax = vmaxes[0]
