@@ -4,7 +4,7 @@
 - fig2:
 
   - [ ] pointillés qui s'étendent sur les deux graphs
-  - [ ] 'point bleu' en gris clair
+  - [x] 'point bleu' en gris clair
   - [ ] ? fig2 après la fig3 ?
   - [ ] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
     - pb si on rajoute la troisième colonne, les traces de spike doivent référer à la pop spikant significative (et non pas aux spikes de la pop vm significative)

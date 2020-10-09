@@ -56,7 +56,6 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     alphas = (0.8, 0.8)
 
     fig = plt.figure(figsize=(17.6, 12))
-    
     axes = []
     ax0 = fig.add_subplot(231)
     ax1 = fig.add_subplot(232)
@@ -189,7 +188,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ylabels_vm = ['Membrane potential (mV)',
                'Normalized membrane potential',
                '']
-        
+
     ylabels_spk = ['Firing rate (spikes/s)',
                'Normalized firing rate',
                '']
@@ -203,7 +202,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
             ax.spines['bottom'].set_visible(False)
         else:
             ax.set_xlabel('Time (ms)')
-    axes[1].set_ylim(-0.10, 1.1)     
+    axes[1].set_ylim(-0.10, 1.1)
     axes[4].set_xlabel('Relative time (ms)')
     ax = axes[5]
     ax.set_xlabel('Relative time (ms)')
@@ -211,7 +210,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         ax.set_ylim(-0.10, 1.3)
     else:
         ax.set_ylim(-0.10, 1.1)
-        
+
     # stimulations
     step = 28
     xlocs = np.arange(0, -150, -step)
@@ -260,7 +259,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     gfunc.change_plot_trace_amplitude(vmaxes[1], 0.9)
-    
+
     # append zerolines
     for ax in axes:
         ax.axvline(0, alpha=0.4)
@@ -336,7 +335,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         df.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
         amp = 'engy'
-        latAmp_v_df = ldat.load_cell_contributions(rec='vm', 
+        latAmp_v_df = ldat.load_cell_contributions(rec='vm',
                                                    amp='engy', age='new')
         cols = latAmp_v_df.columns
         df = latAmp_v_df[[item for item in cols if 'cpisosect' in item]].copy()
@@ -348,7 +347,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
     signs = [item for item in df.columns if item.endswith('_sig')]
 
 #    df.index += 1 # cells = 1 to 37
-    color_dic = {0 :'w', 1 : stdcolors['red']}
+    color_dic = {0 : (1,1,1), 1 : stdcolors['red']}
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 4))
     for i, ax in enumerate(axes):
@@ -358,6 +357,8 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         if sig:
             axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=colors, label=vals[i], alpha=0.8, width=0.8)
+            axes[i].plot(toplot.index, toplot[vals[i]], marker='o',
+                        color=colors)
         else:
             axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=stdcolors['red'], label=vals[i],
@@ -430,7 +431,7 @@ def sort_stat(age='new'):
                        'ampIndiSig' : 'cpisosect_gain50_sig'}
         data.rename(columns=rename_dict, inplace=True)
     elif age == 'new':
-        latGain50_v_df = ldat.load_cell_contributions(rec='vm', 
+        latGain50_v_df = ldat.load_cell_contributions(rec='vm',
                                                       amp='gain', age='new')
         cols = latGain50_v_df.columns
         data = latGain50_v_df[[item for item in cols if 'cpisosect' in item]]
@@ -531,7 +532,7 @@ def plot_figure4(substract=False):
     # fig.legend()
     # old xlims ax.set_xlim(-40, 45)
     ax.set_xlim(-90, 65)
-    
+
     ax.set_ylim(-0.15, 1.2)
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
@@ -1220,7 +1221,7 @@ def plot_figSup2B(kind='pop', age='new'):
     cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS',
             'RND-ISO SECTOR', 'RND-ISO-FULL']
     df.columns = cols
-    colors = [std_colors[item] for item in 
+    colors = [std_colors[item] for item in
               "k red green yellow blue blue".split()]
     alphas = [0.8, 0.8, 0.8, 0.8, 0.8, 0.8]
     fig = plt.figure(figsize=(8, 7))
@@ -1334,9 +1335,9 @@ def plot_figSup4(kind, overlap=True):
             'RND_Iso_Stc_SeDw_Full', 'RND_Iso_Stc_Dlp_Full']
     df.columns = cols
     # colors
-    light_colors = [std_colors[item] for item in 
+    light_colors = [std_colors[item] for item in
                     "red green yellow blue blue".split()]
-    dark_colors = [std_colors[item] for item in 
+    dark_colors = [std_colors[item] for item in
                    "dark_red dark_green dark_yellow dark_blue dark_blue ".split()]
     alphas = [0.7, 0.2] # front, fillbetween
     # traces -> lists of 4 columns ie each condition (val, up, down, sum)
@@ -1714,7 +1715,7 @@ def plot_speed_multigraph(df, speedcolors):
     colors = [speed_colors[item] for item in \
         "k red dark_orange orange yellow".split()]
     alphas = [0.8, 1, 0.8, 0.8, 1]
- 
+
     fig = plt.figure(figsize=(12, 8), constrained_layout=True)
     fig.suptitle('Aligned on Center-Only stimulus onset (t=0 ms)')
     # build grid

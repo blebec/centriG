@@ -53,17 +53,17 @@ def rc_params(font_size = 'medium'):  # large, medium
     return params
 
 def std_colors():
-    colors = {'red' : [x/256 for x in [229, 51, 51]],
-              'green' : [x/256 for x in [127, 204, 56]],
-              'blue' :    [x/256 for x in [0, 125, 218]],
-              'yellow' :    [x/256 for x in [238, 181, 0]],
-              'violet' : [x/256 for x in [255, 0, 255]],
-              'dark_red': [x/256 for x in [115, 0, 34]],
-              'dark_green': [x/256 for x in [10, 146, 13]],
-              'dark_blue': [x/256 for x in [14, 73, 118]],
-              'dark_yellow': [x/256 for x in [163, 133, 16]],
-              'blue_violet': [x/256 for x in [138, 43, 226]],
-              'k' : [0, 0, 0]}
+    colors = {'red' : tuple([x/256 for x in [229, 51, 51]]),
+              'green' : tuple([x/256 for x in [127, 204, 56]]),
+              'blue' : tuple([x/256 for x in [0, 125, 218]]),
+              'yellow' : tuple([x/256 for x in [238, 181, 0]]),
+              'violet' : tuple([x/256 for x in [255, 0, 255]]),
+              'dark_red': tuple([x/256 for x in [115, 0, 34]]),
+              'dark_green': tuple([x/256 for x in [10, 146, 13]]),
+              'dark_blue': tuple([x/256 for x in [14, 73, 118]]),
+              'dark_yellow': tuple([x/256 for x in [163, 133, 16]]),
+              'blue_violet': tuple([x/256 for x in [138, 43, 226]]),
+              'k' : (0, 0, 0)}
     return colors
 
 def speed_colors():
