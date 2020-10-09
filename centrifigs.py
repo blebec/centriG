@@ -14,7 +14,7 @@ import numpy as np
 import pandas as pd
 from pandas.plotting import table
 import matplotlib.pyplot as plt
-# import matplotlib.gridspec as gridspec
+import matplotlib.gridspec as gridspec
 from matplotlib.patches import Rectangle
 import matplotlib.patches as patches
 #from mpl_toolkits.axes_grid1.inset_locator import inset_axes
@@ -1707,7 +1707,7 @@ def plot_speed_multigraph(df, speedcolors):
         "k red dark_orange orange yellow".split()]
     alphas = [0.8, 1, 0.8, 0.8, 1]
  
-    fig = plt.figure(figsize=(12, 8))
+    fig = plt.figure(figsize=(12, 8), constrained_layout=True)
     fig.suptitle('Aligned on Center-Only stimulus onset (t=0 ms)')
     # build grid
     gs = fig.add_gridspec(5, 2)
@@ -1764,7 +1764,7 @@ def plot_speed_multigraph(df, speedcolors):
     #                       handlelength=0, framealpha=1)
     # for line, text in zip(leg.get_lines(), leg.get_texts()):
     #     text.set_color(line.get_color())
-    fig.tight_layout()
+    # fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_speed_multigraph',

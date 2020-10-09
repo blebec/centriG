@@ -272,6 +272,8 @@ def autolabel(ax, rects, sup=False):
             ax.text(x, y, '%d' % int(height) + '%',
                     ha='center', va='top')
 
+
+#@config.profile
 def plot_cell_contribution(df, kind=''):
     """
     plot the number of significative cells contributing to the response
@@ -319,6 +321,7 @@ def plot_cell_contribution(df, kind=''):
 
     fig.tight_layout()
     return fig
+
 
 save = False
 for mes in ['vm', 'spk']:
