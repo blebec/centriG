@@ -47,19 +47,34 @@ os.chdir(paths['pg'])
 
 #%%
 plt.close('all')
-
+# @config.profile
 def plot_figure2(data, colsdict, anot=False, age='old'):
     """
     figure2 (individual + pop + sig)
     """
-    colors = ['k', std_colors['red']]
-    alphas = [0.8, 0.8]
+    colors = ('k', std_colors['red'])
+    alphas = (0.8, 0.8)
 
     fig = plt.figure(figsize=(17.6, 12))
-    axes = [fig.add_subplot(2, 3, i) for i in range(1, 7)]
-    # axes list
+    
+    axes = []
+    ax0 = fig.add_subplot(231)
+    ax1 = fig.add_subplot(232)
+    axes.append(ax0)
+    axes.append(ax1)
+    axes.append(fig.add_subplot(233, sharex=ax1, sharey=ax1))
+    axes.append(fig.add_subplot(234, sharex=ax0))
+    axes.append(fig.add_subplot(235, sharex=ax1, sharey=ax1))
+    axes.append(fig.add_subplot(236, sharex=ax1, sharey=ax1))
     vmaxes = axes[:3]      # vm axes = top row
     spkaxes = axes[3:]     # spikes axes = bottom row
+
+
+    for i, ax in enumerate(axes):
+        ax.set_title(i)
+ 
+ # axes = [fig.add_subplot(2, 3, i) for i in range(1, 7)]
+    # axes list
     # ____ plots individuals (first column)
     # individual vm
     cols = colsdict['indVm']
@@ -74,29 +89,29 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         x = 43.5
     y = data.indiVmctr.loc[x]
     #blue point and vline
-    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    lims = ax.get_ylim()
-    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
+#    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'], linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
-    for i, col in enumerate(cols[::-1]):
-        ax.plot(data[col], color=colors[::-1][i],
+    rev_cols = cols[::-1]
+    rev_colors = colors[::-1]
+    for i, col in enumerate(rev_cols):
+        ax.plot(data[col], color=rev_colors[i],
                 alpha=1, label=col, linewidth=1)
         ax.fill_between(data.index, data[col],
-                        color=colors[::-1][i], alpha=0.5, label=col)
+                        color=rev_colors[i], alpha=0.5, label=col)
     # response point
     if age == 'old':
         x = 39.8
     else:
         x = 55.5
     y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    lims = ax.get_ylim()
-    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
               linestyle=':')
-    ax.vlines(x, *lims, linewidth=2, color=std_colors['blue'],
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -128,12 +143,11 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
-            ms=10, alpha=0.8)
-    lims = ax.get_ylim()
-    # ax.vlines(y, *lims, color=std_colors['blue'], linestyle=':', linewidth=2)
-    ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    # ax.plot(x1, y, marker=markers.CARETLEFT, color='tab:gray',
+    #         ms=10, alpha=0.8)
+    ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
     ax.annotate("n=10", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # adv = str(x0 - x1)
@@ -143,7 +157,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
-        ax.plot(df[col], color=colors[::-1][i],
+        ax.plot(df[col], color=rev_colors[i],
                 alpha=1, label=col)#, linewidth=1)
         # ax.fill_between(df.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
@@ -154,7 +168,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax = spkaxes[2]
     # traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.plot(df[col], color=colors[::-1][i], alpha=1, label=col)
+        ax.plot(df[col], color=rev_colors[i], alpha=1, label=col)
     # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
@@ -165,12 +179,12 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
+    ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
-    ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
-            ms=10, alpha=0.8)
-    # ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
-    ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+    #         ms=10, alpha=0.8)
+    ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
 
     ax.annotate("n=5", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -179,32 +193,32 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 # xycoords="axes fraction", ha='center')
     # labels
-    for ax in axes:
+    ylabels_vm = ['Membrane potential (mV)',
+               'Normalized membrane potential',
+               '']
+        
+    ylabels_spk = ['Firing rate (spikes/s)',
+               'Normalized firing rate',
+               '']
+    ylabels = ylabels_vm + ylabels_spk
+    for i, ax in enumerate(axes):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-    ylabels = ['Membrane potential (mV)',
-               'Normalized membrane potential',
-               '', '', '', '']
-    for i, ax in enumerate(vmaxes):
-        ax.axes.get_xaxis().set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.set_ylabel(ylabels[i])
-    ylabels = ['Firing rate (spikes/s)',
-               'Normalized firing rate',
-               '', '', '', '']
-    for i, ax in enumerate(spkaxes):
-        ax.set_ylabel(ylabels[i])
-        ax.set_xlabel('Time (ms)')
-
-    for ax in vmaxes[1:]:
-        ax.set_ylim(-0.10, 1.1)
-    for ax in spkaxes[1:]:
-        ax.set_xlabel('Relative time (ms)')
-        if age == 'old':
-            ax.set_ylim(-0.10, 1.3)
+            ax.set_ylabel(ylabels[i])
+        if i<3:
+            ax.axes.get_xaxis().set_visible(False)
+            ax.spines['bottom'].set_visible(False)
         else:
-            ax.set_ylim(-0.10, 1.1)
-
+            ax.set_xlabel('Time (ms)')
+    axes[1].set_ylim(-0.10, 1.1)     
+    axes[4].set_xlabel('Relative time (ms)')
+    ax = axes[5]
+    ax.set_xlabel('Relative time (ms)')
+    if age == 'old':
+        ax.set_ylim(-0.10, 1.3)
+    else:
+        ax.set_ylim(-0.10, 1.1)
+        
     # stimulations
     step = 28
     xlocs = np.arange(0, -150, -step)
@@ -214,7 +228,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
-            ax.axvline(dloc, linestyle=':', alpha=0.3)
+            ax.axvline(dloc, linestyle=':', alpha=0.4)
     # fit individual example
     if age == 'old':
         vmaxes[0].set_ylim(-3.5, 12)
@@ -250,14 +264,11 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         ax.add_patch(rect)
 
     # align zero between plots  NB ref = first plot
-    for i in [0, 1]:
-        gfunc.align_yaxis(vmaxes[i], 0, vmaxes[i+1], 0)
-        gfunc.align_yaxis(spkaxes[i], 0, spkaxes[i+1], 0)
-    # adjust amplitude (without moving the zero)
-    for i in [1, 2]:
-        gfunc.change_plot_trace_amplitude(vmaxes[i], 0.85)
-        gfunc.change_plot_trace_amplitude(spkaxes[i], 0.8)
-    # zerolines
+    gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
+    gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
+    gfunc.change_plot_trace_amplitude(vmaxes[1], 0.9)
+    
+    # append zerolines
     for ax in axes:
         ax.axvline(0, alpha=0.4)
         ax.axhline(0, alpha=0.4)
