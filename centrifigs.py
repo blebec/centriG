@@ -839,7 +839,7 @@ fig = figp.plot_figure6_bis(std_colors, linear=False, substract=True)
 plt.close('all')
 
 
-def plot_figure7(std_colors):
+def plot_figure7(std_colors, lp='minus'):
     """
     plot_figure7
     """
@@ -853,14 +853,16 @@ def plot_figure7(std_colors):
     #limit the date time range
     df = df.loc[-150:150]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
-            'sdUp', 'sdDown', 'linearPrediction']
+            'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+            'stcsdDown', 'stcLinearPreediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = ['k', std_colors['red'], std_colors['dark_green'],
               std_colors['blue_violet'], std_colors['blue_violet'],
-              std_colors['blue_violet']]
-    alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
+              std_colors['blue_violet'], std_colors['red'],
+              std_colors['red'], std_colors['blue_violet']]
+    alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.5, 0.2, 0.2, 0.7]
 
     fig = plt.figure(figsize=(11.6, 5))
    # fig.suptitle(os.path.basename(filename))
@@ -876,15 +878,26 @@ def plot_figure7(std_colors):
     y = df.centerOnly.loc[0]
     ax1.plot(x, y, 'o', color=std_colors['blue'])
     # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
-    ax1.set_ylim(-0.2, 1)
+    #old ylims ax1.set_ylim(-0.2, 1)
+    ax1.set_ylim(-0.2, 1.1)
+    
     ax2 = fig.add_subplot(122, sharex=ax1)
-    for i in [2, 5]:
-        print('i=', i, colors[i])
-        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
-                 label=df.columns[i])
-    ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                     color=colors[2], alpha=0.2)
+    if lp == 'minus':
+        for i in [2, 5]:
+            print('i=', i, colors[i])
+            ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     label=df.columns[i])
+            ax2.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
+                             color=colors[2], alpha=0.2)
     # ax2.set_ylim(-0.2, 0.3)
+    elif lp =='plus':
+        for i in (1,6,7,8):
+            print('i=', i, colors[i])
+            ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     label=df.columns[i])
+            ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
+                             color=colors[1], alpha=0.1)
+    
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
@@ -919,7 +932,8 @@ def plot_figure7(std_colors):
 
     return fig
 
-fig = plot_figure7(std_colors)
+fig = plot_figure7(std_colors,'minus')
+fig = plot_figure7(std_colors,'plus')
 fig2 = figp.plot_figure7_bis(std_colors)
 
 
