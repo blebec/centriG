@@ -533,7 +533,7 @@ def plot_figure7_bis(stdcolors):
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
     ax = fig.add_subplot(111)
-    ax.plot(df.popfillVmscpIsoDlp, ':r', alpha=1, linewidth=2,
+    ax.plot(df.popfillVmscpIsoMDlp, ':r', alpha=1, linewidth=2,
             label='sThenCent - cent')
     # surroundOnly
     ax.plot(df.surroundOnlysdUp, color=stdcolors['dark_green'], alpha=0.7,
