@@ -950,6 +950,158 @@ fig = plot_figure7(std_colors,'minus')
 fig = plot_figure7(std_colors,'plus')
 fig2 = figp.plot_figure7_bis(std_colors)
 
+#%%
+plt.close('all')
+
+
+def plot_figure7_alt(std_colors, lp='minus'):
+    """
+    plot_figure7
+    """
+#    filename = 'data/fig6.xlsx'
+    filename = 'data/data_to_use/popfill.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = df.index - middle
+    df.index = df.index/10
+    #limit the date time range
+    df = df.loc[-150:150]
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+            'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+            'stcsdDown', 'stcLinearPrediction', 
+            'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
+            'stcspkcpCtr, stcspkcpIso',
+            'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+    colors = ['k', std_colors['red'], std_colors['dark_green'],
+              std_colors['blue_violet'], std_colors['blue_violet'],
+              std_colors['blue_violet'], std_colors['red'],
+              std_colors['red'], std_colors['blue_violet'],
+              std_colors['green'], std_colors['yellow'],
+              std_colors['blue'], std_colors['blue'],
+              'k', std_colors['red'],
+              std_colors['green'], std_colors['yellow'],
+              std_colors['blue'], std_colors['blue'],]
+    alphas = [0.5, 0.7, 0.7,
+              0.6, 0.6,
+              0.6, 0.2,
+              0.2, 0.7,
+              0.7, 0.7,
+              0.7, 0.7,
+              0.5, 0.7,
+              0.7, 0.7,
+              0.7, 0.7]
+
+    #fig = plt.figure(figsize=(11.6, 5))
+    fig = plt.figure(figsize=(11.6, 10))
+   # fig.suptitle(os.path.basename(filename))
+    ax1 = fig.add_subplot(221)
+    for i, col in enumerate(cols[:3]):
+        if i == 2:
+            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label=col)
+        else:
+            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
+                     label=col)
+    x = 0
+    y = df.centerOnly.loc[0]
+    ax1.plot(x, y, 'o', color=std_colors['blue'])
+    # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
+    #old ylims ax1.set_ylim(-0.2, 1)
+    
+    ax2 = fig.add_subplot(222, sharey= ax1)
+    for i in (0,1,9,10,11):
+        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    ax2.set_xlim(-20,50)    
+    
+    if lp == 'minus':
+        ax1.set_ylim(-0.2, 1.1)
+    elif lp =='plus':
+        ax1.set_ylim(-0.05, 1.2)
+    
+    if lp == 'minus':
+        ax3 = fig.add_subplot(223, sharex=ax1)
+    elif lp =='plus':
+        ax3 = fig.add_subplot(223, sharex=ax1, sharey=ax1)
+    if lp == 'minus':
+        for i in [2, 5]:
+            print('i=', i, colors[i])
+            ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     label=df.columns[i])
+            ax3.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
+                             color=colors[2], alpha=0.2)
+    # ax2.set_ylim(-0.2, 0.3)
+    elif lp =='plus':
+        for i in (1,6,7,8):
+            print('i=', i, colors[i])
+            ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     label=df.columns[i])
+            ax3.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
+                             color=colors[1], alpha=0.05)
+    
+    ax4 = fig.add_subplot(224, sharex= ax2)
+    for i in (13,14,15,16,17):
+        ax4.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    ax4.set_xlim(-20,60)    
+    
+    
+    # set fontname and fontsize for y label
+    ax1.set_ylabel('Normalized membrane potential')
+    ax1.annotate("n=12", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax2.set_ylabel('')
+    ax3.set_xlabel('Relative time (ms)')
+    ax3.set_ylabel('Normalized membrane potential')
+    ax4.set_xlabel('Relative time (ms)')
+    ax4.set_ylabel('Normalized firing rate')
+    ax4.annotate("n=7", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')    
+        
+    for ax in fig.get_axes():
+        # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
+        #                handlelength=0)
+        # colored text
+        # for line, text in zip(leg.get_lines(), leg.get_texts()):
+        #    text.set_color(line.get_color())
+        # ax.set_xlim(-150, 150)
+        # set fontname and fontsize for x label
+        #ax.set_xlabel('Relative time (ms)')
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+        ax.axhline(0, alpha=0.3)
+        ax.axvline(0, alpha=0.3)
+    # align zero between subplots
+    #gfunc.align_yaxis(ax1, 0, ax2, 0)
+    if lp == 'minus':
+        gfunc.change_plot_trace_amplitude(ax2, 0.9)
+    fig.tight_layout()
+    # add ref
+    ref = (0, df.loc[0, ['centerOnly']])
+    
+    if lp == 'minus':
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        ax1.set_yticks(custom_ticks)
+    elif lp =='plus':
+        custom_ticks = np.arange(0, 1.2, 0.2)
+        ax1.set_yticks(custom_ticks)
+        ax3.set_yticks(custom_ticks)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_alt',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+#fig = plot_figure7(std_colors,'minus')
+fig = plot_figure7_alt(std_colors,'plus')
+fig = plot_figure7_alt(std_colors,'minus')
 
 #%% fig 9
 plt.close('all')
