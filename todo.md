@@ -32,22 +32,22 @@
    - [ ] boolean to remove controls
 - figure4
   - [ ] renommer -> speed
-  - [ ] nouvelles traces -> filtrage polarisation centre seul
+  - [x] ~~nouvelles traces -> filtrage polarisation centre seul~~
 - fig 5 (baudot ... )
     - [ ]  waiting for Yves
 - fig6 
   - [ ] renommer fig6 -> indfill
 - fig7
   - [ ] renommer fig7 -> popfill
-  - [ ] changer les traces
-    - réalignement changé 
-    - ajouter les contrôles (vm et spikes)
-  - [ ] proposition figure 2x2)
-    - à gauche : panel de droite en dessous du pannel de G (cf fig 6)
-    - [ ] deux versions:
-      - prédicteur linéaire = surroundTheCenter - centerOnly (ref = surroundOnly)
-      - prédicteur linéaire = centerOnly + surroundOnly (ref = surroundThenCenter)
-    - à droite : vm toutes les traces (en haut) & spike toutes les traces (en bas)
+  - [x] changer les traces
+    - [x] ~~réalignement changé~~ 
+    - [x] ~~ajouter les contrôles (vm et spikes)~~
+  - [x] proposition figure 2x2)
+    - ~~à gauche : panel de droite en dessous du pannel de G (cf fig 6)~~
+    - [x] deux versions:
+      - ~~prédicteur linéaire = surroundTheCenter - centerOnly (ref = surroundOnly)~~
+      - ~~prédicteur linéaire = centerOnly + surroundOnly (ref = surroundThenCenter)~~
+    - ~~à droite : vm toutes les traces (en haut) & spike toutes les traces (en bas)~~
  - figure technique
     - zones de calcul time50, énergie, type de calcul
     - base sur l'exemple individuel de la figure 2 ?
