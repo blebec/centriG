@@ -880,9 +880,15 @@ def plot_figure7(std_colors, lp='minus'):
     ax1.plot(x, y, 'o', color=std_colors['blue'])
     # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     #old ylims ax1.set_ylim(-0.2, 1)
-    ax1.set_ylim(-0.2, 1.1)
+    if lp == 'minus':
+        ax1.set_ylim(-0.2, 1.1)
+    elif lp =='plus':
+        ax1.set_ylim(-0.05, 1.2)
     
-    ax2 = fig.add_subplot(122, sharex=ax1)
+    if lp == 'minus':
+        ax2 = fig.add_subplot(122, sharex=ax1)
+    elif lp =='plus':
+        ax2 = fig.add_subplot(122, sharex=ax1, sharey=ax1)
     if lp == 'minus':
         for i in [2, 5]:
             print('i=', i, colors[i])
@@ -897,7 +903,7 @@ def plot_figure7(std_colors, lp='minus'):
             ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      label=df.columns[i])
             ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
-                             color=colors[1], alpha=0.1)
+                             color=colors[1], alpha=0.05)
     
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
@@ -918,12 +924,19 @@ def plot_figure7(std_colors, lp='minus'):
         ax.axvline(0, alpha=0.3)
     # align zero between subplots
     gfunc.align_yaxis(ax1, 0, ax2, 0)
-    gfunc.change_plot_trace_amplitude(ax2, 0.9)
+    if lp == 'minus':
+        gfunc.change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
-    custom_ticks = np.arange(0, 1.1, 0.2)
-    ax1.set_yticks(custom_ticks)
+    
+    if lp == 'minus':
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        ax1.set_yticks(custom_ticks)
+    elif lp =='plus':
+        custom_ticks = np.arange(0, 1.2, 0.2)
+        ax1.set_yticks(custom_ticks)
+        ax2.set_yticks(custom_ticks)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
