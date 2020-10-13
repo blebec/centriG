@@ -140,7 +140,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     #         ms=10, alpha=0.8)
     ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
     # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
-    ax.annotate("n=10", xy=(0.2, 0.8),
+    ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
@@ -153,7 +153,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
                 alpha=1, label=col)#, linewidth=1)
         # ax.fill_between(df.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
-    ax.annotate("n=20", xy=(0.2, 0.8),
+    ax.annotate("n=22", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # popSpkSig
     cols = colsdict['popSpkSig']
@@ -178,7 +178,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
     # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
 
-    ax.annotate("n=5", xy=(0.2, 0.8),
+    ax.annotate("n=6", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # #advance
     # adv = str(x0 - x1)
