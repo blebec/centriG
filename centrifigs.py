@@ -48,7 +48,7 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 # @config.profile
-def plot_figure2(data, colsdict, anot=False, age='old'):
+def plot_figure2(data, colsdict, anot=False, age='new'):
     """
     figure2 (individual + pop + sig)
     """
@@ -68,7 +68,7 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     vmaxes = axes[:3]      # vm axes = top row
     spkaxes = axes[3:]     # spikes axes = bottom row
 
-    # individual vm
+    # ___ individual vm
     cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
@@ -84,7 +84,8 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
 #    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color=std_colors['blue'], linestyle=':')
-    # individual spike
+    
+    # ___ individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
     rev_cols = cols[::-1]
@@ -103,14 +104,8 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color=std_colors['blue'],
               linestyle=':')
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
-    # individual spike
-    cols = colsdict['indSpk']
-    ax = spkaxes[0]
-    # ____ plots pop (column 1-3)
-    df = data.loc[-30:35]       # limit xscale
-    # pop vm
+     
+    # ___ pop vm
     cols = colsdict['popVm']
     ax = vmaxes[1]
     for i, col in enumerate(cols):
@@ -118,6 +113,13 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+    # response point
+    x = 0
+    y = data[cols[0]].loc[x]
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
+    
     # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
@@ -145,7 +147,8 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
-    # pop spike
+    
+    # ___ pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
@@ -155,6 +158,13 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=22", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
+    # response point
+    x = 0
+    y = data[cols[0]].loc[x]
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
+  
     # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
@@ -176,8 +186,6 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
     #         ms=10, alpha=0.8)
     ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
-    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
-
     ax.annotate("n=6", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # #advance
@@ -259,17 +267,19 @@ def plot_figure2(data, colsdict, anot=False, age='old'):
     gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     gfunc.change_plot_trace_amplitude(vmaxes[1], 0.9)
-
-    # append zerolines
+    
+    #zero line
     for ax in axes:
-        ax.axvline(0, alpha=0.4)
         ax.axhline(0, alpha=0.4)
-    # individuals
+        
     ax = vmaxes[0]
+    ax.axvline(0, alpha=0.4)
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
+    
     ax = spkaxes[0]
+    ax.axvline(0, alpha=0.4)
     if  age == 'old':
         custom_ticks = np.linspace(0, 15, 4, dtype=int)
     else:

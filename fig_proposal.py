@@ -26,9 +26,9 @@ paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'proposal')
 #%%
 plt.close('all')
 
-def plot_figure2(datadf, colsdict, anot=False, age='new'):
+def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
     """
-    figure2 (individual + pop + sig)
+    figure2 (individual + pop)
     """
     colors = ['k', std_colors['red']]
     alphas = [0.8, 0.8]
@@ -59,10 +59,10 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
         x = 43.5
     y = datadf.indiVmctr.loc[x]
     #blue point and vline
-    ax.plot(x, y, 'o', color=std_colors['k'], ms=10, alpha=0.5)
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     # lims = ax.get_ylim()´
-    ax.axvline(x, linewidth=2, color=std_colors['k'],
-              linestyle=':', alpha = 0.5)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -77,10 +77,8 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     else:
         x = 55.5
     y = datadf.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color=std_colors['k'], ms=10, alpha=0.5)
-    ax.axvline(x, linewidth=2, color=std_colors['k'],
-              linestyle=':')
-    ax.axvline(x, linewidth=2, color=std_colors['k'],
+    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color=std_colors['blue'],
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -131,7 +129,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
                 alpha=1, label=col)#, linewidth=1)
         # ax.fill_between(df.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
-    ax.annotate("n=20", xy=(0.2, 0.8),
+    ax.annotate("n=22", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # # popSpkSig
     # cols = colsdict['popSpkSig']
@@ -168,16 +166,21 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
                'Normalized membrane potential',
                'Normalized firing rate']
     for i, ax in enumerate(axes):
-        ax.axvline(0, alpha=0.4)
-        ax.axhline(0, alpha=0.4)
+        ax.axhline(0, alpha=0.4, color='k')
         ax.set_ylabel(ylabels[i])
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
         if i % 2 == 0:
             ax.spines['bottom'].set_visible(False)
             ax.axes.get_xaxis().set_visible(False)
+        axes[0].axvline(0, alpha=0.4, color='k')
         axes[1].set_xlabel('Time (ms)')
+        axes[1].axvline(0, alpha=0.4, color='k')
+        axes[2].axvline(0, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
         axes[3].set_xlabel('Relative time (ms)')
+        axes[3].axvline(0, linewidth=2, color=std_colors['blue'],
+              linestyle=':')
         # normalized y
         axes[1].set_ylim(-0.10, 1.1)
 
@@ -188,7 +191,6 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     dico = dict(zip(names, xlocs))
     # lines
     for ax in axes[:2]:
-        lims = ax.get_ylim()
         for dloc in xlocs:
             ax.axvline(dloc, linestyle=':', alpha=0.4, color='k')
     # fit individual example
@@ -253,19 +255,12 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure2_proposal',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#data
-age = ['old', 'new'][1]
-fig2_df, fig2_dict = ldat.load2(age)
-fig = plot_figure2(datadf=fig2_df, colsdict=fig2_dict, anot=anot, age=age)
-save = False
-if save:
-    filename = os.path.join(paths['save'], 'prop_fig2.png')
-    fig.savefig(filename)
+
 #%%
 # 
 def plot_2B_bis(stdcolors, anot=False, age='new'):
@@ -474,15 +469,14 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
     x = 41
     y = df['center_only'].loc[x]
     ax.plot(x, y, 'o', color=stdcolors['blue'], ms=10, alpha=0.8)
-    ax.vlines(x, *lims, color=stdcolors['blue'],
-              linestyle=':', alpha=0.8)
+    ax.axvlines(x, color=stdcolors['blue'], linestyle=':', alpha=0.8)
     # end
     x = 150.1
     ax.vlines(x, *lims, color=stdcolors['blue'],
               linestyle=':', alpha=0.8)
     # peak
     x = 63.9
-    ax.vlines(x, *lims, 'k', alpha=0.5)
+    ax.axvlines(x, 'k', alpha=0.5)
     # y in ax coordinates (ie in [0,1])
     _, y0 = gfunc.axis_data_coords_sys_transform(ax, 150.1, 0, True)
     ax.axvspan(41, 150.1, y0, 1 , color='k', alpha=0.1)
@@ -590,6 +584,14 @@ def plot_figure7_bis(stdcolors):
 if __name__ == "__main__":
     anot = True
     std_colors = config.std_colors()
+    #data
+    age = ['old', 'new'][1]
+    fig2_df, fig2_dict = ldat.load2(age)
+    fig = plot_figure2_proposal(datadf=fig2_df, colsdict=fig2_dict, anot=anot, age=age)
+    save = False
+    if save:
+        filename = os.path.join(paths['save'], 'prop_fig2.png')
+        fig.savefig(filename)
     plot_2B_bis(std_colors, anot=anot)
     plot_figure6_bis(std_colors, linear=True, substract=False)
     plot_figure6_bis(std_colors, linear=True, substract=True)
