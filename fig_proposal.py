@@ -32,6 +32,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
     """
     colors = ['k', std_colors['red']]
     alphas = [0.8, 0.8]
+    vspread = .06 # vertical spread for time alignement
 
     fig = plt.figure(figsize=(17.6, 12))
     axes = []
@@ -61,7 +62,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
     #blue point and vline
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     # lims = ax.get_ylim()´
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+    ax.axvline(x, linewidth=2, color='tab:blue',
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -78,7 +79,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
         x = 55.5
     y = datadf.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+    ax.axvline(x, linewidth=2, color='tab:blue',
               linestyle=':')
     # individual spike
     cols = colsdict['indSpk']
@@ -93,35 +94,14 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
                 label=col)
     ax.annotate("n=37", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    # # popVmSig
-    # cols = colsdict['popVmSig']
-    # ax = vmaxes[2]
-    # # traces
-    # for i, col in enumerate(cols[:2]):
-    #     ax.plot(df[col], color=colors[i], alpha=alphas[i],
-    #             label=col)
-    #     # errors : iterate on tuples
-    #     for i, col in enumerate(cols[2:]):
-    #         ax.fill_between(df.index, df[col[0]], df[col[1]],
-    #                         color=colors[i], alpha=0.2)#alphas[i]/2)
-    # # advance
-    # x0 = 0
-    # y = df.loc[x0][cols[0]]
-    # adf = df.loc[-20:0, [cols[1]]]
-    # i1 = (adf - y).abs().values.flatten().argsort()[0]
-    # x1 = adf.index[i1]
-    # ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
-    #         ms=10, alpha=0.8)
-    # lims = ax.get_ylim()
-    # # ax.vlines(y, *lims, color=std_colors['blue'], linestyle=':', linewidth=2)
-    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
-    # ax.annotate("n=10", xy=(0.2, 0.8),
-    #             xycoords="axes fraction", ha='center')
-    # # adv = str(x0 - x1)
-    # # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-    #             #xycoords="axes fraction", ha='center')
-    # pop spike
+    # response point
+    x = 0
+    y = datadf[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+    
+     # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
@@ -131,35 +111,13 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=22", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
-    # # popSpkSig
-    # cols = colsdict['popSpkSig']
-    # ax = spkaxes[2]
-    # # traces
-    # for i, col in enumerate(cols[:2][::-1]):
-    #     ax.plot(df[col], color=colors[::-1][i], alpha=1, label=col)
-    # # errors : iterate on tuples
-    # for i, col in enumerate(cols[2:]):
-    #     ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
-    #                     alpha=alphas[::-1][i]/2)# label=col, linewidth=0.5)
-    # # advance
-    # x0 = 0
-    # y = df.loc[x0][cols[0]]
-    # adf = df.loc[-20:0, [cols[1]]]
-    # i1 = (adf - y).abs().values.flatten().argsort()[0]
-    # x1 = adf.index[i1]
-    # ax.plot(x0, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    # # ax.plot(x0, y, 'o', color=std_colors['blue'])
-    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
-    #         ms=10, alpha=0.8)
-    # # ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
-    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+        # response point
+    x = 0
+    y = datadf[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
 
-    # ax.annotate("n=5", xy=(0.2, 0.8),
-    #             xycoords="axes fraction", ha='center')
-    # # #advance
-    # # adv = str(x0 - x1)
-    # # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-    #             # xycoords="axes fraction", ha='center')
     # labels
     ylabels = ['Membrane potential (mV)',
                'Firing rate (spk/sec)',
@@ -173,16 +131,13 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
         if i % 2 == 0:
             ax.spines['bottom'].set_visible(False)
             ax.axes.get_xaxis().set_visible(False)
-        axes[0].axvline(0, alpha=0.4, color='k')
-        axes[1].set_xlabel('Time (ms)')
-        axes[1].axvline(0, alpha=0.4, color='k')
-        axes[2].axvline(0, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
-        axes[3].set_xlabel('Relative time (ms)')
-        axes[3].axvline(0, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
-        # normalized y
-        axes[1].set_ylim(-0.10, 1.1)
+    axes[0].axvline(0, alpha=0.4, color='k')
+    axes[1].set_xlabel('Time (ms)')
+    axes[1].axvline(0, alpha=0.4, color='k')
+    axes[3].set_xlabel('Relative time (ms)')
+    axes[3].axvline(0, linewidth=2, color=std_colors['blue'], linestyle=':')
+    # normalized y
+    axes[2].set_ylim(-0.10, 1.1)
 
     # stimulations
     step = 28
@@ -373,8 +328,7 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
     # rename columns
     cols = ['center_only', 'surround_then_center', 
             'surround_only', 'static_linear_prediction']
@@ -384,11 +338,11 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
     colors = ['k', stdcolors['red'], 
               stdcolors['dark_green'], stdcolors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
-    # substract
-    # build a time shifted reference (centerOnly) to perfome the substraction
-    ref_shift = align_center(df, showPlot=False)         ### CALL
-    df['surround_then_center'] = df['surround_then_center'] - ref_shift
-   # df['Center_Only'] -= ref
+    if substract:
+        # build a time shifted reference (centerOnly) to perfome the substraction
+        ref_shift = align_center(df, showPlot=False)         ### CALL
+        df['surround_then_center'] = df['surround_then_center'] - ref_shift
+        # df['Center_Only'] -= ref
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
 #    fig.suptitle(os.path.basename(filename))
@@ -458,28 +412,27 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
     # ax.axhline(0, *lims, alpha=0.3)
     # lims = ax.get_ylim()
     # ax.axvline(0, *lims, alpha=0.3)
-    ax.axhline(0, alpha=0.4)
-    ax.axvline(0, alpha=0.4)
+    ax.axhline(0, alpha=0.4, color='k')
+    ax.axvline(0, alpha=0.4, color='k')
     for dloc in hlocs:
-        ax.axvline(dloc, linestyle=':', alpha=0.3)
+        ax.axvline(dloc, linestyle=':', alpha=0.3, color='k')
     # response
     lims = ax.get_ylim()
     lims = (-0.5, lims[1])  # to avoid overlap with the legend
     #start
     x = 41
     y = df['center_only'].loc[x]
-    ax.plot(x, y, 'o', color=stdcolors['blue'], ms=10, alpha=0.8)
-    ax.axvlines(x, color=stdcolors['blue'], linestyle=':', alpha=0.8)
+    # ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
+    ax.axvline(x, color='tab:blue', linestyle=':', alpha=0.8, linewidth=2)
     # end
     x = 150.1
-    ax.vlines(x, *lims, color=stdcolors['blue'],
-              linestyle=':', alpha=0.8)
+    ax.axvline(x, color='tab:blue', linestyle=':', alpha=0.8, linewidth=2)
     # peak
     x = 63.9
-    ax.axvlines(x, 'k', alpha=0.5)
+    ax.axvline(x, color='k', alpha=0.5)
     # y in ax coordinates (ie in [0,1])
     _, y0 = gfunc.axis_data_coords_sys_transform(ax, 150.1, 0, True)
-    ax.axvspan(41, 150.1, y0, 1 , color='k', alpha=0.1)
+    ax.axvspan(41, 150.1, color='k', alpha=0.1)
     # ticks
     custom_ticks = np.linspace(0, 1, 2, dtype=int)
     ax.set_yticks(custom_ticks)
@@ -487,7 +440,7 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
 
     fig.tight_layout()
 
-    ax.text(0.55, 0.17, 'center only response \n start | peak | end',
+    ax.text(0.51, 0.15, 'center only response \n start | peak | end',
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -506,8 +459,8 @@ def plot_figure7_bis(stdcolors):
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
+    # df.index = df.index/10
     # limit the date time range
     df = df.loc[-150:160]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
@@ -541,28 +494,27 @@ def plot_figure7_bis(stdcolors):
     ax.set_xlabel('Relative time (ms)')
     for loc in ['top', 'right']:
         ax.spines[loc].set_visible(False)
-    ax.axhline(0, alpha=0.3)
-    ax.axvline(0, alpha=0.3)
+    ax.axhline(0, alpha=0.3, color='k')
+    # ax.axvline(0, alpha=0.3, color='k')
     # response start
-    lims = (0, ax.get_ylim()[1])
     x0 = 0
     y = df['centerOnly'].loc[x0]
-    ax.plot(x0, y, 'o', color=stdcolors['blue'])
-    ax.vlines(x0, *lims, color=stdcolors['blue'],
-              linestyle=':', alpha=0.8)
+#    ax.plot(x0, y, 'o', color=stdcolors['blue'])
+    ax.axvline(x0, color='tab:blue',
+              linestyle=':', alpha=0.8, linewidth=2)
     # end
     x2 = 124.6
     y = df['centerOnly'].loc[x2]
-    ax.vlines(x2, *lims, color='k',
-              linestyle='-', alpha=0.2)
+    ax.axvline(x2, color='tab:blue',
+              linestyle=':', alpha=0.8, linewidth=2)
     # ax.plot(x2, y, 'o', color=stdcolors['blue'])
     # peak
     # df.centerOnly.idxmax()
     x1 = 26.1
-    ax.vlines(x1, *lims, 'k', alpha=0.3)
+    ax.axvline(x1, color='k', alpha=0.3)
     # build shaded area : x in data coordinates, y in figure coordinates
     _, y2 = gfunc.axis_data_coords_sys_transform(ax, 0, 0, True)
-    ax.axvspan(x0, x2, y2, 1, color='k', alpha=0.1)
+    ax.axvspan(x0, x2, color='k', alpha=0.1)
     #ticks
     custom_ticks = np.linspace(0, 0.4, 3)
     ax.set_yticks(custom_ticks)
@@ -570,7 +522,7 @@ def plot_figure7_bis(stdcolors):
 
     fig.tight_layout()
 
-    ax.text(0.5, 0.10, 'center only response \n start | peak | end',
+    ax.text(0.5, 0.07, 'center only response \n start | peak | end',
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -581,7 +533,9 @@ def plot_figure7_bis(stdcolors):
     return fig
 
 
+
 if __name__ == "__main__":
+    plt.close('all')
     anot = True
     std_colors = config.std_colors()
     #data

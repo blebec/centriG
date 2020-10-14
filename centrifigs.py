@@ -48,12 +48,13 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 # @config.profile
-def plot_figure2(data, colsdict, anot=False, age='new'):
+def plot_figure2(datadf, colsdict, anot=False, age='new'):
     """
     figure2 (individual + pop + sig)
     """
     colors = ('k', std_colors['red'])
     alphas = (0.8, 0.8)
+    vspread = .06  # vertical spread for realign location
 
     fig = plt.figure(figsize=(17.6, 12))
     axes = []
@@ -72,18 +73,18 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
     cols = colsdict['indVm']
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(data[col], color=colors[i], alpha=alphas[i],
+        ax.plot(datadf[col], color=colors[i], alpha=alphas[i],
                 label=col)
     # response point
     if age == 'old':
         x = 41.5
     else:
         x = 43.5
-    y = data.indiVmctr.loc[x]
+    y = datadf.indiVmctr.loc[x]
     #blue point and vline
 #    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    ax.axvline(x, linewidth=2, color=std_colors['blue'], linestyle=':')
+    ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
     
     # ___ individual spike
     cols = colsdict['indSpk']
@@ -91,21 +92,22 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
     rev_cols = cols[::-1]
     rev_colors = colors[::-1]
     for i, col in enumerate(rev_cols):
-        ax.plot(data[col], color=rev_colors[i],
+        ax.plot(datadf[col], color=rev_colors[i],
                 alpha=1, label=col, linewidth=1)
-        ax.fill_between(data.index, data[col],
+        ax.fill_between(datadf.index, datadf[col],
                         color=rev_colors[i], alpha=0.5, label=col)
     # response point
     if age == 'old':
         x = 39.8
     else:
         x = 55.5
-    y = data.indiSpkCtr.loc[x]
-    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
+    y = datadf.indiSpkCtr.loc[x]
+    ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
+    ax.axvline(x, linewidth=2, color='tab:blue',
               linestyle=':')
      
     # ___ pop vm
+    df = datadf.loc[-30:35]       # limit xscale
     cols = colsdict['popVm']
     ax = vmaxes[1]
     for i, col in enumerate(cols):
@@ -115,10 +117,10 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
                 xycoords="axes fraction", ha='center')
     # response point
     x = 0
-    y = data[cols[0]].loc[x]
-    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
+    y = df[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
     
     # popVmSig
     cols = colsdict['popVmSig']
@@ -137,10 +139,11 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     # ax.plot(x1, y, marker=markers.CARETLEFT, color='tab:gray',
     #         ms=10, alpha=0.8)
-    ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(y, color='tab:blue', linestyle=':', linewidth=2)
     # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
     ax.annotate("n=15", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
@@ -160,11 +163,12 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
                 xycoords="axes fraction", ha='center')
     # response point
     x = 0
-    y = data[cols[0]].loc[x]
-    ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    y = df[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.axvline(x, linewidth=2, color=std_colors['blue'],
               linestyle=':')
-  
+ 
     # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
@@ -181,7 +185,8 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
     adf = df.loc[-20:0, [cols[1]]]
     i1 = (adf - y).abs().values.flatten().argsort()[0]
     x1 = adf.index[i1]
-    ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
     #         ms=10, alpha=0.8)
@@ -270,14 +275,14 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
     
     #zero line
     for ax in axes:
-        ax.axhline(0, alpha=0.4)
-        
+        ax.axhline(0, alpha=0.4, color='k')
+    # scales vm   
     ax = vmaxes[0]
     ax.axvline(0, alpha=0.4)
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    
+    #scales spk
     ax = spkaxes[0]
     ax.axvline(0, alpha=0.4)
     if  age == 'old':
@@ -286,7 +291,7 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
         custom_ticks = np.linspace(0, 30, 4, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
-    # pop
+    # scales pop
     for ax in vmaxes[1:]:
         custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
@@ -311,7 +316,7 @@ def plot_figure2(data, colsdict, anot=False, age='new'):
 #data
 age = ['old', 'new'][1]
 fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_figure2(data=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
+fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
 
 # =============================================================================
 ## other views
@@ -375,7 +380,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
                         alpha=0.8, width=0.8)
         # zero line
         lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.4)
+        ax.axhline(0, alpha=0.4, color='k')
         # ticks
         ax.set_xlim(-1, len(df))
         ax.set_xticks([0, len(df) - 1])
@@ -547,7 +552,7 @@ def plot_figure4(substract=False):
     lims = ax.get_ylim()
     ax.axvline(0, *lims, alpha=0.2)
     lims = ax.get_xlim()
-    ax.axhline(0, *lims, alpha=0.2)
+    ax.axhline(0, alpha=0.2, color='k')
     #old custom_ticks = np.linspace(-40, 40, 5)
     #custom_ticks = np.linspace(-90, 65, 20)
     #ax.set_xticks(custom_ticks)
@@ -678,10 +683,8 @@ def plot_fig5():
                  xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.1)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.1)
+        ax.axvline(0, alpha=0.1, color='k')
+        ax.axhline(0, alpha=0.1, color='k')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
 
@@ -810,16 +813,13 @@ def plot_figure6(std_colors):
         ax.set_ylabel('Membrane potential (mV)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.2)
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.2)
+        ax.axhline(0, alpha=0.2, color='k')
+        ax.axvline(0, alpha=0.2, color='k')
         # response start
         x = 41
         y = df['Center-Only'].loc[x]
-        ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
-        ax.vlines(x, -1, 2, color=std_colors['blue'],
-                  linestyle=':', alpha=0.8)
+        ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
+        ax.vlines(x, -1, 2, color='tab:blue', linestyle=':', alpha=0.8)
         for dloc in hlocs:
             ax.axvline(dloc, *lims, linestyle=':', alpha=0.2)
         #ticks
@@ -930,8 +930,8 @@ def plot_figure7(std_colors, lp='minus'):
         ax.set_xlabel('Relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-        ax.axhline(0, alpha=0.3)
-        ax.axvline(0, alpha=0.3)
+        ax.axhline(0, alpha=0.3, color='k')
+        ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
     gfunc.align_yaxis(ax1, 0, ax2, 0)
     if lp == 'minus':
@@ -1083,7 +1083,7 @@ def plot_figure7_alt(std_colors, lp='minus'):
         #ax.set_xlabel('Relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
-        ax.axhline(0, alpha=0.3)
+        ax.axhline(0, alpha=0.3, color='k')
         ax.axvline(0, alpha=0.3)
     # align zero between subplots
     #gfunc.align_yaxis(ax1, 0, ax2, 0)
@@ -1154,7 +1154,7 @@ def plot_figure9CD(data, colsdict):
     ax0.set_xlabel('Relative time (ms)')
     ax0.axvline(0, alpha=0.3)
     lims = ax0.get_xlim()
-    ax0.axhline(0, alpha=0.3)
+    ax0.axhline(0, alpha=0.3, color='k')
     # lims = ax1.get_ylim()
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax0.set_yticks(custom_ticks)
@@ -1292,7 +1292,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
             ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
             # zero line
-            ax.axhline(0, alpha=0.3)
+            ax.axhline(0, alpha=0.3, color='k')
             if i != 4:
                 ax.xaxis.set_visible(False)
             else:
@@ -1431,8 +1431,8 @@ def plot_figSup2B(kind='pop', age='new'):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
     ax.set_xlim(-15, 30)
-    ax.axhline(0, alpha=0.3)
-    ax.axvline(0, alpha=0.3)
+    ax.axhline(0, alpha=0.3, color='k')
+    ax.axvline(0, alpha=0.3, color='k')
     ax.set_ylim(-0.1, 1)
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
@@ -1571,7 +1571,7 @@ def plot_figSup4(kind, overlap=True):
         else:
             ax.set_xlabel('Relative time (ms)')
     for i, ax in enumerate(fig.get_axes()):
-        ax.axhline(0, alpha=0.3)
+        ax.axhline(0, alpha=0.3, color='k')
         custom_ticks = np.arange(0, 0.3, 0.1)
         ax.set_yticks(custom_ticks)
         for spine in ['left', 'right']:
@@ -1659,11 +1659,9 @@ def plot_figSup3B(kind, stimmode, age='new'):
     ax.set_xlim(-15, 30)
     custom_ticks = np.arange(-10, 31, 10)
     ax.set_xticks(custom_ticks)
-    lims = ax.get_xlim()
-    ax.axhline(0, *lims, alpha=0.2)
+    ax.axhline(0, alpha=0.2, color='k')
     ax.set_ylim(-0.2, 1.1)
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.2)
+    ax.axvline(0, alpha=0.2, color='k')
     custom_ticks = np.arange(0, 1.1, 0.2)
     ax.set_yticks(custom_ticks)
     # bluePoint
@@ -1761,10 +1759,8 @@ def plot_figSup6(kind, age='new'):
     for ax in fig.get_axes():
         ax.set_xlim(-15, 30)
         ax.set_ylim(-0.2, 1.1)
-        lims = ax.get_ylim()
-        ax.axvline(0, *lims, alpha=0.1)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.1)
+        ax.axvline(0, alpha=0.1, color='k')
+        ax.axhline(0, alpha=0.1, color='k')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
 
@@ -1835,8 +1831,7 @@ def plot_sorted_responses(dico):
             ax.set_title(anoty[i])
     for i, ax in enumerate(axes):
         ax.ticklabel_format(useOffset=True)
-        lims = ax.get_xlim()
-        ax.axhline(0, *lims, alpha=0.3, linestyle=':')
+        ax.axhline(0, alpha=0.3, linestyle=':', color='k')
         for spine in ['left', 'top', 'right', 'bottom']:
             ax.spines[spine].set_visible(False)
         if i in range(6):
