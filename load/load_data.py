@@ -27,10 +27,12 @@ def load2(age='new'):
     """
     #____data
     if age == 'old':
-        filename = 'data/old/fig2traces.xlsx'
+        filename = os.path.join(paths['pg'], 
+                                'data', 'old', 'fig2traces.xlsx')
         print('beware : old file')
     else:
-        filename = 'data/data_to_use/fig2_2traces.xlsx'
+        filename = os.path.join(paths['pg'], 
+                                'data', 'data_to_use', 'fig2_2traces.xlsx')
         print('fig2 : new file')
         # print('file fig2traces as to be updated')
         # return None, None
@@ -72,8 +74,8 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
     """
     if age == 'old':
         names_dico = dict(
-            vm=os.path.join('data', 'old', 'figSup34Vm.xlsx'),
-            spk=os.path.join('data', 'old', 'figSup34Spk.xlsx')
+            vm=os.path.join(paths['pg'], 'data', 'old', 'figSup34Vm.xlsx'),
+            spk=os.path.join(paths['pg'], 'data', 'old', 'figSup34Spk.xlsx')
             )
         filename = names_dico.get(rec)
     elif age == 'new':
