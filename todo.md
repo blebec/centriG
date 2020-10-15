@@ -39,7 +39,7 @@
    
    - [x] boolean to remove controls
 - figure4
-  - [ ] renommer -> speed
+  - [x] renommer -> speed
   - [x] ~~nouvelles traces -> filtrage polarisation centre seul~~
 - fig 5 (baudot ... )
     
@@ -48,7 +48,7 @@
   
   - [ ] renommer fig6 -> indfill
 - fig7
-  - [ ] renommer fig7 -> popfill
+  - [x] renommer fig7 -> popfill
   - [x] changer les traces
     - [x] ~~réalignement changé~~ 
     - [x] ~~ajouter les contrôles (vm et spikes)~~

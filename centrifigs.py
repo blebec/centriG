@@ -856,7 +856,7 @@ fig = figp.plot_figure6_bis(std_colors, linear=False, substract=True)
 plt.close('all')
 
 
-def plot_figure7(std_colors, lp='minus'):
+def plot_pop_fill(std_colors, lp='minus'):
     """
     plot_figure7
     """
@@ -891,9 +891,12 @@ def plot_figure7(std_colors, lp='minus'):
         else:
             ax1.plot(df[col], color=colors[i], alpha=alphas[i],
                      label=col)
+    # response point
+    vspread = 0.06
     x = 0
     y = df.centerOnly.loc[0]
-    ax1.plot(x, y, 'o', color=std_colors['blue'])
+    ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
     # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     #old ylims ax1.set_ylim(-0.2, 1)
     if lp == 'minus':
@@ -937,7 +940,8 @@ def plot_figure7(std_colors, lp='minus'):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         ax.axhline(0, alpha=0.3, color='k')
-        ax.axvline(0, alpha=0.3, color='k')
+        ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+        # ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
     gfunc.align_yaxis(ax1, 0, ax2, 0)
     if lp == 'minus':
@@ -956,14 +960,14 @@ def plot_figure7(std_colors, lp='minus'):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7',
+        fig.text(0.99, 0.01, 'centrifigs.py:pop_fill',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
-fig = plot_figure7(std_colors,'minus')
-fig = plot_figure7(std_colors,'plus')
+fig = plot_pop_fill(std_colors,'minus')
+fig = plot_pop_fill(std_colors,'plus')
 fig2 = figp.plot_figure7_bis(std_colors)
 
 #%%
