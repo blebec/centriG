@@ -640,12 +640,13 @@ def plot_separate_cell_contribution(df, sigcells,
 save = False
 amp = ['gain', 'engy'][1]
 for mes in ['vm', 'spk']:
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+    data = ldat.load_cell_contributions(mes, age='new', amp=amp)fixed by
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
     for spread in ['sect', 'full']:
         fig = plot_separate_cell_contribution(data, sig_cells, 
                                               spread=spread, mes=mes, amp=amp)   
         if save:
             file = 'contrib' + mes.title() + spread.title() + '.png'
-            filename = os.path.join(paths['save'], 'sorted&contrib', file)
+            folder = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
+            filename = os.path.join(folder, file)
             fig.savefig(filename)

@@ -36,7 +36,7 @@ plt.close('all')
 
 def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
                                spread='sect',
-                               kind='vm', age='old', amp='gain'):
+                               kind='vm', age='old', amp='engy'):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -54,6 +54,13 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
+    titles = {'engy' : r'$\Delta$ energy',
+              'time50' : 'latency advance',
+              'gain50' : 'amplitude gain',
+              'sect' : 'sector',
+              'spk' : 'spikes',
+              'vm' : 'vm', 
+              'full': 'full'}
 
     # parameter
     cols = [std_colors[item] \
@@ -74,13 +81,13 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
     # filter -> only significative cells
     traces = [item for item in traces if not item.endswith('sig')]
     # text labels
-    title = kind + '  ' + spread
+    title = '{} {}'.format(titles.get(kind, ''), titles.get(spread, ''))
     anotx = 'Cell rank'
     if age == 'old':
         anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
              #(fraction of Center-only response)']
     else:
-        anoty = ['time50', amp]
+        anoty = [titles['time50'], titles.get(amp, '')]
     # plot
     fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
@@ -185,7 +192,7 @@ fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
                                  kind=kind, amp='engy', age='new')
 #%%
 plt.close('all')
-save = False
+save = True
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
 amp = 'engy'
 for kind in ['vm', 'spk']:
