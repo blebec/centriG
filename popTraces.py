@@ -268,6 +268,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
     age = kwargs.get('age', 'new')
     addleg = kwargs.get('addleg', False)
     addinsert = kwargs.get('addinsert', False)
+    controls = kwargs.get('controls', True)
     #defined in dataframe columns (first column = ctr))
     titles = dict(pop='all cells',
                   sig='individually significant cells',
@@ -310,7 +311,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
         cols = df.columns.to_list()
         while any(st for st in cols if 'sect_rd' in st):
             cols.remove(next(st for st in cols if 'sect_rd' in st))
-        #buils labels
+        #build labels
         labels = cols[:]
         labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
         for i in range(3):
@@ -322,14 +323,25 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
         #plot
         ax.text(0.06, 0.91, file, transform=ax.transAxes,
                 horizontalalignment='left', alpha=0.4)
-        for i, col in enumerate(cols):
-            ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
-                    linewidth=2)
+        # with controls:
+        if controls:
+            for i, col in enumerate(cols):
+                ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
+                        linewidth=2)
+        else:
+            for i, col in enumerate(cols[:2]):
+                ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
+                        linewidth=2)
         # bluePoint
-        ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
-                ms=10, alpha=0.5)
+        x = 0
+        y = df.loc[0][df.columns[0]]
+        vspread = .06  # vertical spread for realign location
+        # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
+        ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+        ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+
         #refs
-        ax.axvline(0, alpha=0.3)
+#        ax.axvline(0, alpha=0.3)
         ax.axhline(0, alpha=0.2)
         #labels
         for loc in ['top', 'right']:
@@ -384,9 +396,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
             axins.patch.set_edgecolor('w')
             axins.patch.set_alpha(0)
             axins.axvline(0, alpha=0.3)
-
     fig.tight_layout()
-
     if anot:
         if addleg:
             for ax in axes:
@@ -406,7 +416,8 @@ dico = dict(
     anot = True,
     addleg = False,
     addinsert = False,
-    substract = False
+    substract = False,
+    controls = [True, False][0]
     )
 
 peak = False
@@ -416,4 +427,4 @@ if peak:
 fig = plot_trace2x2([], std_colors, **dico)
 save = False
 if save:
-    fig.savefig(os.path.join(paths['save'], 'p2p_plot_trace2x2.png'))
+    fig.savefig(os.path.join(paths['save'], 'plot_trace2x2.png'))

@@ -1,8 +1,9 @@
 # current
 
 - point bleu -> grey
-  - [ ] sur la plupart de figures
-
+  
+- [ ] sur la plupart de figures
+  
 - - [ ] pointillés qui s'étendent sur les deux graphs
     - à voir en dessin
   - [x] 'point bleu' en gris clair
@@ -26,18 +27,25 @@
   - [x] à mettre sous 'sorted responses'
 - histogramme  'sorted_response':
   - [x] ajouter en base : les histo ('cell_contribution')
-  - à gauche time50
-  - au centre union
-  - à droite engy 
-  - (pour sect & full)
+  
+    à gauche time50
+  
+    au centre union
+  
+    à droite engy 
+  
+    (pour sect & full)
  - pop_traces2X2:
-   - [ ] boolean to remove controls
+   
+   - [x] boolean to remove controls
 - figure4
   - [ ] renommer -> speed
   - [x] ~~nouvelles traces -> filtrage polarisation centre seul~~
 - fig 5 (baudot ... )
+    
     - [ ]  waiting for Yves
 - fig6 
+  
   - [ ] renommer fig6 -> indfill
 - fig7
   - [ ] renommer fig7 -> popfill
