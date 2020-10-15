@@ -21,8 +21,8 @@
     - mettre sous stat l'union des pop (cell_contribution)
 - cell_contribution
 
-  - [ ] séparer secteur et full
-  - [ ] séparer chaque graph en time | union | engy
+  - [x] séparer secteur et full
+  - [x] séparer chaque graph en time | union | engy
   - [ ] à mettre sous 'sorted responses'
 - histogramme  'sorted_response':
   - [ ] ajouter en base : les histo ('cell_contribution')

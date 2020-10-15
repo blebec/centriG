@@ -323,6 +323,9 @@ def plot_cell_contribution(df, kind=''):
     return fig
 
 
+
+
+
 save = False
 for mes in ['vm', 'spk']:
     #load_cell_contributions(mes='vm', amp='gain', age='new'):
@@ -549,7 +552,7 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
 
 
 save = False
-amp = ['gain', 'engy'][0]
+amp = ['gain', 'engy'][1]
 for kind in ['vm', 'spk']:
     #load_cell_contributions(mes='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
@@ -559,3 +562,90 @@ for kind in ['vm', 'spk']:
         filename = os.path.join(paths['save'], kind + amp.title() \
                                 + '_composite_cell_contribution.png')
         fig.savefig(filename)
+
+
+#%% séparés
+plt.close('all')
+
+def plot_separate_cell_contribution(df, sigcells, 
+                                     spread='sect', mes='vm', amp='engy'):
+    """
+    cell contribution, to go to the bottom of the preceding stat description
+    """
+
+    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in \
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+
+    # titles = {'time' : r'$\Delta$ Time (% significant cells)',
+    #           'engy': r'Energy (% significant cells)',
+    #           'sect': 'Sector',
+    #           'full': 'Full'}
+    
+    #compute values ([time values], [amp values])
+    params = ['time', amp]
+    heights = []
+    for param in params:
+        pop_dico, resp_dico = extract_values(df, spread, param)
+        height = [pop_dico[key][-1] for key in pop_dico]
+        heights.append(height)
+    # insert union % sig cells for time and amp
+    height = [round(len(sigcells[mes][st])/len(df)*100)
+                  for st in list(pop_dico.keys())]
+    heights.insert(1, height)
+
+
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))    
+    axes = axes.flatten()
+    titles = ['time', 'time OR energy', 'energy']
+        
+    for i, ax in enumerate(axes):
+        ax.set_title(str(i))
+        param = params[0]
+        #for param in params
+        ax.set_title(titles[i], pad=0)
+
+        x = np.arange(len(heights[i]))
+        width = 0.9
+        if i in [0, 2]:
+            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.7,
+                          edgecolor=colors)
+        else:
+            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.7,
+                          edgecolor='k')
+        autolabel(ax, bars) # call
+        labels = list(pop_dico.keys())
+        ax.set_xticks(range(len(labels)))
+        ax.set_xticklabels(labels)
+    for ax in axes:
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
+            ax.tick_params(axis='x', labelrotation=45)
+            ax.yaxis.set_ticklabels([])
+            ax.tick_params(axis='y', length=0)
+    # for ax in axes[:2]:
+    #     ax.xaxis.set_visible(False)
+    txt = "{} {} ({} cells) ".format(mes, spread, len(data))
+    fig.text(0.5, 0.85, txt, ha='center', va='top', fontsize=14)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(1, 0.01, 'stat.py:plot_separate_cell_contribution(',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+
+
+save = False
+amp = ['gain', 'engy'][1]
+for mes in ['vm', 'spk']:
+    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+    stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
+    for spread in ['sect', 'full']:
+        fig = plot_separate_cell_contribution(data, sig_cells, 
+                                              spread=spread, mes=mes, amp=amp)   
+        if save:
+            file = 'contrib' + mes.title() + spread.title() + '.png'
+            filename = os.path.join(paths['save'], 'separated', file)
+            fig.savefig(filename)
