@@ -190,7 +190,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
     #         ms=10, alpha=0.8)
-    ax.axvline(y, color=std_colors['blue'], linestyle=':', linewidth=2)
+    ax.axvline(y, color='tab:blue'], linestyle=':', linewidth=2)
     ax.annotate("n=6", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # #advance
@@ -233,7 +233,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     for ax in [vmaxes[0], spkaxes[0]]:
         lims = ax.get_ylim()
         for dloc in xlocs:
-            ax.axvline(dloc, linestyle=':', alpha=0.4)
+            ax.axvline(dloc, linestyle=':', alpha=0.4, color='k')
     # fit individual example
     if age == 'old':
         vmaxes[0].set_ylim(-3.5, 12)
@@ -278,13 +278,13 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
         ax.axhline(0, alpha=0.4, color='k')
     # scales vm   
     ax = vmaxes[0]
-    ax.axvline(0, alpha=0.4)
+    ax.axvline(0, alpha=0.4, color='k'')
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
     #scales spk
     ax = spkaxes[0]
-    ax.axvline(0, alpha=0.4)
+    ax.axvline(0, alpha=0.4, color='k')
     if  age == 'old':
         custom_ticks = np.linspace(0, 15, 4, dtype=int)
     else:
@@ -404,7 +404,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
             else:
                 print('amplitude unit not in [gain, energy]')
             ylims = ax.get_ylim()
-            ax.vlines(-1, 0, 0.6, linewidth=2)
+            ax.vlines(-1, 0, 0.6, linewidth=2, color='k')
             custom_yticks = np.linspace(0, 0.6, 4)
         ax.set_yticks(custom_yticks)
         ax.set_ylabel(txt)
@@ -509,8 +509,8 @@ plot_stat()
 #%%
 plt.close('all')
 
-def plot_figure4(substract=False):
-    """ speed """
+def plot_speed(substract=False):
+    """ ex fig 4 """
     filename = 'data/data_to_use/fig4.xlsx'
     df = pd.read_excel(filename)
     # centering
@@ -549,9 +549,7 @@ def plot_figure4(substract=False):
     ax.set_xlim(-90, 65)
 
     ax.set_ylim(-0.15, 1.2)
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.2)
-    lims = ax.get_xlim()
+    # ax.axvline(0, alpha=0.2, color='k')
     ax.axhline(0, alpha=0.2, color='k')
     #old custom_ticks = np.linspace(-40, 40, 5)
     #custom_ticks = np.linspace(-90, 65, 20)
@@ -564,8 +562,13 @@ def plot_figure4(substract=False):
     ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
                 xycoords="axes fraction", ha='center')
     # bluePoint
-    ax.plot(0, df.loc[0]['centerOnly'], 'o', color=std_colors['blue'],
-            ms=10, alpha=0.8)
+    x = 0,
+    y = df.loc[0]['centerOnly']
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+    # ax.plot(0, , 'o', color=std_colors['blue'],
+    #         ms=10, alpha=0.8)
     if substract:
         ax.set_ylim(-0.05, 0.4)
         custom_ticks = np.linspace(0, 0.3, 4)
@@ -577,15 +580,18 @@ def plot_figure4(substract=False):
         #     ax.hline()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure4',
+        fig.text(0.99, 0.01, 'centrifigs.py:speed',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
     return fig
 
-fig1 = plot_figure4()
-fig2 = plot_figure4(substract=True)
+fig1 = plot_speed()
+fig2 = plot_speed(substract=True)
 ## alpha=0.8, figsize = 8,6, ha = 'left'
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'speed.png')
+    fig1.savefig(filename)
 
 #%% test to change the x scale
 
@@ -821,7 +827,7 @@ def plot_figure6(std_colors):
         ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
         ax.vlines(x, -1, 2, color='tab:blue', linestyle=':', alpha=0.8)
         for dloc in hlocs:
-            ax.axvline(dloc, *lims, linestyle=':', alpha=0.2)
+            ax.axvline(dloc, linestyle=':', alpha=0.2)
         #ticks
         custom_ticks = np.linspace(0, 4, 5, dtype=int)
         ax.set_yticks(custom_ticks)
@@ -1152,7 +1158,7 @@ def plot_figure9CD(data, colsdict):
     ax0.set_ylabel(ylabel)
     ax0.set_ylim(-0.10, 1.2)
     ax0.set_xlabel('Relative time (ms)')
-    ax0.axvline(0, alpha=0.3)
+    ax0.axvline(0, alpha=0.3, color='k')
     lims = ax0.get_xlim()
     ax0.axhline(0, alpha=0.3, color='k')
     # lims = ax1.get_ylim()
@@ -1770,7 +1776,7 @@ def plot_speed_multigraph(df, speedcolors):
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
     for ax in left_axes:
-        ax.axvline(0, alpha=0.5)
+        ax.axvline(0, alpha=0.5, color='k')
     # adjust spacing
     gs.update(wspace=0.2, hspace=0.05)
     # add ticks to the top
@@ -1822,8 +1828,7 @@ def plotSpeeddiff():
         yvals = yvals.clip(0)
         ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j],
                         label=cols[i], alpha=alphas[j])
-    lims = ax.get_ylim()
-    ax.axvline(0, *lims, alpha=0.2)
+    ax.axvline(0, alpha=0.2)
     for spine in ['left', 'top', 'right']:
         ax.spines[spine].set_visible(False)
     ax.yaxis.set_visible(False)
