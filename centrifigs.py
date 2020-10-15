@@ -375,8 +375,6 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         if sig:
             axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=colors, label=vals[i], alpha=0.8, width=0.8)
-            axes[i].plot(toplot.index, toplot[vals[i]], marker='o',
-                        color=colors)
         else:
             axes[i].bar(toplot.index, toplot[vals[i]], edgecolor=stdcolors['red'],
                         color=stdcolors['red'], label=vals[i],
