@@ -11,6 +11,7 @@
   - [ ] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
     - pb si on rajoute la troisième colonne, les traces de spike doivent référer à la pop spikant significative (et non pas aux spikes de la pop vm significative)
     - version actuelle ?
+  
 - plot_stat : 
   - [x] energy -> $\Delta$ energy
   - [x] time50 -> latency advance
@@ -20,12 +21,16 @@
     - pour sect | full (2 figs)
     - mettre à G sorted et à droite stat
     - mettre sous stat l'union des pop (cell_contribution)
+    - pop et sig sect  en bas cell contribution secteur 
+  
 - cell_contribution
 
   - [x] séparer secteur et full
   - [x] séparer chaque graph en time | union | engy
   - [x] à mettre sous 'sorted responses'
+  
 - histogramme  'sorted_response':
+  
   - [x] ajouter en base : les histo ('cell_contribution')
   
     à gauche time50
@@ -35,18 +40,25 @@
     à droite engy 
   
     (pour sect & full)
+    
+    - manque les chiffres de rank
+  
  - pop_traces2X2:
    
    - [x] boolean to remove controls
+   
 - figure4
   - [x] renommer -> speed
   - [x] ~~nouvelles traces -> filtrage polarisation centre seul~~
+  
 - fig 5 (baudot ... )
-    
+  
     - [ ]  waiting for Yves
+    
 - fig6 
   
   - [ ] renommer fig6 -> indfill
+  
 - fig7
   - [x] renommer fig7 -> popfill
   - [x] changer les traces
@@ -58,6 +70,7 @@
       - ~~prédicteur linéaire = surroundTheCenter - centerOnly (ref = surroundOnly)~~
       - ~~prédicteur linéaire = centerOnly + surroundOnly (ref = surroundThenCenter)~~
     - ~~à droite : vm toutes les traces (en haut) & spike toutes les traces (en bas)~~
+  
  - figure technique
     - zones de calcul time50, énergie, type de calcul
     - base sur l'exemple individuel de la figure 2 ?

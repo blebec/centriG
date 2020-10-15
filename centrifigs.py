@@ -166,8 +166,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     y = df[cols[0]].loc[x]
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
-    ax.axvline(x, linewidth=2, color=std_colors['blue'],
-              linestyle=':')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
  
     # popSpkSig
     cols = colsdict['popSpkSig']
@@ -190,7 +189,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     # ax.plot(x0, y, 'o', color=std_colors['blue'])
     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
     #         ms=10, alpha=0.8)
-    ax.axvline(y, color='tab:blue'], linestyle=':', linewidth=2)
+    ax.axvline(y, color='tab:blue', linestyle=':', linewidth=2)
     ax.annotate("n=6", xy=(0.2, 0.8),
                 xycoords="axes fraction", ha='center')
     # #advance
@@ -278,7 +277,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
         ax.axhline(0, alpha=0.4, color='k')
     # scales vm   
     ax = vmaxes[0]
-    ax.axvline(0, alpha=0.4, color='k'')
+    ax.axvline(0, alpha=0.4, color='k')
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
     ax.set_yticks(custom_ticks)
     ax.set_yticklabels(custom_ticks)
@@ -310,13 +309,17 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
     return fig
 
 #data
 age = ['old', 'new'][1]
 fig2_df, fig2_cols = ldat.load2(age)
 fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
+save = False
+if save:
+    paths['save'] = os.path.join(paths['owncFig'], 
+                                 'pythonPreview', 'current', 'current.fig')
+    fig.savefig(os.path.join(paths['save'], 'fig2.png'))
 
 # =============================================================================
 ## other views
@@ -827,7 +830,7 @@ def plot_figure6(std_colors):
         ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
         ax.vlines(x, -1, 2, color='tab:blue', linestyle=':', alpha=0.8)
         for dloc in hlocs:
-            ax.axvline(dloc, linestyle=':', alpha=0.2)
+            ax.axvline(dloc, linestyle=':', alpha=0.2, color='k')
         #ticks
         custom_ticks = np.linspace(0, 4, 5, dtype=int)
         ax.set_yticks(custom_ticks)
@@ -1094,7 +1097,7 @@ def plot_figure7_alt(std_colors, lp='minus'):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         ax.axhline(0, alpha=0.3, color='k')
-        ax.axvline(0, alpha=0.3)
+        ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
     #gfunc.align_yaxis(ax1, 0, ax2, 0)
     if lp == 'minus':
@@ -1832,7 +1835,7 @@ def plotSpeeddiff():
         yvals = yvals.clip(0)
         ax.fill_between(xvals, yvals + i/400, i/400, color=colors[j],
                         label=cols[i], alpha=alphas[j])
-    ax.axvline(0, alpha=0.2)
+    ax.axvline(0, alpha=0.2, color='k')
     for spine in ['left', 'top', 'right']:
         ax.spines[spine].set_visible(False)
     ax.yaxis.set_visible(False)
