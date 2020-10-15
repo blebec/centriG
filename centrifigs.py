@@ -1236,7 +1236,9 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
     # data (call)
     df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
-    traces = [item for item in df.columns if 'sect' in item]
+    traces = [item for item in df.columns if spread in item]
+    #remove the 'rdsect'
+    traces = [item for item in traces if 'rdisosect' not in item]
     # append full random
     rdfull = [item for item in df.columns if 'rdisofull' in item]
     traces.extend(rdfull)
@@ -1251,7 +1253,7 @@ def plot_sorted_responses_sup1(overlap=True, sort_all=True, key=0,
     else:
         anoty = ['time50', amp]
     # plot
-    fig, axes = plt.subplots(5, 2, figsize=(12, 16), sharex=True,
+    fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)
@@ -1355,19 +1357,22 @@ fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
 #%%
 plt.close('all')
 save = False
-savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain/sorted'
+savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/5_enerPeakOrGain/sorted'
+amp = 'engy'
 for kind in ['vm', 'spk']:
-    for amp in ['gain', 'engy']:
+    for spread in ['sect', 'full']:
+    # for amp in ['gain', 'engy']:
         figs = []
         figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=True,
-                                               kind=kind, amp=amp, age='new'))
-        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False,
-                                               kind=kind, amp=amp, age='new'))
-        figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
-                                               kind=kind, amp=amp, age='new'))
+                                               kind=kind, amp=amp, age='new',
+                                               spread=spread))
+        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False,
+        #                                         kind=kind, amp=amp, age='new'))
+        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
+        #                                         kind=kind, amp=amp, age='new'))
         if save:
             for i, fig in enumerate(figs):
-                filename = os.path.join(savePath, kind + '_' + amp + str(i) + '.png')
+                filename = os.path.join(savePath, kind + spread.title() + '_' + amp + str(i) + '.png')
                 fig.savefig(filename, format='png')
 
 

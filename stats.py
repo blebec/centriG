@@ -647,5 +647,5 @@ for mes in ['vm', 'spk']:
                                               spread=spread, mes=mes, amp=amp)   
         if save:
             file = 'contrib' + mes.title() + spread.title() + '.png'
-            filename = os.path.join(paths['save'], 'separated', file)
+            filename = os.path.join(paths['save'], 'sorted&contrib', file)
             fig.savefig(filename)
