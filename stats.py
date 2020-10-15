@@ -640,7 +640,7 @@ def plot_separate_cell_contribution(df, sigcells,
 save = False
 amp = ['gain', 'engy'][1]
 for mes in ['vm', 'spk']:
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)fixed by
+    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
     for spread in ['sect', 'full']:
         fig = plot_separate_cell_contribution(data, sig_cells, 
