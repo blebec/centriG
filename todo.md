@@ -23,9 +23,9 @@
 
   - [x] séparer secteur et full
   - [x] séparer chaque graph en time | union | engy
-  - [ ] à mettre sous 'sorted responses'
+  - [x] à mettre sous 'sorted responses'
 - histogramme  'sorted_response':
-  - [ ] ajouter en base : les histo ('cell_contribution')
+  - [x] ajouter en base : les histo ('cell_contribution')
   - à gauche time50
   - au centre union
   - à droite engy 
