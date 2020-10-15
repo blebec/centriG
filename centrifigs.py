@@ -85,7 +85,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
 #    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
     ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
-    
+
     # ___ individual spike
     cols = colsdict['indSpk']
     ax = spkaxes[0]
@@ -105,7 +105,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color='tab:blue',
               linestyle=':')
-     
+
     # ___ pop vm
     df = datadf.loc[-30:35]       # limit xscale
     cols = colsdict['popVm']
@@ -121,7 +121,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
-    
+
     # popVmSig
     cols = colsdict['popVmSig']
     ax = vmaxes[2]
@@ -150,7 +150,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 #xycoords="axes fraction", ha='center')
-    
+
     # ___ pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
@@ -167,7 +167,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
- 
+
     # popSpkSig
     cols = colsdict['popSpkSig']
     ax = spkaxes[2]
@@ -271,11 +271,11 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
     gfunc.change_plot_trace_amplitude(vmaxes[1], 0.9)
-    
+
     #zero line
     for ax in axes:
         ax.axhline(0, alpha=0.4, color='k')
-    # scales vm   
+    # scales vm
     ax = vmaxes[0]
     ax.axvline(0, alpha=0.4, color='k')
     custom_ticks = np.linspace(-2, 10, 7, dtype=int)
@@ -317,7 +317,7 @@ fig2_df, fig2_cols = ldat.load2(age)
 fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
 save = False
 if save:
-    paths['save'] = os.path.join(paths['owncFig'], 
+    paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'current.fig')
     fig.savefig(os.path.join(paths['save'], 'fig2.png'))
 
@@ -560,8 +560,7 @@ def plot_speed(substract=False):
     #                handlelength=0)
     # for line, text in zip(leg.get_lines(), leg.get_texts()):
     #    text.set_color(line.get_color())
-    ax.annotate("n=12", xy=(0.1, 0.8),    #xy=(0.2,0.8)
-                xycoords="axes fraction", ha='center')
+    ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
     # bluePoint
     x = 0,
     y = df.loc[0]['centerOnly']
@@ -908,7 +907,7 @@ def plot_pop_fill(std_colors, lp='minus'):
         ax1.set_ylim(-0.2, 1.1)
     elif lp =='plus':
         ax1.set_ylim(-0.05, 1.2)
-    
+
     if lp == 'minus':
         ax2 = fig.add_subplot(122, sharex=ax1)
     elif lp =='plus':
@@ -928,7 +927,7 @@ def plot_pop_fill(std_colors, lp='minus'):
                      label=df.columns[i])
             ax2.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
                              color=colors[1], alpha=0.05)
-    
+
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
@@ -954,7 +953,7 @@ def plot_pop_fill(std_colors, lp='minus'):
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
-    
+
     if lp == 'minus':
         custom_ticks = np.arange(0, 1.1, 0.2)
         ax1.set_yticks(custom_ticks)
@@ -993,7 +992,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     df = df.loc[-150:150]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
-            'stcsdDown', 'stcLinearPrediction', 
+            'stcsdDown', 'stcLinearPrediction',
             'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
             'stcspkcpCtr, stcspkcpIso',
             'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
@@ -1039,18 +1038,18 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
 
     # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     #old ylims ax1.set_ylim(-0.2, 1)
-    
+
     ax2 = fig.add_subplot(222, sharey= ax1)
     for i in (0,1,9,10,11):
         ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
-    ax2.set_xlim(-20,50)    
-    
+    ax2.set_xlim(-20,50)
+
     if lp == 'minus':
         ax1.set_ylim(-0.2, 1.1)
     elif lp =='plus':
         ax1.set_ylim(-0.05, 1.2)
-    
+
     if lp == 'minus':
         ax3 = fig.add_subplot(223, sharex=ax1)
     elif lp =='plus':
@@ -1070,14 +1069,14 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
                      label=df.columns[i])
             ax3.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
                              color=colors[1], alpha=0.05)
-    
+
     ax4 = fig.add_subplot(224, sharex= ax2)
     for i in (13,14,15,16,17):
         ax4.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
-    ax4.set_xlim(-20,60)    
-    
-    
+    ax4.set_xlim(-20,60)
+
+
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
@@ -1088,8 +1087,8 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     ax4.set_xlabel('Relative time (ms)')
     ax4.set_ylabel('Normalized firing rate')
     ax4.annotate("n=7", xy=(0.1, 0.8),
-                 xycoords="axes fraction", ha='center')    
-        
+                 xycoords="axes fraction", ha='center')
+
     for ax in fig.get_axes():
         # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
         #                handlelength=0)
@@ -1111,7 +1110,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     fig.tight_layout()
     # add ref
     ref = (0, df.loc[0, ['centerOnly']])
-    
+
     if lp == 'minus':
         custom_ticks = np.arange(0, 1.1, 0.2)
         ax1.set_yticks(custom_ticks)
