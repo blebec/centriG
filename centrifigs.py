@@ -620,7 +620,7 @@ adjust_scale(fig_list, lims)
 
 plt.close('all')
 
-def plot_fig5():
+def plot_highLowSpeed():
     """
     plot supplementary figure 2: Vm all conditions of FULL stimulation
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -703,17 +703,17 @@ def plot_fig5():
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_fig5',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_highLowSpeed',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-fig = plot_fig5()
+fig = plot_highLowSpeed()
 #%%
 
 plt.close('all')
 
-def plot_figure6(std_colors):
+def plot_indFill(std_colors):
     """
     plot_figure6
     """
@@ -837,20 +837,24 @@ def plot_figure6(std_colors):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure6',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_indFill',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
-fig = plot_figure6(std_colors)
+fig = plot_indFill(std_colors)
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'indFill.png')
+    fig.savefig(filename)
 
 #%%
 plt.close('all')
 
-fig = figp.plot_figure6_bis(std_colors)
+fig = figp.plot_indFill_bis(std_colors)
 # fig = plot_figure6_bis(substract=True)
-fig = figp.plot_figure6_bis(std_colors, linear=False, substract=True)
+fig = figp.plot_indFill_bis(std_colors, linear=False, substract=True)
 
 
 #%%
@@ -969,13 +973,13 @@ def plot_pop_fill(std_colors, lp='minus'):
 
 fig = plot_pop_fill(std_colors,'minus')
 fig = plot_pop_fill(std_colors,'plus')
-fig2 = figp.plot_figure7_bis(std_colors)
+fig2 = figp.plot_pop_fill_bis(std_colors)
 
 #%%
 plt.close('all')
 
 
-def plot_figure7_alt(std_colors, lp='minus'):
+def plot_pop_fill_alt(std_colors, lp='minus'):
     """
     plot_figure7
     """
@@ -984,8 +988,7 @@ def plot_figure7_alt(std_colors, lp='minus'):
     df = pd.read_excel(filename)
     #centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
     #limit the date time range
     df = df.loc[-150:150]
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
@@ -1027,9 +1030,13 @@ def plot_figure7_alt(std_colors, lp='minus'):
         else:
             ax1.plot(df[col], color=colors[i], alpha=alphas[i],
                      label=col)
+    # response point
     x = 0
     y = df.centerOnly.loc[0]
-    ax1.plot(x, y, 'o', color=std_colors['blue'])
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+
     # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
     #old ylims ax1.set_ylim(-0.2, 1)
     
@@ -1095,7 +1102,8 @@ def plot_figure7_alt(std_colors, lp='minus'):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         ax.axhline(0, alpha=0.3, color='k')
-        ax.axvline(0, alpha=0.3, color='k')
+        ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+        # ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
     #gfunc.align_yaxis(ax1, 0, ax2, 0)
     if lp == 'minus':
@@ -1121,8 +1129,14 @@ def plot_figure7_alt(std_colors, lp='minus'):
     return fig
 
 #fig = plot_figure7(std_colors,'minus')
-fig = plot_figure7_alt(std_colors,'plus')
-fig = plot_figure7_alt(std_colors,'minus')
+fig1 = plot_pop_fill_alt(std_colors,'plus')
+fig2 = plot_pop_fill_alt(std_colors,'minus')
+save = False
+if save:
+    file = 'pop_fill_alt_plus.png'
+    fig1.savefig(os.path.join(paths['save'], file))
+    file = 'pop_fill_alt_minus.png'
+    fig2.savefig(os.path.join(paths['save'], file))
 
 #%% fig 9
 plt.close('all')

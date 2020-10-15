@@ -57,7 +57,7 @@
     
 - fig6 
   
-  - [ ] renommer fig6 -> indfill
+  - [x] renommer fig6 -> indfill
   
 - fig7
   - [x] renommer fig7 -> popfill

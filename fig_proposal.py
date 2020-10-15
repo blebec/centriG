@@ -320,7 +320,7 @@ def align_center(adf, showPlot=False):
     return ref_corr
 
 
-def plot_figure6_bis(stdcolors, linear=True, substract=False):
+def plot_indFill_bis(stdcolors, linear=True, substract=False):
     """
     plot_figure6 minus center
     """
@@ -444,14 +444,14 @@ def plot_figure6_bis(stdcolors, linear=True, substract=False):
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure6_bis',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_indFill_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
 #%%
-def plot_figure7_bis(stdcolors):
+def plot_pop_fill_bis(stdcolors):
     """
     plot_figure7 minus center
     """
@@ -526,7 +526,7 @@ def plot_figure7_bis(stdcolors):
             transform=ax.transAxes, alpha=0.5)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'fig_proposal.py:plot_figure7_bis',
+        fig.text(0.99, 0.01, 'fig_proposal.py:plot_pop_fill_bis',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
