@@ -322,10 +322,6 @@ def plot_cell_contribution(df, kind=''):
     fig.tight_layout()
     return fig
 
-
-
-
-
 save = False
 for mes in ['vm', 'spk']:
     #load_cell_contributions(mes='vm', amp='gain', age='new'):
@@ -375,7 +371,7 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
     else:
         print('non valid kind argument')
         return
-    
+
     ylabels = dict(engy=r'$\Delta\ energy$',
                    gain=r'$\Delta\ gain$')
 
@@ -389,10 +385,10 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         axes = axes.flatten()
     else:
         fig = plt.figure(figsize=(8,8))
-        ax0 = fig.add_subplot(221)    
-        ax1 = fig.add_subplot(222, sharex=ax0, sharey=ax0)    
-        ax2 = fig.add_subplot(223)    
-        ax3 = fig.add_subplot(224, sharex=ax2, sharey=ax2)    
+        ax0 = fig.add_subplot(221)
+        ax1 = fig.add_subplot(222, sharex=ax0, sharey=ax0)
+        ax2 = fig.add_subplot(223)
+        ax3 = fig.add_subplot(224, sharex=ax2, sharey=ax2)
         axes = [ax0, ax1, ax2, ax3]
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
     fig.suptitle(title)
@@ -473,15 +469,17 @@ fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
 save = False
 if save:
     if shared:
-        filename = os.path.join(paths['save'], mes + amp.title() + '_composite_meanSem.png')
+        filename = os.path.join(paths['save'], mes + amp.title() 
+                                + '_composite_meanSem.png')
     else:
-        filename = os.path.join(paths['save'], 'nshared_' + mes + amp.title() + '_composite_meanSem.png')        
+        filename = os.path.join(paths['save'], 'nshared_' 
+                                + mes + amp.title() + '_composite_meanSem.png')
     fig1.savefig(filename)
 
 #%% composite cell contribution
 plt.close('all')
 
-def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
+def plot_composite_cell_contribution_2X1(df, sigcells, kind='', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
@@ -544,11 +542,14 @@ def plot_composite_cell_contribution(df, sigcells, kind='', amp='engy'):
     fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'stat.py:plot_cell_contribution',
+        fig.text(1, 0.01, 'stat.py:plot_cell_contribution_2X1',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
+
+
+
 
 
 save = False
@@ -557,17 +558,104 @@ for kind in ['vm', 'spk']:
     #load_cell_contributions(mes='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
-    fig = plot_composite_cell_contribution(data, sig_cells, kind=kind,  amp=amp)
+    fig = plot_composite_cell_contribution_2X1(data, sig_cells, kind=kind,  
+                                               amp=amp)
     if save:
         filename = os.path.join(paths['save'], kind + amp.title() \
-                                + '_composite_cell_contribution.png')
+                                + '_composite_cell_contribution_2X1.png')
         fig.savefig(filename)
 
+#%%
+plt.close('all')
+
+def plot_composite_cell_contribution_1X1(df, sigcells, mes='vm', amp='engy',
+                                         spread='sect'):
+    """
+    cell contribution, to go to the bottom of the preceding stat description
+    """
+
+    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in \
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+
+#    stims = ('sect', 'full')
+    params = ('time', amp)
+    titles = {'time' : r'$\Delta$ Time (% significant cells)',
+              'engy': r'Energy (% significant cells)',
+              'sect': 'Sector',
+              'full': 'Full'}
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4,4))
+    title = "{} {} ({} cells)".format(mes, titles[spread],  len(data), amp)
+    fig.suptitle(title)
+    # param = params[0]
+    #for param in params
+    # ax.set_title(titles[i], pad=0)
+    heights = []
+    for param in params:
+        pop_dico, resp_dico = extract_values(df, spread, param)
+        height = [pop_dico[key][-1] for key in pop_dico]
+        heights.append(height)
+    # % sig cells for time and amp
+    height = [round(len(sigcells[kind][st])/len(df)*100) 
+              for st in list(pop_dico.keys())]
+    heights.append(height)
+    x = np.arange(len(pop_dico.keys()))
+    width = 0.45
+    # time
+    bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.4,
+                  edgecolor=colors)
+    autolabel(ax, bars) # call
+    # amp
+    bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.4,
+                  edgecolor=colors)
+    autolabel(ax, bars) # call
+    # time OR amp
+    bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
+                  edgecolor=dark_colors)
+    autolabel(ax, bars, sup=True) # call
+    
+    labels = list(pop_dico.keys())
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels)
+    for spine in ['left', 'top', 'right']:
+        ax.spines[spine].set_visible(False)
+        ax.tick_params(axis='x', labelrotation=45)
+        ax.yaxis.set_ticklabels([])
+        ax.tick_params(axis='y', length=0)
+    # for ax in axes[:2]:
+    #     ax.xaxis.set_visible(False)
+    txt = "time|U|{}".format(amp)
+    
+    fig.text(0.5, 0.8, txt, ha='center', va='top', fontsize=14, alpha = 0.8)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(1, 0.01, 'stat.py:plot_cell_contribution_2X1',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+
+save = True
+amp = ['gain', 'engy'][1]
+for mes in ['vm', 'spk']:
+    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+    stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
+    for spread in ['sect', 'full']:
+        fig = plot_composite_cell_contribution_1X1(data, sig_cells,
+                                                   spread=spread, 
+                                                   mes=mes, amp=amp)
+        if save:
+            file = 'contrib_1x1_' + mes.title() + spread.title() + '.png'
+            folder = os.path.join(paths['owncFig'], 'pythonPreview', 
+                                  'stat', 'contrib1x1')
+            filename = os.path.join(folder, file)
+            fig.savefig(filename)
 
 #%% séparés
 plt.close('all')
 
-def plot_separate_cell_contribution(df, sigcells, 
+def plot_separate_cell_contribution(df, sigcells,
                                      spread='sect', mes='vm', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
@@ -581,7 +669,7 @@ def plot_separate_cell_contribution(df, sigcells,
     #           'engy': r'Energy (% significant cells)',
     #           'sect': 'Sector',
     #           'full': 'Full'}
-    
+
     #compute values ([time values], [amp values])
     params = ['time', amp]
     heights = []
@@ -595,10 +683,10 @@ def plot_separate_cell_contribution(df, sigcells,
     heights.insert(1, height)
 
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))    
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))
     axes = axes.flatten()
     titles = ['time', 'time OR energy', 'energy']
-        
+
     for i, ax in enumerate(axes):
         ax.set_title(str(i))
         param = params[0]
@@ -643,10 +731,11 @@ for mes in ['vm', 'spk']:
     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
     stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)
     for spread in ['sect', 'full']:
-        fig = plot_separate_cell_contribution(data, sig_cells, 
-                                              spread=spread, mes=mes, amp=amp)   
+        fig = plot_separate_cell_contribution(data, sig_cells,
+                                              spread=spread, mes=mes, amp=amp)
         if save:
             file = 'contrib' + mes.title() + spread.title() + '.png'
             folder = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
+            
