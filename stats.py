@@ -585,7 +585,7 @@ def plot_composite_cell_contribution_1X1(df, sigcells, mes='vm', amp='engy',
               'sect': 'Sector',
               'full': 'Full'}
     fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4,4))
-    title = "{} {} ({} cells)".format(mes, titles[spread],  len(data), amp)
+    title = "{} {} ({} cells)".format(mes, titles[spread],  len(data))
     fig.suptitle(title)
     # param = params[0]
     #for param in params
