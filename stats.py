@@ -86,8 +86,8 @@ def plot_stat(statdf, kind='mean', legend=False):
 
     #adjust
     for i, ax in enumerate(axes):
-        ax.axvline(0, linestyle='-', alpha=0.4)
-        ax.axhline(0, linestyle='-', alpha=0.4)
+        ax.axvline(0, linestyle='-', alpha=0.4, color='k')
+        ax.axhline(0, linestyle='-', alpha=0.4, color='k')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
@@ -214,8 +214,8 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
             ax.legend()
     #adjust
     for i, ax in enumerate(axes):
-        ax.axvline(0, linestyle='-', alpha=0.4)
-        ax.axhline(0, linestyle='-', alpha=0.4)
+        ax.axvline(0, linestyle='-', alpha=0.4, color='k')
+        ax.axhline(0, linestyle='-', alpha=0.4, color='k')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
@@ -257,9 +257,9 @@ if save:
         filename = os.path.join(paths['save'], 'nshared_'
                                 + mes + amp.title() + '_composite_meanSem.png')
     fig1.savefig(filename)
-    
+
 #%%
-def plot_composite_stat_2x1(statdf, statdfsig, sigcells, spread='sect',
+def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
                         kind='mean', amp='engy', mes='vm', legend=False,
                         shared=True):
     """
@@ -278,7 +278,7 @@ def plot_composite_stat_2x1(statdf, statdfsig, sigcells, spread='sect',
 
     ylabels = dict(engy=r'$\Delta\ energy$',
                    gain=r'$\Delta\ gain$')
-    
+
     titles = {'time' : r'Latency Advance (% significant cells)',
               'engy': r'$\Delta$ Energy (% significant cells)',
               'sect': 'Sector',
@@ -293,17 +293,17 @@ def plot_composite_stat_2x1(statdf, statdfsig, sigcells, spread='sect',
     data = [statdf, statdfsig]
     pops = ['population', 'sig_pops']
     if shared:
-        fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4,8),
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8,4),
                              sharex=True, sharey=True)
     else:
-        fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(4,8),
+        fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(8,4),
                              sharex=False, sharey=False)
     axes = axes.flatten()
-    title = "{} {}   ({}±{})".format(titles[mes], titles[spread], 
-                                     str.title(stat[0][1:]), 
+    title = "{} {}   ({}±{})".format(titles[mes], titles[spread],
+                                     str.title(stat[0][1:]),
                                      str.title(stat[1][1:]))
     fig.suptitle(title)
-    
+
     for i, ax in enumerate(axes):
         df = data[i]
         pop = pops[i]
@@ -337,15 +337,16 @@ def plot_composite_stat_2x1(statdf, statdfsig, sigcells, spread='sect',
             ax.legend()
     #adjust
     for i, ax in enumerate(axes):
-        ax.axvline(0, linestyle='-', alpha=0.4)
-        ax.axhline(0, linestyle='-', alpha=0.4)
+        ax.axvline(0, linestyle='-', alpha=0.4, color='k')
+        ax.axhline(0, linestyle='-', alpha=0.4, color='k')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-            ax.set_ylabel(ylabels.get(amp, 'not defined'))
+            ax.set_xlabel('time advance (ms)')
             if i > 0:
-                ax.set_xlabel('time advance (ms)')
+                ax.spines['left'].set_visible(False)
+                
             else:
-                pass
+                ax.set_ylabel(ylabels.get(amp, 'not defined'))
                 # ax.spines['bottom'].set_visible(False)
                 # ax.xaxis.set_visible(False)
     fig.tight_layout()
@@ -353,13 +354,13 @@ def plot_composite_stat_2x1(statdf, statdfsig, sigcells, spread='sect',
     # fig.subplots_adjust(wspace=0.02)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'stat.py:plot_composite_stat_2x1',
+        fig.text(0.99, 0.01, 'stat.py:plot_composite_stat_1x2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 plt.close('all')
-save = False
+save = True
 kind = ['mean', 'med'][0]
 amp = ['gain', 'engy'][1]
 stat_df = ldat.build_pop_statdf(amp=amp)                     # append gain to load
@@ -367,17 +368,16 @@ stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to lo
 for shared in [True, False]:
     for mes in ['vm', 'spk']:
         for spread in ['sect', 'full']:
-            fig1 = plot_composite_stat_2x1(stat_df, stat_df_sig, sig_cells,
-                                           kind=kind, amp=amp, mes=mes, shared=shared,
-                                           spread=spread)
+            fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
+                                           kind=kind, amp=amp, mes=mes, 
+                                           shared=shared, spread=spread)
             if save:
                 if shared:
-                    filename = os.path.join(paths['save'], 'composite2x1',
-                                            'composite_stat_2x1_' 
+                    filename = os.path.join(paths['save'], 'composite1x2',
+                                            'composite_stat_1x2_'
                                             + mes + spread.title() + '.png')
                 else:
-                    filename = os.path.join(paths['save'], 'composite2x1',
-                                            'ns_composite_stat_2x1_' 
+                    filename = os.path.join(paths['save'], 'composite1x2',
+                                            'ns_composite_stat_1x2_'
                                             + mes + spread.title() + '.png')
                 fig1.savefig(filename)
-

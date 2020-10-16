@@ -15,7 +15,7 @@
 - plot_stat : 
   - [x] energy -> $\Delta$ energy
   - [x] time50 -> latency advance
-  - [ ] séparer secteur et full
+  - [x] séparer secteur et full
   - [ ] ? 
     - mettre sorted_cells  sous sorted_responses
     - pour sect | full (2 figs)
