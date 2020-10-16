@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 import config
 from load import load_data as ldat
 
-
 paths = config.build_paths()
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'stat')
 std_colors = config.std_colors()
@@ -21,124 +20,6 @@ anot = True
 
 plt.rcParams['axes.xmargin'] = 0.05
 plt.rcParams['axes.ymargin'] = 0.05
-
-
-#%% extract stats values
-
-def build_sigpop_statdf(amp='engy'):
-    """
-    load the indices and extract descriptive statistics per condition
-    NB sig cell = individual sig for latency OR energy
-    input : amp in [gain, engy]
-    output:
-            pandas dataframe
-            sigcells : dictionary of sigcells namesper stim condition
-    """
-    df = pd.DataFrame()
-    sigcells = {}
-    for mes in ['vm', 'spk']:
-        data = ldat.load_cell_contributions(rec=mes, amp=amp, age='new')
-        cols = [item for item in data.columns if not item.endswith('_sig')]
-        # conditions and parameter lists
-        conds = []
-        for item in [st.split('_')[0] for st in cols]:
-            if item not in conds:
-                conds.append(item)
-        params = []
-        for item in [st.split('_')[1] for st in cols]:
-            if item not in params:
-                params.append(item)
-        # build dico[cond]list of sig cells
-        cells_dict = dict()
-        for cond in conds:
-            # select cell signicant for at least one of the param
-            sig_cells = set()
-            for param in params:
-                col = cond + '_' + param
-                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-                sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
-            cells_dict[cond] = list(sig_cells)
-        # extract descriptive stats
-        stats= []
-        for col in cols:
-            cells = cells_dict[col.split('_')[0]]
-            ser = data.loc[cells[:], col]# col = cols[0]
-            dico = {}
-            dico[mes + '_count'] = ser.count()
-            dico[mes + '_mean'] = ser.mean()
-            dico[mes + '_std'] = ser.std()
-            dico[mes + '_sem'] = ser.sem()
-            dico[mes + '_med'] = ser.median()
-            dico[mes + '_mad'] = ser.mad()
-            stats.append(pd.Series(dico, name=col))
-        df = pd.concat([df, pd.DataFrame(stats)], axis=1)
-        df = df.fillna(0)
-        sigcells[mes] = cells_dict.copy()
-    return df, sigcells
-
-
-# stat_df = build_sigpop_statdf()
-
-
-# check error bars
-
-def build_pop_statdf(sig=False, amp='engy'):
-    """
-    extract a statistical description
-    in this approach sig cells refers for individually sig for the given
-    parameter (aka advance or energy)
-
-    """
-    df = pd.DataFrame()
-    for mes in ['vm', 'spk']:
-        # mes = 'spk'
-        data = ldat.load_cell_contributions(rec=mes, amp=amp, age='new')
-        cols = [item for item in data.columns if not item.endswith('_sig')]
-        #only sig cells, independtly for each condition and each measure
-        if sig:
-            stats= []
-            for col in cols:
-                # col = cols[0]
-                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-                #only positive values
-                sig_df = sig_df.loc[sig_df[col] > 0]
-                dico = {}
-                dico[mes + '_count'] = sig_df[col].count()
-                dico[mes + '_mean'] = sig_df[col].mean()
-                dico[mes + '_std'] = sig_df[col].std()
-                dico[mes + '_sem'] = sig_df[col].sem()
-                dico[mes + '_med'] = sig_df[col].median()
-                dico[mes + '_mad'] = sig_df[col].mad()
-                stats.append(pd.Series(dico, name=col))
-            df = pd.concat([df, pd.DataFrame(stats)], axis=1)
-        # all cells
-        else:
-            df[mes + '_count'] = data[cols].count()
-            df[mes + '_mean'] = data[cols].mean()
-            df[mes + '_std'] = data[cols].std()
-            df[mes + '_sem'] = data[cols].sem()
-            df[mes + '_med'] = data[cols].median()
-            df[mes + '_mad'] = data[cols].mad()
-    # replace nan by 0
-    #(no sig cell or only one sig cell -> nan for all params or std)
-    df = df.fillna(0)
-    return df
-
-#%% cell contribution
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 #%%
 
@@ -237,8 +118,8 @@ def plot_stat(statdf, kind='mean', legend=False):
 
 plt.close('all')
 
-stat_df = build_pop_statdf()
-stat_df_sig, sig_cells = build_sigpop_statdf()
+stat_df = ldat.build_pop_statdf()
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind='mean')
 # fig2 = plot_stat(stat_df, kind='med')
 fig3 = plot_stat(stat_df_sig, kind='mean')
@@ -253,9 +134,6 @@ if save:
     fig3.savefig(filename)
     # filename = os.path.join(paths['save'], 'sig_medMad.png')
     # fig4.savefig(filename)
-
-
-
 
 #%% stat composite figure (top row = pop; bottom row = sig_pop)
 
@@ -366,27 +244,16 @@ shared=False
 mes = ['vm', 'spk'][1]
 amp = ['gain', 'engy'][1]
 kind = ['mean', 'med'][0]
-stat_df = build_pop_statdf(amp=amp)                        # append gain to load
-stat_df_sig, sig_cells = build_sigpop_statdf(amp=amp)   # append gain to load
+stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
 fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
                            kind=kind, amp=amp, mes=mes, shared=shared)
 save = False
 if save:
     if shared:
-        filename = os.path.join(paths['save'], mes + amp.title() 
+        filename = os.path.join(paths['save'], mes + amp.title()
                                 + '_composite_meanSem.png')
     else:
-        filename = os.path.join(paths['save'], 'nshared_' 
+        filename = os.path.join(paths['save'], 'nshared_'
                                 + mes + amp.title() + '_composite_meanSem.png')
     fig1.savefig(filename)
-
-
-#%%
-plt.close('all')
-
-
-#%% séparés
-plt.close('all')
-
-
-            
