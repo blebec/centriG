@@ -185,6 +185,107 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
 #     return df
 # =============================================================================
 
+def build_sigpop_statdf(amp='engy'):
+    """
+    load the indices and extract descriptive statistics per condition
+    NB sig cell = individual sig for latency OR energy
+    input : amp in [gain, engy]
+    output:
+            pandas dataframe
+            sigcells : dictionary of sigcells namesper stim condition
+    """
+    df = pd.DataFrame()
+    sigcells = {}
+    for mes in ['vm', 'spk']:
+        data = load_cell_contributions(rec=mes, amp=amp, age='new')
+        cols = [item for item in data.columns if not item.endswith('_sig')]
+        # conditions and parameter lists
+        conds = []
+        for item in [st.split('_')[0] for st in cols]:
+            if item not in conds:
+                conds.append(item)
+        params = []
+        for item in [st.split('_')[1] for st in cols]:
+            if item not in params:
+                params.append(item)
+        # build dico[cond]list of sig cells
+        cells_dict = dict()
+        for cond in conds:
+            # select cell signicant for at least one of the param
+            sig_cells = set()
+            for param in params:
+                col = cond + '_' + param
+                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+            cells_dict[cond] = list(sig_cells)
+        # extract descriptive stats
+        stats= []
+        for col in cols:
+            cells = cells_dict[col.split('_')[0]]
+            ser = data.loc[cells[:], col]# col = cols[0]
+            dico = {}
+            dico[mes + '_count'] = ser.count()
+            dico[mes + '_mean'] = ser.mean()
+            dico[mes + '_std'] = ser.std()
+            dico[mes + '_sem'] = ser.sem()
+            dico[mes + '_med'] = ser.median()
+            dico[mes + '_mad'] = ser.mad()
+            stats.append(pd.Series(dico, name=col))
+        df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+        df = df.fillna(0)
+        sigcells[mes] = cells_dict.copy()
+    return df, sigcells
+
+
+# stat_df = build_sigpop_statdf()
+
+
+# check error bars
+
+def build_pop_statdf(sig=False, amp='engy'):
+    """
+    extract a statistical description
+    in this approach sig cells refers for individually sig for the given
+    parameter (aka advance or energy)
+
+    """
+    df = pd.DataFrame()
+    for mes in ['vm', 'spk']:
+        # mes = 'spk'
+        data = load_cell_contributions(rec=mes, amp=amp, age='new')
+        cols = [item for item in data.columns if not item.endswith('_sig')]
+        #only sig cells, independtly for each condition and each measure
+        if sig:
+            stats= []
+            for col in cols:
+                # col = cols[0]
+                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                #only positive values
+                sig_df = sig_df.loc[sig_df[col] > 0]
+                dico = {}
+                dico[mes + '_count'] = sig_df[col].count()
+                dico[mes + '_mean'] = sig_df[col].mean()
+                dico[mes + '_std'] = sig_df[col].std()
+                dico[mes + '_sem'] = sig_df[col].sem()
+                dico[mes + '_med'] = sig_df[col].median()
+                dico[mes + '_mad'] = sig_df[col].mad()
+                stats.append(pd.Series(dico, name=col))
+            df = pd.concat([df, pd.DataFrame(stats)], axis=1)
+        # all cells
+        else:
+            df[mes + '_count'] = data[cols].count()
+            df[mes + '_mean'] = data[cols].mean()
+            df[mes + '_std'] = data[cols].std()
+            df[mes + '_sem'] = data[cols].sem()
+            df[mes + '_med'] = data[cols].median()
+            df[mes + '_mad'] = data[cols].mad()
+    # replace nan by 0
+    #(no sig cell or only one sig cell -> nan for all params or std)
+    df = df.fillna(0)
+    return df
+
+
+
 #%%
 if __name__ == "__main__":
     paths = config.build_paths()
