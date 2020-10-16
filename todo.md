@@ -8,7 +8,7 @@
     - à voir en dessin
   - [x] 'point bleu' en gris clair
   - [ ] ? fig2 après la fig3 ?
-  - [ ] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
+  - [x] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
     - pb si on rajoute la troisième colonne, les traces de spike doivent référer à la pop spikant significative (et non pas aux spikes de la pop vm significative)
     - version actuelle ?
   
@@ -16,7 +16,7 @@
   - [x] energy -> $\Delta$ energy
   - [x] time50 -> latency advance
   - [x] séparer secteur et full
-  - [ ] ? 
+  - [x] ? 
     - mettre sorted_cells  sous sorted_responses
     - pour sect | full (2 figs)
     - mettre à G sorted et à droite stat
