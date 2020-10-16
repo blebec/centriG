@@ -79,8 +79,6 @@ def build_sigpop_statdf(amp='engy'):
 
 # stat_df = build_sigpop_statdf()
 
-#%%%%  to build the stat representation
-plt.close('all')
 
 # check error bars
 
@@ -148,7 +146,7 @@ def plot_stat(statdf, kind='mean', legend=False):
     if statdf.max().max() == 37:
         ref = 'population'
     else:
-        ref = 'sub_populations'
+        ref = 'sig_pops'
 
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 8),
                              sharex=True, sharey=True)
@@ -218,7 +216,28 @@ def plot_stat(statdf, kind='mean', legend=False):
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#%%%%%
+
+plt.close('all')
+
+stat_df = build_stat_df()
+stat_df_sig, sig_cells = build_sigpop_statdf()
+fig1 = plot_stat(stat_df, kind='mean')
+# fig2 = plot_stat(stat_df, kind='med')
+fig3 = plot_stat(stat_df_sig, kind='mean')
+# fig4 = plot_stat(stat_df_sig, kind='med')
+save = False
+if save:
+    filename = os.path.join(paths['save'], 'meanSem.png')
+    fig1.savefig(filename)
+    # filename = os.path.join(paths['save'], 'medMad.png')
+    # fig2.savefig(filename)
+    filename = os.path.join(paths['save'], 'sig_meanSem.png')
+    fig3.savefig(filename)
+    # filename = os.path.join(paths['save'], 'sig_medMad.png')
+    # fig4.savefig(filename)
+
+
+#%%%%% cell contribution
 plt.close('all')
 
 def extract_values(df, stim='sect', param='time'):
@@ -255,6 +274,7 @@ def extract_values(df, stim='sect', param='time'):
         sem = extract.sem()
         resp_dico[leg_cond] = [moy, moy + sem, moy - sem]
     return pop_dico, resp_dico
+
 
 def autolabel(ax, rects, sup=False):
     """
@@ -330,27 +350,6 @@ for mes in ['vm', 'spk']:
     if save:
         filename = os.path.join(paths['save'], 'pop', mes + '_cell_contribution.png')
         fig.savefig(filename)
-
-#%%
-plt.close('all')
-
-stat_df = build_stat_df()
-stat_df_sig, sig_cells = build_sigpop_statdf()
-fig1 = plot_stat(stat_df, kind='mean')
-# fig2 = plot_stat(stat_df, kind='med')
-fig3 = plot_stat(stat_df_sig, kind='mean')
-# fig4 = plot_stat(stat_df_sig, kind='med')
-save = False
-if save:
-    filename = os.path.join(paths['save'], 'meanSem.png')
-    fig1.savefig(filename)
-    # filename = os.path.join(paths['save'], 'medMad.png')
-    # fig2.savefig(filename)
-    filename = os.path.join(paths['save'], 'sig_meanSem.png')
-    fig3.savefig(filename)
-    # filename = os.path.join(paths['save'], 'sig_medMad.png')
-    # fig4.savefig(filename)
-
 
 
 #%% stat composite figure (top row = pop; bottom row = sig_pop)
