@@ -14,7 +14,7 @@ import numpy as np
 #import centriG.config as config
 #import centriG.general_functions as gfunc
 
-import config 
+import config
 import general_functions as gfunc
 
 paths = config.build_paths()
@@ -27,11 +27,11 @@ def load2(age='new'):
     """
     #____data
     if age == 'old':
-        filename = os.path.join(paths['pg'], 
+        filename = os.path.join(paths['pg'],
                                 'data', 'old', 'fig2traces.xlsx')
         print('beware : old file')
     else:
-        filename = os.path.join(paths['pg'], 
+        filename = os.path.join(paths['pg'],
                                 'data', 'data_to_use', 'fig2_2traces.xlsx')
         print('fig2 : new file')
         # print('file fig2traces as to be updated')
@@ -79,7 +79,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
             )
         filename = names_dico.get(rec)
     elif age == 'new':
-#        dirname = os.path.join(paths['pg'], 'data', 'data_to_use')            
+#        dirname = os.path.join(paths['pg'], 'data', 'data_to_use')
         dirname = os.path.join(paths['owncFig'], 'data', 'index')
         if rec == 'vm' and amp == 'gain':
             filename = os.path.join(dirname, 'time50gain50Vm.xlsx')

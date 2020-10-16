@@ -14,7 +14,6 @@ import matplotlib.pyplot as plt
 import config
 from load import load_data as ldat
 
-
 paths = config.build_paths()
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'stat')
 std_colors = config.std_colors()
@@ -22,9 +21,6 @@ anot = True
 
 plt.rcParams['axes.xmargin'] = 0.05
 plt.rcParams['axes.ymargin'] = 0.05
-
-
-
 
 #%%%%% cell contribution
 
@@ -136,7 +132,7 @@ for mes in ['vm', 'spk']:
     data = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
     fig = plot_cell_contribution(data, mes)
     if save:
-        filename = os.path.join(paths['save'], 'pop', 
+        filename = os.path.join(paths['save'], 'pop',
                                 mes + '_cell_contribution.png')
         fig.savefig(filename)
 
@@ -219,7 +215,7 @@ stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:
     #load_cell_contributions(mes='vm', amp='gain', age='new'):
     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-    fig = plot_composite_sectFull_2X1(data, sig_cells, kind=mes,  
+    fig = plot_composite_sectFull_2X1(data, sig_cells, kind=mes,
                                                amp=amp)
     if save:
         filename = os.path.join(paths['save'], mes + amp.title() \
@@ -228,7 +224,7 @@ for mes in ['vm', 'spk']:
 
 #%%
 
-#TODO ->  rnd full has to be added to the rnd sector 
+#TODO ->  rnd full has to be added to the rnd sector
 # (because sect and full are now separated)
 
 def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
@@ -261,7 +257,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
         height = [pop_dico[key][-1] for key in pop_dico]
         heights.append(height)
     # % sig cells for time and amp
-    height = [round(len(sigcells[mes][st])/len(df)*100) 
+    height = [round(len(sigcells[mes][st])/len(df)*100)
               for st in list(pop_dico.keys())]
     heights.append(height)
     x = np.arange(len(pop_dico.keys()))
@@ -278,7 +274,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
     bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
                   edgecolor=dark_colors)
     autolabel(ax, bars, sup=True) # call
-    
+
     labels = list(pop_dico.keys())
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels)
@@ -290,7 +286,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     txt = "time|U|{}".format(amp)
-    
+
     fig.text(0.5, 0.8, txt, ha='center', va='top', fontsize=14, alpha = 0.8)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -311,7 +307,7 @@ for mes in ['vm', 'spk']:
                                   spread=spread, mes=mes, amp=amp)
         if save:
             file = 'contrib_1x1_' + mes.title() + spread.title() + '.png'
-            folder = os.path.join(paths['owncFig'], 'pythonPreview', 
+            folder = os.path.join(paths['owncFig'], 'pythonPreview',
                                   'stat', 'contrib1x1')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
@@ -405,4 +401,3 @@ for mes in ['vm', 'spk']:
             folder = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
-
