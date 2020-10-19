@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 
 import config
 from load import load_data as ldat
@@ -23,25 +24,22 @@ plt.rcParams['axes.ymargin'] = 0.05
 
 #%% ALL
 
-def plot_stat(statdf, kind='mean', legend=False):
+def plot_stat(statdf, kind='mean', legend=False, digit=False):
     """
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
     output : matplotlib figure
     """
-    if kind == 'mean':
-        stat = ['_mean', '_sem']
-    elif kind == 'med':
-        stat = ['_med', '_mad']
-    else:
+    stats = dict(mean = ['_mean', '_sem'],
+                med = ['_med', '_mad'])
+    stat = stats.get(kind, '')
+    if not stat:    
         print('non valid kind argument')
         return
-
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue'],
-              std_colors['dark_blue']]
-
-    ref = ''
+    
+    colors= [std_colors[item] for item in 
+             ['red', 'green', 'yellow', 'blue', 'dark_blue']]    
+    
     if statdf.max().max() == 37:
         ref = 'population'
     else:
@@ -65,12 +63,12 @@ def plot_stat(statdf, kind='mean', legend=False):
         if spread == 'sect':
             rows.extend(
                 [st for st in stat_df.index if st.startswith('rdisofull')])
-        # df indexes (for x and y)
+        # extract df indexes (for x and y)
         time_rows = [st for st in rows if 'time50' in st]
         y_rows = [st for st in rows if 'engy' in st]
         cols = [col for col in statdf.columns if col.startswith(rec)]
         cols = [st for st in cols if stat[0] in st or stat[1] in st]
-        #labels
+        # build labels
         labels = [st.split('_')[0] for st in y_rows]
         # values (for x an y)
         x = statdf.loc[time_rows, cols][rec + stat[0]].values
@@ -78,12 +76,26 @@ def plot_stat(statdf, kind='mean', legend=False):
         y = statdf.loc[y_rows, cols][rec + stat[0]].values
         yerr = statdf.loc[y_rows, cols][rec + stat[1]].values
         #plot
-        for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
-            ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+#        digit = True
+        if not digit:
+            for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
+                ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci, label=lbi)
+        else:
+            # extract nb of cells
+            key = '_'.join([rec, 'count'])
+            cell_nb = [int(statdf.loc[item, [key]][0]) for item in y_rows]
+            for xi, yi, xe, ye, ci, lbi, nbi  \
+                in zip(x, y, xerr, yerr, colors, labels, cell_nb):
+                    ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                                fmt='s', color=ci, label=lbi,
+                                marker='s', ms=16, mec='w', mfc='w')
+                        # marker='$'+ str(nbi) + '$', ms=24, mec='w', mfc=ci)
+                    ax.text(xi, yi, str(nbi), color=ci, fontsize=14,
+                            horizontalalignment='center',
+                            verticalalignment='center')
         if legend:
             ax.legend()
-
     #adjust
     for i, ax in enumerate(axes):
         ax.axvline(0, linestyle='-', alpha=0.4, color='k')
@@ -100,11 +112,6 @@ def plot_stat(statdf, kind='mean', legend=False):
             else:
                 ax.spines['bottom'].set_visible(False)
                 ax.xaxis.set_visible(False)
-    # ax = axes[2]
-    # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
-    # ax.set_yticks(custom_ticks)
-    # ax.set_yticklabels(custom_ticks)
-
     fig.tight_layout()
     fig.subplots_adjust(hspace=0.02)
     fig.subplots_adjust(wspace=0.02)
@@ -120,9 +127,9 @@ plt.close('all')
 
 stat_df = ldat.build_pop_statdf()
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
-fig1 = plot_stat(stat_df, kind='mean')
+fig1 = plot_stat(stat_df, kind='mean', digit=True)
 # fig2 = plot_stat(stat_df, kind='med')
-fig3 = plot_stat(stat_df_sig, kind='mean')
+fig3 = plot_stat(stat_df_sig, kind='mean', digit=True)
 # fig4 = plot_stat(stat_df_sig, kind='med')
 save = False
 if save:
@@ -344,7 +351,7 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
             ax.set_xlabel('time advance (ms)')
             if i > 0:
                 ax.spines['left'].set_visible(False)
-                
+
             else:
                 ax.set_ylabel(ylabels.get(amp, 'not defined'))
                 # ax.spines['bottom'].set_visible(False)
@@ -369,7 +376,7 @@ for shared in [True, False]:
     for mes in ['vm', 'spk']:
         for spread in ['sect', 'full']:
             fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
-                                           kind=kind, amp=amp, mes=mes, 
+                                           kind=kind, amp=amp, mes=mes,
                                            shared=shared, spread=spread)
             if save:
                 if shared:
