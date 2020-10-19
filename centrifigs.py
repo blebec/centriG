@@ -48,7 +48,7 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 # @config.profile
-def plot_figure2(datadf, colsdict, anot=False, age='new'):
+def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     """
     figure2 (individual + pop + sig)
     """
@@ -91,10 +91,14 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
     ax = spkaxes[0]
     rev_cols = cols[::-1]
     rev_colors = colors[::-1]
+    df = datadf[rev_cols].copy()
+    if onlyPos:
+        for col in df.columns:
+            df.loc[df[col] < 0, [col]] = 0       
     for i, col in enumerate(rev_cols):
-        ax.plot(datadf[col], color=rev_colors[i],
+        ax.plot(df[col], color=rev_colors[i],
                 alpha=1, label=col, linewidth=1)
-        ax.fill_between(datadf.index, datadf[col],
+        ax.fill_between(df.index, df[col],
                         color=rev_colors[i], alpha=0.5, label=col)
     # response point
     if age == 'old':
@@ -314,7 +318,8 @@ def plot_figure2(datadf, colsdict, anot=False, age='new'):
 #data
 age = ['old', 'new'][1]
 fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
+fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, 
+                   anot=anot, age=age, onlyPos=False)
 save = False
 if save:
     paths['save'] = os.path.join(paths['owncFig'],
