@@ -85,12 +85,10 @@ def autolabel(ax, rects, sup=False):
 def plot_cell_contribution(df, kind=''):
     """
     plot the number of significative cells contributing to the response
+    kind in [vm, spk]
     """
 
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
-
 
     conds = [('sect', 'time'), ('sect', 'engy'),
              ('full', 'time'), ('full', 'engy')]
@@ -243,7 +241,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
     cell contribution, to go to the bottom of the preceding stat description
     """
 
-    colors = [std_colors[item] 
+    colors = [std_colors[item]
               for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
@@ -324,6 +322,9 @@ for mes in ['vm', 'spk']:
             fig.savefig(filename)
 
 #%%
+from matplotlib.patches import Rectangle
+
+
 def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
@@ -334,7 +335,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
               'full': 'Full',
               'vm' : 'Vm',
               'spk': 'Spikes'}
-    colors = [std_colors[item] 
+    colors = [std_colors[item]
               for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
     #compute values ([time values], [amp values])
     params = ['time', amp]
@@ -348,12 +349,11 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
                   for st in list(pop_dico.keys())]
     heights.insert(1, height)
 
-
     fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))
     axes = axes.flatten()
     titles_here = [titles['time'], 'time OR energy', titles['engy']]
     labels = list(pop_dico.keys())
-      
+
     for i, ax in enumerate(axes):
         ax.set_title(str(i))
         param = params[0]
@@ -363,10 +363,10 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
         x = np.arange(len(heights[i]))
         width = 0.9
         if i in [0, 2]:
-            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.7,
+            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.6,
                           edgecolor=colors)
         else:
-            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.7,
+            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.9,
                           edgecolor='k', label=labels)
         autolabel(ax, bars) # call
         # labels = list(pop_dico.keys())
@@ -383,6 +383,17 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     txt = "{} {} ({} cells) ".format(mes, spread, len(data))
     fig.text(0.5, 0.85, txt, ha='center', va='top', fontsize=14)
     fig.legend(handles=bars, labels=labels, loc='upper right')
+    # rectangle
+    box = False
+    if box:
+        ax = axes[1]
+        x, x1 = ax.get_xlim()
+        x1 -= x
+        y, y1 = ax.get_ylim()
+        y1 -= y
+        rect = Rectangle(xy=(x, y), width=x1, height=y1, 
+                         fill=False , alpha=0.6, edgecolor='k', linewidth=10)
+        ax.add_patch(rect)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(1, 0.01, 'cellContribution:plot_separate_1x3',
@@ -393,7 +404,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
 
 
 plt.close('all')
-save = False
+save = True
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:
@@ -402,7 +413,7 @@ for mes in ['vm', 'spk']:
         fig = plot_separate_1x3(data, sig_cells,
                                 spread=spread, mes=mes, amp=amp)
         if save:
-            file = 'contrib' + mes.title() + spread.title() + '.png'
+            file = 'contrib' + mes.title() + spread.title() + 'Box.png'
             folder = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
