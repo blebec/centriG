@@ -10,6 +10,7 @@ from imp import reload
 import numpy as np
 # import pandas as pd
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 
 import config
 from load import load_data as ldat
@@ -102,7 +103,7 @@ def plot_cell_contribution(df, kind=''):
         ax.set_title(str(i))
         stim, mes = conds[i]
         ax.set_title(titles[mes], pad=0)
-        pop_dico, resp_dico = extract_values(df, stim, mes)
+        pop_dico, _ = extract_values(df, stim, mes)
         x = list(pop_dico.keys())
         heights = [pop_dico[item][-1] for item in pop_dico.keys()]
         bars = ax.bar(x[:4], heights[:4], color=colors, width=0.95, alpha=0.8,
@@ -172,7 +173,7 @@ def plot_composite_sectFull_2X1(df, sigcells, kind='', amp='engy'):
         ax.set_title(titles[i], pad=0)
         heights = []
         for param in params:
-            pop_dico, resp_dico = extract_values(df, stim, param)
+            pop_dico, _ = extract_values(df, stim, param)
             height = [pop_dico[key][-1] for key in pop_dico]
             # remove the fifth value ie if sect = rdisofull
             heights.append(height[:4])
@@ -232,9 +233,6 @@ for mes in ['vm', 'spk']:
 
 #%%
 
-#TODO ->  rnd full has to be added to the rnd sector
-# (because sect and full are now separated)
-
 def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
                                          spread='sect'):
     """
@@ -262,7 +260,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
     # ax.set_title(titles[i], pad=0)
     heights = []
     for param in params:
-        pop_dico, resp_dico = extract_values(df, spread, param)
+        pop_dico, _ = extract_values(df, spread, param)
         height = [pop_dico[key][-1] for key in pop_dico]
         heights.append(height)
     # % sig cells for time and amp
@@ -322,8 +320,6 @@ for mes in ['vm', 'spk']:
             fig.savefig(filename)
 
 #%%
-from matplotlib.patches import Rectangle
-
 
 def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     """
@@ -341,7 +337,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     params = ['time', amp]
     heights = []
     for param in params:
-        pop_dico, resp_dico = extract_values(df, spread, param)
+        pop_dico, _ = extract_values(df, spread, param)
         height = [pop_dico[key][-1] for key in pop_dico]
         heights.append(height)
     # insert union % sig cells for time and amp
@@ -391,7 +387,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
         x1 -= x
         y, y1 = ax.get_ylim()
         y1 -= y
-        rect = Rectangle(xy=(x, y), width=x1, height=y1, 
+        rect = Rectangle(xy=(x, y), width=x1, height=y1,
                          fill=False , alpha=0.6, edgecolor='k', linewidth=10)
         ax.add_patch(rect)
     if anot:
