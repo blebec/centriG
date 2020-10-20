@@ -986,6 +986,7 @@ plt.close('all')
 def plot_pop_fill_alt(std_colors, lp='minus'):
     """
     plot_figure7
+    lP <-> linear predictor
     """
 #    filename = 'data/fig6.xlsx'
     filename = 'data/data_to_use/popfill.xlsx'
@@ -995,6 +996,11 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     df.index = (df.index - middle)/10
     #limit the date time range
     df = df.loc[-150:150]
+    
+    cols = gfunc.new_columns_names(df.columns)
+    cols = ['_'.join(item.split('_')[1:]) for item in cols]
+    df.columns = cols
+    
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
             'stcsdDown', 'stcLinearPrediction',
@@ -1023,7 +1029,6 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
               0.7, 0.7,
               0.7, 0.7]
 
-    #fig = plt.figure(figsize=(11.6, 5))
     fig = plt.figure(figsize=(11.6, 10))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(221)
@@ -1036,19 +1041,23 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
                      label=col)
     # response point
     x = 0
-    y = df.centerOnly.loc[0]
+    y = df[df.columns[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = .06  # vertical spread for realign location
     ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
 
-    # ax1.axhline(y, -150, 10, colors=std_colors['blue'], alpha=0.5)
-    #old ylims ax1.set_ylim(-0.2, 1)
-
     ax2 = fig.add_subplot(222, sharey= ax1)
     for i in (0,1,9,10,11):
+#    for i in (0,1,8,9,10):  ?? the real thing
         ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
     ax2.set_xlim(-20,50)
+    # response point
+    x = 0
+    y = df[df.columns[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax2.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
 
     if lp == 'minus':
         ax1.set_ylim(-0.2, 1.1)
@@ -1079,6 +1088,11 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     for i in (13,14,15,16,17):
         ax4.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
+    x = 0
+    y = df[df.columns[13]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax4.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax4.set_xlim(-20,60)
 
 
@@ -1114,7 +1128,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
         gfunc.change_plot_trace_amplitude(ax2, 0.9)
     fig.tight_layout()
     # add ref
-    ref = (0, df.loc[0, ['centerOnly']])
+    ref = (0, df.loc[0, [df.columns[0]]])
 
     if lp == 'minus':
         custom_ticks = np.arange(0, 1.1, 0.2)
