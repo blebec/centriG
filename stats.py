@@ -285,7 +285,7 @@ if save:
 #%%
 def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
                         kind='mean', amp='engy', mes='vm', legend=False,
-                        shared=True):
+                        shared=True, digit=False):
     """
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
@@ -354,9 +354,28 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
         y = df.loc[y_rows, cols][rec + stat[0]].values
         yerr = df.loc[y_rows, cols][rec + stat[1]].values
         #plot
-        for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
-            ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+        # for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
+        #     ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+        #                 fmt='s', color=ci, label=lbi)
+        if not digit:
+            # marker in the middle
+            for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
+                ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci, label=lbi)
+        else:
+            # nb of cells in the middle
+            # extract nb of cells
+            key = '_'.join([rec, 'count'])
+            cell_nb = [int(df.loc[item, [key]][0]) for item in y_rows]
+            for xi, yi, xe, ye, ci, lbi, nbi  \
+                in zip(x, y, xerr, yerr, colors, labels, cell_nb):
+                    ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                                fmt='s', color=ci, label=lbi,
+                                marker='s', ms=16, mec='w', mfc='w')
+                        # marker='$'+ str(nbi) + '$', ms=24, mec='w', mfc=ci)
+                    ax.text(xi, yi, str(nbi), color=ci, fontsize=14,
+                            horizontalalignment='center',
+                            verticalalignment='center')
         if legend:
             ax.legend()
     #adjust
@@ -394,7 +413,8 @@ for shared in [True, False]:
         for spread in ['sect', 'full']:
             fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
                                            kind=kind, amp=amp, mes=mes,
-                                           shared=shared, spread=spread)
+                                           shared=shared, spread=spread,
+                                           digit=True)
             if save:
                 if shared:
                     filename = os.path.join(paths['save'], 'composite1x2',
