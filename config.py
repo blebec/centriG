@@ -13,6 +13,9 @@ import os
 import getpass
 import sys
 #import inspect
+import cProfile
+import pstats
+import io
 
 
 def build_paths():
@@ -26,7 +29,7 @@ def build_paths():
     if osname == 'Windows'and username == 'Benoît':
         paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
         sys.path.insert(0, r'D:\\travail\sourcecode\developing\paper')
-        paths['owncFig'] = 'D:\\ownCloud\cgFiguresSrc'
+        paths['owncFig'] = r'D:\\ownCloud\cgFiguresSrc'
     elif osname == 'Linux' and username == 'benoit':
         paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
     elif osname == 'Windows'and username == 'marc':
@@ -39,7 +42,7 @@ def build_paths():
 def rc_params(font_size = 'medium'):  # large, medium
     """
     build an rc dico param for matplotlib
-    """    
+    """
     params = {'font.sans-serif': ['Arial'],
           'font.size': 14,
           'legend.fontsize': font_size,
@@ -53,6 +56,7 @@ def rc_params(font_size = 'medium'):  # large, medium
     return params
 
 def std_colors():
+    """ colors choosed for centrigabor figures"""
     colors = {'red' : tuple([x/256 for x in [229, 51, 51]]),
               'green' : tuple([x/256 for x in [127, 204, 56]]),
               'blue' : tuple([x/256 for x in [0, 125, 218]]),
@@ -67,6 +71,7 @@ def std_colors():
     return colors
 
 def speed_colors():
+    """ just for speed coding """
     colors = {'yellow' : [x/256 for x in [253, 174, 74]],
               'orange' : [x/256 for x in [245, 124, 67]],
               'dark_orange' : [x/256 for x in [237, 73, 59]],
@@ -74,21 +79,19 @@ def speed_colors():
               'k' : [0, 0, 0]}
     return colors
 
-import cProfile, pstats, io
 
 
 def profile(fnc):
-  """ a decpratpr that uses cProfile to profile a function """
-  def inner(*args, **kwargs):
-    pr = cProfile.Profile()
-    pr.enable()
-    retval = fnc(*args, **kwargs)
-    pr.disable()
-    s = io.StringIO()
-    sortby = 'cumulative'
-    ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
-    ps.print_stats()
-    print(s.getvalue())
-    return retval
-  
-  return inner
+    """ a decorator that uses cProfile to profile a function """
+    def inner(*args, **kwargs):
+        pr = cProfile.Profile()
+        pr.enable()
+        retval = fnc(*args, **kwargs)
+        pr.disable()
+        s = io.StringIO()
+        sortby = 'cumulative'
+        ps = pstats.Stats(pr, stream=s).sort_stats(sortby)
+        ps.print_stats()
+        print(s.getvalue())
+        return retval
+    return inner
