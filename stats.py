@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
 
 import config
 from load import load_data as ldat
@@ -33,13 +32,13 @@ def plot_stat(statdf, kind='mean', legend=False, digit=False):
     stats = dict(mean = ['_mean', '_sem'],
                 med = ['_med', '_mad'])
     stat = stats.get(kind, '')
-    if not stat:    
+    if not stat:
         print('non valid kind argument')
         return
-    
-    colors= [std_colors[item] for item in 
-             ['red', 'green', 'yellow', 'blue', 'dark_blue']]    
-    
+
+    colors= [std_colors[item] for item in
+             ['red', 'green', 'yellow', 'blue', 'dark_blue']]
+
     if statdf.max().max() == 37:
         ref = 'population'
     else:
@@ -146,7 +145,7 @@ if save:
 
 def plot_composite_stat(statdf, statdfsig, sigcells,
                         kind='mean', amp='engy', mes='vm', legend=False,
-                        shared=True):
+                        shared=True, digit=False):
     """
     plot the stats
     input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
@@ -169,6 +168,7 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
               std_colors['dark_blue']]
 
     if shared:
+        # share scales high and low
         fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8,8),
                              sharex=True, sharey=True)
         axes = axes.flatten()
@@ -214,9 +214,25 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         y = df.loc[y_rows, cols][rec + stat[0]].values
         yerr = df.loc[y_rows, cols][rec + stat[1]].values
         #plot
-        for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
-            ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+        if not digit:
+            # marker in the middle
+            for xi, yi, xe, ye, ci, lbi  in zip(x, y, xerr, yerr, colors, labels):
+                ax.errorbar(xi, yi, xerr=xe, yerr=ye,
                         fmt='s', color=ci, label=lbi)
+        else:
+            # nb of cells in the middle
+            # extract nb of cells
+            key = '_'.join([rec, 'count'])
+            cell_nb = [int(df.loc[item, [key]][0]) for item in y_rows]
+            for xi, yi, xe, ye, ci, lbi, nbi  \
+                in zip(x, y, xerr, yerr, colors, labels, cell_nb):
+                    ax.errorbar(xi, yi, xerr=xe, yerr=ye,
+                                fmt='s', color=ci, label=lbi,
+                                marker='s', ms=16, mec='w', mfc='w')
+                        # marker='$'+ str(nbi) + '$', ms=24, mec='w', mfc=ci)
+                    ax.text(xi, yi, str(nbi), color=ci, fontsize=14,
+                            horizontalalignment='center',
+                            verticalalignment='center')
         if legend:
             ax.legend()
     #adjust
@@ -254,7 +270,8 @@ kind = ['mean', 'med'][0]
 stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
 fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
-                           kind=kind, amp=amp, mes=mes, shared=shared)
+                           kind=kind, amp=amp, mes=mes, 
+                           shared=shared, digit=True)
 save = False
 if save:
     if shared:
