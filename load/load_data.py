@@ -205,7 +205,10 @@ def build_sigpop_statdf(amp='engy'):
     sigcells = {}
     for mes in ['vm', 'spk']:
         data = load_cell_contributions(rec=mes, amp=amp, age='new')
-        cols = [item for item in data.columns if not item.endswith('_sig')]
+        # cols = [item for item in data.columns if not item.endswith('_sig')]
+        # to include the 'fill_sig'
+        cols = [item for item in data.columns if item.endswith('_sig')]
+        cols = [item.replace('_sig', '') for item in cols]
         # conditions and parameter lists
         conds = []
         for item in [st.split('_')[0] for st in cols]:
@@ -222,21 +225,28 @@ def build_sigpop_statdf(amp='engy'):
             sig_cells = set()
             for param in params:
                 col = cond + '_' + param
-                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-                sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+                if param == 'fill':
+                    sig_df = data.loc[data[col+'_sig'] > 0, [col+'_sig']]
+                    sig_cells = sig_cells.union(sig_df.index)
+                else:    
+                    sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                    sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
             cells_dict[cond] = list(sig_cells)
         # extract descriptive stats
         stats= []
         for col in cols:
+            if '_fill' in col:
+                col += '_sig'
             cells = cells_dict[col.split('_')[0]]
             ser = data.loc[cells[:], col]# col = cols[0]
             dico = {}
             dico[mes + '_count'] = ser.count()
-            dico[mes + '_mean'] = ser.mean()
-            dico[mes + '_std'] = ser.std()
-            dico[mes + '_sem'] = ser.sem()
-            dico[mes + '_med'] = ser.median()
-            dico[mes + '_mad'] = ser.mad()
+            if '_fill' not in col:
+                dico[mes + '_mean'] = ser.mean()
+                dico[mes + '_std'] = ser.std()
+                dico[mes + '_sem'] = ser.sem()
+                dico[mes + '_med'] = ser.median()
+                dico[mes + '_mad'] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
         df = df.fillna(0)
