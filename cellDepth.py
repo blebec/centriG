@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 import load.load_data as ldat
 import config
 
-def plot_cellDepth():
+def plot_cell_depth():
     """
     relation profondeur / latence
     """
@@ -85,7 +85,7 @@ def plot_cellDepth():
 
     # ax.bar(x, y, color = z, alpha=0.6)
     ax.set_ylabel(amp)
-    ax.set_xlabel('cell')    
+    ax.set_xlabel('cell')
     ax.axhline(0, alpha=0.3)
 
     # leg = 'black= layer 6, \n blue= layer 5, \n green= layer4, \n red=layer 3'
@@ -118,7 +118,7 @@ def plot_cellDepth():
         fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'cellDepth.py:plot_cellDepth',
+        fig.text(0.99, 0.01, 'cellDepth.py:plot_cell_depth',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -127,10 +127,10 @@ def plot_cellDepth():
 # TODO add the significativity for each condition
 # ? grou by depth
 
-def barplot_cellDepth_all(spread='sect', amp='gain'):
+def barplot_cell_depth_all(spread='sect', amp='gain'):
     """
     relation profondeur / latence
-    input : 
+    input :
         spread in [sect, full]'
         amp in [gain, engy]
     output :
@@ -264,16 +264,16 @@ def barplot_cellDepth_all(spread='sect', amp='gain'):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'cellDepth.py:barplot_cellDepth_all',
+        fig.text(0.99, 0.01, 'cellDepth.py:barplot_cell_depth_all',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
 
-def dotplot_cellDepth_all(spread='sect', amp='gain'):
+def dotplot_cell_depth_all(spread='sect', amp='gain'):
     """
     relation profondeur / latence
-    input : 
+    input :
         spread in [sect, full]'
         amp in [gain, engy]
     output :
@@ -395,7 +395,7 @@ def dotplot_cellDepth_all(spread='sect', amp='gain'):
     fig.tight_layout()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'cellDepth.py:dotplot_cellDepth_all',
+        fig.text(0.99, 0.01, 'cellDepth.py:dotplot_cell_depth_all',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -411,18 +411,18 @@ if __name__ == '__main__':
     paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'byHisto')
     anot = True
     amp = ['gain', 'engy'][1]
-    fig = plot_cellDepth()
-    fig1 = barplot_cellDepth_all(spread='sect', amp=amp)
-    fig2 = barplot_cellDepth_all(spread='full', amp=amp)
-    fig3 = dotplot_cellDepth_all('sect', amp = amp)
-    fig4 = dotplot_cellDepth_all('full', amp = amp)
+    fig = plot_cell_depth()
+    fig1 = barplot_cell_depth_all(spread='sect', amp=amp)
+    fig2 = barplot_cell_depth_all(spread='full', amp=amp)
+    fig3 = dotplot_cell_depth_all('sect', amp = amp)
+    fig4 = dotplot_cell_depth_all('full', amp = amp)
     save = False
     if save:
-        filename = os.path.join(paths['save'], amp + '_layersSect.png')
-        fig1.savefig(filename)
-        filename = os.path.join(paths['save'], amp + '_layersFull.png')
-        fig2.savefig(filename)
-        filename = os.path.join(paths['save'], amp + '_layersSect_dot.png')
-        fig3.savefig(filename)
-        filename = os.path.join(paths['save'], amp + '_layersFull_dot.png')
-        fig4.savefig(filename)
+        file_name = os.path.join(paths['save'], amp + '_layersSect.png')
+        fig1.savefig(file_name)
+        file_name = os.path.join(paths['save'], amp + '_layersFull.png')
+        fig2.savefig(file_name)
+        file_name = os.path.join(paths['save'], amp + '_layersSect_dot.png')
+        fig3.savefig(file_name)
+        file_name = os.path.join(paths['save'], amp + '_layersFull_dot.png')
+        fig4.savefig(file_name)

@@ -90,6 +90,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
         elif rec == 'spk' and amp == 'engy':
             filename = os.path.join(dirname, 'time50engySpk.xlsx')
         else:
+            print('rec or amp not appropriate')
             print('check the conditions')
             return
     else:
@@ -99,6 +100,10 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
     df.set_index('Neuron', inplace=True)
     #rename using snake_case
     cols = gfunc.new_columns_names(df.columns)
+    # correction for fill names
+    cols = [item.replace('fill', '__fill') for item in cols]
+    cols = [item.replace('___fill', '__fill') for item in cols]
+    cols = [item.replace('fillsig', 'fill_sig') for item in cols]    
     df.columns = cols
     #groupNames
     cols = []
@@ -108,6 +113,8 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
         if len(sp) > 6:
             new_name += ('_sig')
         cols.append(new_name)
+    if len(cols) != len(set(cols)):
+        print('beware, there are dumplicated names')
     df.columns = cols
     return df
 

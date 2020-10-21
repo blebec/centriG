@@ -3,6 +3,7 @@
 
 import os
 from datetime import datetime
+from imp import reload
 
 import numpy as np
 import pandas as pd
@@ -12,8 +13,12 @@ sns.set(style="ticks")
 
 import config
 import load.load_data as ldat
+paths=config.build_paths()
 std_colors = config.std_colors()
 anot = True
+
+plt.rcParams['axes.xmargin'] = 0.05
+plt.rcParams['axes.ymargin'] = 0.05
         
 #%%
 def load_all_indices():
@@ -62,8 +67,6 @@ def load_all_indices():
 indices_df = load_all_indices()
 
 #%%
-plt.close('all')
-
 
 def do_pair_plot(df, kind='vm', spread='sect'):
     """
@@ -95,6 +98,9 @@ def do_pair_plot(df, kind='vm', spread='sect'):
     # g.fig.subplots_adjust(top=0.96, bottom=0.088, left=0.088,
     #                       right=0.9, hspace=0.1, wspace=0.1)
     return g.fig
+
+
+plt.close('all')
 
 save = False
 savePath =  '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/5_enerPeakOrGain'
