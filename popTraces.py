@@ -454,11 +454,10 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
 #    defined by kwargs
     substract = kwargs.get('substract', False)
     anot = kwargs.get('anot', True)
-    age = kwargs.get('age', 'new')
     addleg = kwargs.get('addleg', False)
     addinsert = kwargs.get('addinsert', False)
     controls = kwargs.get('controls', True)
-    spread = kwargs.get('spread', 'vm')
+    spread = kwargs.get('spread', 'sect')
     #defined in dataframe columns (first column = ctr))
     title = "significant cells, time U energy U filling-in"
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
@@ -469,7 +468,6 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
     middle = (datadf.index.max() - datadf.index.min())/2
     datadf.index = (datadf.index - middle)/10
     
-    substract = False
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 8),
                              sharex=True, sharey=True)
@@ -479,13 +477,15 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
     recs = ['vm'] + ['spk']
     cols = [st for st in datadf.columns if spread in st]
     # replace sector rd by full
-    cols = [item.replace('sect_rd', 'full_rd') for item in cols]
+    # cols = [item.replace('sect_rd', 'full_rd') for item in cols]
 
     for i, ax in enumerate(axes):
         rec = recs[i]
         ax_title = f"{rec} {spread}"
         ax.set_title(ax_title)
         sec = [st for st in cols if rec in st]                
+        sec = [st.replace('sect_rd', 'full_rd') for st in sec]
+
         df = datadf[sec].copy()
         # subtract the centerOnly response (ref = df['CENTER-ONLY'])
         if substract:
@@ -586,9 +586,9 @@ data_df.columns = cols
 dico = {'age': 'new',
  'kind': 'sig',
  'spread': 'sect',
- 'rec': 'spk',
+ 'rec': 'vm',
  'anot': True,
- 'addleg': False,
+ 'addleg': True,
  'addinsert': False,
  'substract': False,
  'controls': True}
