@@ -502,14 +502,14 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
     fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1',
+        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1_fill',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 
 plt.close('all')
-save = False
+save = True
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
 for mes in ['vm', 'spk']:
@@ -519,6 +519,20 @@ for mes in ['vm', 'spk']:
                                                amp=amp)
     if save:
         filename = os.path.join(paths['save'], mes + amp.title() \
-                                + '_composite_cell_contribution_2X1_fill.png')
+                                + 'Fill_composite_cell_contribution_2X1.png')
         fig.savefig(filename)
         
+        
+#%%
+plt.close('all')
+save = False
+amp = ['gain', 'engy'][1]
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
+
+
+
+
+
+
+
+

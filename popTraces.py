@@ -7,10 +7,12 @@ from importlib import reload
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 import config
 import load.load_traces as ltra
 import old.old_figs as ofig
+import general_functions as gfunc
 
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
@@ -428,3 +430,171 @@ fig = plot_trace2x2([], std_colors, **dico)
 save = False
 if save:
     fig.savefig(os.path.join(paths['save'], 'plot_trace2x2.png'))
+
+
+#%%
+
+
+
+def plot_trace_1x2(datadf, stdcolors, **kwargs):
+    """
+    plot_figure3
+    input :
+        datadf (nb cols = ctr then 'kind_rec_spread_dir_or')
+        stdcolors
+        kwargs in (first value = default)
+            substract boolan -> present as (data - centerOnly)(False),
+            anot boolan -> add title and footnote (True)
+            age -> data reference (new, old),
+            addleg -> boolan to add legend (False)
+            addinsert -> boolean to add insert (False)
+    output:
+        plt.figure()
+    """
+#    defined by kwargs
+    substract = kwargs.get('substract', False)
+    anot = kwargs.get('anot', True)
+    age = kwargs.get('age', 'new')
+    addleg = kwargs.get('addleg', False)
+    addinsert = kwargs.get('addinsert', False)
+    controls = kwargs.get('controls', True)
+    spread = kwargs.get('spread', 'vm')
+    #defined in dataframe columns (first column = ctr))
+    title = "significant cells, time U energy U filling-in"
+    # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
+    colors = [stdcolors[color] for color in 'red green yellow blue blue'.split()]
+    colors.insert(0, [0,0,0])
+    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+    #data
+    middle = (datadf.index.max() - datadf.index.min())/2
+    datadf.index = (datadf.index - middle)/10
+    
+    substract = False
+
+    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 8),
+                             sharex=True, sharey=True)
+    axes = axes.flatten()
+    fig.suptitle(title, alpha=0.4)
+
+    recs = ['vm'] + ['spk']
+    cols = [st for st in datadf.columns if spread in st]
+    # replace sector rd by full
+    cols = [item.replace('sect_rd', 'full_rd') for item in cols]
+
+    for i, ax in enumerate(axes):
+        rec = recs[i]
+        ax_title = f"{rec} {spread}"
+        ax.set_title(ax_title)
+        sec = [st for st in cols if rec in st]                
+        df = datadf[sec].copy()
+        # subtract the centerOnly response (ref = df['CENTER-ONLY'])
+        if substract:
+            ref = df[df.columns[0]]
+            df = df.subtract(ref, axis=0)
+        #build labels
+        labels = sec[:]
+        labels = [item.split('_')[0] + '_' + item.split('_')[-1] 
+                  for item in labels]
+        labels = [item.replace('rd', 'frd') for item in labels]
+        
+        for i, col in enumerate(sec):
+            ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
+                    linewidth=2)
+        # bluePoint
+        x = 0
+        y = df.loc[0][df.columns[0]]
+        vspread = .06  # vertical spread for realign location
+        # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
+        ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+        ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+        
+        #refs
+#        ax.axvline(0, alpha=0.3)
+        ax.axhline(0, alpha=0.2, color='k')
+        #labels
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+
+        if substract:
+            ax.set_xlim(-45, 120)
+            ax.set_ylim(-0.15, 0.4)
+            custom_ticks = np.arange(-40, 110, 20)
+            ax.set_xticks(custom_ticks)
+            # max_x center only
+            ax.axvline(21.4, alpha=0.5, color='k')
+            # end_x of center only
+            #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
+            ax.axvline(88, alpha=0.3)
+            ax.axvspan(0, 88, facecolor='k', alpha=0.2)
+
+            ax.text(0.45, 0.9, 'center only response \n start | peak | end',
+                    transform=ax.transAxes, alpha=0.5)
+            ax.set_ylabel('Norm vm - Norm centerOnly')
+
+        else:
+            ax.set_xlabel('Relative time (ms)')
+            axes[0].set_ylabel('Normalized membrane potential')
+            axes[1].set_ylabel('Normalized firing rate')
+            #set limits
+            ax.set_xlim(-30, 50)
+            ax.set_ylim(-0.2, 1.1)
+            custom_ticks = np.arange(0, 1.1, 0.2)
+            ax.set_yticks(custom_ticks)
+            custom_ticks = np.arange(-20, 45, 10)
+            ax.set_xticks(custom_ticks)
+            # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
+            # xycoords="axes fraction", ha='center')
+        addinsert = False
+        if addinsert:
+            # insert subplot inside this one (broader x axis)
+            axins = ax.inset_axes([.4, .11, .42, .25], facecolor='w', alpha=0.2)
+            for i, col in enumerate(cols):
+                if i in [0, 4]:
+                    axins.plot(df[col], color=colors[i], alpha=alphas[i], label=col,
+                               linewidth=2)
+                axins.set_xlim(-150, 30)
+            for spine in ['left', 'top']:
+                axins.spines[spine].set_visible(False)
+            axins.yaxis.tick_right()
+            axins.patch.set_edgecolor('w')
+            axins.patch.set_alpha(0)
+            axins.axvline(0, alpha=0.3)
+    fig.tight_layout()
+    if anot:
+        if addleg:
+            for ax in axes:
+                ax.legend()
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'popTraces.py:plot_trace_1x2',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+
+plt.close('all')
+filename = os.path.join(paths['owncFig'], 'data', 'averageTraces', 
+                        'controlsFig', 'union_idx_fill_sig.xlsx')
+data_df = pd.read_excel(filename)
+cols = gfunc.new_columns_names(data_df.columns)
+cols = [item.replace('sig_', '') for item in cols]
+cols = [item.replace('_stc', '') for item in cols]
+cols = [st.replace('_iso', '') for st in cols]
+cols = [st.replace('__', '_') for st in cols]
+cols = [st.replace('_.1', '') for st in cols]
+data_df.columns = cols
+
+dico = {'age': 'new',
+ 'kind': 'sig',
+ 'spread': 'sect',
+ 'rec': 'spk',
+ 'anot': True,
+ 'addleg': False,
+ 'addinsert': False,
+ 'substract': False,
+ 'controls': True}
+
+
+fig = plot_trace_1x2(data_df, std_colors, **dico)
+save = False
+if save:
+    fig.savefig(os.path.join(paths['save'], 'plot_trace_1x2.png'))
