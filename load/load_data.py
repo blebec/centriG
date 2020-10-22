@@ -103,7 +103,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
     # correction for fill names
     cols = [item.replace('fill', '__fill') for item in cols]
     cols = [item.replace('___fill', '__fill') for item in cols]
-    cols = [item.replace('fillsig', 'fill_sig') for item in cols]    
+    cols = [item.replace('fillsig', 'fill_sig') for item in cols]
     df.columns = cols
     #groupNames
     cols = []
@@ -192,7 +192,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
 #     return df
 # =============================================================================
 
-def build_sigpop_statdf(amp='engy'):
+def build_sigpop_statdf(amp='engy', with_fill=False):
     """
     load the indices and extract descriptive statistics per condition
     NB sig cell = individual sig for latency OR energy
@@ -205,19 +205,21 @@ def build_sigpop_statdf(amp='engy'):
     sigcells = {}
     for mes in ['vm', 'spk']:
         data = load_cell_contributions(rec=mes, amp=amp, age='new')
-        # cols = [item for item in data.columns if not item.endswith('_sig')]
-#/////////
-# include fill_sig + add fill empty columns
+        # include fill_sig + add fill empty columns
         fills = [item for item in data.columns if 'fill' in item]
-        while fills:
-            fill = fills.pop()
-            col = '_'.join(fill.split('_')[:-1])
-            data[col] = data[fill]
-            data[col] = 0
-#////////
-        # to include the 'fill_sig'
-        cols = [item for item in data.columns if item.endswith('_sig')]
-        cols = [item.replace('_sig', '') for item in cols]
+        if with_fill:
+            # create zero padded value columns
+            while fills:
+                fill = fills.pop()
+                col = '_'.join(fill.split('_')[:-1])
+                data[col] = data[fill]
+                data[col] = 0
+        else:
+            # remove the fill columns
+            while fills:
+                fill = fills.pop()
+                del data[fill]
+        cols = [item for item in data.columns if not item.endswith('_sig')]
         # conditions and parameter lists
         conds = []
         for item in [st.split('_')[0] for st in cols]:
@@ -234,28 +236,25 @@ def build_sigpop_statdf(amp='engy'):
             sig_cells = set()
             for param in params:
                 col = cond + '_' + param
-                if param == 'fill':
-                    sig_df = data.loc[data[col+'_sig'] > 0, [col+'_sig']]
-                    sig_cells = sig_cells.union(sig_df.index)
-                else:    
-                    sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-                    sig_cells = sig_cells.union(sig_df.loc[sig_df[col] > 0].index)
+                # measure for sig > 0
+                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                # cells for measure > 0 (beware fill measure is actually 0)
+                cells = sig_df.loc[sig_df[col] >= 0].index
+                # append to the set
+                sig_cells = sig_cells.union(cells)
             cells_dict[cond] = list(sig_cells)
         # extract descriptive stats
         stats= []
         for col in cols:
-            if '_fill' in col:
-                col += '_sig'
             cells = cells_dict[col.split('_')[0]]
             ser = data.loc[cells[:], col]# col = cols[0]
             dico = {}
             dico[mes + '_count'] = ser.count()
-            if '_fill' not in col:
-                dico[mes + '_mean'] = ser.mean()
-                dico[mes + '_std'] = ser.std()
-                dico[mes + '_sem'] = ser.sem()
-                dico[mes + '_med'] = ser.median()
-                dico[mes + '_mad'] = ser.mad()
+            dico[mes + '_mean'] = ser.mean()
+            dico[mes + '_std'] = ser.std()
+            dico[mes + '_sem'] = ser.sem()
+            dico[mes + '_med'] = ser.median()
+            dico[mes + '_mad'] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
         df = df.fillna(0)
