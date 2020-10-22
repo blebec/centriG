@@ -206,6 +206,15 @@ def build_sigpop_statdf(amp='engy'):
     for mes in ['vm', 'spk']:
         data = load_cell_contributions(rec=mes, amp=amp, age='new')
         # cols = [item for item in data.columns if not item.endswith('_sig')]
+#/////////
+# include fill_sig + add fill empty columns
+        fills = [item for item in data.columns if 'fill' in item]
+        while fills:
+            fill = fills.pop()
+            col = '_'.join(fill.split('_')[:-1])
+            data[col] = data[fill]
+            data[col] = 0
+#////////
         # to include the 'fill_sig'
         cols = [item for item in data.columns if item.endswith('_sig')]
         cols = [item.replace('_sig', '') for item in cols]
