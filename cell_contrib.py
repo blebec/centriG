@@ -53,7 +53,11 @@ def extract_values(df, stim='sect', param='time'):
             [st for st in adf.columns if 'rdisofull' in st and param in st])
     adf = adf[restricted_list]
     #compute values
-    records = [item for item in restricted_list if 'sig' not in item]
+    # records = [item for item in restricted_list if 'sig' not in item]
+    # to maintain the order
+    records = [item.replace('_sig', '')
+               for item in restricted_list if 'sig' in item]
+
     pop_dico = {}
     resp_dico = {}
     for cond in records:
@@ -464,19 +468,25 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
         # remove the fifth value ie if sect = rdisofull
         heights.append(height[:4])
         x = np.arange(len(pop_dico.keys()))[:4]
-        width = 0.45
+        width = 0.3
+
+        # union
+        bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2,
+                      edgecolor='k')
+        autolabel(ax, bars, sup=True) # call
         # time
-        bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.4,
+        bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
                       edgecolor=colors)
         autolabel(ax, bars) # call
         # amp
-        bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.4,
+        bars = ax.bar(x , heights[1], color=colors, width=width, alpha=0.4,
                       edgecolor=colors)
         autolabel(ax, bars) # call
-        # time OR amp
-        bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
-                      edgecolor=dark_colors)
-        autolabel(ax, bars, sup=True) # call
+        # filling in
+        bars = ax.bar(x + width, heights[2], color=colors, width=width, alpha=0.4,
+                      edgecolor=colors)
+        autolabel(ax, bars) # call
+
         labels = list(pop_dico.keys())[:4]
         ax.set_xticks(range(len(labels)))
         ax.set_xticklabels(labels)
@@ -488,7 +498,7 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
             ax.tick_params(axis='y', length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
-    txt = "{} ({} cells) [time|U|{}]".format(kind, len(data), amp)
+    txt = "{} ({} cells)  [time|{}|fillIn]".format(kind, len(data), amp)
     fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -511,3 +521,4 @@ for mes in ['vm', 'spk']:
         filename = os.path.join(paths['save'], mes + amp.title() \
                                 + '_composite_cell_contribution_2X1_fill.png')
         fig.savefig(filename)
+        
