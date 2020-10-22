@@ -2,7 +2,7 @@
 
 - point bleu -> grey
   
-- [ ] sur la plupart de figures
+- [x] sur la plupart de figures
   
 - - [ ] pointillés qui s'étendent sur les deux graphs
     - à voir en dessin
