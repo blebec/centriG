@@ -436,7 +436,7 @@ if save:
 
 
 
-def plot_trace_1x2(datadf, stdcolors, **kwargs):
+def plot_trace_1x2(stdcolors, **kwargs):
     """
     plot_figure3
     input :
@@ -464,7 +464,21 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
     colors = [stdcolors[color] for color in 'red green yellow blue blue'.split()]
     colors.insert(0, [0,0,0])
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+
     #data
+    files = dict(sect = 'union_idx_fill_sig_sector.xlsx',
+                 full = 'union_idx_fill_sig_full.xlsx')
+    filename = os.path.join(paths['owncFig'], 'data', 'averageTraces', 
+                        'controlsFig', files[spread])
+    datadf = pd.read_excel(filename)
+    cols = gfunc.new_columns_names(datadf.columns)
+    cols = [item.replace('sig_', '') for item in cols]
+    cols = [item.replace('_stc', '') for item in cols]
+    cols = [st.replace('_iso', '') for st in cols]
+    cols = [st.replace('__', '_') for st in cols]
+    cols = [st.replace('_.1', '') for st in cols]
+    datadf.columns = cols
+
     middle = (datadf.index.max() - datadf.index.min())/2
     datadf.index = (datadf.index - middle)/10
     
@@ -572,20 +586,10 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
 
 
 plt.close('all')
-filename = os.path.join(paths['owncFig'], 'data', 'averageTraces', 
-                        'controlsFig', 'union_idx_fill_sig.xlsx')
-data_df = pd.read_excel(filename)
-cols = gfunc.new_columns_names(data_df.columns)
-cols = [item.replace('sig_', '') for item in cols]
-cols = [item.replace('_stc', '') for item in cols]
-cols = [st.replace('_iso', '') for st in cols]
-cols = [st.replace('__', '_') for st in cols]
-cols = [st.replace('_.1', '') for st in cols]
-data_df.columns = cols
 
 dico = {'age': 'new',
  'kind': 'sig',
- 'spread': 'sect',
+ 'spread': 'full',
  'rec': 'vm',
  'anot': True,
  'addleg': True,
@@ -594,7 +598,8 @@ dico = {'age': 'new',
  'controls': True}
 
 
-fig = plot_trace_1x2(data_df, std_colors, **dico)
+fig = plot_trace_1x2(std_colors, **dico)
 save = False
 if save:
-    fig.savefig(os.path.join(paths['save'], 'plot_trace_1x2.png'))
+    name = 'vmSpkUFill_' + dico['spread'] + '.png'
+    fig.savefig(os.path.join(paths['save'], 'popfill', name))
