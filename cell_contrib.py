@@ -392,7 +392,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     fig.text(0.5, 0.85, txt, ha='center', va='top', fontsize=14)
     fig.legend(handles=bars, labels=labels, loc='upper right')
     # rectangle
-    box = False
+    box = True
     if box:
         ax = axes[1]
         x, x1 = ax.get_xlim()
@@ -412,7 +412,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
 
 
 plt.close('all')
-save = True
+save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:

@@ -102,6 +102,8 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
     df = df.sort_values(by=[name, sig_name], ascending=False)
     # plot all traces
     for i, name in enumerate(traces):
+        i = 2
+        name = traces[i]
         sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
         edge_color = colors[i]
@@ -116,6 +118,10 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
         # ax.set_title(str(i))
         ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
                alpha=0.8, width=0.8)
+        ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
+               alpha=0.8, width=0.1)
+
+        ax.scatter(x, select[name], c=bar_colors, marker='o')
         if i in [0, 1]:
             ax.set_title(anoty[i])
     # alternate the y_axis position
@@ -127,16 +133,17 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
             ax.set_facecolor('None')
             # ax.set_title(i)
             ax.spines['top'].set_visible(False)
-            ax.ticklabel_format(useOffset=True)
+#            ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
             # zero line
             ax.axhline(0, alpha=0.3, color='k')
-            if i != 4:
+            if i != 3:
                 ax.xaxis.set_visible(False)
             else:
                 ax.set_xlabel(anotx)
                 ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df)])
+                ax.set_xticklabels([1, len(df)])
                 ax.set_xlim(0, len(df)+1)
     for ax in left_axes:
         custom_ticks = np.linspace(0, 10, 2, dtype=int)
@@ -192,7 +199,7 @@ fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
                                  kind=kind, amp='engy', age='new')
 #%%
 plt.close('all')
-save = True
+save = False
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
 amp = 'engy'
 for kind in ['vm', 'spk']:
