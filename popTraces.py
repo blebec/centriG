@@ -73,7 +73,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
     for i in range(3):
         for item in labels:
-            if (len(item.split('_')) < 6):
+            if len(item.split('_')) < 6:
                 j = labels.index(item)
                 labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
@@ -213,9 +213,9 @@ for age in ['new']: #, 'old']:
             for spread in ['sect', 'full']:
                 # print('______')
                 # print(kind, age, rec, spread)
-                df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age, 
+                df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age,
                                                     rec=rec, spread=spread)
-                plot_figure3(df, std_colors, kind=kind, age=age, 
+                plot_figure3(df, std_colors, kind=kind, age=age,
                              rec=rec, spread=spread)
 
 #%%
@@ -318,7 +318,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
         labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
         for i in range(3):
             for item in labels:
-                if (len(item.split('_')) < 6):
+                if len(item.split('_')) < 6:
                     j = labels.index(item)
                     labels[j] = item + '_ctr'
         labels = [st.split('_')[-3] for st in labels]
@@ -468,7 +468,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
     #data
     files = dict(sect = 'union_idx_fill_sig_sector.xlsx',
                  full = 'union_idx_fill_sig_full.xlsx')
-    filename = os.path.join(paths['owncFig'], 'data', 'averageTraces', 
+    filename = os.path.join(paths['owncFig'], 'data', 'averageTraces',
                         'controlsFig', files[spread])
     datadf = pd.read_excel(filename)
     cols = gfunc.new_columns_names(datadf.columns)
@@ -481,7 +481,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
 
     middle = (datadf.index.max() - datadf.index.min())/2
     datadf.index = (datadf.index - middle)/10
-    
+
 
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 8),
                              sharex=True, sharey=True)
@@ -497,7 +497,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
         rec = recs[i]
         ax_title = f"{rec} {spread}"
         ax.set_title(ax_title)
-        sec = [st for st in cols if rec in st]                
+        sec = [st for st in cols if rec in st]
         sec = [st.replace('sect_rd', 'full_rd') for st in sec]
 
         df = datadf[sec].copy()
@@ -507,10 +507,10 @@ def plot_trace_1x2(stdcolors, **kwargs):
             df = df.subtract(ref, axis=0)
         #build labels
         labels = sec[:]
-        labels = [item.split('_')[0] + '_' + item.split('_')[-1] 
+        labels = [item.split('_')[0] + '_' + item.split('_')[-1]
                   for item in labels]
         labels = [item.replace('rd', 'frd') for item in labels]
-        
+
         for i, col in enumerate(sec):
             ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
                     linewidth=2)
@@ -521,7 +521,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
         # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
         ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
         ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
-        
+
         #refs
 #        ax.axvline(0, alpha=0.3)
         ax.axhline(0, alpha=0.2, color='k')
