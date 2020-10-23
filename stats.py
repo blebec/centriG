@@ -403,7 +403,7 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
     return fig
 
 plt.close('all')
-save = True
+save = False
 kind = ['mean', 'med'][0]
 amp = ['gain', 'engy'][1]
 stat_df = ldat.build_pop_statdf(amp=amp)                     # append gain to load
@@ -414,7 +414,7 @@ for shared in [True, False]:
             fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
                                            kind=kind, amp=amp, mes=mes,
                                            shared=shared, spread=spread,
-                                           digit=True)
+                                           digit=False)
             if save:
                 if shared:
                     filename = os.path.join(paths['save'], 'composite1x2',

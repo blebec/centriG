@@ -127,16 +127,17 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
             ax.set_facecolor('None')
             # ax.set_title(i)
             ax.spines['top'].set_visible(False)
-            ax.ticklabel_format(useOffset=True)
+            # ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
             # zero line
             ax.axhline(0, alpha=0.3, color='k')
-            if i != 4:
+            if i != 3:
                 ax.xaxis.set_visible(False)
             else:
                 ax.set_xlabel(anotx)
                 ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df)])
+                ax.set_xticklabels([1, len(df)])
                 ax.set_xlim(0, len(df)+1)
     for ax in left_axes:
         custom_ticks = np.linspace(0, 10, 2, dtype=int)
@@ -192,24 +193,20 @@ fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
                                  kind=kind, amp='engy', age='new')
 #%%
 plt.close('all')
-save = True
+save = False
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
 amp = 'engy'
 for kind in ['vm', 'spk']:
     for spread in ['sect', 'full']:
     # for amp in ['gain', 'engy']:
-        figs = []
-        figs.append(plot_all_sorted_responses(overlap=True, sort_all=True,
-                                               kind=kind, amp=amp, age='new',
-                                               spread=spread))
-        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False,
-        #                                         kind=kind, amp=amp, age='new'))
-        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
-        #                                         kind=kind, amp=amp, age='new'))
+        fig = plot_all_sorted_responses(overlap=True, sort_all=True,
+                                        kind=kind, amp=amp, age='new',
+                                        spread=spread)
         if save:
-            for i, fig in enumerate(figs):
-                filename = os.path.join(paths['save'], kind + spread.title() + '_' + amp + str(i) + '.png')
-                fig.savefig(filename, format='png')
+            file = kind + spread.title() + '_' + amp + '.png'
+            filename = os.path.join(paths['save'], file)
+            fig.savefig(filename, format='png')
+
 
 
 # =============================================================================
