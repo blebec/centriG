@@ -59,7 +59,7 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
               'gain50' : 'amplitude gain',
               'sect' : 'sector',
               'spk' : 'spikes',
-              'vm' : 'vm', 
+              'vm' : 'vm',
               'full': 'full'}
 
     # parameter
@@ -102,12 +102,10 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
     df = df.sort_values(by=[name, sig_name], ascending=False)
     # plot all traces
     for i, name in enumerate(traces):
-        i = 2
-        name = traces[i]
         sig_name = name + '_sig'
         # color : white if non significant, edgecolor otherwise
         edge_color = colors[i]
-        color_dic = {0 : 'w', 1 : edge_color}
+        color_dic = {0 : (1, 1, 1), 1 : edge_color}
         if sort_all:
             select = df[[name, sig_name]].sort_values(by=[name, sig_name],
                                                       ascending=False)
@@ -118,10 +116,15 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
         # ax.set_title(str(i))
         ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
                alpha=0.8, width=0.8)
-        ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
-               alpha=0.8, width=0.1)
-
-        ax.scatter(x, select[name], c=bar_colors, marker='o')
+        # test to avoid to much bars width
+        # if i % 2 == 0:
+        #     ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
+        #            alpha=0.8, width=0.8)
+        # else:
+        #     ax.bar(x, select[name], color=edge_color, edgecolor=edge_color,
+        #            alpha=0.8, width=0.1)
+        #     ax.scatter(x, select[name].values, c=bar_colors, marker='o',
+        #                edgecolor=edge_color, s=82)
         if i in [0, 1]:
             ax.set_title(anoty[i])
     # alternate the y_axis position
@@ -130,10 +133,10 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
     right_axes = axes[1::2]
     for axe in [left_axes, right_axes]:
         for i, ax in enumerate(axe):
-            ax.set_facecolor('None')
+            ax.set_facecolor((1,1,1,0))
             # ax.set_title(i)
             ax.spines['top'].set_visible(False)
-#            ax.ticklabel_format(useOffset=True)
+            # ax.ticklabel_format(useOffset=True)
             ax.spines['bottom'].set_visible(False)
             # zero line
             ax.axhline(0, alpha=0.3, color='k')
@@ -205,18 +208,14 @@ amp = 'engy'
 for kind in ['vm', 'spk']:
     for spread in ['sect', 'full']:
     # for amp in ['gain', 'engy']:
-        figs = []
-        figs.append(plot_all_sorted_responses(overlap=True, sort_all=True,
-                                               kind=kind, amp=amp, age='new',
-                                               spread=spread))
-        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False,
-        #                                         kind=kind, amp=amp, age='new'))
-        # figs.append(plot_sorted_responses_sup1(overlap=True, sort_all=False, key=1,
-        #                                         kind=kind, amp=amp, age='new'))
+        fig = plot_all_sorted_responses(overlap=True, sort_all=True,
+                                        kind=kind, amp=amp, age='new',
+                                        spread=spread)
         if save:
-            for i, fig in enumerate(figs):
-                filename = os.path.join(paths['save'], kind + spread.title() + '_' + amp + str(i) + '.png')
-                fig.savefig(filename, format='png')
+            file = kind + spread.title() + '_' + amp + '.png'
+            filename = os.path.join(paths['save'], file)
+            fig.savefig(filename, format='png')
+
 
 
 # =============================================================================

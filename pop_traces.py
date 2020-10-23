@@ -145,7 +145,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
             ax.legend()
         fig.text(0.11, 0.91, filename)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'popTraces.py:plot_figure3(' + kind + ')',
+        fig.text(0.99, 0.01, 'pop_traces.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -404,7 +404,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
             for ax in axes:
                 ax.legend()
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'popTraces.py:plot_trace2x2',
+        fig.text(0.99, 0.01, 'pop_traces.py:plot_trace2x2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -459,17 +459,17 @@ def plot_trace_1x2(stdcolors, **kwargs):
     controls = kwargs.get('controls', True)
     spread = kwargs.get('spread', 'sect')
     #defined in dataframe columns (first column = ctr))
-    
+
     title = "significant cells, (time U energy U filling-in)"
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    colors = [stdcolors[color] 
+    colors = [stdcolors[color]
               for color in 'red green yellow blue blue'.split()]
     colors.insert(0, [0,0,0]) # black
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
     #data
     nbcells = dict(sect = [20, 10],
-                   full = [15, 7])  # [vm, spk]   
+                   full = [15, 7])  # [vm, spk]
     files = dict(sect = 'union_idx_fill_sig_sector.xlsx',
                  full = 'union_idx_fill_sig_full.xlsx')
     filename = os.path.join(paths['owncFig'], 'data', 'averageTraces',
@@ -527,13 +527,13 @@ def plot_trace_1x2(stdcolors, **kwargs):
         ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
 
     # adjust
-    y_labels = ['Normalized Membrane Potential', 
+    y_labels = ['Normalized Membrane Potential',
                 'Normalized Firing Rate']
     x_labels = ['', 'Relative Time (ms)']
     for i, ax in enumerate(axes):
         #labels
         ax.set_xlabel(x_labels[i])
-        ax.set_ylabel(y_labels[i])        
+        ax.set_ylabel(y_labels[i])
         ax.annotate('n={}'.format(nbcells[spread][i]), xy=(0.1, 0.8),
                     xycoords="axes fraction", ha='center')
         #refs
@@ -566,9 +566,9 @@ def plot_trace_1x2(stdcolors, **kwargs):
             custom_ticks = np.arange(-10, 60, 10)
             ax.set_xticks(custom_ticks)
 
-        axes[1].set_ylim(-0.1, 0.85) 
-           
-        
+        axes[1].set_ylim(-0.1, 0.85)
+
+
         if addinsert:
             # insert subplot inside this one (broader x axis)
             axins = ax.inset_axes([.4, .11, .42, .25], facecolor='w', alpha=0.2)
@@ -589,7 +589,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
             for ax in axes:
                 ax.legend()
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'popTraces.py:plot_trace_1x2',
+        fig.text(0.99, 0.01, 'pop_traces.py:plot_trace_1x2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig

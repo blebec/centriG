@@ -126,9 +126,9 @@ plt.close('all')
 
 stat_df = ldat.build_pop_statdf()
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
-fig1 = plot_stat(stat_df, kind='mean', digit=True)
+fig1 = plot_stat(stat_df, kind='mean', digit=False)
 # fig2 = plot_stat(stat_df, kind='med')
-fig3 = plot_stat(stat_df_sig, kind='mean', digit=True)
+fig3 = plot_stat(stat_df_sig, kind='mean', digit=False)
 # fig4 = plot_stat(stat_df_sig, kind='med')
 save = False
 if save:
@@ -270,8 +270,8 @@ kind = ['mean', 'med'][0]
 stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
 fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
-                           kind=kind, amp=amp, mes=mes, 
-                           shared=shared, digit=True)
+                           kind=kind, amp=amp, mes=mes,
+                           shared=shared, digit=False)
 save = False
 if save:
     if shared:
@@ -403,7 +403,7 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
     return fig
 
 plt.close('all')
-save = True
+save = False
 kind = ['mean', 'med'][0]
 amp = ['gain', 'engy'][1]
 stat_df = ldat.build_pop_statdf(amp=amp)                     # append gain to load
@@ -414,7 +414,7 @@ for shared in [True, False]:
             fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
                                            kind=kind, amp=amp, mes=mes,
                                            shared=shared, spread=spread,
-                                           digit=True)
+                                           digit=False)
             if save:
                 if shared:
                     filename = os.path.join(paths['save'], 'composite1x2',
