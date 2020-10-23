@@ -73,7 +73,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
     for i in range(3):
         for item in labels:
-            if (len(item.split('_')) < 6):
+            if len(item.split('_')) < 6:
                 j = labels.index(item)
                 labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
@@ -213,9 +213,9 @@ for age in ['new']: #, 'old']:
             for spread in ['sect', 'full']:
                 # print('______')
                 # print(kind, age, rec, spread)
-                df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age, 
+                df, f = ltra.load_intra_mean_traces(paths, kind=kind, age=age,
                                                     rec=rec, spread=spread)
-                plot_figure3(df, std_colors, kind=kind, age=age, 
+                plot_figure3(df, std_colors, kind=kind, age=age,
                              rec=rec, spread=spread)
 
 #%%
@@ -318,7 +318,7 @@ def plot_trace2x2(dflist, stdcolors, **kwargs):
         labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
         for i in range(3):
             for item in labels:
-                if (len(item.split('_')) < 6):
+                if len(item.split('_')) < 6:
                     j = labels.index(item)
                     labels[j] = item + '_ctr'
         labels = [st.split('_')[-3] for st in labels]
@@ -436,7 +436,7 @@ if save:
 
 
 
-def plot_trace_1x2(datadf, stdcolors, **kwargs):
+def plot_trace_1x2(stdcolors, **kwargs):
     """
     plot_figure3
     input :
@@ -459,44 +459,62 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
     controls = kwargs.get('controls', True)
     spread = kwargs.get('spread', 'sect')
     #defined in dataframe columns (first column = ctr))
-    title = "significant cells, time U energy U filling-in"
+    
+    title = "significant cells, (time U energy U filling-in)"
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    colors = [stdcolors[color] for color in 'red green yellow blue blue'.split()]
-    colors.insert(0, [0,0,0])
+    colors = [stdcolors[color] 
+              for color in 'red green yellow blue blue'.split()]
+    colors.insert(0, [0,0,0]) # black
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+
     #data
+    nbcells = dict(sect = [20, 10],
+                   full = [15, 7])  # [vm, spk]   
+    files = dict(sect = 'union_idx_fill_sig_sector.xlsx',
+                 full = 'union_idx_fill_sig_full.xlsx')
+    filename = os.path.join(paths['owncFig'], 'data', 'averageTraces',
+                        'controlsFig', files[spread])
+    datadf = pd.read_excel(filename)
+    cols = gfunc.new_columns_names(datadf.columns)
+    cols = [item.replace('sig_', '') for item in cols]
+    cols = [item.replace('_stc', '') for item in cols]
+    cols = [st.replace('_iso', '') for st in cols]
+    cols = [st.replace('__', '_') for st in cols]
+    cols = [st.replace('_.1', '') for st in cols]
+    datadf.columns = cols
+
+    # adjust time scale
     middle = (datadf.index.max() - datadf.index.min())/2
     datadf.index = (datadf.index - middle)/10
-    
 
-    fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(17.6, 8),
-                             sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8,17.6),
+                             sharex=True, sharey=False)
     axes = axes.flatten()
     fig.suptitle(title, alpha=0.4)
 
     recs = ['vm'] + ['spk']
     cols = [st for st in datadf.columns if spread in st]
-    # replace sector rd by full
-    # cols = [item.replace('sect_rd', 'full_rd') for item in cols]
 
+    # plot
     for i, ax in enumerate(axes):
         rec = recs[i]
         ax_title = f"{rec} {spread}"
         ax.set_title(ax_title)
-        sec = [st for st in cols if rec in st]                
+        sec = [st for st in cols if rec in st]
+        # replace rd sector by full sector
         sec = [st.replace('sect_rd', 'full_rd') for st in sec]
 
         df = datadf[sec].copy()
-        # subtract the centerOnly response (ref = df['CENTER-ONLY'])
         if substract:
+            # subtract the centerOnly response (ref = df['CENTER-ONLY'])
             ref = df[df.columns[0]]
             df = df.subtract(ref, axis=0)
         #build labels
         labels = sec[:]
-        labels = [item.split('_')[0] + '_' + item.split('_')[-1] 
+        labels = [item.split('_')[0] + '_' + item.split('_')[-1]
                   for item in labels]
         labels = [item.replace('rd', 'frd') for item in labels]
-        
+        # plot
         for i, col in enumerate(sec):
             ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
                     linewidth=2)
@@ -507,11 +525,19 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
         # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
         ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
         ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
-        
-        #refs
-#        ax.axvline(0, alpha=0.3)
-        ax.axhline(0, alpha=0.2, color='k')
+
+    # adjust
+    y_labels = ['Normalized Membrane Potential', 
+                'Normalized Firing Rate']
+    x_labels = ['', 'Relative Time (ms)']
+    for i, ax in enumerate(axes):
         #labels
+        ax.set_xlabel(x_labels[i])
+        ax.set_ylabel(y_labels[i])        
+        ax.annotate('n={}'.format(nbcells[spread][i]), xy=(0.1, 0.8),
+                    xycoords="axes fraction", ha='center')
+        #refs
+        ax.axhline(0, alpha=0.2, color='k')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
 
@@ -532,19 +558,17 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
             ax.set_ylabel('Norm vm - Norm centerOnly')
 
         else:
-            ax.set_xlabel('Relative time (ms)')
-            axes[0].set_ylabel('Normalized membrane potential')
-            axes[1].set_ylabel('Normalized firing rate')
             #set limits
-            ax.set_xlim(-30, 50)
-            ax.set_ylim(-0.2, 1.1)
+            ax.set_xlim(-20, 60)
+            ax.set_ylim(-0.1, 1.1)
             custom_ticks = np.arange(0, 1.1, 0.2)
             ax.set_yticks(custom_ticks)
-            custom_ticks = np.arange(-20, 45, 10)
+            custom_ticks = np.arange(-10, 60, 10)
             ax.set_xticks(custom_ticks)
-            # ax.annotate('n=' + str(ncells), xy=(0.1, 0.8),
-            # xycoords="axes fraction", ha='center')
-        addinsert = False
+
+        axes[1].set_ylim(-0.1, 0.85) 
+           
+        
         if addinsert:
             # insert subplot inside this one (broader x axis)
             axins = ax.inset_axes([.4, .11, .42, .25], facecolor='w', alpha=0.2)
@@ -572,29 +596,21 @@ def plot_trace_1x2(datadf, stdcolors, **kwargs):
 
 
 plt.close('all')
-filename = os.path.join(paths['owncFig'], 'data', 'averageTraces', 
-                        'controlsFig', 'union_idx_fill_sig.xlsx')
-data_df = pd.read_excel(filename)
-cols = gfunc.new_columns_names(data_df.columns)
-cols = [item.replace('sig_', '') for item in cols]
-cols = [item.replace('_stc', '') for item in cols]
-cols = [st.replace('_iso', '') for st in cols]
-cols = [st.replace('__', '_') for st in cols]
-cols = [st.replace('_.1', '') for st in cols]
-data_df.columns = cols
 
 dico = {'age': 'new',
  'kind': 'sig',
  'spread': 'sect',
  'rec': 'vm',
  'anot': True,
- 'addleg': True,
+ 'addleg': False,
  'addinsert': False,
  'substract': False,
  'controls': True}
 
+dico['spread'] = 'sect'
 
-fig = plot_trace_1x2(data_df, std_colors, **dico)
+fig = plot_trace_1x2(std_colors, **dico)
 save = False
 if save:
-    fig.savefig(os.path.join(paths['save'], 'plot_trace_1x2.png'))
+    name = 'vmSpkUFill_' + dico['spread'] + '.png'
+    fig.savefig(os.path.join(paths['save'], 'popfill', name))
