@@ -107,7 +107,7 @@ def plot_stat(statdf, kind='mean', legend=False, digit=False):
                 ax.spines['left'].set_visible(False)
                 ax.yaxis.set_visible(False)
             if i > 1:
-                ax.set_xlabel('time advance (ms)')
+                ax.set_xlabel('latency advance (ms)')
             else:
                 ax.spines['bottom'].set_visible(False)
                 ax.xaxis.set_visible(False)
@@ -248,7 +248,7 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
                 ax.spines['left'].set_visible(False)
                 ax.yaxis.set_visible(False)
             if i > 1:
-                ax.set_xlabel('time advance (ms)')
+                ax.set_xlabel('latency advance (ms)')
             else:
                 pass
                 # ax.spines['bottom'].set_visible(False)
@@ -263,15 +263,12 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
+plt.close('all')
 shared=False
-mes = ['vm', 'spk'][1]
-amp = ['gain', 'engy'][1]
+mes = ['vm', 'spk'][0]
+amp = ['gain', 'engy'][0]
 kind = ['mean', 'med'][0]
-stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
-stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
-fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
-                           kind=kind, amp=amp, mes=mes,
-                           shared=shared, digit=False)
+
 save = False
 if save:
     if shared:
@@ -281,6 +278,18 @@ if save:
         filename = os.path.join(paths['save'], 'nshared_'
                                 + mes + amp.title() + '_composite_meanSem.png')
     fig1.savefig(filename)
+
+# for shared in [True, False]:
+#     for mes in ['vm', 'spk']:
+#         for amp in ['gain', 'engy']:
+#             kind = ['mean', 'med'][0]
+
+
+#             stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
+#             stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
+#             fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
+#                            kind=kind, amp=amp, mes=mes,
+#                            shared=shared, digit=False)
 
 #%%
 def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
@@ -384,7 +393,7 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
         ax.axhline(0, linestyle='-', alpha=0.4, color='k')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-            ax.set_xlabel('time advance (ms)')
+            ax.set_xlabel('latency advance (ms)')
             if i > 0:
                 ax.spines['left'].set_visible(False)
 
