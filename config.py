@@ -95,3 +95,12 @@ def profile(fnc):
         print(s.getvalue())
         return retval
     return inner
+
+def std_legends():
+    dico = dict(cpiso = 'cp-iso',
+                cfiso = 'cf-iso',
+                cpcross = 'cp_cross',
+                rndiso = 'rnd-iso', 
+                rd = 'rnd',
+                cx = 'cross')
+    return dico

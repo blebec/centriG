@@ -25,7 +25,7 @@ plt.rcParams['axes.ymargin'] = 0.05
 
 #%%%%% cell contribution
 
-def extract_values(df, stim='sect', param='time'):
+def extract_values(df, stim='sect', param='time', replaceFull=True):
     """ extract pop and response dico:
         input :
             dataframe
@@ -47,10 +47,20 @@ def extract_values(df, stim='sect', param='time'):
                 adf[col] = 0
     restricted_list = \
     [st for st in adf.columns if stim in st and param in st]
-    # append full:
-    if 'rdisosect' in {item.split('_')[0] for item in restricted_list}:
-        restricted_list.extend(
+    if replaceFull:
+        # replace rdisosect by rdisofull
+        if 'rdisosect' in set(item.split('_')[0] for item in restricted_list):
+            restricted_list = [st for st in restricted_list 
+                               if 'rdisosect' not in st.split('_')[0]]
+            restricted_list.extend(
+                    [st for st in adf.columns 
+                     if 'rdisofull' in st and param in st])
+    else:
+        # append full:
+        if 'rdisosect' in {item.split('_')[0] for item in restricted_list}:
+            restricted_list.extend(
             [st for st in adf.columns if 'rdisofull' in st and param in st])
+
     adf = adf[restricted_list]
     #compute values
     # records = [item for item in restricted_list if 'sig' not in item]
@@ -316,7 +326,7 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
     return fig
 
 plt.close('all')
-save = True
+save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:
@@ -345,6 +355,15 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
               'spk': 'Spikes'}
     colors = [std_colors[item]
               for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
+    relabel = dict(cpisosect = 'CP-ISO', 
+                   cfisosect = 'CF-ISO', 
+                   cpcxsect = 'CP-CROSS',
+                   rdisosect = 'RND',
+                   cpisofull = 'CP-ISO', 
+                   cfisofull = 'CF-ISO', 
+                   cpcxfull = 'CP-CROSS',
+                   rdisofull = 'RND'
+                   )
     #compute values ([time values], [amp values])
     params = ['time', amp]
     heights = []
@@ -360,7 +379,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))
     axes = axes.flatten()
     titles_here = [titles['time'], 'time OR energy', titles['engy']]
-    labels = list(pop_dico.keys())
+    labels = [relabel[st] for st in pop_dico]
 
     for i, ax in enumerate(axes):
         ax.set_title(str(i))
@@ -412,7 +431,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
 
 
 plt.close('all')
-save = False
+save = True
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:
@@ -509,7 +528,7 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
     return fig
 
 plt.close('all')
-save = True
+save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
 for mes in ['vm', 'spk']:
