@@ -431,7 +431,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
 
 
 plt.close('all')
-save = True
+save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 for mes in ['vm', 'spk']:
