@@ -1219,7 +1219,8 @@ def plot_pop_fill_surround(std_colors):
               0.7, 0.7,
               0.7,0.7]
 
-    fig = plt.figure(figsize=(11.6, 10))
+    # fig = plt.figure(figsize=(11.6, 10))
+    fig = plt.figure(figsize=(5.8, 5))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(111)
     for i in (2,19,20,21):
