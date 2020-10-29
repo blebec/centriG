@@ -158,10 +158,17 @@ select = dict(age='new', rec='vm', kind='sig')
 data_df, file = ltra.load_intra_mean_traces(paths, **select)
 #params (plot)
 select['file'] = file
-select['substract'] = False
+select['substract'] = True
 select['addleg'] = True
 select['addinsert'] = False
 fig = plot_figure3(data_df, std_colors, **select)
+
+# # to use with fillingf in:
+# fig.get_axes()[0]
+# ax = fig.get_axes()[0]
+# ax.set_xlim(-150, 150)
+# ax.set_ylim(-0.15, 0.35)
+# ax.set_xticks(np.arange(-150, 150, 50))
 
 #%% nb use select to change the parameters
 plt.close('all')
