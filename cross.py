@@ -81,10 +81,13 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
-    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
-                   std_colors['dark_yellow'], std_colors['dark_blue']]
+    # colors = [std_colors['red'], std_colors['green'],
+    #           std_colors['yellow'], std_colors['blue']]
+    colors = [std_colors[item] for item in
+              ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+
 
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
@@ -270,10 +273,11 @@ def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
 
 def horizontal_dot_plot(df_left, df_right, mes=''):
 
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
-    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
-                   std_colors['dark_yellow'], std_colors['dark_blue']]
+
+    colors = [std_colors[item] for item in
+                         ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in ['dark_red', 'dark_green',
+                                                'dark_yellow', 'dark_blue']]
      # text labels
     if 'sect' in df_right.columns[0].split('_')[0]:
         spread = 'sect'
@@ -422,11 +426,10 @@ def histo_lat_gain(df_left, df_right, mes=''):
     """
     histogramme des données
     """
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue']]
-    dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
-                   std_colors['dark_yellow'], std_colors['dark_blue']]
-
+    colors = [std_colors[item] for item in
+                         ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in ['dark_red', 'dark_green',
+                                                'dark_yellow', 'dark_blue']]
     # text labels
     if 'sect' in right.columns[0].split('_')[0]:
         spread = 'sect'

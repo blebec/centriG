@@ -26,7 +26,11 @@ plt.rcParams['axes.ymargin'] = 0.05
 def plot_stat(statdf, kind='mean', legend=False, digit=False):
     """
     plot the stats
-    input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
+    input : 
+        statdf, 
+        kind in ['mean', 'med'],
+        legend : bool (display legend)
+        digit : bool (use nb of cell as a marker)
     output : matplotlib figure
     """
     stats = dict(mean = ['_mean', '_sem'],
@@ -38,11 +42,7 @@ def plot_stat(statdf, kind='mean', legend=False, digit=False):
 
     colors= [std_colors[item] for item in
              ['red', 'green', 'yellow', 'blue', 'dark_blue']]
-
-    if statdf.max().max() == 37:
-        ref = 'population'
-    else:
-        ref = 'sig_pops'
+    ref = 'population' if statdf.max().max() == 37 else 'sig_pops'
 
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(8, 8),
                              sharex=True, sharey=True)
@@ -50,8 +50,8 @@ def plot_stat(statdf, kind='mean', legend=False, digit=False):
     title = "{}    ({} ± {}) ".format(ref, stat[0][1:], stat[1][1:])
     fig.suptitle(title)
     # plots
-    for i, cond in enumerate([('vm', 'sect'), ('vm', 'full'),
-                              ('spk', 'sect'), ('spk', 'full')]):
+    conds = conds = [(a, b) for a in ['vm', 'spk'] for b in ['sec', 'full']]
+    for i, cond in enumerate(conds):
         ax = axes[i]
         rec = cond[0]
         spread = cond[1]
@@ -181,8 +181,10 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
         axes = [ax0, ax1, ax2, ax3]
     title = stat[0][1:] +'   (' +  stat[1][1:] + ')'
     fig.suptitle(title)
-    for i, cond in enumerate([(mes, 'sect'), (mes, 'full'),
-                               (mes, 'sect'), (mes, 'full')]):
+    conds = [(x,y) for x in [mes, mes] for y in ['sect', 'full']]
+    for i, cond in enumerate(conds):
+    # for i, cond in enumerate([(mes, 'sect'), (mes, 'full'),
+    #                            (mes, 'sect'), (mes, 'full')]):
         if i < 2:
             df = statdf
             pop = 'pop'
@@ -266,8 +268,13 @@ def plot_composite_stat(statdf, statdfsig, sigcells,
 plt.close('all')
 shared=False
 mes = ['vm', 'spk'][0]
-amp = ['gain', 'engy'][0]
+amp = ['gain', 'engy'][1]
 kind = ['mean', 'med'][0]
+stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
+fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
+                           kind=kind, amp=amp, mes=mes,
+                           shared=shared, digit=False)
 
 save = False
 if save:
@@ -312,16 +319,14 @@ def plot_composite_stat_1x2(statdf, statdfsig, sigcells, spread='sect',
     ylabels = dict(engy=r'$\Delta\ energy$',
                    gain=r'$\Delta\ gain$')
 
-    titles = {'time' : r'Latency Advance (% significant cells)',
-              'engy': r'$\Delta$ Energy (% significant cells)',
-              'sect': 'Sector',
-              'full': 'Full',
-              'vm' : 'Vm',
-              'spk': 'Spikes'}
-
-    colors = [std_colors['red'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue'],
-              std_colors['dark_blue']]
+    titles = dict(time = r'Latency Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect =  'Sector',
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
+    colors = [std_colors[color] for color in
+              ['red', 'green', 'yellow', 'blue', 'dark_blue']]
 
     data = [statdf, statdfsig]
     pops = ['population', 'sig_pops']

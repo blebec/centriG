@@ -80,7 +80,6 @@ def speed_colors():
     return colors
 
 
-
 def profile(fnc):
     """ a decorator that uses cProfile to profile a function """
     def inner(*args, **kwargs):
@@ -96,11 +95,13 @@ def profile(fnc):
         return retval
     return inner
 
+
 def std_legends():
+    """ define a standard name for legends """
     dico = dict(cpiso = 'cp-iso',
                 cfiso = 'cf-iso',
                 cpcross = 'cp_cross',
-                rndiso = 'rnd-iso', 
+                rndiso = 'rnd-iso',
                 rd = 'rnd',
                 cx = 'cross')
     return dico

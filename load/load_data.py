@@ -42,26 +42,26 @@ def load2(age='new'):
     df.index = (df.index - middle)/10
     df = df.loc[-200:150]
     # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
-    colsdict = {
-        'indVm': ['indiVmctr', 'indiVmscpIsoStc'],
-        'indSpk': ['indiSpkCtr', 'indiSpkscpIsoStc'],
-        'popVm': ['popVmCtr', 'popVmscpIsoStc'],
-        'popSpk': ['popSpkCtr', 'popSpkscpIsoStc'],
-        'popVmSig': ['popVmCtrSig', 'popVmscpIsoStcSig',
-                     ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                     ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-        'popSpkSig': ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                      ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
-                      ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-        'popVmNsig': ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                      ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
-                      ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-        'popSpkNsig': ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                       ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                       ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-        'sort': ['popVmscpIsolatg', 'popVmscpIsoAmpg',
-                 'lagIndiSig', 'ampIndiSig']
-                }
+    colsdict = dict(
+        indVm = ['indiVmctr', 'indiVmscpIsoStc'],
+        indSpk =  ['indiSpkCtr', 'indiSpkscpIsoStc'],
+        popVm = ['popVmCtr', 'popVmscpIsoStc'],
+        popSpk = ['popSpkCtr', 'popSpkscpIsoStc'],
+        popVmSig = ['popVmCtrSig', 'popVmscpIsoStcSig',
+                    ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
+                    ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
+        popSpkSig = ['popSpkCtrSig', 'popSpkscpIsoStcSig',
+                     ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
+                     ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
+        popVmNsig = ['popVmCtrNSig', 'popVmscpIsoStcNSig',
+                     ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
+                     ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
+        popSpkNsig = ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
+                      ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
+                      ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
+        sort = ['popVmscpIsolatg', 'popVmscpIsoAmpg',
+                'lagIndiSig', 'ampIndiSig']
+        )
     return df, colsdict
 
 

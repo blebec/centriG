@@ -50,10 +50,10 @@ def extract_values(df, stim='sect', param='time', replaceFull=True):
     if replaceFull:
         # replace rdisosect by rdisofull
         if 'rdisosect' in set(item.split('_')[0] for item in restricted_list):
-            restricted_list = [st for st in restricted_list 
+            restricted_list = [st for st in restricted_list
                                if 'rdisosect' not in st.split('_')[0]]
             restricted_list.extend(
-                    [st for st in adf.columns 
+                    [st for st in adf.columns
                      if 'rdisofull' in st and param in st])
     else:
         # append full:
@@ -114,12 +114,11 @@ def plot_cell_contribution(df, kind=''):
 
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
 
-    conds = [('sect', 'time'), ('sect', 'engy'),
-             ('full', 'time'), ('full', 'engy')]
-    titles = {'time' : 'Time Advance (% significant cells)',
-              'engy': r'$\Delta$ Energy (% significant cells)',
-              'sect': 'Sector',
-              'full': 'Full'}
+    conds = [(a, b) for a in ['sect', 'full'] for b in ['time', 'engy']]
+    titles = dict(time = 'Time Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect = 'Sector',
+                  full = 'Full')
     fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8,8))
     axes = axes.flatten()
     for i, ax in enumerate(axes):
@@ -173,16 +172,17 @@ def plot_composite_sectFull_2X1(df, sigcells, kind='', amp='engy'):
     amp in [gain, engy]
     """
 
-    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    colors = [std_colors[item] for item in
+              ['red', 'green', 'yellow', 'blue']]
     dark_colors = [std_colors[item] for item in \
                    ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
 
     stims = ('sect', 'full')
     params = ('time', amp)
-    titles = {'time' : r'Time Advance (% significant cells)',
-              'engy': r'$\Delta$ Energy (% significant cells)',
-              'sect': 'Sector',
-              'full': 'Full'}
+    titles = dict(time = r'Time Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect = 'Sector',
+                  full = 'Full')
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
     axes = axes.flatten()
     titles = ['sector', 'full']
@@ -268,12 +268,12 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
 
 #    stims = ('sect', 'full')
     params = ('time', amp)
-    titles = {'time' : r'Latency Advance (% significant cells)',
-              'engy': r'$\Delta$ Energy (% significant cells)',
-              'sect': 'Sector',
-              'full': 'Full',
-              'vm' : 'Vm',
-              'spk': 'Spikes'}
+    titles = dict(time = r'Latency Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect = 'Sector',
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
     fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4,4))
     title = "{} {} ({} cells)".format(titles[mes], titles[spread],  len(data))
     fig.suptitle(title)
@@ -347,20 +347,20 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
-    titles = {'time' : r'Latency Advance',
-              'engy': r'$\Delta$ Energy',
-              'sect': 'Sector',
-              'full': 'Full',
-              'vm' : 'Vm',
-              'spk': 'Spikes'}
+    titles = dict(time = r'Latency Advance',
+                  engy = r'$\Delta$ Energy',
+                  sect = 'Sector',
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
     colors = [std_colors[item]
               for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
-    relabel = dict(cpisosect = 'CP-ISO', 
-                   cfisosect = 'CF-ISO', 
+    relabel = dict(cpisosect = 'CP-ISO',
+                   cfisosect = 'CF-ISO',
                    cpcxsect = 'CP-CROSS',
                    rdisosect = 'RND',
-                   cpisofull = 'CP-ISO', 
-                   cfisofull = 'CF-ISO', 
+                   cpisofull = 'CP-ISO',
+                   cfisofull = 'CF-ISO',
                    cpcxfull = 'CP-CROSS',
                    rdisofull = 'RND'
                    )
@@ -441,7 +441,8 @@ for mes in ['vm', 'spk']:
                                 spread=spread, mes=mes, amp=amp)
         if save:
             file = 'contrib' + mes.title() + spread.title() + 'Box.png'
-            folder = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
+            folder = os.path.join(paths['owncFig'],
+                                  'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
 
@@ -461,10 +462,10 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
 
     stims = ('sect', 'full')
     params = ('time', amp, 'fill')
-    titles = {'time' : r'Time Advance (% significant cells)',
-              'engy': r'$\Delta$ Energy (% significant cells)',
-              'sect': 'Sector',
-              'full': 'Full'}
+    titles = dict(time = r'Time Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect = 'Sector',
+                  full = 'Full')
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
     axes = axes.flatten()
     titles = ['sector', 'full']
@@ -540,18 +541,10 @@ for mes in ['vm', 'spk']:
         filename = os.path.join(paths['save'], mes + amp.title() \
                                 + 'Fill_composite_cell_contribution_2X1.png')
         fig.savefig(filename)
-        
-        
+
+
 #%%
 plt.close('all')
 save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
-
-
-
-
-
-
-
-

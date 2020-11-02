@@ -1070,7 +1070,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
         ax3 = fig.add_subplot(223, sharex=ax1, sharey=ax1)
     if lp == 'minus':
         for i in [2, 5]:
-            print('i=', i, colors[i])
+            # print('i=', i, colors[i])
             ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      label=df.columns[i])
             ax3.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
@@ -1078,7 +1078,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     # ax2.set_ylim(-0.2, 0.3)
     elif lp =='plus':
         for i in (1,6,7,8):
-            print('i=', i, colors[i])
+            # print('i=', i, colors[i])
             ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
                      label=df.columns[i])
             ax3.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],

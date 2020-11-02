@@ -54,10 +54,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
         ax.plot(datadf[col], color=colors[i], alpha=alphas[i],
                 label=col)
     # response point
-    if age == 'old':
-        x = 41.5
-    else:
-        x = 43.5
+    x = 41.5 if age == 'old' else 43.5
     y = datadf.indiVmctr.loc[x]
     #blue point and vline
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
@@ -73,10 +70,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
         ax.fill_between(datadf.index, datadf[col],
                         color=colors[::-1][i], alpha=0.5, label=col)
     # response point
-    if age == 'old':
-        x = 39.8
-    else:
-        x = 55.5
+    x = 39.8 if age == 'old' else 55.5
     y = datadf.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color='tab:blue',
@@ -100,7 +94,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
-    
+
      # pop spike
     cols = colsdict['popSpk']
     ax = spkaxes[1]
@@ -217,7 +211,7 @@ def plot_figure2_proposal(datadf, colsdict, anot=False, age='new'):
 
 
 #%%
-# 
+#
 def plot_2B_bis(stdcolors, anot=False, age='new'):
     """
     plot_figure2B alternative : sorted phase advance and delta response
@@ -247,16 +241,13 @@ def plot_2B_bis(stdcolors, anot=False, age='new'):
             ylabel = r'$\Delta$ Phase (ms)'
             ax.set_ylim(-6, 29)
             if amp == 'engy':
-                ax.set_ylim(-10, 29)    
+                ax.set_ylim(-10, 29)
             x_label = 'Cell rank'
         else:
             ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
             x_label = 'Ranked cells'
-            if amp == 'gain':
-                ylabel = r'$\Delta$ Amplitude'
-            else:
-                ylabel = r'$\Delta$ Energy'                
+            ylabel = r'$\Delta$ Amplitude'if amp == 'gain' else r'$\Delta$ Energy'
         ax.set_xlabel(x_label)
         ax.xaxis.set_label_coords(0.5, -0.025)
         ax.set_yticks(custom_yticks)
@@ -330,12 +321,12 @@ def plot_indFill_bis(stdcolors, linear=True, substract=False):
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
     # rename columns
-    cols = ['center_only', 'surround_then_center', 
+    cols = ['center_only', 'surround_then_center',
             'surround_only', 'static_linear_prediction']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', stdcolors['red'], 
+    colors = ['k', stdcolors['red'],
               stdcolors['dark_green'], stdcolors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     if substract:
@@ -367,10 +358,8 @@ def plot_indFill_bis(stdcolors, linear=True, substract=False):
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
-    
+
     names = ['D' + str(i) for i in range(6)]
-    # vlocs = np.linspace(-0.7, -1.7, 4)
-    # vlocs = np.linspace(-1.4, -2.4, 4)
     vlocs = np.linspace(-0.8, -1.5, 4)
     dico = dict(zip(names, hlocs))
 
@@ -474,7 +463,7 @@ def plot_pop_fill_bis(stdcolors):
     #     df.centerOnly = df.centerOnly - ref
     #colors = ['k', 'r', 'b', 'g', 'b', 'b']
     colors = [std_colors[item] for item in \
-             ['k', 'red', 'dark_green', 'blue_violet', 'red', 'blue_violet']]    
+             ['k', 'red', 'dark_green', 'blue_violet', 'red', 'blue_violet']]
     alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.6]
 
     # plotting
@@ -547,7 +536,7 @@ if __name__ == "__main__":
         filename = os.path.join(paths['save'], 'prop_fig2.png')
         fig.savefig(filename)
     plot_2B_bis(std_colors, anot=anot)
-    plot_figure6_bis(std_colors, linear=True, substract=False)
-    plot_figure6_bis(std_colors, linear=True, substract=True)
-    plot_figure7_bis(std_colors)
+    plot_indFill_bis(std_colors, linear=True, substract=False)
+    plot_indFill_bis(std_colors, linear=True, substract=True)
+    plot_pop_fill_bis(std_colors)
 #TODO append the save process

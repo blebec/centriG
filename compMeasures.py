@@ -43,9 +43,7 @@ def load_all_indices():
 
         if len(res_df.columns) < 1:
             cols = params.copy()
-            cols.append('kind')
-            cols.append('stim')
-            cols.append('spread')
+            cols.extend(['kind', 'stim', 'spread'])
             res_df = pd.DataFrame(columns=cols)
 
         for stim in stims:
@@ -78,7 +76,8 @@ def do_pair_plot(df, kind='vm', spread='sect'):
     if spread not in ['sect', 'full']:
         print('spread should be in [sect, full]')
         return
-    colors = [std_colors[item] for item in ['blue', 'yellow', 'green', 'red']] 
+    colors = [std_colors[item] for item in 
+              ['blue', 'yellow', 'green', 'red']] 
     hue_order = ['rdiso', 'cpcrx', 'cfiso', 'cpiso']
     sns.set_palette(sns.color_palette(colors))
     
@@ -103,7 +102,8 @@ def do_pair_plot(df, kind='vm', spread='sect'):
 plt.close('all')
 
 save = False
-savePath =  '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/5_enerPeakOrGain'
+savePath = os.path.join(paths['owncFig'], 
+                        'pythonPreview', 'proposal', '5_enerPeakOrGain')
 
 for spread in ['sect', 'full']:
     for kind in ['vm', 'spk']:
@@ -164,7 +164,8 @@ def do_lmplot_plot(df, kind='vm', spread='sect'):
     return g1.fig, g2.fig
 
 save = False
-savePath =  '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain'
+savePath = os.path.join(paths['owncFig'], 
+                        'pythonPreview', 'proposal', 'enerPeakOrGain')
 mes= ['Gain', 'Engy']
 for spread in ['sect', 'full']:
     for kind in ['vm', 'spk']:

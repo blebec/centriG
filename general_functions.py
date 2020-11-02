@@ -100,11 +100,18 @@ def new_columns_names(cols):
         return result.lower()
     newcols = [convert_to_snake(item) for item in cols]
     # nb added an '_i' to cross to have the same lengt in all stim names
-    chg_dct = {'vms': 'vm_sect_', 'vmf': 'vm_full_',
-               'spks': 'spk_sect_', 'spkf': 'spk_full_',
-               'dlat50': 'time50', 'dgain50': 'gain50',
-               'lat50': 'time50', 'cp': 'cp', 'cf': 'cf',
-               'rnd': 'rd', 'cross' : 'cx', 'denergy' : 'engy'}
+    chg_dct = dict(vms = 'vm_sect_',
+                   vmf = 'vm_full_',
+                   spks = 'spk_sect_',
+                   spkf = 'spk_full_',
+                   dlat50 = 'time50',
+                   dgain50 = 'gain50',
+                   lat50 = 'time50',
+                   cp =  'cp',
+                   cf = 'cf',
+                   rnd = 'rd',
+                   cross = 'cx',
+                   denergy = 'engy')
     for key in chg_dct:
         newcols = [item.replace(key, chg_dct[key]) for item in newcols]
     return newcols
