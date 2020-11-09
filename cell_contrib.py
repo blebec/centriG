@@ -545,6 +545,109 @@ for mes in ['vm', 'spk']:
 
 #%%
 plt.close('all')
+
+
+def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
+    """
+    cell contribution, to go to the bottom of the preceding stat description
+    kind in [vm, spk]
+    amp in [gain, engy]
+    """
+
+    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    dark_colors = [std_colors[item] for item in \
+                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+
+    stims = ('sect', 'full')
+    params = ('time', amp, 'fill')
+    titles = dict(time = r'Time Advance (% significant cells)',
+                  engy = r'$\Delta$ Energy (% significant cells)',
+                  sect = 'Sector',
+                  full = 'Full')
+    fig = plt.figure(figsize=(4,4))
+    ax = fig.add_subplot(111)
+    title = ''
+
+    # ax.set_title(str(i))
+    heights = []
+    for param in params:
+        pop_dico, _ = extract_values(df, spread, param)
+        height = [pop_dico[key][-1] for key in pop_dico]
+        # remove the fifth value ie if sect = rdisofull
+        heights.append(height[:4])
+    # % sig cells for time and amp
+    height = [round(len(sigcells[mes][st])/len(df)*100)
+              for st in list(pop_dico.keys())]
+    # remove the fifth value ie if sect = rdisofull
+    heights.append(height[:4])
+    x = np.arange(len(pop_dico.keys()))[:4]
+    width = 0.3
+
+    # union
+    bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2,
+                  edgecolor='k')
+    autolabel(ax, bars, sup=True) # call
+    # time
+    bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
+                  edgecolor=colors)
+    autolabel(ax, bars) # call
+    # amp
+    bars = ax.bar(x , heights[1], color=colors, width=width, alpha=0.4,
+                  edgecolor=colors)
+    autolabel(ax, bars) # call
+    # filling in
+    bars = ax.bar(x + width, heights[2], color=colors, width=width, alpha=0.4,
+                  edgecolor=colors)
+    autolabel(ax, bars) # call
+
+    labels = list(pop_dico.keys())[:4]
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels)
+
+    for spine in ['left', 'top', 'right']:
+        ax.spines[spine].set_visible(False)
+        ax.tick_params(axis='x', labelrotation=45)
+        ax.yaxis.set_ticklabels([])
+        ax.tick_params(axis='y', length=0)
+    # for ax in axes[:2]:
+    #     ax.xaxis.set_visible(False)
+    txt = "{} ({} cells)  [time|{}|fillIn]".format(mes, len(data), amp)
+    fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1_fill',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
 save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
+spread = ['sect', 'full'][0]
+mes = ['vm', 'spk'][0]
+data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+fig1 = plot_composite_1X1_fill(df=data, sigcells=sig_cells, spread='sect', mes='vm', amp='engy')
+
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'current', 'fig')
+    file = 'contrib_1x1_' + 'vm' + 'sect'.title() + '.png'
+    fig1.savefig(os.path.join(dirname, file))
+
+
+
+
+# amp = ['gain', 'engy'][1]
+# stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
+# for mes in ['vm', 'spk']:
+#     #load_cell_contributions(mes='vm', amp='gain', age='new'):
+#     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+#     fig = plot_composite_sectFull_2X1_fill(data, sig_cells, kind=mes,
+#                                                amp=amp)
+#     if save:
+#         filename = os.path.join(paths['save'], mes + amp.title() \
+#                                 + 'Fill_composite_cell_contribution_2X1.png')
+#         fig.savefig(filename)

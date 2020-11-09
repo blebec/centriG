@@ -26,8 +26,8 @@ plt.rcParams['axes.ymargin'] = 0.05
 def plot_stat(statdf, kind='mean', legend=False, digit=False):
     """
     plot the stats
-    input : 
-        statdf, 
+    input :
+        statdf,
         kind in ['mean', 'med'],
         legend : bool (display legend)
         digit : bool (use nb of cell as a marker)
@@ -422,6 +422,17 @@ kind = ['mean', 'med'][0]
 amp = ['gain', 'engy'][1]
 stat_df = ldat.build_pop_statdf(amp=amp)                     # append gain to load
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
+fig1 = plot_composite_stat_1x2(stat_df, stat_df_sig, sig_cells,
+            kind=kind, amp=amp, mes='vm',
+            shared=True, spread='sect',
+            digit=True)
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'current', 'fig')
+    file = 'composite_stat_1x2_' + 'vm' + 'sect'.title() + '.png'
+    fig1.savefig(os.path.join(dirname, file))
+#%%
 for shared in [True, False]:
     for mes in ['vm', 'spk']:
         for spread in ['sect', 'full']:
