@@ -333,13 +333,14 @@ for mes in ['vm', 'spk']:
     data = ldat.load_cell_contributions(mes, age='new', amp=amp)
     for spread in ['sect', 'full']:
         fig = plot_composite_1X1(data, sig_cells,
-                                  spread=spread, mes=mes, amp=amp)
+                                  spread=spread, mes=mes, amp=amp)            
         if save:
             file = 'contrib_1x1_' + mes.title() + spread.title() + '.png'
-            folder = os.path.join(paths['owncFig'], 'pythonPreview',
-                                  'stat', 'contrib1x1')
+            folder = os.path.join(paths['owncFig'],
+                                  'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
+
 
 #%%
 
@@ -440,7 +441,7 @@ for mes in ['vm', 'spk']:
         fig = plot_separate_1x3(data, sig_cells,
                                 spread=spread, mes=mes, amp=amp)
         if save:
-            file = 'contrib' + mes.title() + spread.title() + 'Box.png'
+            file = 'contrib_' + mes.title() + spread.title() + '_Box.png'
             folder = os.path.join(paths['owncFig'],
                                   'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
@@ -493,7 +494,7 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
         # union
         bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2,
                       edgecolor='k')
-        autolabel(ax, bars, sup=True) # call
+        autolabel(ax, bars, sup=False) # call
         # time
         bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
                       edgecolor=colors)
@@ -538,10 +539,10 @@ for mes in ['vm', 'spk']:
     fig = plot_composite_sectFull_2X1_fill(data, sig_cells, kind=mes,
                                                amp=amp)
     if save:
-        filename = os.path.join(paths['save'], mes + amp.title() \
-                                + 'Fill_composite_cell_contribution_2X1.png')
-        fig.savefig(filename)
-
+        dirname = os.path.join(paths['owncFig'],
+                                   'pythonPreview', 'sorted', 'sorted&contrib')
+        file = 'contrib_2x1_fill_' + mes + spread.title() + '.png'
+        fig.savefig(os.path.join(dirname, file))
 
 #%%
 plt.close('all')
@@ -584,9 +585,9 @@ def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
     width = 0.3
 
     # union
-    bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2,
+    bars = ax.bar(x, heights[3], color=colors, width=0.95, alpha=0.2,
                   edgecolor='k')
-    autolabel(ax, bars, sup=True) # call
+    autolabel(ax, bars, sup=False) # call
     # time
     bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
                   edgecolor=colors)
@@ -622,20 +623,20 @@ def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
     return fig
 
 plt.close('all')
-save = False
+save = True
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
-spread = ['sect', 'full'][0]
-mes = ['vm', 'spk'][0]
-data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-fig1 = plot_composite_1X1_fill(df=data, sigcells=sig_cells, spread='sect', mes='vm', amp='engy')
+for spread in ['sect', 'full']:
+    for mes in ['vm', 'spk']:
+        data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+        fig1 = plot_composite_1X1_fill(df=data, sigcells=sig_cells, 
+                                       spread=spread, mes=mes, amp=amp)
 
-save = False
-if save:
-    dirname = os.path.join(paths['owncFig'],
-                           'pythonPreview', 'current', 'fig')
-    file = 'contrib_1x1_' + 'vm' + 'sect'.title() + '.png'
-    fig1.savefig(os.path.join(dirname, file))
+        if save:
+            dirname = os.path.join(paths['owncFig'],
+                                   'pythonPreview', 'sorted', 'sorted&contrib')
+            file = 'contrib_1x1_fill_' + mes + spread.title() + '.png'
+            fig1.savefig(os.path.join(dirname, file))
 
 
 
