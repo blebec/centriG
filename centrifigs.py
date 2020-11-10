@@ -94,7 +94,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     df = datadf[rev_cols].copy()
     if onlyPos:
         for col in df.columns:
-            df.loc[df[col] < 0, [col]] = 0       
+            df.loc[df[col] < 0, [col]] = 0
     for i, col in enumerate(rev_cols):
         ax.plot(df[col], color=rev_colors[i],
                 alpha=1, label=col, linewidth=1)
@@ -318,7 +318,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
 #data
 age = ['old', 'new'][1]
 fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols, 
+fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols,
                    anot=anot, age=age, onlyPos=False)
 save = False
 if save:
@@ -996,11 +996,11 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     df.index = (df.index - middle)/10
     #limit the date time range
     df = df.loc[-150:150]
-    
+
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
     df.columns = cols
-    
+
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
             'stcsdDown', 'stcLinearPrediction',
@@ -1018,7 +1018,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
               std_colors['blue'], std_colors['blue'],
               'k', std_colors['red'],
               std_colors['green'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue'],]
+              std_colors['blue'], std_colors['blue']]
     alphas = [0.5, 0.7, 0.7,
               0.5, 0.5,
               0.6, 0.2,
@@ -1155,6 +1155,117 @@ if save:
     fig1.savefig(os.path.join(paths['save'], file))
     file = 'pop_fill_alt_minus.png'
     fig2.savefig(os.path.join(paths['save'], file))
+
+#%%
+def plot_pop_predictive(std_colors, lp='minus'):
+    """
+    plot_figure7
+    lP <-> linear predictor
+    """
+    filename = 'data/data_to_use/popfill.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = (df.index - middle)/10
+    #limit the date time range
+    df = df.loc[-150:150]
+
+    cols = gfunc.new_columns_names(df.columns)
+    cols = ['_'.join(item.split('_')[1:]) for item in cols]
+    df.columns = cols
+    # restrict
+    df = df[[cols[i] for i in [0, 1, 2, 3, 4, 5, 6, 7, 8]]]
+    cols = df.columns
+
+    # cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+    #         'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+    #         'stcsdDown', 'stcLinearPrediction',
+    #         'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
+    #         'stcspkcpCtr, stcspkcpIso',
+    #         'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
+    # dico = dict(zip(df.columns, cols))
+    # df.rename(columns=dico, inplace=True)
+
+    colors = [std_colors[st]
+              for st in ['k', 'red', 'dark_green', 'blue_violet']]
+    alphas = [0.5, 0.7, 0.7, 0.5]
+    sharesY = dict(minus = False, plus = True)
+    fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True,
+                             sharey=sharesY[lp], figsize=(8.5, 8))
+    axes = axes.flatten()
+
+    ax = axes[0]
+    linewidths = (1,1,2)
+    for i, col in enumerate(df.columns[:3]):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+        linewidth=linewidths[i], label=col)
+    # response point
+    x = 0
+    y = df[df.columns[0]].loc[0]
+    # ax.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+
+    lims = dict(minus = (-0.2, 1.1), plus=(-0.05, 1.2))
+    ax.set_ylim(lims.get(lp))
+    # title = (' || ').join([str(i) + '_' +  df.columns[i] for i in range(3)])
+    # ax.set_title(title)
+
+    # predictive magnification
+    ax = axes[1]
+    colors = [std_colors[st]
+              for st in ['k', 'red', 'dark_green', 'blue_violet']]
+    linewidths=(1,1)
+    # (first, second, stdup, stddown)
+    lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
+    cols = [df.columns[i] for i in lp_cols[lp]]
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i+2], alpha=alphas[i+2],
+                label=col, linewidth=linewidths[i])
+    ax.fill_between(df.index, df[cols[2]], df[cols[3]],
+                    color=colors[2], alpha=0.1)
+    
+    for i, ax in enumerate(axes):
+        ax.axhline(0, alpha=0.3, color='k')
+        ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+        ax.set_ylabel('Normalized membrane potential')
+        ax.annotate("n=12", xy=(0.1, 0.8),
+                    xycoords="axes fraction", ha='center')
+        if i > 0:
+            ax.set_xlabel('Relative time (ms)')
+            # if lp == 'minus':
+            #     gfunc.change_plot_trace_amplitude(ax, 0.9)
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+    fig.tight_layout()
+    if lp == 'minus':
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        axes[0].set_yticks(custom_ticks)
+    elif lp =='plus':
+        custom_ticks = np.arange(0, 1.2, 0.2)
+        axes[0].set_yticks(custom_ticks)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_alt',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
+
+# #fig = plot_figure7(std_colors,'minus')
+# fig1 = plot_pop_fill_alt(std_colors,'plus')
+# fig2 = plot_pop_fill_alt(std_colors,'minus')
+# save = False
+# if save:
+#     file = 'pop_fill_alt_plus.png'
+#     fig1.savefig(os.path.join(paths['save'], file))
+#     file = 'pop_fill_alt_minus.png'
+#     fig2.savefig(os.path.join(paths['save'], file))
+
+
+
+
 #%%
 plt.close('all')
 
@@ -1162,7 +1273,7 @@ plt.close('all')
 def plot_pop_fill_surround(std_colors):
     """
     plot_figure7 surround only vm responses
-    
+
     """
 #    filename = 'data/fig6.xlsx'
     filename = 'data/data_to_use/popfill.xlsx'
@@ -1174,11 +1285,11 @@ def plot_pop_fill_surround(std_colors):
     df.index = (df.index - middle)/10
     #limit the date time range
     df = df.loc[-150:150]
-    
+
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
     df.columns = cols
-    
+
     cols = ['centerOnly', 'surroundThenCenter',
             'surroundOnly', 'sosdUp',
             'sosdDown', 'solinearPrediction',
@@ -1187,14 +1298,14 @@ def plot_pop_fill_surround(std_colors):
             'stcvmcpCross', 'stcvmfRnd',
             'stcvmsRnd',
             'stcspkcpCtr, stcspkcpIso',
-            'stcspkcfIso', 'stcspkcpCross', 
+            'stcspkcfIso', 'stcspkcpCross',
             'stcspkfRnd', 'stcspksRnd',
             'sovmscfIso', 'sovmscpCross',
             'sovmfrndIdo', 'sovmsrndIso']
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     cols = df.columns
-    colors = ['k', std_colors['red'], 
+    colors = ['k', std_colors['red'],
               std_colors['red'], std_colors['blue_violet'],
               std_colors['blue_violet'],std_colors['blue_violet'],
               std_colors['red'], std_colors['red'],
@@ -1206,7 +1317,7 @@ def plot_pop_fill_surround(std_colors):
               std_colors['blue'], std_colors['blue'],
               std_colors['green'], std_colors['yellow'],
               std_colors['blue'], std_colors['blue']]
-    alphas = [0.5, 0.7, 
+    alphas = [0.5, 0.7,
               0.7, 0.6,
               0.6, 0.6,
               0.2, 0.2,
@@ -1234,14 +1345,14 @@ def plot_pop_fill_surround(std_colors):
     vspread = .00
     ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax1.set_xlim(-150,150)
-    
+
 
     # set fontname and fontsize for y label
     ax1.set_ylabel('Normalized membrane potential')
     ax1.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
     ax1.set_xlabel('Relative time (ms)')
-    
+
     for ax in fig.get_axes():
         # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
         #                handlelength=0)
@@ -1258,9 +1369,9 @@ def plot_pop_fill_surround(std_colors):
         # ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
     #gfunc.align_yaxis(ax1, 0, ax2, 0)
-    
+
     fig.tight_layout()
-    
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_pop_fill_surround',
@@ -1276,7 +1387,7 @@ save = False
 if save:
     file = 'pop_fill_surround.png'
     fig1.savefig(os.path.join(paths['save'], file))
-    
+
 
 #%% fig 9
 plt.close('all')
