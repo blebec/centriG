@@ -723,10 +723,8 @@ def plot_indFill(std_colors):
     df = pd.read_excel(filename)
     # centering
     middle = (df.index.max() - df.index.min())/2
-    df.index = df.index - middle
-    df.index = df.index/10
+    df.index = (df.index - middle)/10
     # rename columns
-    cols = df.columns
     cols = ['Center-Only', 'Surround-then-Center',
             'Surround-Only', 'Static linear prediction']
     dico = dict(zip(df.columns, cols))
@@ -736,24 +734,26 @@ def plot_indFill(std_colors):
               std_colors['dark_green'], std_colors['dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
     # plotting
-    fig = plt.figure(figsize=(8.5, 8))
+    fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True,
+                             figsize=(8.5, 8))
+    axes = axes.flatten()
     # fig.suptitle(os.path.basename(filename))
-    ax1 = fig.add_subplot(211)
+    ax = axes[0]
     for i, col in enumerate(cols[:2]):
-        ax1.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+        ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                  label=col)
-    ax1.spines['bottom'].set_visible(False)
-    ax1.axes.get_xaxis().set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.axes.get_xaxis().set_visible(False)
 
-    ax2 = fig.add_subplot(212, sharex=ax1, sharey=ax1)
+    ax = axes[1]
     for i, col in enumerate(cols):
         if i == 3:
-            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                      label=col, linestyle='--', linewidth=1.5)
         else:
-            ax2.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+            ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                      label=col)
-    ax2.set_xlabel('Time (ms)')
+    ax.set_xlabel('Time (ms)')
     # stims
     step = 21
     hlocs = np.arange(0, -110, -step)
@@ -762,34 +762,35 @@ def plot_indFill(std_colors):
     vlocs = np.linspace(-1.4, -2.4, 4)
     dico = dict(zip(names, hlocs))
 
-    # ax1
+    ax = axes[0]
     for key in dico.keys():
         # name
-        ax1.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
+        ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
         # stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
-        ax1.add_patch(rect)
+        ax.add_patch(rect)
     # center
     rect = Rectangle(xy=(0, vlocs[2]), width=step, height=0.3, fill=True,
                      alpha=0.6, edgecolor='w', facecolor=colors[0])#'k')
-    ax1.add_patch(rect)
+    ax.add_patch(rect)
 
     st = 'Surround-then-Center'
-    ax1.annotate(st, xy=(30, vlocs[1]), color=colors[1], alpha=1,
+    ax.annotate(st, xy=(30, vlocs[1]), color=colors[1], alpha=1,
                  annotation_clip=False, fontsize='small')
     st = 'Center-Only'
-    ax1.annotate(st, xy=(30, vlocs[2]), color=colors[0], alpha=1,
+    ax.annotate(st, xy=(30, vlocs[2]), color=colors[0], alpha=1,
                  annotation_clip=False, fontsize='small')
         # see annotation_clip=False
-    ax1.set_ylim(-2.5, 4.5)
+    ax.set_ylim(-2.5, 4.5)
 
     # ax2
+    ax = axes[1]
     for key in dico.keys():
         # names
-        ax2.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
+        ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
                      annotation_clip=False, fontsize='small')
         # stim1
         rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
@@ -799,20 +800,20 @@ def plot_indFill(std_colors):
             rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
-        ax2.add_patch(rect)
+        ax.add_patch(rect)
         # stim2
         rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
-        ax2.add_patch(rect)
+        ax.add_patch(rect)
     #center
     rect = Rectangle(xy=(0, vlocs[3]), width=step, height=0.3, fill=True,
                      alpha=0.6, edgecolor='w', facecolor=colors[0])
-    ax2.add_patch(rect)
+    ax.add_patch(rect)
     for i, st in enumerate(['Surround-Only', 'Surround-then-Center', 'Center-Only']):
-        ax2.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
+        ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
                      annotation_clip=False, fontsize='small')
-    for ax in fig.get_axes():
+    for ax in axes:
         # leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
         #                handlelength=0)
         # colored text
