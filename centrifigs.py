@@ -567,7 +567,7 @@ def plot_speed(substract=False):
     #    text.set_color(line.get_color())
     ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
     # bluePoint
-    x = 0,
+    x = 0
     y = df.loc[0]['centerOnly']
     vspread = .06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
@@ -580,9 +580,6 @@ def plot_speed(substract=False):
         ax.set_yticks(custom_ticks)
         # old xlims ax.set_xlim(-80, 60)
         ax.set_xlim(-90, 65)
-        lims = ax.get_xlim()
-        # for i, col in enumerate(df.columns)):
-        #     ax.hline()
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:speed',
@@ -1224,7 +1221,7 @@ def plot_pop_predictive(std_colors, lp='minus'):
                 label=col, linewidth=linewidths[i])
     ax.fill_between(df.index, df[cols[2]], df[cols[3]],
                     color=colors[2], alpha=0.1)
-    
+
     for i, ax in enumerate(axes):
         ax.axhline(0, alpha=0.3, color='k')
         ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
