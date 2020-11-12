@@ -371,7 +371,11 @@ plt.close('all')
 def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
     """
     plot_figure2B : sorted phase advance and delta response
-    sig=boolan : true <-> shown cell signification
+    input:
+        stdcolors =  dictionary of colors
+        sig = boolan : true <-> fill significatif cell responses
+        anot = boolean : show anotations
+        age in [old, new] : decide of the populatin to load
     """
     if age == 'old':
         filename = 'data/old/fig2cells.xlsx'
@@ -411,7 +415,6 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
                         color=stdcolors['red'], label=vals[i],
                         alpha=0.8, width=0.8)
         # zero line
-        lims = ax.get_xlim()
         ax.axhline(0, alpha=0.4, color='k')
         # ticks
         ax.set_xlim(-1, len(df))
@@ -420,7 +423,7 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
         ax.set_xlabel('Cell rank')
         ax.xaxis.set_label_coords(0.5, -0.025)
         if i == 0:
-            txt = r'$\Delta$ Phase (ms)'
+            txt = 'Latency Advance (ms)'
             if amp == 'gain':
                 ylims = (-6, 29)
             else:
@@ -429,12 +432,8 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
             ax.vlines(-1, 0, 20, linewidth=2, color='k')
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
         else:
-            if amp == 'gain':
-                txt = r'$\Delta$ Amplitude'
-            elif amp == 'engy':
-                txt = r'$\Delta$ Energy'
-            else:
-                print('amplitude unit not in [gain, energy]')
+            txt = 'Latency Advance (ms)' if amp == 'gain'  else \
+                r'$\Delta$ Energy'
             ylims = ax.get_ylim()
             ax.vlines(-1, 0, 0.6, linewidth=2, color='k')
             custom_yticks = np.linspace(0, 0.6, 4)

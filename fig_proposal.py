@@ -238,7 +238,7 @@ def plot_2B_bis(stdcolors, anot=False, age='new'):
         if i == 0:
             ax.vlines(-1, 0, 20, linewidth=2)
             custom_yticks = np.linspace(0, 20, 3, dtype=int)
-            ylabel = r'$\Delta$ Phase (ms)'
+            ylabel = 'Latency Advance (ms)'
             ax.set_ylim(-6, 29)
             if amp == 'engy':
                 ax.set_ylim(-10, 29)
@@ -247,7 +247,7 @@ def plot_2B_bis(stdcolors, anot=False, age='new'):
             ax.vlines(-1, 0, 0.6, linewidth=2)
             custom_yticks = np.linspace(0, 0.6, 4)
             x_label = 'Ranked cells'
-            ylabel = r'$\Delta$ Amplitude'if amp == 'gain' else r'$\Delta$ Energy'
+            ylabel = 'Latency Advance'if amp == 'gain' else r'$\Delta$ Energy'
         ax.set_xlabel(x_label)
         ax.xaxis.set_label_coords(0.5, -0.025)
         ax.set_yticks(custom_yticks)
