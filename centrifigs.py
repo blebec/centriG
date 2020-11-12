@@ -455,7 +455,6 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age='new'):
     return fig
 
 
-
 fig1 = plot_figure2B(std_colors, anot=anot, age='new')
 fig2 = figp.plot_2B_bis(std_colors, anot=anot, age='new')
 
@@ -737,9 +736,7 @@ def plot_highLowSpeed():
 fig = plot_highLowSpeed()
 #%%
 
-plt.close('all')
-
-def plot_indFill(std_colors):
+def plot_indFill(std_colors, anot=True):
     """
     plot_figure6
     """
@@ -870,10 +867,13 @@ def plot_indFill(std_colors):
 
     return fig
 
-fig = plot_indFill(std_colors)
+plt.close('all')
+fig = plot_indFill(std_colors, anot=anot)
 save = False
 if save:
-    filename = os.path.join(paths['save'], 'indFill.png')
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'fillingIn', 'indFill_popFill')
+    filename = os.path.join(dirname, 'indFill.png')
     fig.savefig(filename)
 
 #%%
@@ -974,10 +974,12 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
 fig = plot_pop_predict('minus')
 #fig = plot_pop_predict('plus')
 fig2 = figp.plot_pop_fill_bis(std_colors)
-
 save = False
 if save:
-    pass
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'fillingIn', 'indFill_popFill')
+    filename = os.path.join(dirname, 'popFill.png')
+    fig.savefig(filename)
 
 #%%
 plt.close('all')
