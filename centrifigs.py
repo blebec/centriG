@@ -319,6 +319,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
 
 # =============================================================================
 # NB two possible examples:
+# cellule A= 1509E_CXG4, cellule B = 1427A_CXG4    
 # - actual
 # cellA : xlim= (-200, 150)
 # blue point
