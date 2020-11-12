@@ -371,7 +371,7 @@ if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
     file = os.path.join(dirname, 'pop_fill.png')
-    fig.savefig(os.path.join(paths['save'], file))
+    fig.savefig(os.path.join(dirname, file))
 
 #%%
 
@@ -612,7 +612,7 @@ def plot_pop_fill_surround(std_colors):
               0.7,0.7]
 
     # fig = plt.figure(figsize=(11.6, 10))
-    fig = plt.figure(figsize=(5.8, 5))
+    fig = plt.figure(figsize=(8, 4))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(111)
     for i in (2,19,20,21):
@@ -661,10 +661,11 @@ def plot_pop_fill_surround(std_colors):
 
     return fig
 
-#fig = plot_figure7(std_colors,'minus')
-
-fig1 = plot_pop_fill_surround(std_colors)
+plt.close('all')
+fig = plot_pop_fill_surround(std_colors)
 save = False
 if save:
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'fillingIn', 'indFill_popFill')
     file = 'pop_fill_surround.png'
-    fig1.savefig(os.path.join(paths['save'], file))
+    fig.savefig(os.path.join(dirname, file))
