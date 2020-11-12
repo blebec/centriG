@@ -51,6 +51,13 @@ plt.close('all')
 def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     """
     figure2 (individual + pop + sig)
+    input:
+        datadf
+        colsdict
+        anot = boolean (display of anotations)
+        age in ['new, 'old'] : choose the related population
+        onlyPos = boolean to display only positive values for spike
+    output: pyplot figure
     """
     colors = ('k', std_colors['red'])
     alphas = (0.8, 0.8)
@@ -76,10 +83,8 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         ax.plot(datadf[col], color=colors[i], alpha=alphas[i],
                 label=col)
     # response point
-    if age == 'old':
-        x = 41.5
-    else:
-        x = 43.5
+    x_pos = dict(old = 41.5, new = 43.5)
+    x = x_pos[age]
     y = datadf.indiVmctr.loc[x]
     #blue point and vline
 #    ax.plot(x, y, 'o', color=std_colors['blue'], ms=10, alpha=0.8)
@@ -101,10 +106,8 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         ax.fill_between(df.index, df[col],
                         color=rev_colors[i], alpha=0.5, label=col)
     # response point
-    if age == 'old':
-        x = 39.8
-    else:
-        x = 55.5
+    x_pos = dict(old = 39.8, new = 55.5)
+    x = x_pos[age]
     y = datadf.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color='tab:blue',
@@ -234,7 +237,6 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     dico = dict(zip(names, xlocs))
     # lines
     for ax in [vmaxes[0], spkaxes[0]]:
-        lims = ax.get_ylim()
         for dloc in xlocs:
             ax.axvline(dloc, linestyle=':', alpha=0.4, color='k')
     # fit individual example
@@ -314,6 +316,30 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
+
+# =============================================================================
+# NB two possible examples:
+# - actual
+# cellA : xlim= (-200, 150)
+# blue point
+# Vm ctr  x = 43.5
+# Spk ctr x = 55.5
+#
+# Vm ylim = 12
+# Spk ylim = 35
+#
+# - other one
+# cellB : xlim= -(230, 190)
+#
+# blue point<br />
+# Vm ctr  x = 66.4
+# Spk ctr x = 50.6
+#
+# Vm ylim = 15
+# Spkylim = 110
+#
+# =============================================================================
+
 
 #data
 age = ['old', 'new'][1]
@@ -880,7 +906,7 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
     df.rename(columns=dico, inplace=True)
     cols = df.columns
     colors = [stdcolors[st] for st in
-              ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet', 
+              ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
                'blue_violet', 'red', 'red', 'blue_violet']]
     alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.5, 0.2, 0.2, 0.7]
 
@@ -902,7 +928,7 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
 
     lims = dict(minus = (-0.2, 1.1), plus=(-0.05, 1.2))
     ax.set_ylim(lims.get(lp))
-    
+
     # predictive magnification
     ax = axes[1]
     colors = [stdcolors[st]
@@ -930,7 +956,7 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
     fig.tight_layout()
-    
+
     if lp == 'minus':
         custom_ticks = np.arange(0, 1.1, 0.2)
         axes[0].set_yticks(custom_ticks)
