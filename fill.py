@@ -274,12 +274,106 @@ save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    filename = os.path.join(dirname, 'popFill.png')
+    filename = os.path.join(dirname, 'predict_Fill.png')
     fig.savefig(filename)
 
 #%%
-plt.close('all')
 
+def plot_pop_fill(stdcolors=std_colors, anot=anot):
+    """
+    plot_figure7
+    lP <-> linear predictor
+    """
+    # filename = 'data/fig6.xlsx'
+    filename = 'data/data_to_use/popfill.xlsx'
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = (df.index - middle)/10
+    #limit the date time range
+    df = df.loc[-150:150]
+
+    cols = gfunc.new_columns_names(df.columns)
+    cols = ['_'.join(item.split('_')[1:]) for item in cols]
+    df.columns = cols
+
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+            'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+            'stcsdDown', 'stcLinearPrediction',
+            'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
+            'stcspkcpCtr, stcspkcpIso',
+            'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
+    dico = dict(zip(df.columns, cols))
+    df.rename(columns=dico, inplace=True)
+    cols = df.columns
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
+    alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
+
+    spks = cols[13:18]
+    vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
+
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8.5, 8),
+                             sharex=True, sharey=True)
+    axes = axes.flatten()
+
+    # vm pop
+    ax = axes[0]
+    for i, col in enumerate(vms):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    ax.set_xlim(-20,50)
+    # response point
+    x = 0
+    y = df[df.columns[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_ylabel('Normalized membrane potential')
+    ax.annotate("n=???", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    # spk pop
+    ax = axes[1]
+    for i, col in enumerate(spks):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    x = 0
+    y = df[spks[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_xlim(-20,60)
+    ax.set_ylabel('Normalized firing rate')
+    ax.annotate("n=7", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax.set_xlabel('Relative time (ms)')
+
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+        ax.axhline(0, alpha=0.3, color='k')
+        ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        ax.set_yticks(custom_ticks)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'fill.py:plot_pop_fill',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
+fig = plot_pop_fill(std_colors, anot)
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'fillingIn', 'indFill_popFill')
+    file = os.path.join(dirname, 'pop_fill.png')
+    fig.savefig(os.path.join(paths['save'], file))
+
+#%%
 
 def plot_pop_fill_alt(std_colors, lp='minus'):
     """
@@ -438,7 +532,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure7_alt',
+        fig.text(0.99, 0.01, 'fill.py:plot_figure7_alt',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
