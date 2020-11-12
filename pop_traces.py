@@ -57,8 +57,8 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
-    colors = ['k', stdcolors['red'], stdcolors['green'],
-              stdcolors['yellow'], stdcolors['blue'], stdcolors['blue']]
+    colors = [stdcolors[st] for st in 
+              ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
     # subtract the centerOnly response (ref = df['CENTER-ONLY'])
     if substract:
@@ -88,8 +88,14 @@ def plot_figure3(datadf, stdcolors, **kwargs):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
                 linewidth=2)
     # bluePoint
-    ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
-            ms=10, alpha=0.5)
+    x = 0
+    y = df.loc[0][df.columns[0]]
+    vspread = .02  # vertical spread for realign location
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+    # ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
+    #         ms=10, alpha=0.5)
     #refs
     ax.axvline(0, alpha=0.3)
     ax.axhline(0, alpha=0.2)
@@ -143,7 +149,7 @@ def plot_figure3(datadf, stdcolors, **kwargs):
     if anot:
         if addleg:
             ax.legend()
-        fig.text(0.11, 0.91, filename)
+            fig.text(0.11, 0.91, filename)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'pop_traces.py:plot_figure3(' + kind + ')',
                  ha='right', va='bottom', alpha=0.4)
@@ -159,16 +165,23 @@ data_df, file = ltra.load_intra_mean_traces(paths, **select)
 #params (plot)
 select['file'] = file
 select['substract'] = True
-select['addleg'] = True
+select['addleg'] = False
 select['addinsert'] = False
 fig = plot_figure3(data_df, std_colors, **select)
 
-# # to use with fillingf in:
-# fig.get_axes()[0]
-# ax = fig.get_axes()[0]
-# ax.set_xlim(-150, 150)
-# ax.set_ylim(-0.15, 0.35)
-# ax.set_xticks(np.arange(-150, 150, 50))
+# to use with fillingf in:
+ax = fig.get_axes()[0]
+ax.set_xlim(-150, 150)
+ax.set_ylim(-0.15, 0.35)
+ax.set_xticks(np.linspace(-150, 150, 7))
+ax.set_yticks(np.linspace(-0.1, 0.3, 5))
+
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'],
+                            'pythonPreview', 'fillingIn', 'indFill_popFill')
+    file = 'pop_substraction.png'
+    fig.savefig(os.path.join(dirname, file))
 
 #%% nb use select to change the parameters
 plt.close('all')

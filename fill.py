@@ -313,7 +313,7 @@ def plot_pop_fill(stdcolors=std_colors, anot=anot):
     spks = cols[13:18]
     vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
 
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8.5, 8),
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5.5, 13),
                              sharex=True, sharey=True)
     axes = axes.flatten()
 
@@ -612,7 +612,7 @@ def plot_pop_fill_surround(std_colors):
               0.7,0.7]
 
     # fig = plt.figure(figsize=(11.6, 10))
-    fig = plt.figure(figsize=(8, 4))
+    fig = plt.figure(figsize=(6.5, 5.5))
    # fig.suptitle(os.path.basename(filename))
     ax1 = fig.add_subplot(111)
     for i in (2,19,20,21):
@@ -663,9 +663,18 @@ def plot_pop_fill_surround(std_colors):
 
 plt.close('all')
 fig = plot_pop_fill_surround(std_colors)
+
+# # to use with pop_subtraction
+# ax = fig.get_axes()[0]
+# ax.set_xlim(-150, 150)
+# ax.set_ylim(-0.15, 0.35)
+# ax.set_xticks(np.linspace(-150, 150, 7))
+# ax.set_yticks(np.linspace(-0.1, 0.3, 5))
+
 save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
     file = 'pop_fill_surround.png'
     fig.savefig(os.path.join(dirname, file))
+
