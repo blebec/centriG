@@ -34,6 +34,7 @@ paths['save'] = os.path.join(paths['owncFig'],
 # load data
 indi_df = ldat.load_filldata('indi')
 pop_df = ldat.load_filldata('pop')
+
 #%%
 def plot_indFill(data, stdcolors=std_colors, anot=True):
     """
@@ -533,7 +534,7 @@ if save:
 
 #%%
 
-def plot_pop_fill_surround(data, std_colors):
+def plot_pop_fill_surround(data, stdcolors=std_colors):
     """
     plot_figure7 surround only vm responses
 
@@ -543,85 +544,39 @@ def plot_pop_fill_surround(data, std_colors):
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
     df.columns = cols
 
-    cols = ['centerOnly', 'surroundThenCenter',
-            'surroundOnly', 'sosdUp',
-            'sosdDown', 'solinearPrediction',
-            'stcsdUp', 'stcsdDown',
-            'stcLinearPrediction', 'stcvmcfIso',
-            'stcvmcpCross', 'stcvmfRnd',
-            'stcvmsRnd',
-            'stcspkcpCtr, stcspkcpIso',
-            'stcspkcfIso', 'stcspkcpCross',
-            'stcspkfRnd', 'stcspksRnd',
-            'sovmscfIso', 'sovmscpCross',
-            'sovmfrndIdo', 'sovmsrndIso']
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-    colors = ['k', std_colors['red'],
-              std_colors['red'], std_colors['blue_violet'],
-              std_colors['blue_violet'],std_colors['blue_violet'],
-              std_colors['red'], std_colors['red'],
-              std_colors['blue_violet'], std_colors['green'],
-              std_colors['yellow'], std_colors['blue'],
-              std_colors['blue'],
-              'k', std_colors['red'],
-              std_colors['green'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue'],
-              std_colors['green'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue']]
-    alphas = [0.5, 0.7,
-              0.7, 0.6,
-              0.6, 0.6,
-              0.2, 0.2,
-              0.7, 0.7,
-              0.7, 0.7,
-              0.7,
-              0.5, 0.7,
-              0.7, 0.7,
-              0.7, 0.7,
-              0.7, 0.7,
-              0.7,0.7]
-
     # fig = plt.figure(figsize=(11.6, 10))
     fig = plt.figure(figsize=(6.5, 5.5))
    # fig.suptitle(os.path.basename(filename))
-    ax1 = fig.add_subplot(111)
-    for i in (2,19,20,21):
-        ax1.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
-                 linewidth=2, label=df.columns[i])
+    ax = fig.add_subplot(111)
+    surround_cols = [df.columns[st] for st in (2,19,20,21)]
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
+    alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
+    # +1 because no black curve
+    for i, col in enumerate(surround_cols):
+    # for i in (2,19,20,21):
+        ax.plot(df[col], color=colors[i+1], alpha=alphas[i+1],
+                 linewidth=2, label=col)
     # response point
     x = 0
     y = df[df.columns[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     #vspread = .06  # vertical spread for realign location
-    vspread = .00
-    ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
-    ax1.set_xlim(-150,150)
+    # ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_xlim(-150,150)
 
-
-    # set fontname and fontsize for y label
-    ax1.set_ylabel('Normalized membrane potential')
-    ax1.annotate("n=12", xy=(0.1, 0.8),
+    ax.set_ylabel('Normalized membrane potential')
+    ax.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
-    ax1.set_xlabel('Relative time (ms)')
+    ax.set_xlabel('Relative time (ms)')
 
     for ax in fig.get_axes():
-        # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
-        #                handlelength=0)
-        # colored text
-        # for line, text in zip(leg.get_lines(), leg.get_texts()):
-        #    text.set_color(line.get_color())
-        # ax.set_xlim(-150, 150)
-        # set fontname and fontsize for x label
-        #ax.set_xlabel('Relative time (ms)')
-        for loc in ['top', 'right']:
-            ax.spines[loc].set_visible(False)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
         ax.axhline(0, alpha=0.3, color='k')
         ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
-        # ax.axvline(0, alpha=0.3, color='k')
     # align zero between subplots
-    #gfunc.align_yaxis(ax1, 0, ax2, 0)
+    # gfunc.align_yaxis(ax1, 0, ax2, 0)
 
     fig.tight_layout()
 
@@ -650,4 +605,24 @@ if save:
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
     file = 'pop_fill_surround.png'
     fig.savefig(os.path.join(dirname, file))
+
+#%% plot combi
+plt.close('all')
+def plot_fill_combi(data_fill, data_pop):
+
+
+    cols = df.columns
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
+    alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
+
+
+
+
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(17, 17))
+    axes = axes.flatten('F')
+    for i, ax in enumerate(axes):
+        ax.set_title(i)
+
+
 
