@@ -31,6 +31,7 @@ paths = config.build_paths()
 paths['save'] = os.path.join(paths['owncFig'],
                              'pythonPreview', 'fillinIn', 'indFill_popFill')
 
+
 #%%
 def plot_indFill(stdcolors=std_colors, anot=True):
     """
@@ -48,7 +49,7 @@ def plot_indFill(stdcolors=std_colors, anot=True):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = [stdcolors[st] for st in 
+    colors = [stdcolors[st] for st in
               ['k', 'red', 'dark_green', 'dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
 
@@ -213,8 +214,9 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
     axes = axes.flatten()
 
     ax = axes[0]
-    linewidths = (1,1,2)
-    for i, col in enumerate(df.columns[:3]):
+    cols = df.columns[:3]
+    linewidths = (1, 1, 2)
+    for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
         linewidth=linewidths[i], label=col)
     # response point
@@ -377,12 +379,12 @@ if save:
 
 #%%
 
-def plot_pop_fill_alt(std_colors, lp='minus'):
+def plot_pop_fill_2X2(lp='minus', stdcolors=std_colors):
     """
     plot_figure7
     lP <-> linear predictor
     """
-#    filename = 'data/fig6.xlsx'
+    # filename = 'data/fig6.xlsx'
     filename = 'data/data_to_use/popfill.xlsx'
     df = pd.read_excel(filename)
     #centering
@@ -393,26 +395,31 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
 
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
-    df.columns = cols
+    # df.columns = cols
 
-    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
-            'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
-            'stcsdDown', 'stcLinearPrediction',
-            'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
-            'stcspkcpCtr, stcspkcpIso',
-            'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
-    dico = dict(zip(df.columns, cols))
-    df.rename(columns=dico, inplace=True)
-    cols = df.columns
-    colors = ['k', std_colors['red'], std_colors['dark_green'],
-              std_colors['blue_violet'], std_colors['blue_violet'],
-              std_colors['blue_violet'], std_colors['red'],
-              std_colors['red'], std_colors['blue_violet'],
-              std_colors['green'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue'],
-              'k', std_colors['red'],
-              std_colors['green'], std_colors['yellow'],
-              std_colors['blue'], std_colors['blue']]
+    # cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+    #         'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+    #         'stcsdDown', 'stcLinearPrediction',
+    #         'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
+    #         'stcspkcpCtr, stcspkcpIso',
+    #         'stcspkcfIso', 'stcspkcpCross','stcspkfRnd', 'stcspksRnd']
+    # dico = dict(zip(df.columns, cols))
+    # df.rename(columns=dico, inplace=True)
+    # colors = ['k', std_colors['red'], std_colors['dark_green'],
+    #           std_colors['blue_violet'], std_colors['blue_violet'],
+    #           std_colors['blue_violet'], std_colors['red'],
+    #           std_colors['red'], std_colors['blue_violet'],
+    #           std_colors['green'], std_colors['yellow'],
+    #           std_colors['blue'], std_colors['blue'],
+    #           'k', std_colors['red'],
+    #           std_colors['green'], std_colors['yellow'],
+    #           std_colors['blue'], std_colors['blue']]
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'dark_green',
+              'blue_violet', 'blue_violet', 'blue_violet',
+              'red', 'red', 'blue_violet', 'green', 'yellow', 'blue',
+              'blue',
+              'k', 'red', 'green', 'yellow', 'blue', 'blue']]
     alphas = [0.5, 0.7, 0.7,
               0.5, 0.5,
               0.6, 0.2,
@@ -424,26 +431,51 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
               0.7, 0.7]
 
     fig = plt.figure(figsize=(11.6, 10))
-   # fig.suptitle(os.path.basename(filename))
-    ax1 = fig.add_subplot(221)
-    for i, col in enumerate(cols[:3]):
-        if i == 2:
-            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
-                     linewidth=2, label=col)
-        else:
-            ax1.plot(df[col], color=colors[i], alpha=alphas[i],
-                     label=col)
+    # fig.suptitle(os.path.basename(filename))
+
+    # traces & surround only
+    ax0 = fig.add_subplot(221)
+    cols = df.columns[:3]
+    linewidths = (1, 1, 2)
+    for i, col in enumerate(cols):
+        ax0.plot(df[col], color=colors[i], alpha=alphas[i],
+                 linewidth=linewidths[i], label=col)
     # response point
     x = 0
     y = df[df.columns[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = .06  # vertical spread for realign location
-    ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax0.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    lims = dict(minus = (-0.2, 1.1), plus=(-0.05, 1.2))
+    ax0.set_ylim(lims.get(lp))
 
-    ax2 = fig.add_subplot(222, sharey= ax1)
-    for i in (0,1,9,10,11):
-#    for i in (0,1,8,9,10):  ?? the real thing
-        ax2.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+    # surroundOnly & predictor
+    if lp == 'minus':
+        ax1 = fig.add_subplot(223, sharex=ax0)
+    elif lp =='plus':
+        ax1 = fig.add_subplot(223, sharex=ax0, sharey=ax0)
+    colors = [stdcolors[st]
+              for st in ['k', 'red', 'dark_green', 'blue_violet']]
+    linewidths=(2,1)
+    # (first, second, stdup, stddown)
+    lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
+    cols = [df.columns[i] for i in lp_cols[lp]]
+    for i, col in enumerate(cols[:2]):
+        ax1.plot(df[col], color=colors[i+2], alpha=alphas[i+2],
+                label=col, linewidth=linewidths[i])
+    ax1.fill_between(df.index, df[cols[2]], df[cols[3]],
+                    color=colors[2], alpha=0.1)
+
+    # populations
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
+    alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
+    spk_cols = df.columns[13:18]
+    vm_cols = [df.columns[i] for i in [0, 1, 9, 10, 11]]
+    # vm
+    ax2 = fig.add_subplot(222, sharey= ax0)
+    for i, col in enumerate(vm_cols):
+        ax2.plot(df[col], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
     ax2.set_xlim(-20,50)
     # response point
@@ -452,65 +484,37 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = .06  # vertical spread for realign location
     ax2.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax2.set_ylabel('Normalized membrane potential')
+    ax2.annotate("n=???", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
 
-    if lp == 'minus':
-        ax1.set_ylim(-0.2, 1.1)
-    elif lp =='plus':
-        ax1.set_ylim(-0.05, 1.2)
-
-    if lp == 'minus':
-        ax3 = fig.add_subplot(223, sharex=ax1)
-    elif lp =='plus':
-        ax3 = fig.add_subplot(223, sharex=ax1, sharey=ax1)
-    if lp == 'minus':
-        for i in [2, 5]:
-            # print('i=', i, colors[i])
-            ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
-                     label=df.columns[i])
-            ax3.fill_between(df.index, df[df.columns[3]], df[df.columns[4]],
-                             color=colors[2], alpha=0.05)
-    # ax2.set_ylim(-0.2, 0.3)
-    elif lp =='plus':
-        for i in (1,6,7,8):
-            # print('i=', i, colors[i])
-            ax3.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
-                     label=df.columns[i])
-            ax3.fill_between(df.index, df[df.columns[6]], df[df.columns[7]],
-                             color=colors[1], alpha=0.05)
-
-    ax4 = fig.add_subplot(224, sharex= ax2)
-    for i in (13,14,15,16,17):
-        ax4.plot(df[df.columns[i]], color=colors[i], alpha=alphas[i],
+    # spk
+    ax3 = fig.add_subplot(224, sharex= ax2)
+    for i, col in enumerate(spk_cols):
+        ax3.plot(df[col], color=colors[i], alpha=alphas[i],
                      linewidth=2, label= df.columns[i])
     x = 0
-    y = df[df.columns[13]].loc[0]
+    y = df[spk_cols[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = .06  # vertical spread for realign location
-    ax4.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
-    ax4.set_xlim(-20,60)
-
-
-    # set fontname and fontsize for y label
-    ax1.set_ylabel('Normalized membrane potential')
-    ax1.annotate("n=12", xy=(0.1, 0.8),
+    ax3.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax3.set_ylabel('Normalized firing rate')
+    ax3.annotate("n=7", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
-    ax2.set_ylabel('')
     ax3.set_xlabel('Relative time (ms)')
-    ax3.set_ylabel('Normalized membrane potential')
-    ax4.set_xlabel('Relative time (ms)')
-    ax4.set_ylabel('Normalized firing rate')
-    ax4.annotate("n=7", xy=(0.1, 0.8),
+
+
+    ax0.annotate("n=12", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax0.set_ylabel('Normalized membrane potential')
+    ax2.set_ylabel('Normalized membrane potential')
+    ax1.set_xlabel('Relative time (ms)')
+    ax3.set_xlabel('Relative time (ms)')
+    ax3.set_ylabel('Normalized firing rate')
+    ax3.annotate("n=7", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
 
     for ax in fig.get_axes():
-        # leg = ax.legend(loc='upper left', markerscale=None, frameon=False,
-        #                handlelength=0)
-        # colored text
-        # for line, text in zip(leg.get_lines(), leg.get_texts()):
-        #    text.set_color(line.get_color())
-        # ax.set_xlim(-150, 150)
-        # set fontname and fontsize for x label
-        #ax.set_xlabel('Relative time (ms)')
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
         ax.axhline(0, alpha=0.3, color='k')
@@ -526,7 +530,7 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
 
     if lp == 'minus':
         custom_ticks = np.arange(0, 1.1, 0.2)
-        ax1.set_yticks(custom_ticks)
+        ax0.set_yticks(custom_ticks)
     elif lp =='plus':
         custom_ticks = np.arange(0, 1.2, 0.2)
         ax1.set_yticks(custom_ticks)
@@ -534,20 +538,21 @@ def plot_pop_fill_alt(std_colors, lp='minus'):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'fill.py:plot_figure7_alt',
+        fig.text(0.99, 0.01, 'fill.py:plot_pop_fill_2X2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
     return fig
 
+plt.close('all')
 #fig = plot_figure7(std_colors,'minus')
-fig1 = plot_pop_fill_alt(std_colors,'plus')
-fig2 = plot_pop_fill_alt(std_colors,'minus')
+fig1 = plot_pop_fill_2X2('plus', std_colors)
+fig2 = plot_pop_fill_2X2('minus', std_colors)
 save = False
 if save:
-    file = 'pop_fill_alt_plus.png'
+    file = 'pop_fill_2X2_plus.png'
     fig1.savefig(os.path.join(paths['save'], file))
-    file = 'pop_fill_alt_minus.png'
+    file = 'pop_fill_2X2_minus.png'
     fig2.savefig(os.path.join(paths['save'], file))
 
 #%%
