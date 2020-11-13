@@ -31,19 +31,15 @@ paths = config.build_paths()
 paths['save'] = os.path.join(paths['owncFig'],
                              'pythonPreview', 'fillinIn', 'indFill_popFill')
 
-
+# load data
+indi_df = ldat.load_filldata('indi')
+pop_df = ldat.load_filldata('pop')
 #%%
-def plot_indFill(stdcolors=std_colors, anot=True):
+def plot_indFill(data, stdcolors=std_colors, anot=True):
     """
     plot_figure6
     """
-    # filename = 'data/fig5.xlsx'
-    filename = 'data/data_to_use/indifill.xlsx'
-    df = pd.read_excel(filename)
-    # centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    # rename columns
+    df = data.copy()
     cols = ['Center-Only', 'Surround-then-Center',
             'Surround-Only', 'Static linear prediction']
     dico = dict(zip(df.columns, cols))
@@ -167,36 +163,30 @@ def plot_indFill(stdcolors=std_colors, anot=True):
     return fig
 
 plt.close('all')
-fig = plot_indFill(std_colors, anot=anot)
+# indi_df = load_filldata('indi')
+fig = plot_indFill(indi_df, std_colors, anot=anot)
 save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    filename = os.path.join(dirname, 'indFill.png')
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, 'indFill.png')
+    fig.savefig(file_name)
 
 #%%
 plt.close('all')
 
-fig = figp.plot_indFill_bis(std_colors)
+fig = figp.plot_indFill_bis(indi_df, std_colors)
 # fig = plot_figure6_bis(substract=True)
-fig = figp.plot_indFill_bis(std_colors, linear=False, substract=True)
+fig = figp.plot_indFill_bis(indi_df, std_colors, linear=False, substract=True)
 
 #%%
-plt.close('all')
 
-def plot_pop_predict(lp='minus', stdcolors=std_colors):
+def plot_pop_predict(data, lp='minus', stdcolors=std_colors):
     """
     plot_figure7
     lP <-> linear predictor
     """
-    filename = 'data/data_to_use/popfill.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    #limit the date time range
-    df = df.loc[-150:150]
+    df = data.copy()
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
             'stcsdDown', 'stcLinearPreediction']
@@ -271,37 +261,31 @@ def plot_pop_predict(lp='minus', stdcolors=std_colors):
 
     return fig
 
-fig = plot_pop_predict('minus')
+plt.close('all')
+
+fig = plot_pop_predict(pop_df, 'minus')
 #fig = plot_pop_predict('plus')
-fig2 = figp.plot_pop_fill_bis(std_colors)
+fig2 = figp.plot_pop_fill_bis(pop_df, std_colors)
 save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    filename = os.path.join(dirname, 'predict_Fill.png')
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, 'predict_Fill.png')
+    fig.savefig(file_name)
 
 #%%
 
-def plot_pop_fill(stdcolors=std_colors, anot=anot):
+def plot_pop_fill(data, stdcolors=std_colors, anot=anot):
     """
     plot_figure7
     lP <-> linear predictor
     """
-    # filename = 'data/fig6.xlsx'
-    filename = 'data/data_to_use/popfill.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    #limit the date time range
-    df = df.loc[-150:150]
-
+    df = data.copy()
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
     df.columns = cols
 
-    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly',
             'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
             'stcsdDown', 'stcLinearPrediction',
             'stcvmcfIso', 'stcvmcpCross', 'stcvmfRnd', 'stcvmsRnd',
@@ -314,7 +298,7 @@ def plot_pop_fill(stdcolors=std_colors, anot=anot):
               ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
     alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
 
-    spks = cols[13:18]
+    spks = cols[13:17]
     vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
 
     fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5.5, 13),
@@ -369,7 +353,8 @@ def plot_pop_fill(stdcolors=std_colors, anot=anot):
     return fig
 
 plt.close('all')
-fig = plot_pop_fill(std_colors, anot)
+
+fig = plot_pop_fill(pop_df, std_colors, anot)
 save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
@@ -379,19 +364,11 @@ if save:
 
 #%%
 
-def plot_pop_fill_2X2(lp='minus', stdcolors=std_colors):
+def plot_pop_fill_2X2(df, lp='minus', stdcolors=std_colors):
     """
     plot_figure7
     lP <-> linear predictor
     """
-    # filename = 'data/fig6.xlsx'
-    filename = 'data/data_to_use/popfill.xlsx'
-    df = pd.read_excel(filename)
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    #limit the date time range
-    df = df.loc[-150:150]
 
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
@@ -545,35 +522,23 @@ def plot_pop_fill_2X2(lp='minus', stdcolors=std_colors):
     return fig
 
 plt.close('all')
-#fig = plot_figure7(std_colors,'minus')
-fig1 = plot_pop_fill_2X2('plus', std_colors)
-fig2 = plot_pop_fill_2X2('minus', std_colors)
+#fig1 = plot_pop_fill_2X2(pop_df, 'plus', std_colors)
+fig2 = plot_pop_fill_2X2(pop_df, 'minus', std_colors)
 save = False
 if save:
-    file = 'pop_fill_2X2_plus.png'
-    fig1.savefig(os.path.join(paths['save'], file))
+    # file = 'pop_fill_2X2_plus.png'
+    # fig1.savefig(os.path.join(paths['save'], file))
     file = 'pop_fill_2X2_minus.png'
     fig2.savefig(os.path.join(paths['save'], file))
 
 #%%
-plt.close('all')
 
-def plot_pop_fill_surround(std_colors):
+def plot_pop_fill_surround(data, std_colors):
     """
     plot_figure7 surround only vm responses
 
     """
-#    filename = 'data/fig6.xlsx'
-    filename = 'data/data_to_use/popfill.xlsx'
-    df = pd.read_excel(filename)
-    #moothing
-    df = df.ewm(span= 50).mean()
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    #limit the date time range
-    df = df.loc[-150:150]
-
+    df = data.copy()
     cols = gfunc.new_columns_names(df.columns)
     cols = ['_'.join(item.split('_')[1:]) for item in cols]
     df.columns = cols
@@ -669,7 +634,8 @@ def plot_pop_fill_surround(std_colors):
     return fig
 
 plt.close('all')
-fig = plot_pop_fill_surround(std_colors)
+
+fig = plot_pop_fill_surround(pop_df, std_colors)
 
 # # to use with pop_subtraction
 # ax = fig.get_axes()[0]

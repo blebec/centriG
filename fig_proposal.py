@@ -17,6 +17,7 @@ import config
 import general_functions as gfunc
 import load.load_data as ldat
 
+
 anot = True
 std_colors = config.std_colors()
 
@@ -311,15 +312,11 @@ def align_center(adf, showPlot=False):
     return ref_corr
 
 
-def plot_indFill_bis(stdcolors, linear=True, substract=False):
+def plot_indFill_bis(data, stdcolors, linear=True, substract=False):
     """
     plot_figure6 minus center
     """
-    filename = 'data/data_to_use/indifill.xlsx'
-    df = pd.read_excel(filename)
-    # centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
+    df = data.copy()
     # rename columns
     cols = ['center_only', 'surround_then_center',
             'surround_only', 'static_linear_prediction']
@@ -440,18 +437,11 @@ def plot_indFill_bis(stdcolors, linear=True, substract=False):
     return fig
 
 #%%
-def plot_pop_fill_bis(stdcolors):
+def plot_pop_fill_bis(data, stdcolors=std_colors):
     """
     plot_figure7 minus center
     """
-    filename = 'data/data_to_use/popfill.xlsx'
-    df = pd.read_excel(filename)
-    # centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    # df.index = df.index/10
-    # limit the date time range
-    df = df.loc[-150:160]
+    df = data.copy()
     cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
             'sdUp', 'sdDown', 'linearPrediction']
     dico = dict(zip(df.columns, cols))
@@ -469,7 +459,7 @@ def plot_pop_fill_bis(stdcolors):
     # plotting
     fig = plt.figure(figsize=(8.5, 4))
     ax = fig.add_subplot(111)
-    ax.plot(df.popfillVmscpIsoMDlp, ':r', alpha=1, linewidth=2,
+    ax.plot(df.popfillVmscpIsoPDlp, ':r', alpha=1, linewidth=2,
             label='sThenCent - cent')
     # surroundOnly
     ax.plot(df.surroundOnlysdUp, color=stdcolors['dark_green'], alpha=0.7,
@@ -536,7 +526,9 @@ if __name__ == "__main__":
         filename = os.path.join(paths['save'], 'prop_fig2.png')
         fig.savefig(filename)
     plot_2B_bis(std_colors, anot=anot)
-    plot_indFill_bis(std_colors, linear=True, substract=False)
-    plot_indFill_bis(std_colors, linear=True, substract=True)
-    plot_pop_fill_bis(std_colors)
+    indi_df = ldat.load_filldata('indi')
+    pop_df = ldat.load_filldata('pop')
+    plot_indFill_bis(indi_df, std_colors, linear=True, substract=False)
+    plot_indFill_bis(indi_df, std_colors, linear=True, substract=True)
+    plot_pop_fill_bis(pop_df, std_colors)
 #TODO append the save process

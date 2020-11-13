@@ -312,6 +312,31 @@ def build_pop_statdf(sig=False, amp='engy'):
     return df
 
 
+def load_filldata(key='pop'):
+    """
+    load the filling in population
+    input:
+        key in [pop, indi]
+    output:
+        pandas dataframe
+    """
+    data_location = dict(pop = 'data/data_to_use/popfill.xlsx',
+                         indi = 'data/data_to_use/indifill.xlsx')
+
+    filename = data_location[key]
+    df = pd.read_excel(filename)
+    #centering
+    middle = (df.index.max() - df.index.min())/2
+    df.index = (df.index - middle)/10
+    #limit the date time range
+    df = df.loc[-150:150]
+
+    # cols = gfunc.new_columns_names(df.columns)
+    # cols = ['_'.join(item.split('_')[1:]) for item in cols]
+    # df.columns = cols
+
+    return df
+
 
 #%%
 if __name__ == "__main__":
