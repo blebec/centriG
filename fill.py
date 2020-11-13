@@ -32,11 +32,11 @@ paths['save'] = os.path.join(paths['owncFig'],
                              'pythonPreview', 'fillinIn', 'indFill_popFill')
 
 #%%
-def plot_indFill(std_colors, anot=True):
+def plot_indFill(stdcolors=std_colors, anot=True):
     """
     plot_figure6
     """
-#    filename = 'data/fig5.xlsx'
+    # filename = 'data/fig5.xlsx'
     filename = 'data/data_to_use/indifill.xlsx'
     df = pd.read_excel(filename)
     # centering
@@ -48,14 +48,16 @@ def plot_indFill(std_colors, anot=True):
     dico = dict(zip(df.columns, cols))
     df.rename(columns=dico, inplace=True)
     # color parameters
-    colors = ['k', std_colors['red'],
-              std_colors['dark_green'], std_colors['dark_green']]
+    colors = [stdcolors[st] for st in 
+              ['k', 'red', 'dark_green', 'dark_green']]
     alphas = [0.6, 0.8, 0.8, 0.8]
+
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True,
                              figsize=(8.5, 8))
     axes = axes.flatten()
     # fig.suptitle(os.path.basename(filename))
+    # traces
     ax = axes[0]
     for i, col in enumerate(cols[:2]):
         ax.plot(df.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
