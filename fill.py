@@ -17,6 +17,7 @@ from matplotlib.patches import Rectangle
 import config
 import general_functions as gfunc
 import load.load_data as ldat
+import load.load_traces as ltra
 import fig_proposal as figp
 
 
@@ -582,7 +583,7 @@ def plot_pop_fill_surround(data, stdcolors=std_colors):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_pop_fill_surround',
+        fig.text(0.99, 0.01, 'fill.py:plot_pop_fill_surround',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
@@ -608,21 +609,173 @@ if save:
 
 #%% plot combi
 plt.close('all')
-def plot_fill_combi(data_fill, data_pop):
+def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
 
-
-    cols = df.columns
-    colors = [stdcolors[st] for st in
+    colors = [stdcolors[st] for st in 
               ['k', 'red', 'green', 'yellow', 'blue', 'blue']]
-    alphas = [0.5, 0.7, 0.7, 0.5, 0.5, 0.6]
+    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
-
-
+    # fill pop
+    df = data_fill.copy()
+    
+    # general  pop
+    gen_df = data_pop.copy()
+    #defined in dataframe columns (first column = ctr))
+    kind, rec, spread,  *_ = gen_df.columns.to_list()[1].split('_')
+    # centering
+    middle = (gen_df.index.max() - gen_df.index.min())/2
+    gen_df.index = (gen_df.index - middle)/10
+    # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
+    # subtract the centerOnly response (ref = df['CENTER-ONLY'])
+    ref = gen_df[gen_df.columns[0]]
+    gen_df = gen_df.subtract(ref, axis=0)
+    # remove rdsect
+    cols = gen_df.columns.to_list()
+    while any(st for st in cols if 'sect_rd' in st):
+        cols.remove(next(st for st in cols if 'sect_rd' in st))
+    #buils labels
+    labels = cols[:]
+    labels = [n.replace('full_rd_', 'full_rdf_') for n in labels]
+    for i in range(3):
+        for item in labels:
+            if len(item.split('_')) < 6:
+                j = labels.index(item)
+                labels[j] = item + '_ctr'
+    labels = [st.split('_')[-3] for st in labels]
 
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(17, 17))
     axes = axes.flatten('F')
     for i, ax in enumerate(axes):
         ax.set_title(i)
 
+    # fill pop
+    spks = df.columns[13:17]
+    vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
+
+    # vm pop
+    ax = axes[0]
+    for i, col in enumerate(vms):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    ax.set_xlim(-20,50)
+    # response point
+    x = 0
+    y = df[df.columns[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_ylabel('Normalized membrane potential')
+    ax.annotate("n=???", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+
+    # spk pop
+    ax = axes[1]
+    for i, col in enumerate(spks):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i],
+                     linewidth=2, label= df.columns[i])
+    x = 0
+    y = df[spks[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_xlim(-20,50)
+    ax.set_ylabel('Normalized firing rate')
+    ax.annotate("n=7", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax.set_xlabel('Relative time (ms)')
+
+    # gen population
+    ax = axes[2]
+    cols = gen_df.columns
+    for i, col in enumerate(cols[:-1]):
+        ax.plot(gen_df[col], color=colors[i], alpha=alphas[i], label=labels[i],
+                linewidth=2)
+    # bluePoint
+    # x = 0
+    # y = df.loc[0][df.columns[0]]
+    # vspread = .02  # vertical spread for realign location
+    # # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
+    # ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    # ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
+    # ax.plot(0, df.loc[0][df.columns[0]], 'o', color=colors[0],
+    #         ms=10, alpha=0.5)
+    #labels
+    ax.set_ylabel('Normalized membrane potential')
+    ax.set_xlabel('Relative time (ms)')
+    for ax in fig.get_axes():
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+  
+    # max_x center only
+    ax.axvline(21.4, alpha=0.4, color='k')
+    # end_x of center only
+    #(df['CENTER-ONLY'] - 0.109773).abs().sort_values().head()
+    ax.axvline(88, alpha=0.3)
+    ax.axvspan(0, 88, facecolor='k', alpha=0.2)
+
+    ax.text(0.45, 0.9, 'center only response \n start | peak | end',
+            transform=ax.transAxes, alpha=0.5)
+    ax.set_ylabel('Norm Vm - Norm centerOnly')
+
+    # surround only
+    ax = axes[3]
+    surround_cols = [df.columns[st] for st in (2,19,20,21)]
+    # +1 because no black curve
+    for i, col in enumerate(surround_cols):
+    # for i in (2,19,20,21):
+        ax.plot(df[col], color=colors[i+1], alpha=alphas[i+1],
+                 linewidth=2, label=col)
+    # response point
+    x = 0
+    y = df[df.columns[0]].loc[0]
+    # ax1.plot(x, y, 'o', color=std_colors['blue'])
+    #vspread = .06  # vertical spread for realign location
+    # ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+    ax.set_xlim(-150,150)
+    
+    ax.set_ylabel('Normalized membrane potential')
+    ax.annotate("n=12", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
+    ax.set_xlabel('Relative time (ms)')
+
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+        ax.axhline(0, alpha=0.3, color='k')
+        ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+    # align zero between subplots
+    # gfunc.align_yaxis(ax1, 0, ax2, 0)
+    for ax in axes[:2]:
+        ax.set_xlim(-20, 60)
+        custom_ticks = np.arange(-20, 60, 10)[1:]
+        ax.set_xticks(custom_ticks)
+        ax.set_ylim(-.05, 1.1)
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        ax.set_yticks(custom_ticks)
+                  
+    for ax in axes[2:]:
+        ax.set_xlim(-150, 150)
+        ax.set_ylim(-0.15, 0.35)
+        ax.set_xticks(np.linspace(-150, 150, 7)[1:-1])
+        ax.set_yticks(np.linspace(-0.1, 0.3, 5))
+        
+        
+    fig.tight_layout()
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'fill.py:plot_fill_combi',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+
+    return fig
 
 
+plt.close('all')
+# general pop
+select = dict(age='new', rec='vm', kind='sig')
+# select['align'] = 'p2p'
+
+data_df, file = ltra.load_intra_mean_traces(paths, **select)
+
+plot_fill_combi(pop_df, data_df)
