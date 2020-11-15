@@ -26,14 +26,17 @@ def build_paths():
     paths = {}
     osname = platform.system()
     username = getpass.getuser()
-    if osname == 'Windows'and username == 'Benoît':
+    if osname == 'Windows' and username == 'Benoît':
         paths['pg'] = r'D:\\travail\sourcecode\developing\paper\centriG'
         sys.path.insert(0, r'D:\\travail\sourcecode\developing\paper')
         paths['owncFig'] = r'D:\\ownCloud\cgFiguresSrc'
     elif osname == 'Linux' and username == 'benoit':
-        paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'
+        paths['pg'] = r'/media/benoit/data/travail/sourcecode/developing/paper/centriG'        
     elif osname == 'Windows'and username == 'marc':
         paths['pg'] = r'H:/pg/centriG'
+    elif osname=='Linux' and username=='chris':
+        paths['pg'] = r'/mnt/hWin/Chris/pg/chrisPg/centriG'
+        paths['owncFig'] = r'/mnt/hWin/Chris/ownCloud/cgFigures'
     elif osname == 'Darwin' and username == 'cdesbois':
         paths['pg'] = os.path.expanduser('~/pg/chrisPg/centriG')
         paths['owncFig'] = os.path.expanduser('~/ownCloud/cgFigures')
