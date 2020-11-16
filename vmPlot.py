@@ -1,24 +1,23 @@
 
 
 
-from datetime import datetime
 import os
-from more_itertools import sort_together
+from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
-
+from more_itertools import sort_together
 
 import config
+
 anot = True           # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()
 speedColors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths['pg'])
-paths['traces'] = os.path.join(paths['owncFig'], 'averageTraces')
+paths['traces'] = os.path.join(paths['owncFig'], 'data', 'averageTraces')
 
 vm_info_df = pd.read_excel(os.path.join(paths['traces'], 'neuron_props.xlsx'))
 speed_info_df = pd.read_excel(
@@ -49,12 +48,15 @@ def load_all_traces(info_df, folder='vm_all'):
     dico = {}
     for stim in stims:
         filename = os.path.join(paths['traces'], folder, stim)
-        df = pd.read_csv(filename, sep='\t', header=None)
-        df.columns = info_df.Neuron.to_list()
-        # center and scale
-        df.index -= df.index.max()/2
-        df.index /= 10
-        dico[stim] = df.copy()
+        if os.path.basename(filename).split('.')[-1] == 'xlsx':
+            pass
+        else:
+            df = pd.read_csv(filename, sep='\t', header=None)
+            df.columns = info_df.Neuron.to_list()
+            # center and scale
+            df.index -= df.index.max()/2
+            df.index /= 10
+            dico[stim] = df.copy()
     return dico
 
 def normalize(dico):
