@@ -7,9 +7,9 @@ import os
 from datetime import datetime
 from imp import reload
 
-import numpy as np
 # import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.patches import Rectangle
 
 import config

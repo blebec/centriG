@@ -5,10 +5,10 @@
 
 import os
 from datetime import datetime
-import numpy as np
-import pandas as pd
 
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 import config
 from load import load_data as ldat

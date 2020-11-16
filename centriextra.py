@@ -7,13 +7,14 @@ Created on Tue May  5 12:18:33 2020
 """
 
 
-import platform
-import os
 import getpass
+import os
+import platform
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io import loadmat
+
 #import humps
 
 def go_to_dir():
@@ -143,5 +144,5 @@ def build_a_df_of_stims(keys):
     return df
 keys_df = build_a_df_of_stims(keys)
 
-#%%
+%%
  import xarray as xr

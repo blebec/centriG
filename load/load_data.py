@@ -7,15 +7,17 @@ Created on Mon Jun 29 10:10:52 2020
 """
 #import platform
 import os
+
+import numpy as np
 #import getpass
 import pandas as pd
-import numpy as np
+
+import config
+import general_functions as gfunc
 
 #import centriG.config as config
 #import centriG.general_functions as gfunc
 
-import config
-import general_functions as gfunc
 
 paths = config.build_paths()
 

@@ -9,17 +9,16 @@ Created on Thu 12 nov 2020 15:07:38 CET
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 import config
+import fig_proposal as figp
 import general_functions as gfunc
 import load.load_data as ldat
 import load.load_traces as ltra
-import fig_proposal as figp
-
 
 anot = True           # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()

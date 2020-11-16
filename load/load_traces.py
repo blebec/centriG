@@ -8,11 +8,12 @@ import os
 
 import pandas as pd
 
+import config
+import general_functions as gfunc
+
 #import centriG.config as config
 #import centriG.general_functions as gfunc
 
-import config 
-import general_functions as gfunc
 
 paths = config.build_paths()
 #os.chdir(paths['pg'])

@@ -9,9 +9,8 @@ Created on Mon Apr 13 18:08:45 2020
 import os
 from glob import glob
 
-import pandas as pd
 import matplotlib.pyplot as plt
-
+import pandas as pd
 
 cdir = '/Users/cdesbois/pg/chrisPg/centriG/dataExtra'
 os.chdir(cdir)

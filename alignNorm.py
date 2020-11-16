@@ -3,9 +3,9 @@
 import os
 from datetime import datetime
 
-import numpy as np
-import  pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 
 # import centriG.config as config
 # import centriG.load.load_data as ldat

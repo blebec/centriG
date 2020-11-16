@@ -5,14 +5,16 @@ import os
 from datetime import datetime
 from imp import reload
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import seaborn as sns
+
 sns.set(style="ticks")
 
 import config
 import load.load_data as ldat
+
 paths=config.build_paths()
 std_colors = config.std_colors()
 anot = True
@@ -182,6 +184,7 @@ for spread in ['sect', 'full']:
 #%%
 plt.close('all')
 from itertools import combinations
+
 kinds = ['vm', 'spk']
 spreads = ['sect', 'full']
 mes = ['time50', 'gain50', 'engy']

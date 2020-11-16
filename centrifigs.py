@@ -6,26 +6,29 @@ plot centrigabor figures from data stored in .xlsx files
 """
 
 import os
-from importlib import reload
 from datetime import datetime
-# import itertools
+from importlib import reload
 
+import matplotlib.gridspec as gridspec
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from pandas.plotting import table
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from matplotlib.patches import Rectangle
-import matplotlib.patches as patches
 #from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib import markers
+from matplotlib.patches import Rectangle
+from pandas.plotting import table
 
 import config
+import fig_proposal as figp
 import general_functions as gfunc
 import load.load_data as ldat
 import load.load_traces as ltra
 import old.old_figs as ofig
-import fig_proposal as figp
+
+# import itertools
+
+
 # nb description with pandas:
 pd.options.display.max_columns = 30
 

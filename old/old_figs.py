@@ -8,14 +8,15 @@ Created on Tue Jun 30 10:36:09 2020
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.ticker import StrMethodFormatter
 from matplotlib.patches import Rectangle
-import matplotlib.pyplot as plt
+from matplotlib.ticker import StrMethodFormatter
 
-import general_functions as gfunc
 import config as config
+import general_functions as gfunc
+
 paths = config.build_paths()
 
 def plot_2_indMoySigNsig(data, colsdict, stdcolors, fill=True, anot=False):

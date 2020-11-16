@@ -6,18 +6,16 @@ plot centrigabor sorted responses
 """
 
 import os
-from importlib import reload
 from datetime import datetime
+from importlib import reload
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 
 import config
 import general_functions as gfunc
 import load.load_data as ldat
-
 
 #===========================
 # global setup

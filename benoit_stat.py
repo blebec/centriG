@@ -1,32 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
-#%reset -f
-
-import pyperclip
 import os
+#from socket import gethostname
 
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from socket import gethostname
+import numpy as np
+import pandas as pd
+import pyperclip
 
-def build_paths():
-    """ build a paths dictionary """
-    host = gethostname()
-    paths = {}
-    for key in ['home', 'data', 'ownc', 'save']:
-        paths[key] = ''
-    if host == 'PC-Chris-linux':
-        paths['data'] = '/run/user/1002/gvfs/smb-share:server=157.136.60.11,\
-        share=posteintra/centrigabor_analyses/centrigabor_neurons/\
-        benoit_thesis_latestVersion/Lat50_and_DRES50_txt'
-        paths['home'] = '/mnt/hWin/Chris'
-        paths['ownc'] = os.path.join(paths['home'], 'ownCloud')
-        paths['save'] = os.path.join(paths['home'], 'ownCloud', 'centrGfig')
-    # on mac : paths['data'] = '/Volumes/posteIntra/centrigabor_analyses/\
-    #centrigabor_neurons/benoit_thesis_latestVersion/Lat50_and_DRES50_txt/'
-    return paths
+import config
 
-paths = build_paths()
+
+# def build_paths():
+#     """ build a paths dictionary """
+#     host = gethostname()
+#     paths = {}
+#     for key in ['home', 'data', 'ownc', 'save']:
+#         paths[key] = ''
+#     if host == 'PC-Chris-linux':
+#         paths['data'] = '/run/user/1002/gvfs/smb-share:server=157.136.60.11,\
+#         share=posteintra/centrigabor_analyses/centrigabor_neurons/\
+#         benoit_thesis_latestVersion/Lat50_and_DRES50_txt'
+#         paths['home'] = '/mnt/hWin/Chris'
+#         paths['ownc'] = os.path.join(paths['home'], 'ownCloud')
+#         paths['save'] = os.path.join(paths['home'], 'ownCloud', 'centrGfig')
+#     # on mac : paths['data'] = '/Volumes/posteIntra/centrigabor_analyses/\
+#     #centrigabor_neurons/benoit_thesis_latestVersion/Lat50_and_DRES50_txt/'
+#     return paths
+
+# paths = build_paths()
+
+paths = config.build_paths()
+paths['save'] = os.path.join(paths['pg'], 'dataCorr', 'hd_files')
 
 #%%
 def load_from_txt_files(dir_path=''):
@@ -85,7 +91,7 @@ def load_from_txt_files(dir_path=''):
 #latency_gain_df  = load_from_txt_files(paths['data'])
 # load from hdf file
 #latency_gain_df = pd.read_hdf(os.path.join(paths['data'], 'script', 'latGain50.hdf'))
-latency_gain_df = pd.read_hdf(os.path.join(paths['save'], 'data', 'latGain50.hdf'))
+latency_gain_df = pd.read_hdf(os.path.join(paths['save'], 'latGain50.hdf'))
 
 ## write on server
 #file = os.path.join(paths['data'], 'script', 'latGain50.hdf')
@@ -401,9 +407,10 @@ plot_full_vs_sector(median_df, 'f-s')
 plot_full_vs_sector_ratio(median_df, 's-f/f')
 plot_full_vs_sector_ratio(median_df, 'f-s/s')
 
+from scipy import stats
 #%%
 from sklearn import linear_model
-from scipy import stats
+
 
 def regress(df, out=False):
     """ compute the correlation between conditions """
@@ -511,6 +518,8 @@ plot_scatter(latency_gain_df, corr_df, shareAxes=True)
 #%%
 
 import statsmodels.api as sm
+
+
 def compute_regress_though_sm(df):
     protocols = list(dict.fromkeys([col.split('_')[0] for col in df.columns]))
     for protoc in protocols:

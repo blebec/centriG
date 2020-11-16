@@ -8,15 +8,14 @@ Created on Tue Jun 30 13:19:26 2020
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 import config
 import general_functions as gfunc
 import load.load_data as ldat
-
 
 anot = True
 std_colors = config.std_colors()

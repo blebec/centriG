@@ -10,14 +10,15 @@ extration and plotting of the relations histological data <-> responses
 import os
 from datetime import datetime
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
+import config
 # import centriG.load.load_data as ldat
 # import centriG.config as config
 import load.load_data as ldat
-import config
+
 
 def plot_cell_depth():
     """

@@ -8,14 +8,14 @@ a module to build the config and general parameters
 
 
 
-import platform
-import os
-import getpass
-import sys
 #import inspect
 import cProfile
-import pstats
+import getpass
 import io
+import os
+import platform
+import pstats
+import sys
 
 
 def build_paths():

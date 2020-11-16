@@ -5,14 +5,14 @@ import os
 from datetime import datetime
 from importlib import reload
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 import config
+import general_functions as gfunc
 import load.load_traces as ltra
 import old.old_figs as ofig
-import general_functions as gfunc
 
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
