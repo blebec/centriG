@@ -256,7 +256,7 @@ def plot_pop_predict(data, lp='minus', stdcolors=std_colors):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:pop_predict',
+        fig.text(0.99, 0.01, 'fill.py.py:pop_predict',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 
