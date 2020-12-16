@@ -650,7 +650,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
         ax.set_title(letter)
 
     # fill pop
-    spks = df.columns[13:17]
+    spks = df.columns[13:18]
     vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
 
     # vm pop
@@ -666,7 +666,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     vspread = .06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.set_ylabel('Normalized membrane potential')
-    ax.annotate("n=???", xy=(0.1, 0.8),
+    ax.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
 
     # spk pop
@@ -762,6 +762,6 @@ plt.close('all')
 select = dict(age='new', rec='vm', kind='sig')
 # select['align'] = 'p2p'
 
-# data_df, file = ltra.load_intra_mean_traces(paths, **select)
+data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
 plot_fill_combi(pop_df, data_df)
