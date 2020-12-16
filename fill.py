@@ -48,7 +48,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
     # color parameters
     colors = [stdcolors[st] for st in
               ['k', 'red', 'dark_green', 'dark_green']]
-    alphas = [0.6, 0.8, 0.8, 0.8]
+    alphas = [0.5, 0.5, 0.8, 0.8]
 
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True,
@@ -197,7 +197,7 @@ def plot_pop_predict(data, lp='minus', stdcolors=std_colors):
     colors = [stdcolors[st] for st in
               ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
                'blue_violet', 'red', 'red', 'blue_violet']]
-    alphas = [0.5, 0.7, 0.7, 0.6, 0.6, 0.5, 0.2, 0.2, 0.7]
+    alphas = [0.5, 0.5, 0.8, 0.5, 0.6, 0.5, 0.2, 0.2, 0.7]
 
     sharesY = dict(minus = False, plus = True)
     fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True,
@@ -206,7 +206,7 @@ def plot_pop_predict(data, lp='minus', stdcolors=std_colors):
 
     ax = axes[0]
     cols = df.columns[:3]
-    linewidths = (1, 1, 2)
+    linewidths = (1.5, 1.5, 1.5)
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
         linewidth=linewidths[i], label=col)
@@ -216,14 +216,15 @@ def plot_pop_predict(data, lp='minus', stdcolors=std_colors):
     vspread = .06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
 
-    lims = dict(minus = (-0.2, 1.1), plus=(-0.05, 1.2))
+    lims = dict(minus = (-0.1, 1.1), plus=(-0.05, 1.2))
     ax.set_ylim(lims.get(lp))
+    ax.set_xlim(-200,200)
 
     # predictive magnification
     ax = axes[1]
     colors = [stdcolors[st]
               for st in ['k', 'red', 'dark_green', 'blue_violet']]
-    linewidths=(1,1)
+    linewidths=(1.5, 1.5, 1.5)
     # (first, second, stdup, stddown)
     lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
     cols = [df.columns[i] for i in lp_cols[lp]]

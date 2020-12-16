@@ -331,7 +331,7 @@ def load_filldata(key='pop'):
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
     #limit the date time range
-    df = df.loc[-150:150]
+    df = df.loc[-200:200]
 
     # cols = gfunc.new_columns_names(df.columns)
     # cols = ['_'.join(item.split('_')[1:]) for item in cols]
