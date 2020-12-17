@@ -320,7 +320,7 @@ def plot_pop_fill(data, stdcolors=std_colors, anot=anot):
     vspread = .06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.set_ylabel('Normalized membrane potential')
-    ax.annotate("n=???", xy=(0.1, 0.8),
+    ax.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
     # spk pop
     ax = axes[1]
@@ -464,7 +464,7 @@ def plot_pop_fill_2X2(df, lp='minus', stdcolors=std_colors):
     vspread = .06  # vertical spread for realign location
     ax2.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax2.set_ylabel('Normalized membrane potential')
-    ax2.annotate("n=???", xy=(0.1, 0.8),
+    ax2.annotate("n=12", xy=(0.1, 0.8),
                  xycoords="axes fraction", ha='center')
 
     # spk
@@ -643,7 +643,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
                 labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(17, 17))
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 8))
     axes = axes.flatten('F')
     letters = ['A', 'B', 'C', 'D']
     for letter, ax in zip(letters, axes):
