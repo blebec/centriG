@@ -701,6 +701,8 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.text(0.50, 0.88, 'center only response \n start | peak | end',
             transform=ax.transAxes, alpha=0.5)
     ax.set_ylabel('Norm Vm - Norm centerOnly')
+    ax.annotate("n=15", xy=(0.1, 0.8),
+                 xycoords="axes fraction", ha='center')
 
     # surround only
     ax = axes[3]
@@ -734,10 +736,15 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
         ax.set_xlim(-20, 60)
         custom_ticks = np.arange(-20, 60, 10)[1:]
         ax.set_xticks(custom_ticks)
-        ax.set_ylim(-.1, 1.4)
-        custom_ticks = np.arange(0, 1.1, 0.2)
-        ax.set_yticks(custom_ticks)
-
+        if (ax != axes[1]):
+            ax.set_ylim(-.1, 1.4)
+            custom_ticks = np.arange(0, 1.1, 0.2)
+            ax.set_yticks(custom_ticks)
+        elif (ax == axes[1]):
+            #ax.set_ylim(-.1, 1.4)
+            ax.set_ylim(-.1, 1.1)
+            custom_ticks = np.arange(0, 1.1, 0.2)
+            ax.set_yticks(custom_ticks)    
     for ax in axes[2:]:
         ax.set_xlim(-150, 150)
         ax.set_ylim(-0.15, 0.35)
