@@ -123,7 +123,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    ax.annotate("n=37", xy=(0.2, 0.8),
+    ax.annotate("n=37", xy=(0.2, 0.8), size='large',
                 xycoords="axes fraction", ha='center')
     # response point
     x = 0
@@ -155,7 +155,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.axvline(y, color='tab:blue', linestyle=':', linewidth=2)
     # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
-    ax.annotate("n=15", xy=(0.2, 0.8),
+    ax.annotate("n=15", xy=(0.2, 0.8), size='large',
                 xycoords="axes fraction", ha='center')
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
@@ -169,7 +169,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
                 alpha=1, label=col)#, linewidth=1)
         # ax.fill_between(df.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
-    ax.annotate("n=22", xy=(0.2, 0.8),
+    ax.annotate("n=22", xy=(0.2, 0.8), size='large',
                 xycoords="axes fraction", ha='center')
     # response point
     x = 0
@@ -200,19 +200,19 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
     #         ms=10, alpha=0.8)
     ax.axvline(y, color='tab:blue', linestyle=':', linewidth=2)
-    ax.annotate("n=6", xy=(0.2, 0.8),
+    ax.annotate("n=6", xy=(0.2, 0.8), size='large',
                 xycoords="axes fraction", ha='center')
     # #advance
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
                 # xycoords="axes fraction", ha='center')
     # labels
-    ylabels_vm = ['Membrane potential (mV)',
-               'Normalized membrane potential',
+    ylabels_vm = ['Membrane Potential (mV)',
+               'Normalized Vm',
                '']
 
-    ylabels_spk = ['Firing rate (spikes/s)',
-               'Normalized firing rate',
+    ylabels_spk = ['Firing Rate (spikes/s)',
+               'Normalized Spk/s',
                '']
     ylabels = ylabels_vm + ylabels_spk
     for i, ax in enumerate(axes):
@@ -225,9 +225,9 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         else:
             ax.set_xlabel('Time (ms)')
     axes[1].set_ylim(-0.10, 1.1)
-    axes[4].set_xlabel('Relative time (ms)')
+    axes[4].set_xlabel('Relative Time (ms)')
     ax = axes[5]
-    ax.set_xlabel('Relative time (ms)')
+    ax.set_xlabel('Relative Time (ms)')
     if age == 'old':
         ax.set_ylim(-0.10, 1.3)
     else:
@@ -347,14 +347,17 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
 
 #data
 age = ['old', 'new'][1]
-fig2_df, fig2_cols = ldat.load2(age)
+try:  
+    fig2_df
+except:
+    fig2_df, fig2_cols = ldat.load2(age)
 fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols,
                    anot=anot, age=age, onlyPos=False)
 save = False
 if save:
     paths['save'] = os.path.join(paths['owncFig'],
-                                 'pythonPreview', 'current', 'current.fig')
-    fig.savefig(os.path.join(paths['save'], 'fig2.png'))
+                                 'pythonPreview', 'current', 'fig')
+    fig.savefig(os.path.join(paths['save'], 'fig2.pdf'))
 
 # =============================================================================
 ## other views
