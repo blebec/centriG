@@ -53,7 +53,8 @@ def rc_params(font_size = 'medium'):  # large, medium
           'figure.dpi'    : 100,
           'axes.labelsize': 'large',
           # 'axes.labelsize': font_size,
-          'axes.titlesize': font_size,
+          'axes.titlesize': 'large',
+          # 'axes.titlesize': font_size,
           'xtick.labelsize': font_size,
           'ytick.labelsize': font_size,
           'axes.xmargin': 0}

@@ -30,11 +30,9 @@ os.chdir(paths['pg'])
 
 #%% plot latency (left) and gain (right)
 
-plt.close('all')
-
 def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
                                spread='sect',
-                               kind='vm', age='old', amp='engy'):
+                               kind='vm', age='new', amp='engy'):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -52,13 +50,13 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
-    titles = {'engy' : r'$\Delta$ energy',
-              'time50' : 'latency advance',
-              'gain50' : 'amplitude gain',
-              'sect' : 'sector',
-              'spk' : 'spikes',
-              'vm' : 'vm',
-              'full': 'full'}
+    titles = {'engy' : r'$\Delta$ Energy',
+              'time50' : r'$\Delta$ Advance',
+              'gain50' : 'Amplitude Gain',
+              'sect' : 'Sector',
+              'spk' : 'Spikes',
+              'vm' : 'Vm',
+              'full': 'Full'}
 
     # parameter
     cols = [std_colors[item] \
@@ -80,14 +78,15 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
     traces = [item for item in traces if not item.endswith('sig')]
     # text labels
     title = '{} {}'.format(titles.get(kind, ''), titles.get(spread, ''))
-    anotx = 'Cell rank'
+    anotx = 'Cell Rank'
     if age == 'old':
         anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
              #(fraction of Center-only response)']
     else:
         anoty = [titles['time50'], titles.get(amp, '')]
+    
     # plot
-    fig, axes = plt.subplots(4, 2, figsize=(12, 16), sharex=True,
+    fig, axes = plt.subplots(4, 2, figsize=(11.6, 12), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)
@@ -183,10 +182,12 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
 
-#%% old
+# old
 # fig = plot_sorted_responses_sup1(overlap=True)
 # fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
+plt.close('all')
+
 kind = ['vm', 'spk'][0]
 
 fig = plot_all_sorted_responses(overlap=True, sort_all=False,
@@ -210,9 +211,9 @@ for kind in ['vm', 'spk']:
                                         kind=kind, amp=amp, age='new',
                                         spread=spread)
         if save:
-            file = kind + spread.title() + '_' + amp + '.png'
+            file = kind + spread.title() + '_' + amp + '.pdf'
             filename = os.path.join(paths['save'], file)
-            fig.savefig(filename, format='png')
+            fig.savefig(filename, format='pdf')
 
 
 
