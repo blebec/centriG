@@ -327,7 +327,7 @@ def load_filldata(key='pop'):
                          indi = 'data/data_to_use/indifill.xlsx')
 
     filename = data_location[key]
-    df = pd.read_excel(filename)
+    df = pd.read_excel(filename, engine='openpyxl')
     #centering
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
