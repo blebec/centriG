@@ -38,7 +38,8 @@ def load2(age='new'):
         print('fig2 : new file')
         # print('file fig2traces as to be updated')
         # return None, None
-    df = pd.read_excel(filename)
+    # df = pd.read_excel(filename) # bug with xlsx
+    df = pd.read_excel(filename, engine='openpyxl')
     #centering
     middle = (df.index.max() - df.index.min())/2
     df.index = (df.index - middle)/10
@@ -98,7 +99,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
     else:
         print('files should be updated')
         return None
-    df = pd.read_excel(filename)
+    df = pd.read_excel(filename, engine='openpyxl')
     df.set_index('Neuron', inplace=True)
     #rename using snake_case
     cols = gfunc.new_columns_names(df.columns)
