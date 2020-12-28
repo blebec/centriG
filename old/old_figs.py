@@ -597,7 +597,7 @@ def plot_3_signonsig(stdcolors, anot=False, substract=False):
         axes.append(fig.add_subplot(1, 2, i+1))
     for i, kind in enumerate(['sig', 'nsig']):
         ncells = cellnumbers[kind]
-        df = pd.read_excel(filenames[kind])
+        df = pd.read_excel(filenames[kind], engine='openpyxl')
         # centering
         middle = (df.index.max() - df.index.min())/2
         df.index = (df.index - middle)/10

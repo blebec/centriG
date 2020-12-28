@@ -73,7 +73,7 @@ def load_intra_mean_traces(paths, **kwargs):
         # samplesize
         # cellnumbers = dict(pop = 37, sig = 10, nonsig = 27)
         # ncells = cellnumbers[kind]
-        df = pd.read_excel(filenames[kind])
+        df = pd.read_excel(filenames[kind], engine='openpyxl')
     elif age == 'new':
         dir_name = os.path.join(paths['owncFig'],
                                 'data', 'averageTraces', 'controlsFig')
@@ -101,7 +101,7 @@ def load_intra_mean_traces(paths, **kwargs):
             file = file_list[0]
             print('selected \n \t {}'.format(file))
         filename = os.path.join(dir_name, file)
-        df = pd.read_excel(filename)
+        df = pd.read_excel(filename, engine='openpyxl')
     else:
         print('non defined')
 
