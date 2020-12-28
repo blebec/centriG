@@ -471,7 +471,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
     output:
         plt.figure()
     """
-#    defined by kwargs
+    # defined by kwargs
     substract = kwargs.get('substract', False)
     anot = kwargs.get('anot', True)
     addleg = kwargs.get('addleg', False)
@@ -494,7 +494,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
                  full = 'union_idx_fill_sig_full.xlsx')
     filename = os.path.join(paths['owncFig'], 'data', 'averageTraces',
                         'controlsFig', files[spread])
-    datadf = pd.read_excel(filename)
+    datadf = pd.read_excel(filename, engine='openpyxl')
     cols = gfunc.new_columns_names(datadf.columns)
     cols = [item.replace('sig_', '') for item in cols]
     cols = [item.replace('_stc', '') for item in cols]
@@ -507,19 +507,25 @@ def plot_trace_1x2(stdcolors, **kwargs):
     middle = (datadf.index.max() - datadf.index.min())/2
     datadf.index = (datadf.index - middle)/10
 
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8,17.6),
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(8.5, 8.5),
                              sharex=True, sharey=False)
     axes = axes.flatten()
     fig.suptitle(title, alpha=0.4)
 
     recs = ['vm'] + ['spk']
+    leg_dic = dict(vm = 'Vm', spk='Spikes')
     cols = [st for st in datadf.columns if spread in st]
 
     # plot
     for i, ax in enumerate(axes):
-        rec = recs[i]
-        ax_title = f"{rec} {spread}"
-        ax.set_title(ax_title)
+        # rec = recs[i]
+        # ax_title = f"{rec} {spread}"
+        # ax.set_title(ax_title)
+        rec = recs[i]        
+        txt = leg_dic[rec]
+        ax.text(0.7, 0.9, txt, ha='left', va='center', 
+                transform=ax.transAxes, size='large')
+        
         sec = [st for st in cols if rec in st]
         # replace rd sector by full sector
         sec = [st.replace('sect_rd', 'full_rd') for st in sec]
@@ -554,8 +560,12 @@ def plot_trace_1x2(stdcolors, **kwargs):
         #labels
         ax.set_xlabel(x_labels[i])
         ax.set_ylabel(y_labels[i])
-        ax.annotate('n={}'.format(nbcells[spread][i]), xy=(0.1, 0.8),
-                    xycoords="axes fraction", ha='center')
+        # ax.annotate('n={}'.format(nbcells[spread][i]), xy=(0.1, 0.8),
+                    # xycoords="axes fraction", ha='center')
+        txt = 'n={}'.format(nbcells[spread][i])
+        ax.text(0.1, 0.8, txt, ha='left', va='center', 
+                transform=ax.transAxes)
+
         #refs
         ax.axhline(0, alpha=0.2, color='k')
         for loc in ['top', 'right']:
@@ -612,6 +622,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
         fig.text(0.99, 0.01, 'pop_traces.py:plot_trace_1x2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, spread, ha='center', va='bottom', alpha=0.4)
     return fig
 
 
@@ -627,10 +638,10 @@ dico = {'age': 'new',
  'substract': False,
  'controls': True}
 
-dico['spread'] = 'sect'
+dico['spread'] = 'full'
 
 fig = plot_trace_1x2(std_colors, **dico)
-save = False
+save = True
 if save:
-    name = 'vmSpkUFill_' + dico['spread'] + '.png'
+    name = 'vmSpkUFill_' + dico['spread'] + '.pdf'
     fig.savefig(os.path.join(paths['save'], 'popfill', name))
