@@ -18,6 +18,8 @@ from load import load_data as ldat
 paths = config.build_paths()
 paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'stat')
 std_colors = config.std_colors()
+plt.rcParams.update(config.rc_params())
+
 anot = True
 
 plt.rcParams['axes.xmargin'] = 0.05
@@ -348,7 +350,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
-    titles = dict(time = r'Latency Advance',
+    titles = dict(time = r'$\Delta$ Latency',
                   engy = r'$\Delta$ Energy',
                   sect = 'Sector',
                   full = 'Full',
@@ -377,22 +379,29 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
                   for st in list(pop_dico.keys())]
     heights.insert(1, height)
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12,4))
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6,4))
     axes = axes.flatten()
-    titles_here = [titles['time'], 'time OR energy', titles['engy']]
+    titles_here = [titles['time'], 'Both', titles['engy']]
     labels = [relabel[st] for st in pop_dico]
 
     for i, ax in enumerate(axes):
+        ax.axhline(0, color='k')
+        for spine in ['left', 'top', 'right', 'bottom']:
+            ax.spines[spine].set_visible(False)
+            # ax.tick_params(axis='x', labelrotation=45)
+            ax.yaxis.set_ticklabels([])
+            ax.tick_params(axis='y', length=0)
         ax.set_title(str(i))
         param = params[0]
         #for param in params
         ax.set_title(titles_here[i], pad=0)
 
         x = np.arange(len(heights[i]))
-        width = 0.9
+        width = 0.95
         if i in [0, 2]:
             bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.6,
-                          edgecolor=colors)
+                          edgecolor='k')
+                          # edgecolor=colors)
         else:
             bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.9,
                           edgecolor='k', label=labels)
@@ -400,34 +409,34 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
         # labels = list(pop_dico.keys())
         ax.set_xticks([])
         ax.set_xticklabels([])
-    for ax in axes:
-        for spine in ['left', 'top', 'right']:
-            ax.spines[spine].set_visible(False)
-            # ax.tick_params(axis='x', labelrotation=45)
-            ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
+    axes[0].set_ylabel(r'% of significant cells')
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
-    txt = "{} {} ({} cells) ".format(mes, spread, len(data))
-    fig.text(0.5, 0.85, txt, ha='center', va='top', fontsize=14)
-    fig.legend(handles=bars, labels=labels, loc='upper right')
+    # fig.legend(handles=bars, labels=labels, loc='upper right')
     # rectangle
     box = True
     if box:
         ax = axes[1]
         x, x1 = ax.get_xlim()
+        step = (x1 - x) * .4
         x1 -= x
         y, y1 = ax.get_ylim()
         y1 -= y
-        rect = Rectangle(xy=(x, y), width=x1, height=y1,
-                         fill=False , alpha=0.6, edgecolor='k', linewidth=10)
+        y = 0 - step
+        rect = Rectangle(xy=(x, y), width=x1, height=y1 + step,
+                         fill=False , alpha=0.6, edgecolor='k', linewidth=6)
         ax.add_patch(rect)
+        ax.set_ylim(y, y1)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(1, 0.01, 'cellContribution:plot_separate_1x3',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-    fig.tight_layout()
+        txt = "{} {} ({} cells) ".format(mes, spread, len(data))
+        fig.text(0.5, 0.01, txt, ha='center', va='bottom', fontsize=14, 
+                 alpha = 0.4)
+ 
+    fig.tight_layout(w_pad=4)
     return fig
 
 
@@ -441,7 +450,7 @@ for mes in ['vm', 'spk']:
         fig = plot_separate_1x3(data, sig_cells,
                                 spread=spread, mes=mes, amp=amp)
         if save:
-            file = 'contrib_' + mes.title() + spread.title() + '_Box.png'
+            file = 'contrib_' + mes.title() + spread.title() + '_Box.pdf'
             folder = os.path.join(paths['owncFig'],
                                   'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
