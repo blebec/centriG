@@ -549,7 +549,7 @@ plt.close('all')
 def plot_speed(substract=False):
     """ ex fig 4 """
     filename = 'data/data_to_use/fig4.xlsx'
-    df = pd.read_excel(filename)
+    df = pd.read_excel(filename, engine='openpyxl')
     # centering
     middle = (df.index.max() - df.index.min())/2
     # OBSERVATION bottom raw 0 baseline has been decentered by police and ticks size changes
@@ -575,6 +575,9 @@ def plot_speed(substract=False):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
     ax.set_ylabel('Normalized membrane potential')
+    ax.text(0.8, 0.9, 'CP-ISO', ha='left', va='center', 
+            transform=ax.transAxes, size='large')
+
     # fontname = 'Arial', fontsize = 14)
     ax.set_xlabel('Relative time (ms)')
     for ax in fig.get_axes():
@@ -596,7 +599,10 @@ def plot_speed(substract=False):
     #                handlelength=0)
     # for line, text in zip(leg.get_lines(), leg.get_texts()):
     #    text.set_color(line.get_color())
-    ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
+    ax.text(0.1, 0.8, 'n=12', ha='left', va='center', 
+            transform=ax.transAxes, size='large')
+
+    # ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
     # bluePoint
     x = 0
     y = df.loc[0]['centerOnly']
@@ -613,7 +619,7 @@ def plot_speed(substract=False):
         ax.set_xlim(-90, 65)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:speed',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_speed',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
@@ -623,7 +629,9 @@ fig2 = plot_speed(substract=True)
 ## alpha=0.8, figsize = 8,6, ha = 'left'
 save = False
 if save:
-    filename = os.path.join(paths['save'], 'speed.png')
+    paths['save'] = os.path.join(paths['owncFig'],
+                                 'pythonPreview', 'current', 'fig')
+    filename = os.path.join(paths['save'], 'speed.pdf')
     fig1.savefig(filename)
 
 #%% test to change the x scale
