@@ -9,11 +9,11 @@ Created on Thu 12 nov 2020 15:07:38 CET
 import os
 from datetime import datetime
 
+from importlib import reload
+from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from matplotlib.patches import Rectangle
-from importlib import reload
 
 import config
 import fig_proposal as figp
@@ -39,7 +39,7 @@ pop_df = ldat.load_filldata('pop')
 #%%
 def plot_indFill(data, stdcolors=std_colors, anot=True):
     """
-    plot_figure6
+    filling in example
     """
     df = data.copy()
     cols = ['Center-Only', 'Surround-then-Center',
@@ -121,18 +121,21 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
                          fill=True, alpha=1, edgecolor='w',
                          facecolor=colors[2])
         if key == 'D0':
-            rect = Rectangle(xy=(dico[key], vlocs[3]+.02), width=step, height=0.26,
+            rect = Rectangle(xy=(dico[key], vlocs[3]+.02),
+                             width=step, height=0.26,
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax.add_patch(rect)
         # stim2
-        rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+        rect = Rectangle(xy=(dico[key], vlocs[2]),
+                         width=step, height=0.3,
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
         ax.add_patch(rect)
 
         # center with all locations
-        rect = Rectangle(xy=(dico[key], vlocs[1]+.02), width=step, height=0.26,
+        rect = Rectangle(xy=(dico[key], vlocs[1]+.02),
+                         width=step-.5, height=0.26,
                          fill=False, alpha=0.6, edgecolor='k',
                          facecolor=colors[0])
         if key == 'D0':
@@ -141,7 +144,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
                              facecolor=colors[0])
         ax.add_patch(rect)
 
-    # #center
+    # #center (without the missing stims)
     # rect = Rectangle(xy=(0, vlocs[1]), width=step, height=0.3, fill=True,
     #                  alpha=0.6, edgecolor='w', facecolor=colors[0])
 
@@ -151,7 +154,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
                 ['Center-Only', 'Surround-then-Center', 'Surround-Only']):
             ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[i],
                         annotation_clip=False, fontsize='small')
-    txt = 'Membrane Potential (mV)'        
+    txt = 'Membrane Potential (mV)'
     fig.text(0.03, 0.5, txt, ha='right', va='center', rotation='vertical')
     for ax in axes:
         # leg = ax.legend(loc='upper right', markerscale=None, frameon=False,
@@ -175,7 +178,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
         custom_ticks = np.linspace(0, 4, 5, dtype=int)
         ax.set_yticks(custom_ticks)
         ax.set_yticklabels(custom_ticks)
-    
+
     fig.tight_layout()
 
     if anot:
@@ -295,8 +298,223 @@ save = False
 if save:
     dirname = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    file_name = os.path.join(dirname, 'predict_Fill.png')
+    file_name = os.path.join(dirname, 'predict_Fill.pdf')
     fig.savefig(file_name)
+
+#%% pop + predict
+
+def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
+    """
+    filling in example + pop
+    """
+
+    ## to build
+    inddata = indi_df
+    popdata = pop_df
+    stdcolors=std_colors
+    anot=True
+    ##
+
+    idf = inddata.copy()
+    cols = ['Center-Only', 'Surround-then-Center',
+            'Surround-Only', 'Static linear prediction']
+    dico = dict(zip(idf.columns, cols))
+    idf.rename(columns=dico, inplace=True)
+    # color parameters
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'dark_green', 'dark_green']]
+    alphas = [0.5, 0.5, 0.8, 0.8]
+
+    # plotting canvas
+    fig = plt.figure(figsize=(17.6, 8))
+    axes = []
+    ax = fig.add_subplot(221)
+    axes.append(ax)
+    ax1 = fig.add_subplot(223, sharex=ax, sharey=ax)
+    axes.append(ax1)
+    ax = fig.add_subplot(222)
+    axes.append(ax)
+    ax1 = fig.add_subplot(224, sharex=ax)
+    axes.append(ax1)
+
+    # for i, ax in enumerate(axes):
+    #     ax.set_title(str(i))
+
+    # fig.suptitle(os.path.basename(filename))
+    # traces
+    ax = axes[0]
+    for i, col in enumerate(cols[:2]):
+        ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                 label=col)
+    ax.spines['bottom'].set_visible(False)
+    ax.axes.get_xaxis().set_visible(False)
+
+    ax = axes[1]
+    for i, col in enumerate(cols):
+        if i == 3:
+            ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                     label=col, linestyle='--', linewidth=1.5)
+        else:
+            ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
+                     label=col)
+    ax.set_xlabel('Time (ms)')
+
+    # stims locations (drawing at the end of the function)
+    step = 21
+    hlocs = np.arange(0, -110, -step)
+    names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    box_dico = dict(zip(names, hlocs))
+
+    ################### right population part
+    lp = 'minus'
+    popdf = popdata.copy()
+    cols = ['centerOnly', 'surroundThenCenter', 'surroundOnly'
+            'sosdUp', 'sosdDown', 'solinearPrediction', 'stcsdUp',
+            'stcsdDown', 'stcLinearPreediction']
+    dico = dict(zip(popdf.columns, cols))
+    popdf.rename(columns=dico, inplace=True)
+    cols = popdf.columns
+    colors = [stdcolors[st] for st in
+              ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
+               'blue_violet', 'red', 'red', 'blue_violet']]
+    alphas = [0.5, 0.5, 0.8, 0.5, 0.6, 0.5, 0.2, 0.2, 0.7]
+
+    # sharesY = dict(minus = False, plus = True)
+    # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True,
+    #                          sharey=sharesY[lp], figsize=(8.5, 8))
+    # axes = axes.flatten()
+
+    ax = axes[2]
+    cols = popdf.columns[:3]
+    linewidths = (1.5, 1.5, 1.5)
+    for i, col in enumerate(cols):
+        ax.plot(popdf[col], color=colors[i], alpha=alphas[i],
+        linewidth=linewidths[i], label=col)
+    # response point
+    x = 0
+    y = popdf[popdf.columns[0]].loc[0]
+    vspread = .06  # vertical spread for realign location
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
+
+    lims = dict(minus = (-0.1, 1.1), plus=(-0.05, 1.2))
+    ax.set_ylim(lims.get(lp))
+    ax.set_xlim(-200,200)
+
+    # predictive magnification
+    ax = axes[3]
+    colors = [stdcolors[st]
+              for st in ['k', 'red', 'dark_green', 'blue_violet']]
+    linewidths=(1.5, 1.5, 1.5)
+    # (first, second, stdup, stddown)
+    lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
+    cols = [popdf.columns[i] for i in lp_cols[lp]]
+    for i, col in enumerate(cols[:2]):
+        ax.plot(popdf[col], color=colors[i+2], alpha=alphas[i+2],
+                label=col, linewidth=linewidths[i])
+    ax.fill_between(popdf.index, popdf[cols[2]], popdf[cols[3]],
+                    color=colors[2], alpha=0.1)
+
+
+    for i, ax in enumerate(axes):
+        for loc in ['top', 'right']:
+            ax.spines[loc].set_visible(False)
+        ax.axhline(0, alpha=0.3, color='k')
+        # left
+        if i < 2:
+#    for ax in axes[:2]:
+            ax.axvline(0, alpha=0.2, color='k')
+            # response start
+            x = 41
+            y = idf['Center-Only'].loc[x]
+            ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
+            ax.vlines(x, -1, 2, color='tab:blue', linestyle=':', alpha=0.8)
+            for dloc in hlocs:
+                ax.axvline(dloc, linestyle=':', alpha=0.2, color='k')
+            #ticks
+            custom_ticks = np.linspace(0, 4, 5, dtype=int)
+            ax.set_yticks(custom_ticks)
+            ax.set_yticklabels(custom_ticks)
+
+        else:
+            ax.axvline(0, linewidth=2, color='tab:blue', linestyle=':')
+            ax.annotate("n=12", xy=(0.1, 0.8),
+                        xycoords="axes fraction", ha='center', size='large')
+
+    axes[2].xaxis.set_visible(False)
+    axes[2].spines['bottom'].set_visible(False)
+    axes[2].set_ylim(-0.2, 1.1)
+    custom_ticks = np.arange(0, 1.1, 0.2)
+    axes[2].set_yticks(custom_ticks)
+    axes[3].set_xlabel('Relative Time (ms)')
+
+    # align zero lines
+    # gfunc.change_plot_trace_amplitude(ax, 0.9)
+    gfunc.align_yaxis(axes[2], 0, axes[0], 0)
+    fig.tight_layout()
+
+    # left axis_label
+    txt = 'Membrane Potential (mV)'
+    fig.text(0.03, 0.5, txt, ha='right', va='center', rotation='vertical',
+             size='large')
+    txt = 'Normalized Vm'
+    fig.text(0.51, 0.5, txt, ha='right', va='center', rotation='vertical',
+             size='large')
+    fig.subplots_adjust(left=0.045)
+
+
+    # stimulation boxes
+    vlocs = np.linspace(4.1, 3.1, 4)
+    ax = axes[1]
+    for key in box_dico.keys():
+        # names
+        ax.annotate(key, xy=(box_dico[key]+6, vlocs[0]), alpha=0.6,
+                     annotation_clip=False, fontsize='small')
+        # stim1
+        rect = Rectangle(xy=(box_dico[key], vlocs[3]), width=step, height=0.3,
+                         fill=True, alpha=1, edgecolor='w',
+                         facecolor=colors[2])
+        if key == 'D0':
+            rect = Rectangle(xy=(box_dico[key], vlocs[3]+.02),
+                             width=step, height=0.26,
+                             fill=True, alpha=1, edgecolor=colors[2],
+                             facecolor='w')
+        ax.add_patch(rect)
+        # stim2
+        rect = Rectangle(xy=(box_dico[key], vlocs[2]),
+                         width=step, height=0.3,
+                         fill=True, alpha=0.6, edgecolor='w',
+                         facecolor=colors[1])
+        ax.add_patch(rect)
+
+        # center with all locations
+        rect = Rectangle(xy=(box_dico[key], vlocs[1]+.02),
+                         width=step-.5, height=0.26,
+                         fill=False, alpha=0.6, edgecolor='k',
+                         facecolor=colors[0])
+        if key == 'D0':
+            rect = Rectangle(xy=(box_dico[key], vlocs[1]), width=step, height=0.3,
+                             fill=True, alpha=0.6, edgecolor='w',
+                             facecolor=colors[0])
+        ax.add_patch(rect)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'fill.py:plot_indFill_popPredict',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    return fig
+
+
+plt.close('all')
+# indi_df = load_filldata('indi')
+fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df, stdcolors=std_colors, anot=anot)
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'fillingIn', 'indFill_popFill')
+    file_name = os.path.join(dirname, 'indFill_popPredict.pdf')
+    fig.savefig(file_name)
+
 
 #%%
 
@@ -759,15 +977,15 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
         ax.set_xlim(-20, 60)
         custom_ticks = np.arange(-20, 60, 10)[1:]
         ax.set_xticks(custom_ticks)
-        if (ax != axes[1]):
+        if ax != axes[1]:
             ax.set_ylim(-.1, 1.4)
             custom_ticks = np.arange(0, 1.1, 0.2)
             ax.set_yticks(custom_ticks)
-        elif (ax == axes[1]):
+        elif ax == axes[1]:
             #ax.set_ylim(-.1, 1.4)
             ax.set_ylim(-.1, 1.1)
             custom_ticks = np.arange(0, 1.1, 0.2)
-            ax.set_yticks(custom_ticks)    
+            ax.set_yticks(custom_ticks)
     for ax in axes[2:]:
         ax.set_xlim(-150, 150)
         ax.set_ylim(-0.15, 0.35)
