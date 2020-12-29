@@ -77,6 +77,10 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
     step = 21
     hlocs = np.arange(0, -110, -step)
     names = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5']
+    dico = dict(zip(names, hlocs))
+
+    ax = axes[0]
+    # stimulation legend location
     uplocation = True
     if uplocation: # location of the stimulation above the traces
         vlocs = np.linspace(2, 1, 4)
@@ -84,29 +88,27 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
     else:
         vlocs = np.linspace(-1.4, -2.4, 4)
         st = 'Surround-then-Center'
-        ax.annotate(st, xy=(30, vlocs[1]), color=colors[1], alpha=1,
+        ax.annotate(st, xy=(30, vlocs[2]), color=colors[1], alpha=1,
                     annotation_clip=False, fontsize='small')
         st = 'Center-Only'
-        ax.annotate(st, xy=(30, vlocs[2]), color=colors[0], alpha=1,
+        ax.annotate(st, xy=(30, vlocs[1]), color=colors[0], alpha=1,
                     annotation_clip=False, fontsize='small')
         # see annotation_clip=False
         ax.set_ylim(-2.5, 4.5)
-    dico = dict(zip(names, hlocs))
 
-    ax = axes[0]
-    # for key in dico.keys():
-    #     # name
-    #     ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
-    #                  annotation_clip=False, fontsize='small')
-    #     # stim1
-    #     rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
-    #                      fill=True, alpha=0.6, edgecolor='w',
-    #                      facecolor=colors[1])
-    #     ax.add_patch(rect)
-    # # center
-    # rect = Rectangle(xy=(0, vlocs[1]), width=step, height=0.3, fill=True,
-    #                  alpha=0.6, edgecolor='w', facecolor=colors[0])#'k')
-    # ax.add_patch(rect)
+        for key in dico.keys():
+            # name
+            ax.annotate(key, xy=(dico[key]+6, vlocs[0]), alpha=0.6,
+                        annotation_clip=False, fontsize='small')
+            # stim1
+            rect = Rectangle(xy=(dico[key], vlocs[2]), width=step, height=0.3,
+                             fill=True, alpha=0.6, edgecolor='w',
+                             facecolor=colors[1])
+            ax.add_patch(rect)
+        # center
+        rect = Rectangle(xy=(0, vlocs[1]), width=step, height=0.3, fill=True,
+                         alpha=0.6, edgecolor='w', facecolor=colors[0])#'k')
+        ax.add_patch(rect)
 
     # ax2
     ax = axes[1]
@@ -119,7 +121,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
                          fill=True, alpha=1, edgecolor='w',
                          facecolor=colors[2])
         if key == 'D0':
-            rect = Rectangle(xy=(dico[key], vlocs[3]), width=step, height=0.3,
+            rect = Rectangle(xy=(dico[key], vlocs[3]+.02), width=step, height=0.26,
                              fill=True, alpha=1, edgecolor=colors[2],
                              facecolor='w')
         ax.add_patch(rect)
@@ -128,13 +130,26 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
                          fill=True, alpha=0.6, edgecolor='w',
                          facecolor=colors[1])
         ax.add_patch(rect)
-    #center
-    rect = Rectangle(xy=(0, vlocs[1]), width=step, height=0.3, fill=True,
-                     alpha=0.6, edgecolor='w', facecolor=colors[0])
+
+        # center with all locations
+        rect = Rectangle(xy=(dico[key], vlocs[1]+.02), width=step, height=0.26,
+                         fill=False, alpha=0.6, edgecolor='k',
+                         facecolor=colors[0])
+        if key == 'D0':
+            rect = Rectangle(xy=(dico[key], vlocs[1]), width=step, height=0.3,
+                             fill=True, alpha=0.6, edgecolor='w',
+                             facecolor=colors[0])
+        ax.add_patch(rect)
+
+    # #center
+    # rect = Rectangle(xy=(0, vlocs[1]), width=step, height=0.3, fill=True,
+    #                  alpha=0.6, edgecolor='w', facecolor=colors[0])
+
     ax.add_patch(rect)
     if not uplocation:
-        for i, st in enumerate(['Surround-Only', 'Surround-then-Center', 'Center-Only']):
-            ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[2-i],
+        for i, st in enumerate(
+                ['Center-Only', 'Surround-then-Center', 'Surround-Only']):
+            ax.annotate(st, xy=(30, vlocs[i+1]), color=colors[i],
                         annotation_clip=False, fontsize='small')
     txt = 'Membrane Potential (mV)'        
     fig.text(0.03, 0.5, txt, ha='right', va='center', rotation='vertical')
@@ -160,6 +175,7 @@ def plot_indFill(data, stdcolors=std_colors, anot=True):
         custom_ticks = np.linspace(0, 4, 5, dtype=int)
         ax.set_yticks(custom_ticks)
         ax.set_yticklabels(custom_ticks)
+    
     fig.tight_layout()
 
     if anot:
