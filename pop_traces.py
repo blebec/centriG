@@ -638,10 +638,17 @@ dico = {'age': 'new',
  'substract': False,
  'controls': True}
 
-dico['spread'] = 'full'
+dico['spread'] = 'sect'
 
 fig = plot_trace_1x2(std_colors, **dico)
 save = True
 if save:
-    name = 'vmSpkUFill_' + dico['spread'] + '.pdf'
-    fig.savefig(os.path.join(paths['save'], 'popfill', name))
+    file = 'vmSpkUFill_' + dico['spread'] + '.pdf'
+    fig.savefig(os.path.join(paths['save'], 'popfill', file))
+    #update current
+    if dico['spread'] == 'sect':
+        folder = os.path.join(paths['owncFig'],
+                              'pythonPreview', 'current', 'fig')
+        filename = os.path.join(folder, file)
+        fig.savefig(filename, format='pdf')
+

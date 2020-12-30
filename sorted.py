@@ -214,6 +214,13 @@ for kind in ['vm', 'spk']:
             file = kind + spread.title() + '_' + amp + '.pdf'
             filename = os.path.join(paths['save'], file)
             fig.savefig(filename, format='pdf')
+            # current implementation
+            if kind == 'vm' and spread == 'sect':
+                    folder = os.path.join(paths['owncFig'],
+                                 'pythonPreview', 'current', 'fig')
+                    filename = os.path.join(folder, file)
+                    fig.savefig(filename, format='pdf')
+
 
 
 

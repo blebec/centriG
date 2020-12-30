@@ -568,7 +568,7 @@ def plot_speed(substract=False):
         # for i, col in enumerate(df.columns[:-5:-1]):
         #     df[col] += i / 10 * 2
         #     stack.append(i / 10 * 2)
-    fig = plt.figure(figsize=(7, 5.5))
+    fig = plt.figure(figsize=(8.5, 5.5))
    # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
@@ -625,7 +625,7 @@ def plot_speed(substract=False):
     return fig
 
 fig1 = plot_speed()
-fig2 = plot_speed(substract=True)
+#fig2 = plot_speed(substract=True)
 ## alpha=0.8, figsize = 8,6, ha = 'left'
 save = False
 if save:

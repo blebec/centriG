@@ -510,10 +510,17 @@ plt.close('all')
 fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df, stdcolors=std_colors, anot=anot)
 save = False
 if save:
-    dirname = os.path.join(paths['owncFig'],
+    folder = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    file_name = os.path.join(dirname, 'indFill_popPredict.pdf')
-    fig.savefig(file_name)
+    file = 'indFill_popPredict.pdf'
+    filename = os.path.join(folder, file)
+    fig.savefig(filename)
+    # to update current
+    folder = os.path.join(paths['owncFig'],
+                           'pythonPreview', 'current', 'fig')
+    filename = os.path.join(folder, file)
+    fig.savefig(filename, format='pdf')
+
 
 
 #%%
@@ -884,7 +891,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
                 labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
 
-    fig = plt.figure(figsize=(11.6, 8))
+    fig = plt.figure(figsize=(17.6, 8))
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
@@ -1030,8 +1037,13 @@ fig = plot_fill_combi(data_fill=pop_df, data_pop=data_df)
 
 save = False
 if save:
-    dirname = os.path.join(paths['owncFig'],
+    folder = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
     file = 'fill_combi.pdf'
-    fig.savefig(os.path.join(dirname, file))
-    
+    filename = os.path.join(folder, file)
+    fig.savefig(filename)
+     # update current   
+    folder = os.path.join(paths['owncFig'],
+                          'pythonPreview', 'current', 'fig')
+    filename = os.path.join(folder, file)
+    fig.savefig(filename, format='pdf')

@@ -379,7 +379,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
                   for st in list(pop_dico.keys())]
     heights.insert(1, height)
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6,4))
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6, 4))
     axes = axes.flatten()
     titles_here = [titles['time'], 'Both', titles['engy']]
     labels = [relabel[st] for st in pop_dico]
@@ -455,7 +455,12 @@ for mes in ['vm', 'spk']:
                                   'pythonPreview', 'sorted', 'sorted&contrib')
             filename = os.path.join(folder, file)
             fig.savefig(filename)
-
+            # for current
+            if mes == 'vm' and amp == 'engy' and spread == 'sect':
+                folder = os.path.join(paths['owncFig'],
+                                       'pythonPreview', 'current', 'fig')
+                filename = os.path.join(folder, file)
+                fig.savefig(filename, format='pdf')
 
 #%% composite with filling in
 
