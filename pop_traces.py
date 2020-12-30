@@ -553,7 +553,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
         ax.axvline(x, linewidth=2, color='tab:blue', linestyle=':')
 
     # adjust
-    y_labels = ['Normalized Membrane Potential',
+    y_labels = ['Normalized Vm',
                 'Normalized Firing Rate']
     x_labels = ['', 'Relative Time (ms)']
     for i, ax in enumerate(axes):
@@ -564,7 +564,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
                     # xycoords="axes fraction", ha='center')
         txt = 'n={}'.format(nbcells[spread][i])
         ax.text(0.1, 0.8, txt, ha='left', va='center', 
-                transform=ax.transAxes)
+                transform=ax.transAxes, size='large')
 
         #refs
         ax.axhline(0, alpha=0.2, color='k')

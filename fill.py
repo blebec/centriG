@@ -326,7 +326,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     alphas = [0.5, 0.5, 0.8, 0.8]
 
     # plotting canvas
-    fig = plt.figure(figsize=(17.6, 8))
+    fig = plt.figure(figsize=(11.6, 8))
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
@@ -891,7 +891,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
                 labels[j] = item + '_ctr'
     labels = [st.split('_')[-3] for st in labels]
 
-    fig = plt.figure(figsize=(17.6, 8))
+    fig = plt.figure(figsize=(11.6, 8))
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
@@ -978,11 +978,11 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
 
     # ax.text(0.50, 0.88, 'center only response \n start | peak | end',
     #         transform=ax.transAxes, alpha=0.5)
-    ax.set_ylabel(r'$\Delta$ Vm')
+    ax.set_ylabel(r'$\Delta$ Normalized Vm')
     ax.annotate("n=15", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.set_xlabel('Relative Time (ms)')
-    ax.annotate("SurroundThenCenter - SurroundOnly", xy=(1, 1), size='large',
+    ax.annotate("SurroundThenCenter - Center", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
                 # bbox=dict(fc=(1, 1, 1), ec=(1, 1, 1)))
 

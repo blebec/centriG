@@ -379,7 +379,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
                   for st in list(pop_dico.keys())]
     heights.insert(1, height)
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6, 4))
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6, 2.5))
     axes = axes.flatten()
     titles_here = [titles['time'], 'Both', titles['engy']]
     labels = [relabel[st] for st in pop_dico]

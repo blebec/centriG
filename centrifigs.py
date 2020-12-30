@@ -574,12 +574,12 @@ def plot_speed(substract=False):
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col)
-    ax.set_ylabel('Normalized membrane potential')
+    ax.set_ylabel('Normalized Vm')
     ax.text(0.8, 0.9, 'CP-ISO', ha='left', va='center', 
             transform=ax.transAxes, size='large')
 
     # fontname = 'Arial', fontsize = 14)
-    ax.set_xlabel('Relative time (ms)')
+    ax.set_xlabel('Relative Time (ms)')
     for ax in fig.get_axes():
         for loc in ['top', 'right']:
             ax.spines[loc].set_visible(False)
@@ -617,6 +617,10 @@ def plot_speed(substract=False):
         ax.set_yticks(custom_ticks)
         # old xlims ax.set_xlim(-80, 60)
         ax.set_xlim(-90, 65)
+    else:
+        custom_ticks = np.linspace(0, 1, 6)
+        ax.set_yticks(custom_ticks)
+        
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_speed',
