@@ -323,7 +323,8 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # color parameters
     colors = [stdcolors[st] for st in
               ['k', 'red', 'dark_green', 'dark_green']]
-    alphas = [0.5, 0.5, 0.8, 0.8]
+#    alphas = [0.5, 0.5, 0.8, 0.8]
+    alphas = [0.8, 1, 1, 1] # changed for homogeneity
 
     # plotting canvas
     fig = plt.figure(figsize=(11.6, 8))
@@ -351,7 +352,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
 
     ax = axes[1]
     for i, col in enumerate(cols):
-        if i == 3:
+        if i == 3: # dashed
             ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                      label=col, linestyle='--', linewidth=1.5)
         else:
@@ -374,10 +375,14 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     dico = dict(zip(popdf.columns, cols))
     popdf.rename(columns=dico, inplace=True)
     cols = popdf.columns
+    # colors = [stdcolors[st] for st in
+    #           ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
+    #            'blue_violet', 'red', 'red', 'blue_violet']]
     colors = [stdcolors[st] for st in
-              ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
-               'blue_violet', 'red', 'red', 'blue_violet']]
+              ['k', 'red', 'dark_green', 'blue_violet']]
+
     alphas = [0.5, 0.5, 0.8, 0.5, 0.6, 0.5, 0.2, 0.2, 0.7]
+    alphas = [0.8, 1, 1, 0.8]
 
     # sharesY = dict(minus = False, plus = True)
     # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True,
@@ -412,7 +417,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
         ax.plot(popdf[col], color=colors[i+2], alpha=alphas[i+2],
                 label=col, linewidth=linewidths[i])
     ax.fill_between(popdf.index, popdf[cols[2]], popdf[cols[3]],
-                    color=colors[2], alpha=0.1)
+                    color=colors[2], alpha=0.2)
 
 
     for i, ax in enumerate(axes):
@@ -492,8 +497,8 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
                          fill=False, alpha=0.6, edgecolor='k',
                          facecolor=colors[0])
         if key == 'D0':
-            rect = Rectangle(xy=(box_dico[key], vlocs[1]), width=step, height=0.3,
-                             fill=True, alpha=0.6, edgecolor='w',
+            rect = Rectangle(xy=(box_dico[key], vlocs[1]), width=step, 
+                             height=0.3, fill=True, alpha=0.6, edgecolor='w',
                              facecolor=colors[0])
         ax.add_patch(rect)
 
@@ -507,7 +512,8 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
 
 plt.close('all')
 # indi_df = load_filldata('indi')
-fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df, stdcolors=std_colors, anot=anot)
+fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df, 
+                              stdcolors=std_colors, anot=anot)
 save = False
 if save:
     folder = os.path.join(paths['owncFig'],

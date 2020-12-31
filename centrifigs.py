@@ -122,7 +122,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     ax = vmaxes[1]
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
-                label=col)
+                label=col, linewidth=1.5)
     ax.annotate("n=37", xy=(0.2, 0.8), size='large',
                 xycoords="axes fraction", ha='center')
     # response point
@@ -138,7 +138,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     # traces
     for i, col in enumerate(cols[:2]):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
-                label=col)
+                label=col, linewidth=1.5)
         # errors : iterate on tuples
         for i, col in enumerate(cols[2:]):
             ax.fill_between(df.index, df[col[0]], df[col[1]],
@@ -166,7 +166,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=rev_colors[i],
-                alpha=1, label=col)#, linewidth=1)
+                alpha=1, label=col, linewidth=1.5)
         # ax.fill_between(df.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate("n=22", xy=(0.2, 0.8), size='large',
@@ -183,7 +183,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
     ax = spkaxes[2]
     # traces
     for i, col in enumerate(cols[:2][::-1]):
-        ax.plot(df[col], color=rev_colors[i], alpha=1, label=col)
+        ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
     # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(df.index, df[col[0]], df[col[1]], color=colors[i],
@@ -573,7 +573,7 @@ def plot_speed(substract=False):
     ax = fig.add_subplot(111)
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
-                label=col)
+                label=col, linewidth=1.5)
     ax.set_ylabel('Normalized Vm')
     ax.text(0.8, 0.9, 'CP-ISO', ha='left', va='center', 
             transform=ax.transAxes, size='large')

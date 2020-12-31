@@ -543,7 +543,7 @@ def plot_trace_1x2(stdcolors, **kwargs):
         # plot
         for i, col in enumerate(sec):
             ax.plot(df[col], color=colors[i], alpha=alphas[i], label=labels[i],
-                    linewidth=2)
+                    linewidth=1.5)
         # bluePoint
         x = 0
         y = df.loc[0][df.columns[0]]
