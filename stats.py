@@ -126,9 +126,9 @@ plt.close('all')
 
 stat_df = ldat.build_pop_statdf()
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
-fig1 = plot_stat(stat_df, kind='mean', digit=False)
+fig1 = plot_stat(stat_df, kind='mean', digit=False, legend=True)
 # fig2 = plot_stat(stat_df, kind='med')
-fig3 = plot_stat(stat_df_sig, kind='mean', digit=False)
+fig3 = plot_stat(stat_df_sig, kind='mean', digit=False, legend=True)
 # fig4 = plot_stat(stat_df_sig, kind='med')
 save = False
 if save:
