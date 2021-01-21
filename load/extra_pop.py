@@ -45,26 +45,43 @@ paths = config.build_paths()
 os.chdir(paths['pg'])
 
 #%%
-sheet = ['EXP 1', 'EXP 2'][0]
-paths['data'] = os.path.join(paths['owncFig'], 'infos_extra')
-file = 'Tableau_info_integrales_latences.xlsx'
-filename = os.path.join(paths['data'], file)
-df = pd.read_excel(filename, sheet_name=sheet, header=1)
-# adapt columns
-cols = [_.lower().strip() for _ in df.columns]
-datacols = [_.replace(' ', '_') for _ in cols]
-cols = [_.replace('__', '_') for _ in cols]
-cols[0] = 'channel'
-# clean row1 replace exp and pre
-# print message
-print('='*10)
-print( 'NB messages removed : {}'.format([_ for _ in df.loc[0].dropna()]))
-print('='*10)
-df.drop(df.index[0], inplace=True)
-# rename columns
-df.columns = cols
-# remove empty columns
-df = df.dropna(how='all', axis=1)
-# clean columns
-df[df.columns[0]] = df[df.columns[0]].apply(lambda x: x.split(' ')[1])
-df.layers = df.layers.apply(lambda x: x.split(' ')[1])
+def load_latences(sheet=0):
+    """
+    load the xcel file
+    Parameters
+    ----------
+    sheet : the sheet number in the scel file, int, optional
+        DESCRIPTION. The default is 0.
+
+    Returns
+    -------
+    pandas dataframe
+    """
+    sheet = ['EXP 1', 'EXP 2'][sheet]
+    paths['data'] = os.path.join(paths['owncFig'], 'infos_extra')
+    file = 'Tableau_info_integrales_latences.xlsx'
+    filename = os.path.join(paths['data'], file)
+    df = pd.read_excel(filename, sheet_name=sheet, header=1)
+    # adapt columns
+    cols = [_.lower().strip() for _ in df.columns]
+    cols = [_.replace(' ', '_') for _ in cols]
+    cols = [_.replace('__', '_') for _ in cols]
+    cols[0] = 'channel'
+    # clean row1 replace exp and pre
+    # print message
+    print('='*10)
+    print( 'NB messages removed : {}'.format([_ for _ in df.loc[0].dropna()]))
+    print('='*10)
+    df.drop(df.index[0], inplace=True)
+    # rename columns
+    df.columns = cols
+    # remove empty columns
+    df = df.dropna(how='all', axis=1)
+    # clean columns
+    df[df.columns[0]] = df[df.columns[0]].apply(lambda x: x.split(' ')[1])
+    df.layers = df.layers.apply(lambda x: x.split(' ')[1])
+    return df
+
+df = load_latences(1)
+
+#%%
