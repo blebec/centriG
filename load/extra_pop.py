@@ -66,6 +66,18 @@ def load_latences(sheet=0):
     cols = [_.lower().strip() for _ in df.columns]
     cols = [_.replace(' ', '_') for _ in cols]
     cols = [_.replace('__', '_') for _ in cols]
+    cols = [_.replace('topsynchro', 'top') for _ in cols]
+    cols = [_.replace('latency', 'lat') for _ in cols]
+    cols = [_.replace('half_height', 'hh') for _ in cols]
+    cols = [_.replace('latence', 'lat') for _ in cols]
+    cols = [_.replace('lat_onset', 'latOn') for _ in cols]
+    cols = [_.replace('-_top', '-top') for _ in cols]
+    cols = [_.replace('hh_lat', 'hhlat') for _ in cols]
+    cols = [_.replace('lat_hh', 'hhlat') for _ in cols]
+    
+    
+    
+    
     cols[0] = 'channel'
     # clean row1 replace exp and pre
     # print message
@@ -85,3 +97,29 @@ def load_latences(sheet=0):
 df = load_latences(1)
 
 #%%
+# pltconfig = config.rc_params()
+# pltconfig['axes.titlesize'] = 'small'
+plt.rcParams.update({'axes.titlesize': 'small'})
+
+plt.close('all')
+
+fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(21, 16))
+cols = df.mean().index.tolist()
+cols = cols[1:]
+axes = axes.flatten()
+for i, col in enumerate(cols):
+    ax = axes[i]
+    df[col].hist( bins=20 ,ax=ax)
+    ax.set_title(col)
+    med = df[col].median()
+    ax.axvline(med, color='tab:orange')
+    ax.text(0.6, 0.6, f'{med:.1f}', ha='left', va='bottom', 
+            transform=ax.transAxes, size='small', color='tab:orange',
+            backgroundcolor='w')
+    q0 = df[col].quantile(q=0.02)
+    q1 = df[col].quantile(q=0.98)
+    ax.set_xlim(q0, q1)
+    
+fig.tight_layout()
+config.rc_params
+config.rc_params()
