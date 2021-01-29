@@ -51,6 +51,7 @@ plt.rcParams.update(
 )
 
 def load_gmercier2():
+    " second file containing the numerial latency values"
     file = 'gmercier2.csv'
     filename = os.path.join(paths['data'], file)
     df = pd.read_csv(filename, sep='\t', decimal=',')
@@ -64,7 +65,7 @@ gmdf2 = load_gmercier2()
 #%% gm latency
 
 def hist_gm2(datadf):
-    fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(5, 14), 
+    fig, axes = plt.subplots(ncols=1, nrows=3, figsize=(5, 14),
                              sharex=True, sharey=True)
     fig.suptitle('latencies DO & D1 (gerard mercier)')
     axes = axes.flatten()
@@ -81,10 +82,10 @@ def hist_gm2(datadf):
                color=colors[i], edgecolor='k', label=col)
         ax.axvline(df[col].mean(), color=colors[i])
         txt = '{:.1f} ± {:.1f}'.format(df[col].mean(), df[col].std())
-        ax.text(x=0.1, y= 0.8, s=txt, va='top', ha='left', 
+        ax.text(x=0.1, y= 0.8, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
-        txt = '{:.0f} cells'.format(len(df[col].dropna()))   
-        ax.text(x=0.1, y= 0.9, s=txt, va='top', ha='left', 
+        txt = '{:.0f} cells'.format(len(df[col].dropna()))
+        ax.text(x=0.1, y= 0.9, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
         ax.legend()
         for ax in axes:
@@ -109,7 +110,7 @@ fig = hist_gm2(gmdf2)
 save = False
 if save:
     file = 'hist_gm2.pdf'
-    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot', 
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot',
                            'latencesMercier', 'fig')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
@@ -117,12 +118,12 @@ if save:
 #%%
 
 def scatter_gm2(datadf):
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5,10), 
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5,10),
                              sharex=True, sharey=True)
     fig.suptitle('latencies DO & D1 (gerard mercier)')
     axes = axes.flatten()
     df = datadf.copy()
-    
+
     # left
     values = df[['center', 'left']].dropna().values
     x = values[:,0]
@@ -130,7 +131,7 @@ def scatter_gm2(datadf):
     ax = axes[0]
     ax.scatter(x, y, s=45, alpha=0.6, c='tab:red', label='left_vs_center')
 
-    # right 
+    # right
     values = df[['center', 'right']].dropna().values
     x = values[:,0]
     y = values[:,1]
@@ -141,7 +142,7 @@ def scatter_gm2(datadf):
     ax.set_ylim(lims)
     ax.set_xlim(lims)
     for ax in axes:
-        ax.plot(list(lims), list(lims), linestyle='-', color='tab:blue', 
+        ax.plot(list(lims), list(lims), linestyle='-', color='tab:blue',
                 alpha=0.7)
         ax.legend()
         ax.set_xlabel('time (msec)')
@@ -157,7 +158,7 @@ def scatter_gm2(datadf):
 
     return fig
 
-plt.close('all')     
+plt.close('all')
 fig = scatter_gm2(gmdf2)
 save = False
 if save:
@@ -169,7 +170,8 @@ if save:
 
 #%%
 def diff_scatter_gm2(datadf, vsmean=True):
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5,10), 
+    """ scatter plot  """
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(5,10),
                              sharex=True, sharey=True)
     fig.suptitle('latencies DO & D1 (gerard mercier)')
     axes = axes.flatten()
@@ -187,7 +189,7 @@ def diff_scatter_gm2(datadf, vsmean=True):
             x = df[['center', sides[i]]].dropna().values[:,0]
             xtxt = 'center'
             for pos in [2*x.std(), -2*x.std()]:
-                ax.axhline(pos, color='tab:blue', linewidth=2, 
+                ax.axhline(pos, color='tab:blue', linewidth=2,
                            linestyle=':', alpha=0.5)
                 ax.text(max(x), abs(pos), s='+2$\sigma$', color='tab:blue',
                         ha='left', va='bottom')
@@ -209,7 +211,7 @@ def diff_scatter_gm2(datadf, vsmean=True):
         y = y.reshape(len(x), 1)
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
-        ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':', 
+        ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
                 linewidth=3, alpha=0.5)
 
     # adjust limits
@@ -251,7 +253,8 @@ if save:
 
 #%%
 def hist_diff_gm(datadf):
-    fig, axes = plt.subplots(ncols=1, nrows=2, figsize=(5, 10), 
+    """ hitogramm of latency distribution """
+    fig, axes = plt.subplots(ncols=1, nrows=2, figsize=(5, 10),
                              sharex=True, sharey=True)
     fig.suptitle('latencies DO & D1 (gerard mercier)')
     axes = axes.flatten()
@@ -273,20 +276,20 @@ def hist_diff_gm(datadf):
                color=colors[i], edgecolor='k', label=col.replace('-', ' - '))
         ax.axvline(df[col].mean(), color=colors[i], linewidth=3, alpha=0.5)
         txt = 'diff: {:.1f} ± {:.1f}'.format(df[col].mean(), df[col].std())
-        ax.text(x=0, y= 0.8, s=txt, va='top', ha='left', 
+        ax.text(x=0, y= 0.8, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
-        txt = '{:.0f} cells'.format(len(df[col].dropna()))   
-        ax.text(x=0, y= 0.9, s=txt, va='top', ha='left', 
+        txt = '{:.0f} cells'.format(len(df[col].dropna()))
+        ax.text(x=0, y= 0.9, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
         ax.legend()
         # interval
-        positions = [-2*datadf.center.std(), 2*datadf.center.std()] 
+        positions = [-2*datadf.center.std(), 2*datadf.center.std()]
         for ax in axes:
             ax.axvline(0, color='tab:blue')
             for spine in ['left', 'top', 'right']:
                 ax.spines[spine].set_visible(False)
             for pos in positions:
-                ax.axvline(pos, color='tab:blue', linewidth=2, 
+                ax.axvline(pos, color='tab:blue', linewidth=2,
                            linestyle=':', alpha=0.5)
                 ax.text(pos, ax.get_ylim()[1], s='2$\sigma$', color='tab:blue',
                         ha='left', va='top')
@@ -311,5 +314,3 @@ if save:
                            'latencesMercier', 'fig')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
-
-    
