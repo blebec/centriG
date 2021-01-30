@@ -78,14 +78,19 @@ def hist_gm2(datadf):
         height, x = np.histogram(df[col], bins=20, range=(20,90))
         height = height/sum(height)
         x = x[:-1]
+        ax.axvspan(df[col].mean() - df[col].std(), 
+                   df[col].mean() + df[col].std(),
+                   color='tab:grey', alpha=0.3)
+        ax.axvline(df[col].mean(), color='tab:grey')
         ax.bar(x, height=height, width=width, align='edge', alpha=0.5,
                color=colors[i], edgecolor='k', label=col)
-        ax.axvline(df[col].mean(), color=colors[i])
+        # ax.axvline(df[col].mean() + df[col].std(), color=colors[i], linestyle=':')
+        # ax.axvline(df[col].mean() - df[col].std(), color=colors[i], linestyle=':')
         txt = '{:.1f} ± {:.1f}'.format(df[col].mean(), df[col].std())
-        ax.text(x=0.1, y= 0.8, s=txt, va='top', ha='left',
+        ax.text(x=0, y= 0.69, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
         txt = '{:.0f} cells'.format(len(df[col].dropna()))
-        ax.text(x=0.1, y= 0.9, s=txt, va='top', ha='left',
+        ax.text(x=0, y= 0.79, s=txt, va='top', ha='left',
                 transform=ax.transAxes)
         ax.legend()
         for ax in axes:
@@ -130,6 +135,7 @@ def scatter_gm2(datadf):
     y = values[:,1]
     ax = axes[0]
     ax.scatter(x, y, s=45, alpha=0.6, c='tab:red', label='left_vs_center')
+    ax.set_ylabel('left lat. (msec)')
 
     # right
     values = df[['center', 'right']].dropna().values
@@ -137,6 +143,7 @@ def scatter_gm2(datadf):
     y = values[:,1]
     ax = axes[1]
     ax.scatter(x, y, s=45, alpha=0.6, c='tab:green', label='right_vs_center')
+    ax.set_ylabel('right lat. (msec)')
 
     lims = (floor(df.min().min() / 10.0) * 10, ceil(df.max().max() / 10.0) * 10)
     ax.set_ylim(lims)
@@ -144,9 +151,9 @@ def scatter_gm2(datadf):
     for ax in axes:
         ax.plot(list(lims), list(lims), linestyle='-', color='tab:blue',
                 alpha=0.7)
-        ax.legend()
-        ax.set_xlabel('time (msec)')
-        ax.set_ylabel('time (msec)')
+        # ax.legend()
+        ax.set_xlabel('center lat. (msec)')
+        # ax.set_ylabel('time (msec)')
         for spine in ['right', 'top']:
             ax.spines[spine].set_visible(False)
     if anot:
@@ -185,26 +192,33 @@ def diff_scatter_gm2(datadf, vsmean=True):
         if vsmean:
             x = (df[sides[i]]+ df.center).dropna().values/2
             xtxt = 'mean({}, center)'.format(sides[i])
+            xcolor = 'tab:grey'
+            x0 = y.mean()
         else:
             x = df[['center', sides[i]]].dropna().values[:,0]
             xtxt = 'center'
-            for pos in [2*x.std(), -2*x.std()]:
-                ax.axhline(pos, color='tab:blue', linewidth=2,
-                           linestyle=':', alpha=0.5)
-                ax.text(max(x), abs(pos), s='+2$\sigma$', color='tab:blue',
-                        ha='left', va='bottom')
-                ax.text(max(x), -abs(pos), s='-2$\sigma$', color='tab:blue',
-                        ha='left', va='bottom')
+            xcolor = 'tab:blue'
+            x0 = 0
+        interval = (x0 - 2*x.std(), x0 + 2*x.std())
+        ax.axhspan(*interval, alpha=0.2, color=xcolor)
+        for pos in interval:
+            ax.axhline(pos, color=xcolor, linewidth=2,
+                       linestyle=':', alpha=0.5)
+        ax.text(max(x), interval[1], s='+2$\sigma$', color=xcolor,
+                ha='left', va='bottom')
+        ax.text(max(x), interval[0], s='-2$\sigma$', color=xcolor,
+                ha='left', va='bottom')
         ax.scatter(x, y, s=45, alpha=0.6, c=colors[i], label='l-c vs c')
         ax.axhline(y.mean(), color=colors[i], linewidth=3, alpha=0.5)
         txt = '{:.1f} ± {:.1f}'.format(y.mean(), y.std())
         ax.text(x=1, y=0.8, s=txt, va='top', ha='right', color=colors[i],
                 transform=ax.transAxes)
-        ax.axvline(x.mean(), color='tab:blue', linewidth=3, alpha=0.5)
+        ax.axvline(x.mean(), color=xcolor, linewidth=3, alpha=0.5)
         txt = '{:.1f} ± {:.1f} msec'.format(x.mean(), x.std())
-        ax.text(x=1, y=0.7, s=txt, va='top', ha='right', color='tab:blue',
+        ax.text(x=1, y=0.7, s=txt, va='top', ha='right', color=xcolor,
                 transform=ax.transAxes)
         ylimits.append((y.min(), y.max()))
+        ax.set_xlabel(xtxt, color=xcolor)
         ax.set_ylabel('{} - center (msec)'.format(sides[i]), color=colors[i])
         # regression
         x = x.reshape(len(x), 1)
@@ -223,7 +237,6 @@ def diff_scatter_gm2(datadf, vsmean=True):
 
     for ax in axes:
         ax.axhline(0, color='tab:grey')
-        ax.set_xlabel(xtxt, color='tab:blue')
         for spine in ['right', 'top']:
             ax.spines[spine].set_visible(False)
     if anot:
@@ -250,6 +263,17 @@ if save:
                            'latencesMercier', 'fig')
     filename = os.path.join(dirname, file)
     fig2.savefig(filename)
+
+#%% 
+# TODO ? mark the cells that are out of range in both left and right
+
+df = gmdf2.copy()
+df['color'] = None
+df['l-c'] = df.left - df.center
+df['r-c'] = df.right - df.center
+df['lmean'] = (df.left + df.center)/2
+df['rmean'] = (df.right + df.center)/2
+
 
 #%%
 def hist_diff_gm(datadf):
