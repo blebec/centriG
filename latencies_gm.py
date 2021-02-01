@@ -60,7 +60,27 @@ def load_gmercier2():
     df = df.dropna(how='all')
     return df
 
+def check_sig(datadf):
+    """
+    check it the cell is in the ± sigma interval of center value
+    return color series (w = non, r = left, g = right, k = both)
+    """
+    df =datadf.copy()
+    df['sig'] = 0
+    df['l-c'] = df.left - df.center
+    df['r-c'] = df.right - df.center
+    df['lmean'] = (df.left + df.center)/2
+    df['rmean'] = (df.right + df.center)/2
+    sigma = df.center.std()
+    df.loc[df['l-c'].between(-sigma, sigma),['sig']] += 1
+    df.loc[df['r-c'].between(-sigma, sigma),['sig']] += 2
+    sig_colors = {0:'w', 1:'tab:red', 2:'tab:green', 3:'k'}
+    df['sig_color'] = df.sig.apply(lambda x: sig_colors[x])
+    ser = df.sig_color
+    return ser
+
 gmdf2 = load_gmercier2()
+gmdf2['sig_color'] = check_sig(gmdf2)
 
 #%% gm latency
 
@@ -263,16 +283,6 @@ if save:
                            'latencesMercier', 'fig')
     filename = os.path.join(dirname, file)
     fig2.savefig(filename)
-
-#%% 
-# TODO ? mark the cells that are out of range in both left and right
-
-df = gmdf2.copy()
-df['color'] = None
-df['l-c'] = df.left - df.center
-df['r-c'] = df.right - df.center
-df['lmean'] = (df.left + df.center)/2
-df['rmean'] = (df.right + df.center)/2
 
 
 #%%
