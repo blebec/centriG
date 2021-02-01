@@ -77,10 +77,11 @@ def check_sig(datadf):
     sig_colors = {0:'w', 1:'tab:red', 2:'tab:green', 3:'k'}
     df['sig_color'] = df.sig.apply(lambda x: sig_colors[x])
     ser = df.sig_color
-    return ser
+    return df
 
 gmdf2 = load_gmercier2()
-gmdf2['sig_color'] = check_sig(gmdf2)
+# gmdf2['sig_color'] = check_sig(gmdf2)
+gmdf2 = check_sig(gmdf2)
 
 #%% gm latency
 
@@ -93,7 +94,7 @@ def hist_gm2(datadf):
     colors = ('tab:red', 'tab:blue', 'tab:green')
     width = (90 - 20)/(20)
 
-    for i, col in enumerate(df.columns):
+    for i, col in enumerate(df.columns[:3]):
         ax = axes[i]
         height, x = np.histogram(df[col], bins=20, range=(20,90))
         height = height/sum(height)
@@ -150,22 +151,29 @@ def scatter_gm2(datadf):
     df = datadf.copy()
 
     # left
-    values = df[['center', 'left']].dropna().values
+    values = df[['center', 'left', 'sig_color']].dropna().values
     x = values[:,0]
     y = values[:,1]
+    color = values[:,2]
     ax = axes[0]
-    ax.scatter(x, y, s=45, alpha=0.6, c='tab:red', label='left_vs_center')
+    # ax.scatter(x, y, s=45, alpha=0.6, c='tab:red', label='left_vs_center')
+    ax.scatter(x, y, s=45, alpha=0.6, c=color, edgecolor='tab:red', 
+               label='left_vs_center')
     ax.set_ylabel('left lat. (msec)')
 
     # right
-    values = df[['center', 'right']].dropna().values
+    values = df[['center', 'right', 'sig_color']].dropna().values
     x = values[:,0]
     y = values[:,1]
+    color = values[:,2]
     ax = axes[1]
-    ax.scatter(x, y, s=45, alpha=0.6, c='tab:green', label='right_vs_center')
+    # ax.scatter(x, y, s=45, alpha=0.6, c='tab:green', label='right_vs_center')
+    ax.scatter(x, y, s=45, alpha=0.6, c=color, edgecolor='tab:green', 
+               label='right_vs_center')
     ax.set_ylabel('right lat. (msec)')
 
-    lims = (floor(df.min().min() / 10.0) * 10, ceil(df.max().max() / 10.0) * 10)
+    lims = (floor(df[df.columns[:3]].min().min() / 10.0) * 10, 
+            ceil(df[df.columns[:3]].max().max() / 10.0) * 10)
     ax.set_ylim(lims)
     ax.set_xlim(lims)
     for ax in axes:
@@ -195,6 +203,18 @@ if save:
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
+#%% temp
+df = gmdf2.copy()
+sides = ['left', 'right']
+i = 0
+
+tempdf = df[sides[i]] - df.center
+tempdf
+tempdf['sig_colors'] = df.sig_color.values
+tempdf
+df.sig_color
+tempdf
+
 #%%
 def diff_scatter_gm2(datadf, vsmean=True):
     """ scatter plot  """
@@ -206,16 +226,23 @@ def diff_scatter_gm2(datadf, vsmean=True):
     # left - mean
     colors = ['tab:red', 'tab:green']
     sides = ['left', 'right']
+    sides = ['l-c', 'r-c']
+    columns = [['center', 'l-c', 'lmean',  'sig_color'], 
+               ['center', 'r-c', 'rmean', 'sig_color']]
     ylimits = []
     for i, ax in enumerate(axes):
-        y = (df[sides[i]] - df.center).dropna().values
+        tempdf = df[columns[i]].dropna()
+        # y = (df[sides[i]] - df.center).dropna().values
+        # y = (df[[sides[i], ).dropna().values
+        y = tempdf[sides[i]].values
         if vsmean:
-            x = (df[sides[i]]+ df.center).dropna().values/2
-            xtxt = 'mean({}, center)'.format(sides[i])
+            x = tempdf[tempdf.columns[2]].values
+            xtxt = 'mean value'
             xcolor = 'tab:grey'
             x0 = y.mean()
         else:
-            x = df[['center', sides[i]]].dropna().values[:,0]
+            x = tempdf[tempdf.columns[0]].values
+            # x = df[['center', sides[i]]].dropna().values[:,0]
             xtxt = 'center'
             xcolor = 'tab:blue'
             x0 = 0
@@ -228,7 +255,9 @@ def diff_scatter_gm2(datadf, vsmean=True):
                 ha='left', va='bottom')
         ax.text(max(x), interval[0], s='-2$\sigma$', color=xcolor,
                 ha='left', va='bottom')
-        ax.scatter(x, y, s=45, alpha=0.6, c=colors[i], label='l-c vs c')
+        # ax.scatter(x, y, s=45, alpha=0.6, c=colors[i], label='l-c vs c')
+        ax.scatter(x, y, s=55, alpha=0.6, c=tempdf.sig_color, 
+                   edgecolor=colors[i], label='l-c vs c')
         ax.axhline(y.mean(), color=colors[i], linewidth=3, alpha=0.5)
         txt = '{:.1f} ± {:.1f}'.format(y.mean(), y.std())
         ax.text(x=1, y=0.8, s=txt, va='top', ha='right', color=colors[i],
@@ -284,8 +313,8 @@ if save:
     filename = os.path.join(dirname, file)
     fig2.savefig(filename)
 
-
 #%%
+
 def hist_diff_gm(datadf):
     """ hitogramm of latency distribution """
     fig, axes = plt.subplots(ncols=1, nrows=2, figsize=(5, 10),
