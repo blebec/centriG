@@ -104,29 +104,66 @@ plt.rcParams.update({'axes.titlesize': 'small'})
 
 plt.close('all')
 
-fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(21, 16))
-cols = df.mean().index.tolist()
-cols = cols[1:]
-axes = axes.flatten()
-for i, col in enumerate(cols):
-    ax = axes[i]
-    df[col].hist(bins=20, ax=ax, density=True)
-    ax.set_title(col)
-    med = df[col].median()
-    ax.axvline(med, color='tab:orange')
-    ax.text(0.6, 0.6, f'{med:.1f}', ha='left', va='bottom', 
-            transform=ax.transAxes, size='small', color='tab:orange',
-            backgroundcolor='w')
-    for spine in ['left', 'top', 'right']:
-        ax.spines[spine].set_visible(False)
-    ax.set_yticks([])
-    # q0 = df[col].quantile(q=0.02)
-    # q1 = df[col].quantile(q=0.98)
-    # ax.set_xlim(q0, q1)
+def plot_all_histo(df):
     
-fig.tight_layout()
+    fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(21, 16))
+    cols = df.mean().index.tolist()
+    cols = cols[1:]
+    axes = axes.flatten()
+    for i, col in enumerate(cols):
+        ax = axes[i]
+        df[col].hist(bins=20, ax=ax, density=True)
+        ax.set_title(col)
+        med = df[col].median()
+        ax.axvline(med, color='tab:orange')
+        ax.text(0.6, 0.6, f'{med:.1f}', ha='left', va='bottom', 
+                transform=ax.transAxes, size='small', color='tab:orange',
+                backgroundcolor='w')
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
+            ax.set_yticks([])
+            # q0 = df[col].quantile(q=0.02)
+            # q1 = df[col].quantile(q=0.98)
+            # ax.set_xlim(q0, q1)
+    
+    fig.tight_layout()
+    return fig
 
+fig = plot_all_histo(df)
 
+#%% test dotplot  
+
+#TODO use floats not integers
+
+plt.close('all')
+fig = plt.figure()
+ax = fig.add_subplot(211)
+
+colors = ['tab:blue', 'tab:red', 'tab:orange']
+for i in range(3):
+    col = df.columns[i+3]
+
+    x = df[col].values.tolist()
+    y = df.index.tolist()
+
+    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, label=col)
+    ax.axvline(df[col].median(), color=colors[i], alpha=0.5)
+    ax.legend()
+ax.set_ylim(ax.get_ylim()[::-1])
+
+ax = fig.add_subplot(212)
+colors = ['tab:blue', 'tab:red', 'tab:orange']
+cols = df.columns[[8,6,7]]
+for i, col in enumerate(cols):
+
+    x = df[col].values.tolist()
+    y = df.index.tolist()
+
+    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, label=col)
+    ax.axvline(df[col].median(), color=colors[i], alpha=0.5)
+    ax.legend()
+    
+ax.set_ylim(ax.get_ylim()[::-1])
 
 #%%
 df.loc[57, [df.columns[3]]] = np.nan
