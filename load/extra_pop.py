@@ -15,6 +15,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 # #from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib import markers
 # from matplotlib.patches import Rectangle
@@ -109,17 +110,115 @@ cols = cols[1:]
 axes = axes.flatten()
 for i, col in enumerate(cols):
     ax = axes[i]
-    df[col].hist( bins=20 ,ax=ax)
+    df[col].hist(bins=20, ax=ax, density=True)
     ax.set_title(col)
     med = df[col].median()
     ax.axvline(med, color='tab:orange')
     ax.text(0.6, 0.6, f'{med:.1f}', ha='left', va='bottom', 
             transform=ax.transAxes, size='small', color='tab:orange',
             backgroundcolor='w')
-    q0 = df[col].quantile(q=0.02)
-    q1 = df[col].quantile(q=0.98)
-    ax.set_xlim(q0, q1)
+    for spine in ['left', 'top', 'right']:
+        ax.spines[spine].set_visible(False)
+    ax.set_yticks([])
+    # q0 = df[col].quantile(q=0.02)
+    # q1 = df[col].quantile(q=0.98)
+    # ax.set_xlim(q0, q1)
     
 fig.tight_layout()
-config.rc_params
-config.rc_params()
+
+
+
+#%%
+df.loc[57, [df.columns[3]]] = np.nan
+df.loc[57, df.columns[4]] = np.nan
+
+df.loc[25:26, df.columns[4]] = np.nan
+
+df.loc[17, df.columns[5]] = np.nan
+df.loc[19, df.columns[5]] = np.nan
+
+df.loc[60, df.columns[6]] = np.nan
+#pb latence excessive = 100 ? à supprimer
+df.loc[[3, 5, 6, 7, 8,  9, 10,11, 35, 36, 37, 40,  41, 42, 43, 44, 45, 47, 51,
+ 53, 54, 57, 59, 62, 64], df.columns[6]] = np.nan
+
+#df.loc[57] = np.nan
+
+df.loc[9, df.columns[25]] = np.nan
+df.loc[46, df.columns[25]] = np.nan
+df.loc[40, df.columns[25]] = np.nan
+
+
+
+#%% filter
+plt.close(fig)
+
+i = 3
+i = 4
+
+pyperclip.copy(i)
+col = df.columns[i]
+print(col)
+print(df[col].value_counts().sort_index())
+
+fig = plt.figure()
+fig.suptitle(col)
+ax = fig.add_subplot(111)
+ax.hist(df[col], bins=30)
+
+#%%
+df.loc[df[col] <20, [col]]
+
+df.loc[df[col] >30, [col]].index.tolist()
+
+
+#%%
+print('col 2 col δori_pref-ori_gabor : 2 values -20 and 0')
+print('electrode 57 seems bad')
+#%%  to be adpated
+
+def statsmodel_diff_mean(df, param=params):
+    df = df.dropna()
+    # extract correlation
+    y = df.diffe
+    x = df.moy
+    # build the model & apply the fit
+    x = sm.add_constant(x) # constant intercept term
+    model = sm.OLS(y, x)
+    fitted = model.fit()
+    print(fitted.summary())
+
+    #make prediction
+    x_pred = np.linspace(x.min()[1], x.max()[1], 50)
+    x_pred2 = sm.add_constant(x_pred) # constant intercept term
+    y_pred = fitted.predict(x_pred2)
+    print(y_pred)
+
+    fig = plt.figure(figsize=(8, 6))
+    ax = fig.add_subplot(111)
+    # x = 'ip1m'  # PVC
+    # y = 'ip2m'  # jug
+    sm.graphics.mean_diff_plot(m1=df.jug, m2=df.cvp, ax=ax)
+    ax.plot(x_pred, y_pred, color='tab:red', linewidth=2, alpha=0.8)
+    txt = 'difference = {:.2f} + {:.2f} mean'.format(
+        fitted.params['const'], fitted.params['moy'])
+    ax.text(13.5, -1, txt, va='bottom', ha='right', color='tab:red')
+
+    ax.axvline(df.moy.mean(), color='tab:orange', linewidth=2, alpha=0.6)
+    txt = 'measures = \n {:.2f} ± {:.2f}'.format(
+        df.moy.mean(), df.moy.std())
+    ax.text(8.7, -2.7, txt, color='tab:orange', va='center', ha='right')
+
+    ax.axhline(df.diffe.mean(), color='tab:orange', linewidth=2, alpha=0.6)
+    txt = 'differences = \n {:.2f} ± {:.2f}'.format(
+        df.diffe.mean(), df.diffe.std())
+    ax.text(13.5, 0.6, txt, color='tab:orange', va='center', ha='right')
+
+    ax.set_ylabel('jug - cvp    (mmHg)')  # ip2m - ip1m
+    ax.set_xlabel('mean jug|cvp    (mmHg)')
+    ax.axhline(0, color='tab:blue', alpha=0.6)
+    for spine in ['left', 'top', 'right', 'bottom']:
+        ax.spines[spine].set_visible(False)
+    fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4, size=12)
+    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
+    return fig
