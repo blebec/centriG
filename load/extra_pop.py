@@ -90,10 +90,10 @@ def load_latences(sheet=0):
     cols = [_.replace('-_top', '-top') for _ in cols]
     cols = [_.replace('hh_lat', 'hhlat') for _ in cols]
     cols = [_.replace('lat_hh', 'hhlat') for _ in cols]
-    
-    
-    
-    
+
+
+
+
     cols[0] = 'channel'
     # clean row1 replace exp and pre
     # print message
@@ -110,19 +110,19 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-sheet = 1
+sheet = 0
 datadf = load_latences(sheet)
 
 #%% replace ± 3mad by nan
 def clean_df(df, factor=3):
     """
     replace by nan values outside med ± factor*mad
-    
+
     """
     count = 1
     while count > 0:
         count = 0
-        for col in df.columns:    
+        for col in df.columns:
             if df[col].dtype != float:
                 pass
             else:
@@ -153,7 +153,7 @@ plt.rcParams.update({'axes.titlesize': 'small'})
 plt.close('all')
 
 def plot_all_histo(df):
-    
+
     fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(21, 16))
     cols = df.mean().index.tolist()
     cols = cols[1:]
@@ -165,7 +165,7 @@ def plot_all_histo(df):
         med = df[col].median()
         mad = df[col].mad()
         ax.axvline(med, color='tab:orange')
-        ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom', 
+        ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom',
                 transform=ax.transAxes, size='small', color='tab:orange',
                 backgroundcolor='w')
         for spine in ['left', 'top', 'right']:
@@ -174,7 +174,7 @@ def plot_all_histo(df):
             # q0 = df[col].quantile(q=0.02)
             # q1 = df[col].quantile(q=0.98)
             # ax.set_xlim(q0, q1)
-    
+
     fig.tight_layout()
     return fig
 
@@ -188,18 +188,18 @@ if save:
 
 
 
-#%% test dotplot  
+#%% test dotplot
 
 #TODO use floats not integers
 
 plt.close('all')
 
 
-def plot_latencies(df):
+def plot_latencies(df, lat_mini=10, lat_maxi=80):
     # fig = plt.figure(constrained_layout = True)
     fig = plt.figure(figsize=(15, 12))
     gs = GridSpec(3,3)
- 
+
     v0 = fig.add_subplot(gs[0, :2])
     # v0 = fig.add_subplot(gs[0,0])
     # v1 = fig.add_subplot(gs[0,1], sharex=v0, sharey=v0)
@@ -207,7 +207,7 @@ def plot_latencies(df):
     ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
     h0 = fig.add_subplot(gs[1, 2])
     h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=h0)
-    
+
     # layer limits
     d = 0
     depths = []
@@ -218,8 +218,8 @@ def plot_latencies(df):
     depths.append(df.index.max())
 
     colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
-    lat_mini = 10
-    lat_maxi = 80
+    # lat_mini = 10
+    # lat_maxi = 80
 
     selection = [[1,3,4,5], [1,6,7,8]]
     for k, selec in enumerate(selection):
@@ -229,7 +229,7 @@ def plot_latencies(df):
         vax = v0 #[v0, v1][k]
         hax = [h0, h1][k]
         cop = df[df.columns[selec]].copy()
-        
+
         cols = cop.columns.drop('layers')
         for i, col in enumerate(cols):
         # i=0
@@ -239,7 +239,7 @@ def plot_latencies(df):
             cop[col] = cop[col].apply(lambda x: x if x > lat_mini else np.nan)
             x = cop[col].values.tolist()
             y = cop[col].index.tolist()
-            ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5, 
+            ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5,
                     label=col[:-5])
             # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
             meds = cop.groupby('layers')[col].median()
@@ -247,39 +247,39 @@ def plot_latencies(df):
             for j, med in enumerate(meds):
                 ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], alpha=0.5,
                           linewidth=3)
-            ax.legend()
+            ax.legend(loc='upper right')
             txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
                 cop[col].median(), cop[col].mad(),
                 meds.values[0], meds.values[1], meds.values[2])
-            ax.text(x=1, y=0.25 - i/9, s=txt, color=colors[i+k],
+            ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i+k],
                     va='bottom', ha='right', transform=ax.transAxes)
             # v_hist
-            # v_height, v_width = np.histogram(x, bins=20, range=(0,100), 
+            # v_height, v_width = np.histogram(x, bins=20, range=(0,100),
             #                                  density=True)
-            # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k], 
+            # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k],
             #         align='edge', alpha=0.4)
             kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
             x_kde = np.linspace(0,100, 20)
             if k == 0:
-                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6, 
+                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linewidth=2)
             else:
-                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6, 
+                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linestyle=':', linewidth=3)
-                
+
             # h_hist
             y = [0.3*(i-1)+_ for _ in range(len(meds))]
-            hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3, 
+            hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
                      color=colors[i+k], alpha=0.4)
-        
+
     v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h1.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
-    
-    
-    
+
+
+
     ax1.set_xlabel('msec')
-    ax1.set_xlim((0, 100))    
+    ax1.set_xlim((0, 100))
     ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
     for ax in [ax0, ax1]:
         ax.set_ylabel('depth')
@@ -292,7 +292,7 @@ def plot_latencies(df):
         ax.set_yticks([])
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
-    
+
     labels = list(df.layers.unique())
     for ax in [h0, h1]:
         # ax.set_xticks([])
@@ -309,14 +309,14 @@ def plot_latencies(df):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
-    
+
     v0.text(x=1, y=0.5, s='KDE, plain <-> D0, dotted <-> D1', color='tab:gray',
             va='bottom', ha='right', transform=ax.transAxes)
     return fig
 
 plt.close('all')
 
-fig = plot_latencies(datadf)
+fig = plot_latencies(datadf, lat_mini=0, lat_maxi=100)
 
 save = False
 if save:
@@ -325,59 +325,6 @@ if save:
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
-
-#%%
-df.loc[57, [df.columns[3]]] = np.nan
-df.loc[57, df.columns[4]] = np.nan
-
-df.loc[25:26, df.columns[4]] = np.nan
-
-df.loc[17, df.columns[5]] = np.nan
-df.loc[19, df.columns[5]] = np.nan
-
-df.loc[60, df.columns[6]] = np.nan
-#pb latence excessive = 100 ? à supprimer
-df.loc[[3, 5, 6, 7, 8,  9, 10,11, 35, 36, 37, 40,  41, 42, 43, 44, 45, 47, 51,
- 53, 54, 57, 59, 62, 64], df.columns[6]] = np.nan
-
-#df.loc[57] = np.nan
-
-df.loc[9, df.columns[25]] = np.nan
-#%%
-df.loc[46, df.columns[25]] = np.nan
-df.loc[40, df.columns[25]] = np.nan
-df.loc[9, df.columns[25]] = np.nan
-df.loc[9, df.columns[24]] = np.nan
-df.loc[34, df.columns[21]] = np.nan
-
-plt.close('all')
-fig = plot_all_histo(df)
-
-#%% filter
-plt.close(fig)
-
-i = 21
-
-
-pyperclip.copy(i)
-col = df.columns[i]
-print(col)
-print(df[col].value_counts().sort_index())
-
-fig = plt.figure()
-fig.suptitle(col)
-ax = fig.add_subplot(111)
-ax.hist(df[col], bins=30)
-
-#%%
-df.loc[df[col] <20, [col]]
-
-df.loc[df[col] >30, [col]].index.tolist()
-
-
-#%%
-print('col 2 col δori_pref-ori_gabor : 2 values -20 and 0')
-print('electrode 57 seems bad')
 #%%  to be adpated
 
 def statsmodel_diff_mean(df, param=params):
