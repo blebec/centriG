@@ -110,7 +110,7 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-sheet = 0
+sheet = 1
 datadf = load_latences(sheet)
 
 #%%
@@ -177,7 +177,7 @@ def plot_latencies(df):
     depths.append(df.index.max())
 
     colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
-    lat_mini = 5
+    lat_mini = 10
     lat_maxi = 80
 
     selection = [[1,3,4,5], [1,6,7,8]]
@@ -228,15 +228,8 @@ def plot_latencies(df):
                 
             # h_hist
             y = [0.3*(i-1)+_ for _ in range(len(meds))]
-            hax.barh(y=y, width=meds.values, height=0.3, color=colors[i+k], 
-                   alpha=0.4)
-                # h_height, h_width = np.histogram(y, bins=10, range=(0,len(df)), 
-                #                                  density=True)
-                # hax.barh(h_width[:-1], h_height, height=6, color=colors[i+k], 
-                #          align='edge', alpha=0.5)
-                # kde = stats.gaussian_kde([_ for _ in y if not np.isnan(_)])
-                # x_kde = np.linspace(0,64, 10)
-                # vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6)
+            hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3, 
+                     color=colors[i+k], alpha=0.4)
         
     v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
