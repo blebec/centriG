@@ -13,9 +13,11 @@ from datetime import datetime
 # import matplotlib.gridspec as gridspec
 # import matplotlib.patches as patches
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
+from scipy import stats
 # #from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 # from matplotlib import markers
 # from matplotlib.patches import Rectangle
@@ -44,6 +46,19 @@ speed_colors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths['pg'])
+
+plt.rcParams.update({
+    'font.sans-serif': ['Arial'],
+     'font.size': 14,
+     'legend.fontsize': 'small',
+     'figure.figsize': (11.6, 5),
+     'figure.dpi': 100,
+     'axes.labelsize': 'medium',
+     'axes.titlesize': 'medium',
+     'xtick.labelsize': 'medium',
+     'ytick.labelsize': 'medium',
+     'axes.xmargin': 0})
+
 
 #%%
 def load_latences(sheet=0):
@@ -95,7 +110,8 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-df = load_latences(1)
+sheet = 1
+datadf = load_latences(sheet)
 
 #%%
 # pltconfig = config.rc_params()
@@ -129,7 +145,7 @@ def plot_all_histo(df):
     fig.tight_layout()
     return fig
 
-fig = plot_all_histo(df)
+fig = plot_all_histo(datadf)
 
 #%% test dotplot  
 
@@ -137,74 +153,130 @@ fig = plot_all_histo(df)
 
 plt.close('all')
 
-fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
-axes = axes.flatten()
 
-# layers
-d = 0
-depths = []
-for _ in df.layers.value_counts().values[:-1]:
-    d += _
-    depths.append(d)
-
-ax=axes[0]
-colors = ['tab:blue', 'tab:red', 'tab:orange']
-lat_mini = 5
-lat_maxi = 80
-for i in range(3):
-    # col = df.columns[i+3]
-    ser = df[df.columns[i+3]].copy()
-    ser.loc[ser > lat_maxi] = np.nan
-    ser.loc[ser < lat_mini] = np.nan
-    x = ser.values.tolist()
-    y = ser.index.tolist()
-
-    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, 
-            label=ser.name)
-    ax.axvline(ser.median(), color=colors[i], alpha=0.5, linewidth=3)
-    ax.legend()
-    txt = 'med : {:.0f}'.format(ser.median())
-    ax.text(x=0.9, y=0.3 - i/10, s=txt, color=colors[i],
-            va='bottom', ha='left', transform=ax.transAxes)
+def plot_latencies(df):
+    # fig = plt.figure(constrained_layout = True)
+    fig = plt.figure(figsize=(15, 12))
+    gs = GridSpec(3,2)
+ 
+    v0 = fig.add_subplot(gs[0, :2])
+    # v0 = fig.add_subplot(gs[0,0])
+    # v1 = fig.add_subplot(gs[0,1], sharex=v0, sharey=v0)
+    ax0 = fig.add_subplot(gs[1, :2], sharex=v0)
+    ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
+    # h0 = fig.add_subplot(gs[1, 2], sharey=ax0)
+    # h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=ax0)
     
-ax= axes[1]
-colors = ['tab:blue', 'tab:red', 'tab:orange']
-cols = df.columns[[8,6,7]]
-for i, col in enumerate(cols):
-    ser = df[col].copy()
-    ser.loc[ser > lat_maxi] = np.nan
-    ser.loc[ser < lat_mini] = np.nan
-    x = ser.values.tolist()
-    y = ser.index.tolist()
+    # layer limits
+    d = 0
+    depths = []
+    for _ in df.layers.value_counts().values[:-1]:
+        d += _
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(df.index.max())
 
-    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, 
-            label = ser.name)
-    ax.axvline(ser.median(), color=colors[i], alpha=0.5, linewidth=3)
-    ax.legend()
-    txt = 'med : {:.0f}'.format(ser.median())
-    ax.text(x=0.9, y=0.3 - i/10, s=txt, color=colors[i],
-            va='bottom', ha='left', transform=ax.transAxes)
-    ax.set_xlabel('msec')
+    colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
+    lat_mini = 5
+    lat_maxi = 80
 
-
-
-ax.set_xlim((0, 90))    
-ax.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
-for ax in axes:
-    ax.set_ylabel('depth')
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
-    for d in depths:
-        ax.axhline(d, color='tab:grey', alpha=0.8)
+    selection = [[1,3,4,5], [1,6,7,8]]
+    for k, selec in enumerate(selection):
+        ax = [ax0, ax1][k]
+        vax = v0 #[v0, v1][k]
+        # hax = [h0, h1][k]
+        cop = df[df.columns[selec]].copy()
         
-if anot:
-    txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
-    fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
-    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    fig.text(0.99, 0.01, 'load/extra_pop.py',
-             ha='right', va='bottom', alpha=0.4)
-    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-fig.tight_layout()
+        cols = cop.columns.drop('layers')
+        for i, col in enumerate(cols):
+            # time display
+            cop[col] = cop[col].apply(lambda x: x if x < lat_maxi else np.nan)
+            cop[col] = cop[col].apply(lambda x: x if x > lat_mini else np.nan)
+            x = cop[col].values.tolist()
+            y = cop[col].index.tolist()
+            ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5, 
+                    label=col[:-5])
+            # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
+            meds = cop.groupby('layers')[col].median()
+            mads = cop.groupby('layers')[col].mad()
+            for j, med in enumerate(meds):
+                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], alpha=0.5,
+                          linewidth=3)
+            ax.legend()
+            txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
+                cop[col].median(), cop[col].mad(),
+                meds.values[0], meds.values[1], meds.values[2])
+            ax.text(x=1, y=0.25 - i/9, s=txt, color=colors[i+k],
+                    va='bottom', ha='right', transform=ax.transAxes)
+            # v_hist
+            # v_height, v_width = np.histogram(x, bins=20, range=(0,100), 
+            #                                  density=True)
+            # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k], 
+            #         align='edge', alpha=0.4)
+            kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
+            x_kde = np.linspace(0,100, 20)
+            if k == 0:
+                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6, 
+                         linewidth=2)
+            else:
+                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6, 
+                         linestyle=':', linewidth=3)
+                # # h_hist
+                # h_height, h_width = np.histogram(y, bins=10, range=(0,len(df)), 
+                #                                  density=True)
+                # hax.barh(h_width[:-1], h_height, height=6, color=colors[i+k], 
+                #          align='edge', alpha=0.5)
+                # kde = stats.gaussian_kde([_ for _ in y if not np.isnan(_)])
+                # x_kde = np.linspace(0,64, 10)
+                # vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6)
+        
+    ax1.set_xlabel('msec')
+    ax1.set_xlim((0, 100))    
+    ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
+    for ax in [ax0, ax1]:
+        ax.set_ylabel('depth')
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+        for d in depths:
+            ax.axhline(d, color='tab:grey', alpha=0.5)
+
+    for ax in [v0]: #, v1]:
+        ax.set_yticks([])
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
+        
+        # for ax in [h0, h1]:
+            #     ax.set_xticks([])
+            #     for spine in ['top', 'right', 'bottom']:
+                #         ax.spines[spine].set_visible(False)
+        
+    if anot:
+        txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
+        fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'load/extra_pop/plot_latencies',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    
+    v0.text(x=1, y=0.5, s='KDE, plain <-> D0, dotted <-> D1', color='tab:gray',
+            va='bottom', ha='right', transform=ax.transAxes)
+    return fig
+
+plt.close('all')
+
+fig = plot_latencies(datadf)
+
+save = False
+if save:
+    file = 'latencies' + str(sheet) + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
+
+
+#%%
+
 
 #%%
 df.loc[57, [df.columns[3]]] = np.nan
