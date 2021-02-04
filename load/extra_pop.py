@@ -7,7 +7,7 @@ Created on Thu Jan 21 12:42:53 2021
 """
 
 import os
-# from datetime import datetime
+from datetime import datetime
 # from importlib import reload
 
 # import matplotlib.gridspec as gridspec
@@ -136,34 +136,75 @@ fig = plot_all_histo(df)
 #TODO use floats not integers
 
 plt.close('all')
-fig = plt.figure()
-ax = fig.add_subplot(211)
 
+fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, sharey=True)
+axes = axes.flatten()
+
+# layers
+d = 0
+depths = []
+for _ in df.layers.value_counts().values[:-1]:
+    d += _
+    depths.append(d)
+
+ax=axes[0]
 colors = ['tab:blue', 'tab:red', 'tab:orange']
+lat_mini = 5
+lat_maxi = 80
 for i in range(3):
-    col = df.columns[i+3]
+    # col = df.columns[i+3]
+    ser = df[df.columns[i+3]].copy()
+    ser.loc[ser > lat_maxi] = np.nan
+    ser.loc[ser < lat_mini] = np.nan
+    x = ser.values.tolist()
+    y = ser.index.tolist()
 
-    x = df[col].values.tolist()
-    y = df.index.tolist()
-
-    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, label=col)
-    ax.axvline(df[col].median(), color=colors[i], alpha=0.5)
+    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, 
+            label=ser.name)
+    ax.axvline(ser.median(), color=colors[i], alpha=0.5, linewidth=3)
     ax.legend()
-ax.set_ylim(ax.get_ylim()[::-1])
-
-ax = fig.add_subplot(212)
+    txt = 'med : {:.0f}'.format(ser.median())
+    ax.text(x=0.9, y=0.3 - i/10, s=txt, color=colors[i],
+            va='bottom', ha='left', transform=ax.transAxes)
+    
+ax= axes[1]
 colors = ['tab:blue', 'tab:red', 'tab:orange']
 cols = df.columns[[8,6,7]]
 for i, col in enumerate(cols):
+    ser = df[col].copy()
+    ser.loc[ser > lat_maxi] = np.nan
+    ser.loc[ser < lat_mini] = np.nan
+    x = ser.values.tolist()
+    y = ser.index.tolist()
 
-    x = df[col].values.tolist()
-    y = df.index.tolist()
-
-    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, label=col)
-    ax.axvline(df[col].median(), color=colors[i], alpha=0.5)
+    ax.plot(x, y, '.', color=colors[i], markersize=10, alpha=0.5, 
+            label = ser.name)
+    ax.axvline(ser.median(), color=colors[i], alpha=0.5, linewidth=3)
     ax.legend()
-    
-ax.set_ylim(ax.get_ylim()[::-1])
+    txt = 'med : {:.0f}'.format(ser.median())
+    ax.text(x=0.9, y=0.3 - i/10, s=txt, color=colors[i],
+            va='bottom', ha='left', transform=ax.transAxes)
+    ax.set_xlabel('msec')
+
+
+
+ax.set_xlim((0, 90))    
+ax.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
+for ax in axes:
+    ax.set_ylabel('depth')
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    for d in depths:
+        ax.axhline(d, color='tab:grey', alpha=0.8)
+        
+if anot:
+    txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
+    fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
+    date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    fig.text(0.99, 0.01, 'load/extra_pop.py',
+             ha='right', va='bottom', alpha=0.4)
+    fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+fig.tight_layout()
 
 #%%
 df.loc[57, [df.columns[3]]] = np.nan
