@@ -110,7 +110,7 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-sheet = 1
+sheet = 0
 datadf = load_latences(sheet)
 
 #%%
@@ -157,15 +157,15 @@ plt.close('all')
 def plot_latencies(df):
     # fig = plt.figure(constrained_layout = True)
     fig = plt.figure(figsize=(15, 12))
-    gs = GridSpec(3,2)
+    gs = GridSpec(3,3)
  
     v0 = fig.add_subplot(gs[0, :2])
     # v0 = fig.add_subplot(gs[0,0])
     # v1 = fig.add_subplot(gs[0,1], sharex=v0, sharey=v0)
     ax0 = fig.add_subplot(gs[1, :2], sharex=v0)
     ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
-    # h0 = fig.add_subplot(gs[1, 2], sharey=ax0)
-    # h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=ax0)
+    h0 = fig.add_subplot(gs[1, 2])
+    h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=h0)
     
     # layer limits
     d = 0
@@ -182,13 +182,17 @@ def plot_latencies(df):
 
     selection = [[1,3,4,5], [1,6,7,8]]
     for k, selec in enumerate(selection):
+    # k=0
+    # selec = selection[0]
         ax = [ax0, ax1][k]
         vax = v0 #[v0, v1][k]
-        # hax = [h0, h1][k]
+        hax = [h0, h1][k]
         cop = df[df.columns[selec]].copy()
         
         cols = cop.columns.drop('layers')
         for i, col in enumerate(cols):
+        # i=0
+        # col = cols[0]
             # time display
             cop[col] = cop[col].apply(lambda x: x if x < lat_maxi else np.nan)
             cop[col] = cop[col].apply(lambda x: x if x > lat_mini else np.nan)
@@ -221,7 +225,11 @@ def plot_latencies(df):
             else:
                 vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6, 
                          linestyle=':', linewidth=3)
-                # # h_hist
+                
+            # h_hist
+            y = [0.3*(i-1)+_ for _ in range(len(meds))]
+            hax.barh(y=y, width=meds.values, height=0.3, color=colors[i+k], 
+                   alpha=0.4)
                 # h_height, h_width = np.histogram(y, bins=10, range=(0,len(df)), 
                 #                                  density=True)
                 # hax.barh(h_width[:-1], h_height, height=6, color=colors[i+k], 
@@ -230,6 +238,12 @@ def plot_latencies(df):
                 # x_kde = np.linspace(0,64, 10)
                 # vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6)
         
+    v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
+    h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
+    h1.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
+    
+    
+    
     ax1.set_xlabel('msec')
     ax1.set_xlim((0, 100))    
     ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
@@ -244,12 +258,15 @@ def plot_latencies(df):
         ax.set_yticks([])
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
-        
-        # for ax in [h0, h1]:
-            #     ax.set_xticks([])
-            #     for spine in ['top', 'right', 'bottom']:
-                #         ax.spines[spine].set_visible(False)
-        
+    
+    labels = list(df.layers.unique())
+    for ax in [h0, h1]:
+        # ax.set_xticks([])
+        ax.set_yticks(range(len(labels)))
+        ax.set_yticklabels(labels)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    h0.set_ylim(h0.get_ylim()[::-1])
     if anot:
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
