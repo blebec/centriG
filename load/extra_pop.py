@@ -113,6 +113,38 @@ def load_latences(sheet=0):
 sheet = 1
 datadf = load_latences(sheet)
 
+#%% replace ± 3mad by nan
+def clean_df(df, factor=3):
+    """
+    replace by nan values outside med ± factor*mad
+    
+    """
+    count = 1
+    while count > 0:
+        count = 0
+        for col in df.columns:    
+            if df[col].dtype != float:
+                pass
+            else:
+                ser = df[col]
+                med = ser.median()
+                mad = ser.mad()
+                print('_' * 10)
+                print(ser.name)
+                print(ser.loc[ser > (med + 3 * mad)])
+                if len(ser.loc[ser > (med + 3 * mad)]) > 0:
+                    count += 1
+                print(ser.loc[ser < (med - 3 * mad)])
+                if len(ser.loc[ser > (med + 3 * mad)]) > 0:
+                    count += 1
+                print('-' * 10)
+                df[col] = df[col].apply(lambda x: x if x > (med - 3 * mad) else np.nan)
+                df[col] = df[col].apply(lambda x: x if x < (med + 3 * mad) else np.nan)
+        print ('{} values to remove'.format(count))
+    return df
+
+datadf = clean_df(datadf)
+
 #%%
 # pltconfig = config.rc_params()
 # pltconfig['axes.titlesize'] = 'small'
@@ -131,8 +163,9 @@ def plot_all_histo(df):
         df[col].hist(bins=20, ax=ax, density=True)
         ax.set_title(col)
         med = df[col].median()
+        mad = df[col].mad()
         ax.axvline(med, color='tab:orange')
-        ax.text(0.6, 0.6, f'{med:.1f}', ha='left', va='bottom', 
+        ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom', 
                 transform=ax.transAxes, size='small', color='tab:orange',
                 backgroundcolor='w')
         for spine in ['left', 'top', 'right']:
@@ -146,6 +179,14 @@ def plot_all_histo(df):
     return fig
 
 fig = plot_all_histo(datadf)
+save = False
+if save:
+    file = 'allHisto' + str(sheet) + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
+
+
 
 #%% test dotplot  
 
@@ -286,9 +327,6 @@ if save:
 
 
 #%%
-
-
-#%%
 df.loc[57, [df.columns[3]]] = np.nan
 df.loc[57, df.columns[4]] = np.nan
 
@@ -305,16 +343,21 @@ df.loc[[3, 5, 6, 7, 8,  9, 10,11, 35, 36, 37, 40,  41, 42, 43, 44, 45, 47, 51,
 #df.loc[57] = np.nan
 
 df.loc[9, df.columns[25]] = np.nan
+#%%
 df.loc[46, df.columns[25]] = np.nan
 df.loc[40, df.columns[25]] = np.nan
+df.loc[9, df.columns[25]] = np.nan
+df.loc[9, df.columns[24]] = np.nan
+df.loc[34, df.columns[21]] = np.nan
 
-
+plt.close('all')
+fig = plot_all_histo(df)
 
 #%% filter
 plt.close(fig)
 
-i = 3
-i = 4
+i = 21
+
 
 pyperclip.copy(i)
 col = df.columns[i]
