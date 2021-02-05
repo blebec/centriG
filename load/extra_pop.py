@@ -90,8 +90,10 @@ def load_latences(sheet=0):
     cols = [_.replace('-_top', '-top') for _ in cols]
     cols = [_.replace('hh_lat', 'hhlat') for _ in cols]
     cols = [_.replace('lat_hh', 'hhlat') for _ in cols]
-
-
+    cols = [_.replace('_-top', '') for _ in cols]
+    cols = [_.replace('surround', 's') for _ in cols]
+    cols = [_.replace('integral', 'int') for _ in cols]
+    cols = [_.replace('toptime', 'top') for _ in cols]
 
 
     cols[0] = 'channel'
@@ -112,6 +114,37 @@ def load_latences(sheet=0):
 
 sheet = 1
 datadf = load_latences(sheet)
+
+#%% 
+
+print(datadf)
+
+print(datadf.describe())
+
+#%%
+plt.close('all')
+
+fig, axes = plt.subplots(nrows=2, ncols=3)
+axes = axes.flatten()
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+datadf[datadf.columns[:9]].boxplot(ax=axes[0])
+
+datadf[datadf.columns[[9,10,15,19,12]]].boxplot(ax=axes[1])
+
+datadf[datadf.columns[12:15]].boxplot(ax=axes[2])
+
+
+datadf[datadf.columns[16:-7]].boxplot(ax=axes[3])
+
+datadf[datadf.columns[-7:-4]].boxplot(ax=axes[4])
+
+datadf[datadf.columns[-4:]].boxplot(ax=axes[-1])
+
+for label in axes[3].get_xticklabels():
+    label.set_ha('right')
+    label.set_rotation(45)
+fig.tight_layout()
 
 #%% replace ± 3mad by nan
 def clean_df(df, mult=3):
@@ -194,9 +227,11 @@ if save:
 #%% test dotplot
 
 #TODO use floats not integers
+# indiquer le nombre de réponses/conditions
+# indiquer le stroke interval (frame ~ 7 msec)
+# cahanger D0 par t0 = D0, t0 = D1
 
 plt.close('all')
-
 
 def plot_latencies(df, lat_mini=10, lat_maxi=80):
     # fig = plt.figure(constrained_layout = True)
@@ -210,6 +245,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
     ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
     h0 = fig.add_subplot(gs[1, 2])
     h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=h0)
+    c0 = fig.add_subplot(gs[0, 2])
 
     # layer limits
     d = 0
@@ -219,12 +255,9 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         depths.append(d)
     depths.insert(0, 0)
     depths.append(df.index.max())
-
     colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
-    # lat_mini = 10
-    # lat_maxi = 80
-
-    selection = [[1,3,4,5], [1,6,7,8]]
+    selection = [[1,3,4,5], [1,6,8,7]]  # D0 and D1 based
+    cells = pd.DataFrame(index=df.layers.unique()) # total number of cells
     for k, selec in enumerate(selection):
     # k=0
     # selec = selection[0]
@@ -243,20 +276,20 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
             x = cop[col].values.tolist()
             y = cop[col].index.tolist()
             ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5,
-                    label=col[:-5])
+                    label=col)
             # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
             meds = cop.groupby('layers')[col].median()
             mads = cop.groupby('layers')[col].mad()
             for j, med in enumerate(meds):
-                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], alpha=0.5,
-                          linewidth=3)
+                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], 
+                          alpha=0.5, linewidth=3)
             ax.legend(loc='upper right')
             txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
                 cop[col].median(), cop[col].mad(),
                 meds.values[0], meds.values[1], meds.values[2])
             ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i+k],
                     va='bottom', ha='right', transform=ax.transAxes)
-            # vertical histogramm
+            ## vertical histogramm
             # v_height, v_width = np.histogram(x, bins=20, range=(0,100),
             #                                  density=True)
             # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k],
@@ -270,7 +303,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
                 vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linestyle=':', linewidth=3)
 
-            # horizontal histogramm
+            ## horizontal histogramm
             y = [0.3*(i-1)+_ for _ in range(len(meds))]
             # histo
             # hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
@@ -285,6 +318,21 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
             hax.barh(y=y, 
                      width=1, left=meds.values - .5,
                      height=0.3, color=colors[i+k], alpha=1)
+        ## nb of cells
+        cells = cells.join(cop.groupby('layers').count())
+    
+    #cells = cells / len(df)     # normalise
+    allcolors = colors[:-1] + colors[1:]
+    # x = cells.columns
+    alphas = [0.4, 0.6, 0.4]
+    ls = ['-']*3 + [':']*3
+    x = list(range(len(cells.columns)))
+    y0 = np.array([0 for _ in range(cells.shape[1])]).astype(float)
+    for i in range(len(cells))[::-1]:
+        y1 = cells.iloc[i].values
+        c0.bar(x=x, height=y1, bottom=depths[i], alpha=alphas[i], 
+               color=allcolors, edgecolor='tab:grey') 
+        y0 += y1
 
     v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
@@ -306,6 +354,18 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         ax.set_yticks([])
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
+
+    for ax in [c0]:
+        for spine in ['bottom', 'right']:
+            ax.spines[spine].set_visible(False)
+        for d in depths[:-1]:
+            ax.axhline(d, color='tab:grey', alpha=0.5)
+
+        ax.set_xticks([])
+        ax.set_ylim(64, 0)
+        ax.set_title('responses detected')
+        ax.set_xlabel('stimulation protocols')
+        ax.set_ylabel('depth')
 
     labels = list(df.layers.unique())
     for ax in [h0, h1]:
@@ -331,7 +391,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
 
 plt.close('all')
 
-fig = plot_latencies(datadf, lat_mini=0, lat_maxi=100)
+fig = plot_latencies(datadf, lat_mini=0, lat_maxi=80)
 
 save = False
 if save:
@@ -387,3 +447,5 @@ def statsmodel_diff_mean(df, param=params):
     fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4, size=12)
     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
     return fig
+
+df = datadf[datadf.columns[3:9]].copy()
