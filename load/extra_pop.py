@@ -114,11 +114,12 @@ sheet = 0
 datadf = load_latences(sheet)
 
 #%% replace ± 3mad by nan
-def clean_df(df, factor=3):
+def clean_df(df, mult=3):
     """
-    replace by nan values outside med ± factor*mad
+    replace by nan values outside med ± mult*mad
 
     """
+    total = 0
     count = 1
     while count > 0:
         count = 0
@@ -129,21 +130,23 @@ def clean_df(df, factor=3):
                 ser = df[col]
                 med = ser.median()
                 mad = ser.mad()
-                print('_' * 10)
-                print(ser.name)
-                print(ser.loc[ser > (med + 3 * mad)])
-                if len(ser.loc[ser > (med + 3 * mad)]) > 0:
-                    count += 1
-                print(ser.loc[ser < (med - 3 * mad)])
-                if len(ser.loc[ser > (med + 3 * mad)]) > 0:
-                    count += 1
-                print('-' * 10)
-                df[col] = df[col].apply(lambda x: x if x > (med - 3 * mad) else np.nan)
-                df[col] = df[col].apply(lambda x: x if x < (med + 3 * mad) else np.nan)
-        print ('{} values to remove'.format(count))
+                if (len(ser.loc[ser > (med + mult * mad)]) > 0) or \
+                    len(ser.loc[ser < (med - mult * mad)]) > 0:
+                        # print('_' * 10)
+                        # print(ser.name)
+                        num = len(ser.loc[ser > (med + 3 * mad)])
+                        num += len(ser.loc[ser < (med - 3 * mad)])
+                        print ('{:.0f} values to remove for {:s}'.format(num, ser.name))
+                        total += num
+                        # print('-' * 10)
+                        df[col] = df[col].apply(lambda x: x if x > (med - 3 * mad) else np.nan)
+                        df[col] = df[col].apply(lambda x: x if x < (med + 3 * mad) else np.nan)
+                        count += 1
+    print('='*10)
+    print ('removed {} values'.format(total))
     return df
 
-datadf = clean_df(datadf)
+datadf = clean_df(datadf, mult=4)
 
 #%%
 # pltconfig = config.rc_params()
