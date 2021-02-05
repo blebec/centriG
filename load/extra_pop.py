@@ -110,7 +110,7 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-sheet = 0
+sheet = 1
 datadf = load_latences(sheet)
 
 #%% replace ± 3mad by nan
@@ -256,7 +256,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
                 meds.values[0], meds.values[1], meds.values[2])
             ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i+k],
                     va='bottom', ha='right', transform=ax.transAxes)
-            # v_hist
+            # vertical histogramm
             # v_height, v_width = np.histogram(x, bins=20, range=(0,100),
             #                                  density=True)
             # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k],
@@ -270,16 +270,27 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
                 vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linestyle=':', linewidth=3)
 
-            # h_hist
+            # horizontal histogramm
             y = [0.3*(i-1)+_ for _ in range(len(meds))]
-            hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
-                     color=colors[i+k], alpha=0.4)
+            # histo
+            # hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
+            #          color=colors[i+k], alpha=0.4)
+            # box
+            hax.barh(y=y, 
+                     width=mads.values, left=(meds - mads).values,
+                     height=0.3, color=colors[i+k], alpha=0.4)
+            hax.barh(y=y, 
+                     width=mads.values, left=meds.values,
+                     height=0.3, color=colors[i+k], alpha=0.4)
+            hax.barh(y=y, 
+                     width=1, left=meds.values - .5,
+                     height=0.3, color=colors[i+k], alpha=1)
 
     v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
     h1.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
-
-
+    h0.set_title('med ± mad')
+    v0.set_title('KDE (plain D0, dotted D1)')
 
     ax1.set_xlabel('msec')
     ax1.set_xlim((0, 100))
@@ -301,6 +312,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         # ax.set_xticks([])
         ax.set_yticks(range(len(labels)))
         ax.set_yticklabels(labels)
+        ax.axvline(0, color='tab:grey')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
     h0.set_ylim(h0.get_ylim()[::-1])
