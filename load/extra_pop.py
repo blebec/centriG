@@ -112,11 +112,11 @@ def load_latences(sheet=0):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     return df
 
-sheet = 1
-datadf = load_latences(sheet)
+sheet = 0
+data_df = load_latences(sheet)
 
 #%% 
-
+datadf = data_df.copy()
 print(datadf)
 
 print(datadf.describe())
@@ -179,7 +179,7 @@ def clean_df(df, mult=3):
     print ('removed {} values'.format(total))
     return df
 
-datadf = clean_df(datadf, mult=4)
+data_df = clean_df(data_df, mult=4)
 
 #%%
 # pltconfig = config.rc_params()
@@ -214,7 +214,7 @@ def plot_all_histo(df):
     fig.tight_layout()
     return fig
 
-fig = plot_all_histo(datadf)
+fig = plot_all_histo(data_df)
 save = False
 if save:
     file = 'allHisto' + str(sheet) + '.pdf'
@@ -233,21 +233,27 @@ if save:
 
 plt.close('all')
 
-def plot_latencies(df, lat_mini=10, lat_maxi=80):
-    # fig = plt.figure(constrained_layout = True)
-    fig = plt.figure(figsize=(15, 12))
-    gs = GridSpec(3,3)
-
-    v0 = fig.add_subplot(gs[0, :2])
-    # v0 = fig.add_subplot(gs[0,0])
-    # v1 = fig.add_subplot(gs[0,1], sharex=v0, sharey=v0)
-    ax0 = fig.add_subplot(gs[1, :2], sharex=v0)
-    ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
-    h0 = fig.add_subplot(gs[1, 2])
-    h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=h0)
-    c0 = fig.add_subplot(gs[0, 2])
-
-    # layer limits
+def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
+    """ 
+    plot the latencies
+    input : 
+        df : pandasDataFrame
+        lat_mini : start time to use (values before are dropped)
+        lat_maxi : end time to use (values after are removed)
+    output : 
+        matplotlib figure
+    """    
+    #data filtering
+    df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
+    cols = df.columns[1:]
+    for col in cols:
+        df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
+        df[col] = df[col].apply(lambda x: x if x > lat_mini else np.nan)
+    # select columns
+    d0_cols = df.columns[:4]
+    d1_cols = df.columns[[0,4,5,6]]
+    
+    # layer depths limits
     d = 0
     depths = []
     for _ in df.layers.value_counts().values[:-1]:
@@ -255,37 +261,45 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         depths.append(d)
     depths.insert(0, 0)
     depths.append(df.index.max())
+    
+    # plotting
+    fig = plt.figure(figsize=(15, 12))
+    gs = GridSpec(3,3)
+    # vertical histogram/kde
+    v0 = fig.add_subplot(gs[0, :2])
+    # scatter plot
+    ax0 = fig.add_subplot(gs[1, :2], sharex=v0)
+    ax1 = fig.add_subplot(gs[2, :2], sharex=ax0, sharey=ax0)
+    # horizontal histogram
+    h0 = fig.add_subplot(gs[1, 2])
+    h1 = fig.add_subplot(gs[2, 2], sharex=h0, sharey=h0)
+    # cells counts (electrodes)
+    c0 = fig.add_subplot(gs[0, 2])
+
     colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
-    selection = [[1,3,4,5], [1,6,8,7]]  # D0 and D1 based
-    cells = pd.DataFrame(index=df.layers.unique()) # total number of cells
-    for k, selec in enumerate(selection):
+
+    for k, dcols in enumerate([d0_cols, d1_cols]):
     # k=0
-    # selec = selection[0]
+    # dcols = d0_cols
         ax = [ax0, ax1][k]
         vax = v0 #[v0, v1][k]
         hax = [h0, h1][k]
-        cop = df[df.columns[selec]].copy()
-
-        cols = cop.columns.drop('layers')
-        for i, col in enumerate(cols):
+        for i, col in enumerate(dcols[1:]):     # drop layers column
         # i=0
         # col = cols[0]
-            # time display
-            cop[col] = cop[col].apply(lambda x: x if x < lat_maxi else np.nan)
-            cop[col] = cop[col].apply(lambda x: x if x > lat_mini else np.nan)
-            x = cop[col].values.tolist()
-            y = cop[col].index.tolist()
+            x = df[col].values.tolist()
+            y = df[col].index.tolist()
             ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5,
                     label=col)
             # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
-            meds = cop.groupby('layers')[col].median()
-            mads = cop.groupby('layers')[col].mad()
+            meds = df.groupby('layers')[col].median()
+            mads = df.groupby('layers')[col].mad()
             for j, med in enumerate(meds):
                 ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], 
                           alpha=0.5, linewidth=3)
             ax.legend(loc='upper right')
             txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
-                cop[col].median(), cop[col].mad(),
+                df[col].median(), df[col].mad(),
                 meds.values[0], meds.values[1], meds.values[2])
             ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i+k],
                     va='bottom', ha='right', transform=ax.transAxes)
@@ -318,28 +332,27 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
             hax.barh(y=y, 
                      width=1, left=meds.values - .5,
                      height=0.3, color=colors[i+k], alpha=1)
-        ## nb of cells
-        cells = cells.join(cop.groupby('layers').count())
-    
+            
+    ## plot nb of cells
+    cells = df.groupby('layers').count()    
     #cells = cells / len(df)     # normalise
     allcolors = colors[:-1] + colors[1:]
     # x = cells.columns
     alphas = [0.4, 0.6, 0.4]
-    ls = ['-']*3 + [':']*3
+    # ls = ['-']*3 + [':']*3
     x = list(range(len(cells.columns)))
-    y0 = np.array([0 for _ in range(cells.shape[1])]).astype(float)
     for i in range(len(cells))[::-1]:
-        y1 = cells.iloc[i].values
-        c0.bar(x=x, height=y1, bottom=depths[i], alpha=alphas[i], 
+        y = cells.iloc[i].values
+        c0.bar(x=x, height=y, bottom=depths[i], alpha=alphas[i], 
                color=allcolors, edgecolor='tab:grey') 
-        y0 += y1
 
-    v0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
-    h0.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
-    h1.axvline(df[df.columns[3]].median(), color='tab:blue', alpha=0.5)
-    h0.set_title('med ± mad')
+    # references lines    
+    v0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
+    h0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
+    h1.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     v0.set_title('KDE (plain D0, dotted D1)')
 
+    # scatters
     ax1.set_xlabel('msec')
     ax1.set_xlim((0, 100))
     ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
@@ -350,11 +363,20 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         for d in depths:
             ax.axhline(d, color='tab:grey', alpha=0.5)
 
+    # vertical histo/kde
     for ax in [v0]: #, v1]:
         ax.set_yticks([])
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
-
+    for i, col in enumerate(df.columns[1:]):
+        diff_med = (df[d0_cols[1]] - df[col]).median()
+        diff_mad = (df[d0_cols[1]] - df[col]).mad()
+        diff_mean = (df[d0_cols[1]] - df[col]).mean()
+        diff_std = (df[d0_cols[1]] - df[col]).std()
+        txt = 'diff mean : {:.1f}'.format(diff_mean) 
+        ax.text(x=1, y=0.9 - i/8, s=txt, color=allcolors[i],
+                va='bottom', ha='right', transform=ax.transAxes)
+    # cells
     for ax in [c0]:
         for spine in ['bottom', 'right']:
             ax.spines[spine].set_visible(False)
@@ -363,10 +385,13 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
 
         ax.set_xticks([])
         ax.set_ylim(64, 0)
-        ax.set_title('responses detected')
+        # ax.set_title('responses detected')
         ax.set_xlabel('stimulation protocols')
         ax.set_ylabel('depth')
-
+    
+    # horizontal histo
+    h0.set_title('med ± mad')
+    h0.set_ylim(h0.get_ylim()[::-1])
     labels = list(df.layers.unique())
     for ax in [h0, h1]:
         # ax.set_xticks([])
@@ -375,7 +400,6 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
         ax.axvline(0, color='tab:grey')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-    h0.set_ylim(h0.get_ylim()[::-1])
     if anot:
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
@@ -391,7 +415,7 @@ def plot_latencies(df, lat_mini=10, lat_maxi=80):
 
 plt.close('all')
 
-fig = plot_latencies(datadf, lat_mini=0, lat_maxi=80)
+fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80)
 
 save = False
 if save:
