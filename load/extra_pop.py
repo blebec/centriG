@@ -333,23 +333,14 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
             hax.barh(y=y,
                      width=1, left=meds.values - .5,
                      height=0.3, color=colors[i+k], alpha=1)
-            # # shifted 150
-            # if i == 2 and k == 0:
-            #     if isi_shit is not none:
-            #         x = df[col].values.tolist()
-            #         y = df[col].index.tolist()
-
-            #         kde = stats.gaussian_kde(
-            #              [_ + isi_shit for _ in x if not np.isnan(_)])
-            #          x_kde = np.linspace(0,100, 20)
     # shift
     col = d0_cols[3]        # 'latOn_d0_(s+c)_150°/s'
     x = (df[col] + isi_shit).values.tolist()     # latency value in [0, 100] msec
     y = df[col].index.tolist()      # electrodes / depths
     kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
     x_kde = np.linspace(0,100, 20)
-    v0.plot(x_kde, kde(x_kde), color='tab:grey', alpha=0.6,
-                         linewidth=2, label='150°_isi_shifted')
+    v0.plot(x_kde, kde(x_kde), color='tab:grey', alpha=0.5, linestyle='-.',
+                         linewidth=2, label='150°/sec_I.S.I._shifted')
     v0.legend(loc=2)
 
     meds = df.groupby('layers')[col].median() + isi_shit
@@ -382,14 +373,15 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
     v0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     h1.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
-    v0.set_title('KDE (plain D0, dotted D1)')
+    v0.set_title('KDE (plain D0, dotted D1)', color='tab:grey')
 
     # scatters
     ax1.set_xlabel('msec')
     ax1.set_xlim((0, 100))
     ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
-    for ax in [ax0, ax1]:
+    for i, ax in enumerate([ax0, ax1]):
         ax.set_ylabel('depth')
+        ax.set_xlabel('D{} based time (msec)'.format(i))
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
         for d in depths:
@@ -418,21 +410,32 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         ax.set_xticks([])
         ax.set_ylim(64, 0)
         # ax.set_title('responses detected')
-        ax.set_xlabel('stimulation protocols')
+        ax.set_xlabel('protocols', color='tab:grey')
         ax.set_ylabel('depth')
-        ax.set_title('nb of detections')
+        ax.set_title('nb of detections', color='tab:grey')
 
     # horizontal histo
-    h0.set_title('med ± mad')
+    h0.set_title('med ± mad', color='tab:grey')
     h0.set_ylim(h0.get_ylim()[::-1])
     labels = list(df.layers.unique())
-    for ax in [h0, h1]:
+    for i, ax in enumerate([h0, h1]):
         # ax.set_xticks([])
         ax.set_yticks(range(len(labels)))
         ax.set_yticklabels(labels)
         ax.axvline(0, color='tab:grey')
+        ax.set_xlabel('D{} based time (msec)'.format(i))
+        ax.set_ylabel('layers')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
+            
+    for ax in fig.get_axes():
+        ax.tick_params(colors='tab:grey')
+        ax.spines['bottom'].set_color('tab:grey')
+        ax.spines['top'].set_color('gray')
+        ax.xaxis.label.set_color('tab:grey')
+        ax.yaxis.label.set_color('tab:grey')
+        
+        
     if anot:
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
