@@ -100,7 +100,7 @@ def load_latences(sheet=0):
     # clean row1 replace exp and pre
     # print message
     print('='*10)
-    print( 'NB messages removed : {}'.format([_ for _ in df.loc[0].dropna()]))
+    print( 'NB messages removed : {}'.format(df.loc[0].dropna()))
     print('='*10)
     df.drop(df.index[0], inplace=True)
     # rename columns
@@ -115,7 +115,7 @@ def load_latences(sheet=0):
 sheet = 0
 data_df = load_latences(sheet)
 
-#%% 
+#%%
 datadf = data_df.copy()
 print(datadf)
 
@@ -167,14 +167,14 @@ def clean_df(df, mult=3):
                     len(ser.loc[ser < (med - mult * mad)]) > 0:
                         # print('_' * 10)
                         # print(ser.name)
-                        num = len(ser.loc[ser > (med + 3 * mad)])
-                        num += len(ser.loc[ser < (med - 3 * mad)])
-                        print ('{:.0f} values to remove for {:s}'.format(num, ser.name))
-                        total += num
-                        # print('-' * 10)
-                        df[col] = df[col].apply(lambda x: x if x > (med - 3 * mad) else np.nan)
-                        df[col] = df[col].apply(lambda x: x if x < (med + 3 * mad) else np.nan)
-                        count += 1
+                    num = len(ser.loc[ser > (med + 3 * mad)])
+                    num += len(ser.loc[ser < (med - 3 * mad)])
+                    print ('{:.0f} values to remove for {:s}'.format(num, ser.name))
+                    total += num
+                    # print('-' * 10)
+                    df[col] = df[col].apply(lambda x: x if x > (med - 3 * mad) else np.nan)
+                    df[col] = df[col].apply(lambda x: x if x < (med + 3 * mad) else np.nan)
+                    count += 1
     print('='*10)
     print ('removed {} values'.format(total))
     return df
@@ -234,15 +234,15 @@ if save:
 plt.close('all')
 
 def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
-    """ 
+    """
     plot the latencies
-    input : 
+    input :
         df : pandasDataFrame
         lat_mini : start time to use (values before are dropped)
         lat_maxi : end time to use (values after are removed)
-    output : 
+    output :
         matplotlib figure
-    """    
+    """
     isi = {0: 27.8, 1: 34.7}
     isi_shit = isi.get(sheet, None)
     #data filtering
@@ -254,7 +254,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
     # select columns
     d0_cols = df.columns[:4]
     d1_cols = df.columns[[0,4,5,6]]
-    
+
     # layer depths limits
     d = 0
     depths = []
@@ -263,7 +263,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         depths.append(d)
     depths.insert(0, 0)
     depths.append(df.index.max())
-    
+
     # plotting
     fig = plt.figure(figsize=(15, 12))
     gs = GridSpec(3,3)
@@ -297,7 +297,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
             meds = df.groupby('layers')[col].median()
             mads = df.groupby('layers')[col].mad()
             for j, med in enumerate(meds):
-                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k], 
+                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k],
                           alpha=0.5, linewidth=3)
             ax.legend(loc='upper right')
             txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
@@ -324,13 +324,13 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
             # hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
             #          color=colors[i+k], alpha=0.4)
             # box
-            hax.barh(y=y, 
+            hax.barh(y=y,
                      width=mads.values, left=(meds - mads).values,
                      height=0.3, color=colors[i+k], alpha=0.4)
-            hax.barh(y=y, 
+            hax.barh(y=y,
                      width=mads.values, left=meds.values,
                      height=0.3, color=colors[i+k], alpha=0.4)
-            hax.barh(y=y, 
+            hax.barh(y=y,
                      width=1, left=meds.values - .5,
                      height=0.3, color=colors[i+k], alpha=1)
             # # shifted 150
@@ -338,28 +338,35 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
             #     if isi_shit is not none:
             #         x = df[col].values.tolist()
             #         y = df[col].index.tolist()
- 
+
             #         kde = stats.gaussian_kde(
             #              [_ + isi_shit for _ in x if not np.isnan(_)])
             #          x_kde = np.linspace(0,100, 20)
     # shift
-    col = d0_cols[-1]             
+    col = d0_cols[3]        # 'latOn_d0_(s+c)_150°/s'
     x = (df[col] + isi_shit).values.tolist()     # latency value in [0, 100] msec
     y = df[col].index.tolist()      # electrodes / depths
     kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
     x_kde = np.linspace(0,100, 20)
     v0.plot(x_kde, kde(x_kde), color='tab:grey', alpha=0.6,
                          linewidth=2, label='150°_isi_shifted')
-    v0.legend()
-    meds = df.groupby('layers')[col].median()
+    v0.legend(loc=2)
+
+    meds = df.groupby('layers')[col].median() + isi_shit
     mads = df.groupby('layers')[col].mad()
-            
-    
-    
-    
-    
+    y = [0.3*(2-1)+_ for _ in range(len(meds))]
+    h0.barh(y=y,
+           width=mads.values, left=(meds - mads).values,
+           height=0.3, color='tab:grey', alpha=0.4)
+    h0.barh(y=y,
+             width=mads.values, left=meds.values,
+             height=0.3, color='tab:grey', alpha=0.4)
+    h0.barh(y=y,
+             width=1, left=meds.values - .5,
+             height=0.3, color='tab:grey', alpha=1)
+
     ## plot nb of cells
-    cells = df.groupby('layers').count()    
+    cells = df.groupby('layers').count()
     #cells = cells / len(df)     # normalise
     allcolors = colors[:-1] + colors[1:]
     # x = cells.columns
@@ -368,10 +375,10 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
     x = list(range(len(cells.columns)))
     for i in range(len(cells))[::-1]:
         y = cells.iloc[i].values
-        c0.bar(x=x, height=y, bottom=depths[i], alpha=alphas[i], 
-               color=allcolors, edgecolor='tab:grey') 
+        c0.bar(x=x, height=y, bottom=depths[i], alpha=alphas[i],
+               color=allcolors, edgecolor='tab:grey')
 
-    # references lines    
+    # references lines
     v0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     h1.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
@@ -398,7 +405,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         diff_mad = (df[d0_cols[1]] - df[col]).mad()
         diff_mean = (df[d0_cols[1]] - df[col]).mean()
         diff_std = (df[d0_cols[1]] - df[col]).std()
-        txt = 'diff mean : {:.1f}'.format(diff_mean) 
+        txt = 'diff mean : {:.1f}'.format(diff_mean)
         ax.text(x=1, y=0.9 - i/8, s=txt, color=allcolors[i],
                 va='bottom', ha='right', transform=ax.transAxes)
     # cells
@@ -413,7 +420,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         # ax.set_title('responses detected')
         ax.set_xlabel('stimulation protocols')
         ax.set_ylabel('depth')
-    
+
     # horizontal histo
     h0.set_title('med ± mad')
     h0.set_ylim(h0.get_ylim()[::-1])
@@ -451,50 +458,50 @@ if save:
 
 #%%  to be adpated
 
-def statsmodel_diff_mean(df, param=params):
-    df = df.dropna()
-    # extract correlation
-    y = df.diffe
-    x = df.moy
-    # build the model & apply the fit
-    x = sm.add_constant(x) # constant intercept term
-    model = sm.OLS(y, x)
-    fitted = model.fit()
-    print(fitted.summary())
+# def statsmodel_diff_mean(df, param=params):
+#     df = df.dropna()
+#     # extract correlation
+#     y = df.diffe
+#     x = df.moy
+#     # build the model & apply the fit
+#     x = sm.add_constant(x) # constant intercept term
+#     model = sm.OLS(y, x)
+#     fitted = model.fit()
+#     print(fitted.summary())
 
-    #make prediction
-    x_pred = np.linspace(x.min()[1], x.max()[1], 50)
-    x_pred2 = sm.add_constant(x_pred) # constant intercept term
-    y_pred = fitted.predict(x_pred2)
-    print(y_pred)
+#     #make prediction
+#     x_pred = np.linspace(x.min()[1], x.max()[1], 50)
+#     x_pred2 = sm.add_constant(x_pred) # constant intercept term
+#     y_pred = fitted.predict(x_pred2)
+#     print(y_pred)
 
-    fig = plt.figure(figsize=(8, 6))
-    ax = fig.add_subplot(111)
-    # x = 'ip1m'  # PVC
-    # y = 'ip2m'  # jug
-    sm.graphics.mean_diff_plot(m1=df.jug, m2=df.cvp, ax=ax)
-    ax.plot(x_pred, y_pred, color='tab:red', linewidth=2, alpha=0.8)
-    txt = 'difference = {:.2f} + {:.2f} mean'.format(
-        fitted.params['const'], fitted.params['moy'])
-    ax.text(13.5, -1, txt, va='bottom', ha='right', color='tab:red')
+#     fig = plt.figure(figsize=(8, 6))
+#     ax = fig.add_subplot(111)
+#     # x = 'ip1m'  # PVC
+#     # y = 'ip2m'  # jug
+#     sm.graphics.mean_diff_plot(m1=df.jug, m2=df.cvp, ax=ax)
+#     ax.plot(x_pred, y_pred, color='tab:red', linewidth=2, alpha=0.8)
+#     txt = 'difference = {:.2f} + {:.2f} mean'.format(
+#         fitted.params['const'], fitted.params['moy'])
+#     ax.text(13.5, -1, txt, va='bottom', ha='right', color='tab:red')
 
-    ax.axvline(df.moy.mean(), color='tab:orange', linewidth=2, alpha=0.6)
-    txt = 'measures = \n {:.2f} ± {:.2f}'.format(
-        df.moy.mean(), df.moy.std())
-    ax.text(8.7, -2.7, txt, color='tab:orange', va='center', ha='right')
+#     ax.axvline(df.moy.mean(), color='tab:orange', linewidth=2, alpha=0.6)
+#     txt = 'measures = \n {:.2f} ± {:.2f}'.format(
+#         df.moy.mean(), df.moy.std())
+#     ax.text(8.7, -2.7, txt, color='tab:orange', va='center', ha='right')
 
-    ax.axhline(df.diffe.mean(), color='tab:orange', linewidth=2, alpha=0.6)
-    txt = 'differences = \n {:.2f} ± {:.2f}'.format(
-        df.diffe.mean(), df.diffe.std())
-    ax.text(13.5, 0.6, txt, color='tab:orange', va='center', ha='right')
+#     ax.axhline(df.diffe.mean(), color='tab:orange', linewidth=2, alpha=0.6)
+#     txt = 'differences = \n {:.2f} ± {:.2f}'.format(
+#         df.diffe.mean(), df.diffe.std())
+#     ax.text(13.5, 0.6, txt, color='tab:orange', va='center', ha='right')
 
-    ax.set_ylabel('jug - cvp    (mmHg)')  # ip2m - ip1m
-    ax.set_xlabel('mean jug|cvp    (mmHg)')
-    ax.axhline(0, color='tab:blue', alpha=0.6)
-    for spine in ['left', 'top', 'right', 'bottom']:
-        ax.spines[spine].set_visible(False)
-    fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4, size=12)
-    fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
-    return fig
+#     ax.set_ylabel('jug - cvp    (mmHg)')  # ip2m - ip1m
+#     ax.set_xlabel('mean jug|cvp    (mmHg)')
+#     ax.axhline(0, color='tab:blue', alpha=0.6)
+#     for spine in ['left', 'top', 'right', 'bottom']:
+#         ax.spines[spine].set_visible(False)
+#     fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4, size=12)
+#     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
+#     return fig
 
-df = datadf[datadf.columns[3:9]].copy()
+# df = datadf[datadf.columns[3:9]].copy()
