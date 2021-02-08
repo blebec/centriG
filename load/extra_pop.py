@@ -420,6 +420,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         # ax.set_title('responses detected')
         ax.set_xlabel('stimulation protocols')
         ax.set_ylabel('depth')
+        ax.set_title('nb of detections')
 
     # horizontal histo
     h0.set_title('med ± mad')
