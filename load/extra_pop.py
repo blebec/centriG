@@ -94,6 +94,7 @@ def load_latences(sheet=0):
     cols = [_.replace('surround', 's') for _ in cols]
     cols = [_.replace('integral', 'int') for _ in cols]
     cols = [_.replace('toptime', 'top') for _ in cols]
+    cols = [_.replace('_(10_=_yes;_0_=_no)', '') for _ in cols]
 
 
     cols[0] = 'channel'
@@ -110,9 +111,10 @@ def load_latences(sheet=0):
     # clean columns
     df[df.columns[0]] = df[df.columns[0]].apply(lambda x: x.split(' ')[1])
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
+    df.significancy = (df.significancy/10).astype(int)
     return df
 
-sheet = 0
+sheet = 1
 data_df = load_latences(sheet)
 
 #%%
@@ -244,7 +246,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         matplotlib figure
     """
     isi = {0: 27.8, 1: 34.7}
-    isi_shit = isi.get(sheet, None)
+    isi_shift = isi.get(sheet, None)
     #data filtering
     df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
     cols = df.columns[1:]
@@ -335,7 +337,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
                      height=0.3, color=colors[i+k], alpha=1)
     # shift
     col = d0_cols[3]        # 'latOn_d0_(s+c)_150°/s'
-    x = (df[col] + isi_shit).values.tolist()     # latency value in [0, 100] msec
+    x = (df[col] + isi_shift).values.tolist()     # latency value in [0, 100] msec
     y = df[col].index.tolist()      # electrodes / depths
     kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
     x_kde = np.linspace(0,100, 20)
@@ -343,7 +345,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
                          linewidth=2, label='150°/sec_I.S.I._shifted')
     v0.legend(loc=2)
 
-    meds = df.groupby('layers')[col].median() + isi_shit
+    meds = df.groupby('layers')[col].median() + isi_shift
     mads = df.groupby('layers')[col].mad()
     y = [0.3*(2-1)+_ for _ in range(len(meds))]
     h0.barh(y=y,
@@ -509,3 +511,14 @@ if save:
 #     return fig
 
 # df = datadf[datadf.columns[3:9]].copy()
+
+
+#%% significancy
+data_df.loc[data_df.significancy > 0, ['layers', 'significancy']]
+
+sig = data_df.loc[data_df.significancy > 0, ['layers', 'significancy']].groupby('layers').count()
+allpop = data_df.groupby('layers')['significancy'].count()
+
+
+sigDf = pd.DataFrame(pd.Series(allpop))
+
