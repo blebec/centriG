@@ -233,7 +233,7 @@ if save:
 
 plt.close('all')
 
-def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
+def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
     """ 
     plot the latencies
     input : 
@@ -243,6 +243,8 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
     output : 
         matplotlib figure
     """    
+    isi = {0: 27.8, 1: 34.7}
+    isi_shit = isi.get(sheet, None)
     #data filtering
     df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
     cols = df.columns[1:]
@@ -287,8 +289,8 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
         for i, col in enumerate(dcols[1:]):     # drop layers column
         # i=0
         # col = cols[0]
-            x = df[col].values.tolist()
-            y = df[col].index.tolist()
+            x = df[col].values.tolist()     # latency value in [0, 100] msec
+            y = df[col].index.tolist()      # electrodes / depths
             ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5,
                     label=col)
             # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
@@ -316,7 +318,6 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
             else:
                 vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linestyle=':', linewidth=3)
-
             ## horizontal histogramm
             y = [0.3*(i-1)+_ for _ in range(len(meds))]
             # histo
@@ -332,7 +333,31 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80):
             hax.barh(y=y, 
                      width=1, left=meds.values - .5,
                      height=0.3, color=colors[i+k], alpha=1)
+            # # shifted 150
+            # if i == 2 and k == 0:
+            #     if isi_shit is not none:
+            #         x = df[col].values.tolist()
+            #         y = df[col].index.tolist()
+ 
+            #         kde = stats.gaussian_kde(
+            #              [_ + isi_shit for _ in x if not np.isnan(_)])
+            #          x_kde = np.linspace(0,100, 20)
+    # shift
+    col = d0_cols[-1]             
+    x = (df[col] + isi_shit).values.tolist()     # latency value in [0, 100] msec
+    y = df[col].index.tolist()      # electrodes / depths
+    kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
+    x_kde = np.linspace(0,100, 20)
+    v0.plot(x_kde, kde(x_kde), color='tab:grey', alpha=0.6,
+                         linewidth=2, label='150°_isi_shifted')
+    v0.legend()
+    meds = df.groupby('layers')[col].median()
+    mads = df.groupby('layers')[col].mad()
             
+    
+    
+    
+    
     ## plot nb of cells
     cells = df.groupby('layers').count()    
     #cells = cells / len(df)     # normalise
