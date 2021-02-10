@@ -141,7 +141,7 @@ files = os.listdir(paths['data'])
 files = [_ for _ in files if _[:4].isdigit()]
 
 #filename = os.path.expanduser('~/2019_CXRIGHT_TUN21_s30_csv_test.csv')
-file = files[0]
+file = files[3]
 file_name = os.path.join(paths['data'], file)
 
 data_df = load_csv_latencies(file_name)
