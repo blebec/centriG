@@ -59,9 +59,89 @@ plt.rcParams.update({
      'ytick.labelsize': 'medium',
      'axes.xmargin': 0})
 
+paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
+#%% to load the csv
+
+def load_csv_latencies(file_name):
+    onDict = {
+        '1' : '0c_25',
+        '2' : 's0_25',
+        '3' : 'sc_25',
+        '10' : '0c_150',
+        '11' : 's0_150',
+        '12' : 'sc_150'
+        }
+
+    stimDict = {
+        '1' : '0c',
+        '2' : 's0',
+        '3' : 'sc',
+        '4' : 'spc'
+            }
+
+    speedDict = {
+        '1' : '25',
+        '4' : '150'
+        }
+
+    spkDict = {
+        '1' : 'mua',
+        '2' : 'lfp'
+        }
+
+    df = pd.read_csv(filename, sep=';', header=None)
+    df = df.set_index(df.columns[0]).T
+    cols = df.columns
+    cols = [_.replace('_latency_PG0.VEC_PST_HALF_LATENCY_TOP_AE', '') for _ in cols]
+    cols = [_.replace('set_latency_PG0.FIRST_CROSS_LIST', '') for _ in cols]
+    cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
+    cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
+
+    # ons = [c.split('[')[0] + '_' + onDict.get(float(c.split('[')[-1].split(']')[0]), 
+    #                                     c.split('[')[-1].split(']')[0])
+    #         for c in cols if c.startswith('on')]
+    
+    # inte = [c.split('[')[0] + '_' + onDict.get(float(c.split('[')[-1].split(']')[0]), 
+    #                                     c.split('[')[-1].split(']')[0])
+    #         for c in cols if c.startswith('int')]
+    
+    # tp = [_ for _ in cols if _.startswith('hh')]
+
+    newcols = []
+    for item in cols:
+        mes, cond = item.split('[')
+        if item.startswith('hh'):
+            a, b, c = cond.strip('[').strip(']').split(',')
+            txt = '{}_{}_{}'.format( stimDict.get(a, a),
+                                    speedDict.get(b,b),
+                                    spkDict.get(c, c))
+            newcols.append('{}_{}'.format(mes, txt))
+        elif item.startswith(('on', 'int')):
+            a = onDict.get(cond.strip(']'), cond)
+            txt = '{}_{}'.format(mes, a)
+            newcols.append(txt)       
+        else:
+            newcols.append(item)    
+
+    df.columns = newcols
+    # remove the last line
+    df = df.dropna()
+    # normalise sig (ie 1 or 0 instead of 10 or 0)
+    if [_ for _ in df.columns if 'sig' in _ ]:
+        df[[_ for _ in df.columns if 'sig' in _ ]] /= 10
+    return df
+
+files = os.listdir(paths['data'])
+files = [_ for _ in files if _[:4].isdigit()]
+
+#filename = os.path.expanduser('~/2019_CXRIGHT_TUN21_s30_csv_test.csv')
+file = files[0]
+file_name = os.path.join(paths['data'], file)
+
+data_df = load_csv_latencies(file_name)
 
 #%%
-def load_latences(sheet=0):
+def load_latencies(sheet=0):
     """
     load the xcel file
     Parameters
@@ -115,7 +195,7 @@ def load_latences(sheet=0):
     return df
 
 sheet = 1
-data_df = load_latences(sheet)
+data_df = load_latencies(sheet)
 
 #%%
 datadf = data_df.copy()
@@ -437,7 +517,6 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         ax.xaxis.label.set_color('tab:grey')
         ax.yaxis.label.set_color('tab:grey')
         
-        
     if anot:
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
@@ -451,8 +530,13 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
             va='bottom', ha='right', transform=ax.transAxes)
     return fig
 
-plt.close('all')
+new = False
+if new : 
+    sheet = 1
+    data_df = load_latencies(sheet)
+    data_df = clean_df(data_df, mult=4)
 
+plt.close('all')
 fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80)
 
 save = False
