@@ -62,7 +62,7 @@ plt.rcParams.update({
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 #%% to load the csv
 
-def load_csv_latencies(file_name):
+def load_csv_latencies(filename):
     onDict = {
         '1' : '0c_25',
         '2' : 's0_25',
@@ -96,17 +96,6 @@ def load_csv_latencies(file_name):
     cols = [_.replace('set_latency_PG0.FIRST_CROSS_LIST', '') for _ in cols]
     cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
     cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
-
-    # ons = [c.split('[')[0] + '_' + onDict.get(float(c.split('[')[-1].split(']')[0]), 
-    #                                     c.split('[')[-1].split(']')[0])
-    #         for c in cols if c.startswith('on')]
-    
-    # inte = [c.split('[')[0] + '_' + onDict.get(float(c.split('[')[-1].split(']')[0]), 
-    #                                     c.split('[')[-1].split(']')[0])
-    #         for c in cols if c.startswith('int')]
-    
-    # tp = [_ for _ in cols if _.startswith('hh')]
-
     newcols = []
     for item in cols:
         mes, cond = item.split('[')
@@ -129,6 +118,23 @@ def load_csv_latencies(file_name):
     # normalise sig (ie 1 or 0 instead of 10 or 0)
     if [_ for _ in df.columns if 'sig' in _ ]:
         df[[_ for _ in df.columns if 'sig' in _ ]] /= 10
+        
+    # layers
+    layers = pd.read_csv(os.path.join(os.path.dirname(filename), 
+                                      'layers.csv'), sep=';')
+    layers = layers.set_index(layers.columns[0]).T
+    
+    cols = [_ for _ in layers.columns if _ in os.path.basename(filename)]
+    if len(cols) == 1:
+        col = cols[0]
+    else:
+        raise Exception ('no layers definition')
+    ser = layers[col]
+    ser.name= 'layers'
+    ser = ser.apply(lambda x: x.split('_')[-1])
+    ser = ser.astype('str')
+    df['layers'] = ser.values
+
     return df
 
 files = os.listdir(paths['data'])
