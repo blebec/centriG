@@ -115,7 +115,6 @@ def load_csv_latencies(filename):
     cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
     cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
     
-
     hhs = [_ for _ in cols if _.startswith('hh')]
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]    
@@ -185,14 +184,18 @@ def load_csv_latencies(filename):
     df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
     return df
 
-files = os.listdir(paths['data'])
-files = [_ for _ in files if _[:4].isdigit()]
+csvLoad = False
+if csvLoad:
+    files = os.listdir(paths['data'])
+    files = [_ for _ in files if _[:4].isdigit()]
 
-#filename = os.path.expanduser('~/2019_CXRIGHT_TUN21_s30_csv_test.csv')
-file = files[3]
-file_name = os.path.join(paths['data'], file)
+    # file = files[3]
+    file = '1319_CXLEFT_TUN25_s30_csv_test.csv'
+    file = '2019_CXRIGHT_TUN21_s30_csv_test.csv'
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
 
-data_df = load_csv_latencies(file_name)
+    data_df = load_csv_latencies(file_name)
 
 #%%
 def load_latencies(sheet=0):
@@ -599,14 +602,15 @@ if new :
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
 
-sheet = file
+#sheet = file
 
 plt.close('all')
-fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80)
+fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80, sheet=file)
 
 save = False
 if save:
-    file = 'latencies' + str(sheet) + '.pdf'
+    sheet = str(sheet)
+    file = 'latencies_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
