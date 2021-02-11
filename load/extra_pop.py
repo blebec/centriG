@@ -248,8 +248,8 @@ def load_latencies(sheet=0):
     df.significancy = (df.significancy/10).astype(int)
     return df
 
-sheet = 1
-data_df = load_latencies(sheet)
+# sheet = 1
+# data_df = load_latencies(sheet)
 
 #%%
 datadf = data_df.copy()
@@ -369,7 +369,7 @@ if save:
 
 plt.close('all')
 
-def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
+def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     """
     plot the latencies
     input :
@@ -379,10 +379,18 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
     output :
         matplotlib figure
     """
-    isi = {0: 27.8, 1: 34.7}
-    isi_shift = isi.get(sheet, None)
+    isi = {0: 27.8, 1: 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
     #data filtering
-    df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
+    # xcel = False
+    if xcel:
+        df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
+    else:
+        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150', 
+                 'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
+        selection.insert(0, 'layers')
+        df = datadf[selection].copy()
     cols = df.columns[1:]
     for col in cols:
         df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
@@ -577,7 +585,8 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'load/extra_pop/plot_latencies',
                  ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        txt = '{} {}'.format(date, '_'.join(sheet.split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
     v0.text(x=1, y=0.5, s='KDE, plain <-> D0, dotted <-> D1', color='tab:gray',
@@ -589,6 +598,8 @@ if new :
     sheet = 1
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
+
+sheet = file
 
 plt.close('all')
 fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80)
