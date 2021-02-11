@@ -686,8 +686,7 @@ def plot_d1_d2_low(datadf, sheet):
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
-
-
+    
     fig = plt.figure(figsize=(12,6))
     fig.suptitle(sheet)
     ax = fig.add_subplot(121)
