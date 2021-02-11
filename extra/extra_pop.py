@@ -57,7 +57,7 @@ plt.rcParams.update({
      'axes.titlesize': 'medium',
      'xtick.labelsize': 'medium',
      'ytick.labelsize': 'medium',
-     'axes.xmargin': 0})
+     'axes.xmargin': 0.05})
 
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 #%% to load the csv
@@ -251,8 +251,8 @@ def load_latencies(sheet=0):
     df.significancy = (df.significancy/10).astype(int)
     return df
 
-# sheet = 1
-# data_df = load_latencies(sheet)
+sheet = 1
+data_df = load_latencies(sheet)
 
 #%%
 datadf = data_df.copy()
@@ -353,7 +353,7 @@ def plot_all_histo(df):
     fig.tight_layout()
     return fig
 
-fig = plot_all_histo(data_df[[_ for _ in data_df.columns if _.startswith('on')]])
+fig = plot_all_histo(data_df)
 save = False
 if save:
     file = 'allHisto' + str(sheet) + '.pdf'
@@ -588,7 +588,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'load/extra_pop/plot_latencies',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(sheet.split('_')[:3]))
+        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
@@ -605,7 +605,7 @@ if new :
 #sheet = file
 
 plt.close('all')
-fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80, sheet=file)
+fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=True)
 
 save = False
 if save:
@@ -675,3 +675,119 @@ allpop = data_df.groupby('layers')['significancy'].count()
 
 sigDf = pd.DataFrame(pd.Series(allpop))
 
+
+#%%
+
+
+def plot_d1_d2_low(datadf, sheet):
+    select = ['layers', 'latOn_d0_(c)', 'latOn_d1_s_(25°/s)']
+   # select = ['layers', 'latOn_d0_(s+c)_25°/s', 'latOn_d1_s_(25°/s)']
+    df = datadf[select].copy()
+    for col in df.columns[1:]:
+        df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
+        df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
+  
+
+    fig = plt.figure(figsize=(12,6))
+    fig.suptitle(sheet)
+    ax = fig.add_subplot(121)
+    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65, 
+               alpha=0.8, color='tab:blue')
+    lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
+    ax.set_ylim(lims)
+    ax.set_xlim(lims)
+    ax.plot(lims, lims)
+    ax.set_xlabel(select[1])
+    ax.set_ylabel(select[2])
+
+    ax = fig.add_subplot(122)
+    ax.plot(df.index, df[select[2]] - df[select[1]], 'o', alpha = 0.8, ms=10,
+            color='tab:blue')
+    ax.set_ylabel('{}  minus  {}'.format(select[2], select[1]))
+    #ax.set_ylim((ax.get_ylim)()[::-1])
+    ax.axhline(0, color='tab:gray')
+    ax.set_xlabel('depth')
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    return fig
+
+plt.close('all')
+for sheet in range(2):
+    # sheet = 1
+    print(sheet)
+    data_df = load_latencies(sheet)
+    data_df = clean_df(data_df, mult=4)
+    fig = plot_d1_d2_low(data_df, sheet)
+
+    save=False
+    if save:
+        sheet = str(sheet)
+        file = 'latOn_d2d1_low_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+        dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+        filename = os.path.join(dirname, file)
+        fig.savefig(filename)
+
+
+#%%
+plt.close('all')
+
+
+def plot_d1_d2_high(datadf, sheet, shift=True):
+    isi = {0: 27.8, 1: 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
+    select = ['layers', 'latOn_d0_(c)', 'latOn_d1_s_(25°/s)', 'latOn_d1_s+c_(150°/s)']
+    df = datadf[select].copy()
+    for col in df.columns[1:]:
+        df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
+        df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
+    if shift:
+        df[select[3]] = df[select[3]] + isi_shift
+    fig = plt.figure(figsize=(12,6))
+    fig.suptitle(sheet)    
+    ax = fig.add_subplot(121)
+    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65, 
+               alpha=0.6, color='tab:blue', 
+               label='_'.join(select[2].split('_')[1:]))
+    label = '_'.join(select[3].split('_')[1:])
+    if shift:
+        label += '+ {} msec'.format(isi_shift)
+    ax.scatter(df[select[1]].tolist(), df[select[3]].tolist(), 
+               marker='o', s=65, 
+               alpha=0.6, color='tab:red', 
+               label= label)
+    
+    lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
+    ax.set_ylim(lims)
+    ax.set_xlim(lims)
+    ax.plot(lims, lims)
+    ax.set_xlabel(select[1])
+    ax.set_ylabel('_'.join(select[3].split('_')[:2]))
+    ax.legend()    
+
+    ax = fig.add_subplot(122)
+    ax.plot(df.index, df[select[3]] - df[select[2]], 'o', alpha = 0.8, ms=10,
+            color='tab:blue')
+    ax.set_ylabel('{}  minus  {}'.format(select[3], select[2]))
+    #ax.set_ylim((ax.get_ylim)()[::-1])
+    ax.axhline(0, color='tab:gray')
+    ax.set_xlabel('depth')
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    return fig
+
+plt.close('all')
+for sheet in range(2):
+    # sheet = 1
+    print(sheet)
+    data_df = load_latencies(sheet)
+    data_df = clean_df(data_df, mult=4)
+    fig = plot_d1_d2_high(data_df, sheet)
+
+    save=True
+    if save:
+        sheet = str(sheet)
+        file = 'latOn_d2d1_high_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+        dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+        filename = os.path.join(dirname, file)
+        fig.savefig(filename)
