@@ -63,6 +63,24 @@ paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 #%% to load the csv
 
 def load_csv_latencies(filename):
+    # blocs de 3 3 stim = une vitesse
+    # avant dernière = blanc
+    # dernière = D1 sc 150 °/C
+    # avant dernière = blank
+    # t0 = D1 pour s0 et dernière SC150
+    # t0 = D0 pour le reste (including blank)
+    
+    # on
+    on_speeds = dict(enumerate([25, 50, 100, 150, None], start=0))
+    on_stim = dict(enumerate(['d0_0c', 'd1_s0', 'd0_sc'], start=0))
+    last = {'d1_sc', 150}
+    blast = {'d0_blank'}   
+    # hh
+    hh_stim = dict(enumerate(['0c', 's0', 'sc', 'spc'], start=1))
+    hh_speeds = dict(enumerate([25, 50, 100, 150, None], start=1))
+    # integral
+    
+    
     onDict = {
         '1' : '0c_25',
         '2' : 's0_25',
@@ -96,21 +114,45 @@ def load_csv_latencies(filename):
     cols = [_.replace('set_latency_PG0.FIRST_CROSS_LIST', '') for _ in cols]
     cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
     cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
-    newcols = []
-    for item in cols:
-        mes, cond = item.split('[')
-        if item.startswith('hh'):
-            a, b, c = cond.strip('[').strip(']').split(',')
-            txt = '{}_{}_{}'.format( stimDict.get(a, a),
-                                    speedDict.get(b,b),
-                                    spkDict.get(c, c))
-            newcols.append('{}_{}'.format(mes, txt))
-        elif item.startswith(('on', 'int')):
-            a = onDict.get(cond.strip(']'), cond)
-            txt = '{}_{}'.format(mes, a)
-            newcols.append(txt)       
+    
+
+    hhs = [_ for _ in cols if _.startswith('hh')]
+    ons = [_ for _ in cols if _.startswith('on')]
+    ints = [_ for _ in cols if _.startswith('int')]    
+    sigs = [_ for _ in cols if _.startswith('sig')]
+    #on names
+    new = []
+    maxi = len(ons) -1 
+    for i, item in enumerate(ons):
+        if i == maxi - 1: 
+            txt = 'd0_blk'
+        elif i == maxi:
+            txt = '{}_{}'.format(on_stim[2], on_speeds[3])
+            txt = txt.replace('d0', 'd1')
         else:
-            newcols.append(item)    
+            a, b = divmod(i, 3)
+            txt = '{}_{}'.format(on_stim[b], on_speeds[a])
+        # print('{}   {}'.format(txt, item))
+        new.append('on_' + txt)
+    ons = new
+    
+    newcols = []
+    for item in [hhs, ons, ints, sigs]:
+        newcols.extend(item)
+    # for item in cols:
+    #     mes, cond = item.split('[')
+    #     if item.startswith('hh'):
+    #         a, b, c = cond.strip('[').strip(']').split(',')
+    #         txt = '{}_{}_{}'.format( stimDict.get(a, a),
+    #                                 speedDict.get(b,b),
+    #                                 spkDict.get(c, c))
+    #         newcols.append('{}_{}'.format(mes, txt))
+    #     elif item.startswith(('on', 'int')):
+    #         a = onDict.get(cond.strip(']'), cond)
+    #         txt = '{}_{}'.format(mes, a)
+    #         newcols.append(txt)       
+    #     else:
+    #         newcols.append(item)    
 
     df.columns = newcols
     # remove the last line
@@ -134,7 +176,13 @@ def load_csv_latencies(filename):
     ser = ser.apply(lambda x: x.split('_')[-1])
     ser = ser.astype('str')
     df['layers'] = ser.values
-
+    layersDict = {
+        '2' : '2/3',
+        '3' : '2/3',
+        '5' : '5/6',
+        '6' : '5/6'
+        }
+    df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
     return df
 
 files = os.listdir(paths['data'])
@@ -302,7 +350,7 @@ def plot_all_histo(df):
     fig.tight_layout()
     return fig
 
-fig = plot_all_histo(data_df)
+fig = plot_all_histo(data_df[[_ for _ in data_df.columns if _.startswith('on')]])
 save = False
 if save:
     file = 'allHisto' + str(sheet) + '.pdf'
