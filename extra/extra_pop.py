@@ -69,18 +69,18 @@ def load_csv_latencies(filename):
     # avant dernière = blank
     # t0 = D1 pour s0 et dernière SC150
     # t0 = D0 pour le reste (including blank)
-    
+
     # on
     on_speeds = dict(enumerate([25, 50, 100, 150, None], start=0))
     on_stim = dict(enumerate(['d0_0c', 'd1_s0', 'd0_sc'], start=0))
     last = {'d1_sc', 150}
-    blast = {'d0_blank'}   
+    blast = {'d0_blank'}
     # hh
     hh_stim = dict(enumerate(['0c', 's0', 'sc', 'spc'], start=1))
     hh_speeds = dict(enumerate([25, 50, 100, 150, None], start=1))
     # integral
-    
-    
+
+
     onDict = {
         '1' : '0c_25',
         '2' : 's0_25',
@@ -114,16 +114,16 @@ def load_csv_latencies(filename):
     cols = [_.replace('set_latency_PG0.FIRST_CROSS_LIST', '') for _ in cols]
     cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
     cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
-    
+
     hhs = [_ for _ in cols if _.startswith('hh')]
     ons = [_ for _ in cols if _.startswith('on')]
-    ints = [_ for _ in cols if _.startswith('int')]    
+    ints = [_ for _ in cols if _.startswith('int')]
     sigs = [_ for _ in cols if _.startswith('sig')]
     #on names
     new = []
-    maxi = len(ons) -1 
+    maxi = len(ons) -1
     for i, item in enumerate(ons):
-        if i == maxi - 1: 
+        if i == maxi - 1:
             txt = 'd0_blk'
         elif i == maxi:
             txt = '{}_{}'.format(on_stim[2], on_speeds[3])
@@ -134,7 +134,7 @@ def load_csv_latencies(filename):
         # print('{}   {}'.format(txt, item))
         new.append('on_' + txt)
     ons = new
-    
+
     newcols = []
     for item in [hhs, ons, ints, sigs]:
         newcols.extend(item)
@@ -149,9 +149,9 @@ def load_csv_latencies(filename):
     #     elif item.startswith(('on', 'int')):
     #         a = onDict.get(cond.strip(']'), cond)
     #         txt = '{}_{}'.format(mes, a)
-    #         newcols.append(txt)       
+    #         newcols.append(txt)
     #     else:
-    #         newcols.append(item)    
+    #         newcols.append(item)
 
     df.columns = newcols
     # remove the last line
@@ -159,12 +159,12 @@ def load_csv_latencies(filename):
     # normalise sig (ie 1 or 0 instead of 10 or 0)
     if [_ for _ in df.columns if 'sig' in _ ]:
         df[[_ for _ in df.columns if 'sig' in _ ]] /= 10
-        
+
     # layers
-    layers = pd.read_csv(os.path.join(os.path.dirname(filename), 
+    layers = pd.read_csv(os.path.join(os.path.dirname(filename),
                                       'layers.csv'), sep=';')
     layers = layers.set_index(layers.columns[0]).T
-    
+
     cols = [_ for _ in layers.columns if _ in os.path.basename(filename)]
     if len(cols) == 1:
         col = cols[0]
@@ -390,7 +390,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     if xcel:
         df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
     else:
-        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150', 
+        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
                  'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
         selection.insert(0, 'layers')
         df = datadf[selection].copy()
@@ -574,14 +574,14 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
         ax.set_ylabel('layers')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-            
+
     for ax in fig.get_axes():
         ax.tick_params(colors='tab:grey')
         ax.spines['bottom'].set_color('tab:grey')
         ax.spines['top'].set_color('gray')
         ax.xaxis.label.set_color('tab:grey')
         ax.yaxis.label.set_color('tab:grey')
-        
+
     if anot:
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
@@ -597,7 +597,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     return fig
 
 new = False
-if new : 
+if new :
     sheet = 1
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
@@ -686,12 +686,12 @@ def plot_d1_d2_low(datadf, sheet):
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
-  
+
 
     fig = plt.figure(figsize=(12,6))
     fig.suptitle(sheet)
     ax = fig.add_subplot(121)
-    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65, 
+    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65,
                alpha=0.8, color='tab:blue')
     lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
     ax.set_ylim(lims)
@@ -703,12 +703,20 @@ def plot_d1_d2_low(datadf, sheet):
     ax = fig.add_subplot(122)
     ax.plot(df.index, df[select[2]] - df[select[1]], 'o', alpha = 0.8, ms=10,
             color='tab:blue')
+    med = (df[select[2]] - df[select[1]]).median()
+    mad = (df[select[2]] - df[select[1]]).mad()
+    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
+    ax.text(1, 0.55, txt, va='bottom', ha='right',
+           transform=ax.transAxes, color='tab:blue')
+
     ax.set_ylabel('{}  minus  {}'.format(select[2], select[1]))
     #ax.set_ylim((ax.get_ylim)()[::-1])
     ax.axhline(0, color='tab:gray')
     ax.set_xlabel('depth')
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
+    fig.tight_layout()
     return fig
 
 plt.close('all')
@@ -736,7 +744,8 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     isi = {0: 27.8, 1: 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
-    select = ['layers', 'latOn_d0_(c)', 'latOn_d1_s_(25°/s)', 'latOn_d1_s+c_(150°/s)']
+    select = ['layers', 'latOn_d0_(c)', 
+              'latOn_d1_s_(25°/s)', 'latOn_d0_(s+c)_150°/s']
     df = datadf[select].copy()
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
@@ -744,37 +753,46 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     if shift:
         df[select[3]] = df[select[3]] + isi_shift
     fig = plt.figure(figsize=(12,6))
-    fig.suptitle(sheet)    
+    fig.suptitle(sheet)
     ax = fig.add_subplot(121)
-    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65, 
-               alpha=0.6, color='tab:blue', 
+    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), 
+               marker='o', s=65,
+               alpha=0.6, color='tab:blue',
                label='_'.join(select[2].split('_')[1:]))
     label = '_'.join(select[3].split('_')[1:])
     if shift:
         label += '+ {} msec'.format(isi_shift)
-    ax.scatter(df[select[1]].tolist(), df[select[3]].tolist(), 
-               marker='o', s=65, 
-               alpha=0.6, color='tab:red', 
+    ax.scatter(df[select[1]].tolist(), df[select[3]].tolist(),
+               marker='o', s=65,
+               alpha=0.6, color='tab:orange',
                label= label)
-    
-    lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
+
+    lims = (df[df.columns[1:]].min().min() - 5, 
+            df[df.columns[1:]].max().max() + 5)
     ax.set_ylim(lims)
     ax.set_xlim(lims)
-    ax.plot(lims, lims)
+    ax.plot(lims, lims)   # diag
     ax.set_xlabel(select[1])
-    ax.set_ylabel('_'.join(select[3].split('_')[:2]))
-    ax.legend()    
-
+    ax.set_ylabel('_'.join(select[3].split('_')[:1]))
+    ax.legend()
     ax = fig.add_subplot(122)
-    ax.plot(df.index, df[select[3]] - df[select[2]], 'o', alpha = 0.8, ms=10,
+    ax.plot(df.index, df[select[2]] - df[select[3]], 'o', alpha = 0.8, ms=10,
             color='tab:blue')
-    ax.set_ylabel('{}  minus  {}'.format(select[3], select[2]))
+    med = (df[select[2]] - df[select[3]]).median()
+    mad = (df[select[2]] - df[select[3]]).mad()
+    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
+    ax.text(1, 0.6, txt, va='bottom', ha='right',
+           transform=ax.transAxes, color='tab:blue')
+    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.5)
+    ax.set_ylabel('{}  minus  {}'.format(select[2], select[3]))
     #ax.set_ylim((ax.get_ylim)()[::-1])
     ax.axhline(0, color='tab:gray')
     ax.set_xlabel('depth')
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
+    fig.tight_layout()
     return fig
+
 
 plt.close('all')
 for sheet in range(2):
@@ -784,7 +802,7 @@ for sheet in range(2):
     data_df = clean_df(data_df, mult=4)
     fig = plot_d1_d2_high(data_df, sheet)
 
-    save=True
+    save=False
     if save:
         sheet = str(sheet)
         file = 'latOn_d2d1_high_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
