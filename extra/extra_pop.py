@@ -683,39 +683,114 @@ sigDf = pd.DataFrame(pd.Series(allpop))
 
 
 def plot_d1_d2_low(datadf, sheet):
+    
+    # layer depths limits
+    d = 0
+    depths = []
+    for _ in datadf.layers.value_counts().values[:-1]:
+        d += _
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(datadf.index.max())
+    
+    # latencies
     select = ['layers', 'latOn_d0_(c)', 'latOn_d1_s_(25°/s)']
+    select = ['layers', 'on_d0_0c', 'on_d1_s0_25']
    # select = ['layers', 'latOn_d0_(s+c)_25°/s', 'latOn_d1_s_(25°/s)']
     df = datadf[select].copy()
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
+
     
-    fig = plt.figure(figsize=(12,6))
-    fig.suptitle(sheet)
-    ax = fig.add_subplot(121)
+    fig = plt.figure(figsize=(12,12))
+    fig.suptitle('manip {} (med ± mad values)'.format(sheet))
+
+    ax = fig.add_subplot(221)
     ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65,
                alpha=0.8, color='tab:blue')
     lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
+    med = df[select[1]].median()
+    mad = df[select[1]].mad()
+    ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
+    med = df[select[2]].median()
+    mad = df[select[2]].mad()
+    ax.axhspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
+
     ax.set_ylim(lims)
     ax.set_xlim(lims)
     ax.plot(lims, lims)
     ax.set_xlabel(select[1])
     ax.set_ylabel(select[2])
 
-    ax = fig.add_subplot(122)
+    ax = fig.add_subplot(222)
     ax.plot(df.index, df[select[2]] - df[select[1]], 'o', alpha = 0.8, ms=10,
             color='tab:blue')
     med = (df[select[2]] - df[select[1]]).median()
     mad = (df[select[2]] - df[select[1]]).mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+    ax.axhline(med + 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    ax.axhline(med - 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    
     txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
            transform=ax.transAxes, color='tab:blue')
-
+    # layers
+    ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.4)
+    
     ax.set_ylabel('{}  minus  {}'.format(select[2], select[1]))
     #ax.set_ylim((ax.get_ylim)()[::-1])
     ax.axhline(0, color='tab:gray')
     ax.set_xlabel('depth')
+
+    ax = fig.add_subplot(223)    
+    ax.scatter(df[select[1]].tolist(), (df[select[2]]-df[select[1]]).tolist(), 
+               marker='o', s=65, alpha=0.8, color='tab:blue')
+    med = df[select[1]].median()
+    mad = df[select[1]].mad()
+    ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
+    txt = 'med={:.0f} ± mad ={:.0f}'.format(med, mad)
+    ax.text(0.5, 0.9, txt, va='bottom', ha='center',
+            transform=ax.transAxes, color='tab:blue')
+    med = (df[select[2]] - df[select[1]]).median()
+    mad = (df[select[2]] - df[select[1]]).mad()
+    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+    ax.axhline(med + 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    ax.axhline(med - 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    ax.axhline(0, color='k')
+    ax.set_ylabel('{} minus {}'.format(select[2], select[1]))
+    ax.set_xlabel('{}'.format(select[1]))
+    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
+    ax.text(1, 0.55, txt, va='bottom', ha='right',
+            transform=ax.transAxes, color='tab:blue')
+    
+    ax = fig.add_subplot(224)
+    ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(), 
+               marker='o', s=65, alpha=0.8, color='tab:blue')
+    med = df[select[1]].median()
+    mad = df[select[1]].mad()
+    ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
+    txt = 'med={:.0f} ± mad ={:.0f}'.format(med, mad)
+    ax.text(0.5, 0.9, txt, va='bottom', ha='center',
+            transform=ax.transAxes, color='tab:blue')
+    med = (df[select[2]] - df[select[1]]).median()
+    mad = (df[select[2]] - df[select[1]]).mad()
+    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+    ax.axhline(med + 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    ax.axhline(med - 2*mad, color='tab:blue', 
+               linewidth=2, linestyle=':', alpha=0.7)
+    ax.axhline(0, color='k')
+    ax.set_ylabel('{} minus {}'.format(select[2], select[1]))
+    ax.set_xlabel('{}'.format(select[1]))
+    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
+    ax.text(1, 0.55, txt, va='bottom', ha='right',
+            transform=ax.transAxes, color='tab:blue')
+    
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
     fig.tight_layout()
