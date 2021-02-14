@@ -223,7 +223,7 @@ def load_latencies(sheet=0):
     cols = [_.replace('latency', 'lat') for _ in cols]
     cols = [_.replace('half_height', 'hh') for _ in cols]
     cols = [_.replace('latence', 'lat') for _ in cols]
-    cols = [_.replace('lat_onset', 'latOn') for _ in cols]
+    cols = [_.replace('lat_onset', 'on') for _ in cols]
     cols = [_.replace('-_top', '-top') for _ in cols]
     cols = [_.replace('hh_lat', 'hhlat') for _ in cols]
     cols = [_.replace('lat_hh', 'hhlat') for _ in cols]
@@ -232,7 +232,26 @@ def load_latencies(sheet=0):
     cols = [_.replace('integral', 'int') for _ in cols]
     cols = [_.replace('toptime', 'top') for _ in cols]
     cols = [_.replace('_(10_=_yes;_0_=_no)', '') for _ in cols]
+    
+    cols = [_.replace('(s+c)', 'sc') for _ in cols]
+    cols = [_.replace('s+c', 'sc') for _ in cols]
+    cols = [_.replace('_s_', '_s0') for _ in cols]
+    cols = [_.replace('(c)', '0c') for _ in cols]
+ 
+    cols = [_.replace('°/s', '') for _ in cols]
+    cols = [_.replace('(', '_') for _ in cols]
+    cols = [_.replace(')', '_') for _ in cols]
+    cols = [_.replace('__', '_') for _ in cols]
+    cols = [_.strip('_') for _ in cols]
 
+    cols = [_.replace('δ', 'D_') for _ in cols]
+    # cols = [_.replace('(150°/s)', '150') for _ in cols]
+    # cols = [_.replace('150°/s', '150') for _ in cols]
+    # cols = [_.replace('(25)', '_25') for _ in cols]
+
+
+#        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
+#                 'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
 
     cols[0] = 'channel'
     # clean row1 replace exp and pre
@@ -247,45 +266,14 @@ def load_latencies(sheet=0):
     df = df.dropna(how='all', axis=1)
     # clean columns
     df[df.columns[0]] = df[df.columns[0]].apply(lambda x: x.split(' ')[1])
+    df.channel = df.channel.apply(lambda x: int(x.split()[-1]))
+    df.set_index('channel', inplace=True)
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
-    df.significancy = (df.significancy/10).astype(int)
+    df.int_d0 = df.int_d0.astype(float)
+    df.significancy = (df.significancy/10).astype(bool)
     return df
 
-sheet = 1
-data_df = load_latencies(sheet)
-
-#%%
-datadf = data_df.copy()
-print(datadf)
-
-print(datadf.describe())
-
-#%%
-plt.close('all')
-
-fig, axes = plt.subplots(nrows=2, ncols=3)
-axes = axes.flatten()
-# fig = plt.figure()
-# ax = fig.add_subplot(111)
-datadf[datadf.columns[:9]].boxplot(ax=axes[0])
-
-datadf[datadf.columns[[9,10,15,19,12]]].boxplot(ax=axes[1])
-
-datadf[datadf.columns[12:15]].boxplot(ax=axes[2])
-
-
-datadf[datadf.columns[16:-7]].boxplot(ax=axes[3])
-
-datadf[datadf.columns[-7:-4]].boxplot(ax=axes[4])
-
-datadf[datadf.columns[-4:]].boxplot(ax=axes[-1])
-
-for label in axes[3].get_xticklabels():
-    label.set_ha('right')
-    label.set_rotation(45)
-fig.tight_layout()
-
-#%% replace ± 3mad by nan
+#% replace ± 3mad by nan
 def clean_df(df, mult=3):
     """
     replace by nan values outside med ± mult*mad
@@ -318,21 +306,35 @@ def clean_df(df, mult=3):
     print ('removed {} values'.format(total))
     return df
 
+
+def print_global_stats(statsdf, statssigdf):
+    """ ^print description """
+    for col in stats_df.columns:
+        print('mean {:.2f} ±({:.2f})\t sig {:.2f} ±({:.2f}) \t {}'.format(
+            statsdf.loc['mean',[col]][0], statsdf.loc['std',[col]][0],
+            statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
+            col))
+
+sheet = 1
+data_df = load_latencies(sheet)
 data_df = clean_df(data_df, mult=4)
+stats_df = data_df.describe()
+stats_df_sig = data_df[data_df.significancy].describe()
 
 #%%
 # pltconfig = config.rc_params()
 # pltconfig['axes.titlesize'] = 'small'
 plt.rcParams.update({'axes.titlesize': 'small'})
 
-plt.close('all')
 
 def plot_all_histo(df):
 
-    fig, axes = plt.subplots(nrows=4, ncols=6, figsize=(21, 16))
-    cols = df.mean().index.tolist()
-    cols = cols[1:]
+    fig, axes = plt.subplots(nrows=4, ncols=7, figsize=(21, 16))
     axes = axes.flatten()
+    cols = []
+    for col in df.columns:
+        if df[col].dtype == 'float64':
+            cols.append(col)
     for i, col in enumerate(cols):
         ax = axes[i]
         df[col].hist(bins=20, ax=ax, density=True)
@@ -343,16 +345,17 @@ def plot_all_histo(df):
         ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom',
                 transform=ax.transAxes, size='small', color='tab:orange',
                 backgroundcolor='w')
+    for ax in fig.get_axes():
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
             ax.set_yticks([])
             # q0 = df[col].quantile(q=0.02)
             # q1 = df[col].quantile(q=0.98)
             # ax.set_xlim(q0, q1)
-
     fig.tight_layout()
     return fig
 
+plt.close('all')
 fig = plot_all_histo(data_df)
 save = False
 if save:
@@ -361,8 +364,6 @@ if save:
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
-
-
 #%% test dotplot
 
 #TODO use floats not integers
@@ -370,7 +371,6 @@ if save:
 # indiquer le stroke interval (frame ~ 7 msec)
 # cahanger D0 par t0 = D0, t0 = D1
 
-plt.close('all')
 
 def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     """
@@ -389,11 +389,13 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     # xcel = False
     if xcel:
         df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
+        selection = ['on_d0_0c', 'on_d0_sc_25', 'on_d0_sc_150', 
+                     'on_d1_s0_25', 'on_d1_s0_150', 'on_d1_sc_150']
     else:
         selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
                  'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
-        selection.insert(0, 'layers')
-        df = datadf[selection].copy()
+    selection.insert(0, 'layers')
+    df = datadf[selection].copy()
     cols = df.columns[1:]
     for col in cols:
         df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
@@ -596,9 +598,10 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
             va='bottom', ha='right', transform=ax.transAxes)
     return fig
 
+
 new = False
 if new :
-    sheet = 1
+    sheet = 0
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
 
