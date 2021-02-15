@@ -319,7 +319,7 @@ def print_global_stats(statsdf, statssigdf):
             statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
             col))
 
-sheet = 1
+sheet = 0
 data_df = load_latencies(sheet)
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
@@ -350,6 +350,12 @@ def plot_boxplots(datadf):
             labels = ['_'.join(_.split('_')[1:]) for _ in dats]
         ax.set_title(txt)
         ax.set_xticklabels(labels, rotation=45, ha='right')
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_boxplots',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
     
@@ -395,7 +401,14 @@ def plot_all_histo(df):
             # q0 = df[col].quantile(q=0.02)
             # q1 = df[col].quantile(q=0.98)
             # ax.set_xlim(q0, q1)
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_all_histo',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
+    
     return fig
 
 plt.close('all')
@@ -631,9 +644,9 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
         txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'load/extra_pop/plot_latencies',
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_latencies',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        txt = '{} , data <-> sheet {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
