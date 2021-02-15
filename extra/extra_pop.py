@@ -757,7 +757,7 @@ def plot_d1_d2_low(datadf, sheet):
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
     
-    fig = plt.figure(figsize=(12,12))
+    fig = plt.figure(figsize=(10, 12))
     fig.suptitle('manip {} (med ± mad values)'.format(sheet))
 
     # d1 vs do
@@ -858,38 +858,58 @@ def plot_d1_d2_low(datadf, sheet):
     ax.axhline(med - 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(0, color='k')
+    # labels
     ax.set_ylabel('{}'.format(cols[1]))
     ax.set_xlabel('{}'.format(cols[0]))
     txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
-            transform=ax.transAxes, color='tab:blue')
-    #TODO linear regression
-
+            transform=ax.transAxes, color='tab:blue')   
+    # regress
+    slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
+    xs = (subdf[cols[0]].min(), 
+          subdf[cols[0]].max())
+    fxs = (intercept + slope * xs[0], 
+           intercept + slope * xs[1]) 
+    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
 
     # diff/mean
     ax = fig.add_subplot(224)
-    ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(), 
-               marker='o', s=65, alpha=0.8, color='tab:blue')
-    med = df[select[1]].median()
-    mad = df[select[1]].mad()
+    subdf = pd.DataFrame(df[select[2]] - df[select[1]]).dropna()
+    txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
+    subdf.columns= [txt]
+    subdf['moy'] = df[[select[2], select[1]]].mean(axis=1)
+    cols = subdf.columns
+    ax.plot(subdf[cols[1]], subdf[cols[0]], 'o', alpha=0.8, ms=10, color='tab:blue')
+    # ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(), 
+    #            marker='o', s=65, alpha=0.8, color='tab:blue')
+    med = subdf[cols[1]].median()
+    mad = subdf[cols[1]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    txt = 'med={:.0f} ± mad ={:.0f}'.format(med, mad)
+    txt = 'med={:.0f} ± mad={:.0f}'.format(med, mad)
     ax.text(0.5, 0.9, txt, va='bottom', ha='center',
             transform=ax.transAxes, color='tab:blue')
-    med = (df[select[2]] - df[select[1]]).median()
-    mad = (df[select[2]] - df[select[1]]).mad()
+    med = subdf[cols[0]].median()
+    mad = subdf[cols[0]].mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
     ax.axhline(med + 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(med - 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(0, color='k')
-    ax.set_ylabel('{} minus {}'.format(select[2], select[1]))
-    ax.set_xlabel('{}'.format(select[1]))
+    ax.set_ylabel(cols[0])
+    ax.set_xlabel('{} d0 d1'.format(cols[1]))
     txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
             transform=ax.transAxes, color='tab:blue')
     
+    # regress
+    slope, intercept = np.polyfit(subdf[cols[1]], subdf[cols[0]], 1)
+    xs = (subdf[cols[1]].min(), 
+          subdf[cols[1]].max())
+    fxs = (intercept + slope * xs[0], 
+           intercept + slope * xs[1]) 
+    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
     fig.tight_layout()
