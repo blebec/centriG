@@ -60,8 +60,8 @@ plt.rcParams.update({
      'axes.xmargin': 0.05})
 
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
-#%% to load the csv
 
+#% to load the csv
 def load_csv_latencies(filename):
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -197,7 +197,7 @@ if csvLoad:
 
     data_df = load_csv_latencies(file_name)
 
-#%%
+#%
 def load_latencies(sheet=0):
     """
     load the xcel file
@@ -245,6 +245,10 @@ def load_latencies(sheet=0):
     cols = [_.strip('_') for _ in cols]
 
     cols = [_.replace('δ', 'D_') for _ in cols]
+    cols = [_.replace('center', '0c') for _ in cols]
+    cols = [_.replace('s_', 's0_') for _ in cols]
+    
+    
     # cols = [_.replace('(150°/s)', '150') for _ in cols]
     # cols = [_.replace('150°/s', '150') for _ in cols]
     # cols = [_.replace('(25)', '_25') for _ in cols]
@@ -320,6 +324,45 @@ data_df = load_latencies(sheet)
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
 stats_df_sig = data_df[data_df.significancy].describe()
+
+#%% desribe basics
+
+def plot_boxplots(datadf):
+    ons = [_ for _ in datadf. columns if _.startswith('on')]
+    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
+    ints = [_ for _ in datadf.columns if 'int' in _]
+
+
+    fig, axes = plt.subplots(nrows=1, ncols=3)
+    axes = axes.flatten()
+    for i, dats in enumerate([ons, hhtimes, ints]):
+        ax = axes[i]
+        ax.boxplot(datadf[dats].dropna())
+        txt = dats[0].split('_')[0]
+        if dats == ons:
+            txt = 'ons_latency'
+            labels = ['_'.join(_.split('_')[1:]) for _ in dats]
+        elif dats == hhtimes:
+            txt = 'hh_times'
+            labels = ['_'.join(_.split('_hhtime_lat_')[:]) for _ in dats]
+        elif dats == ints:
+            txt = 'integrals'
+            labels = ['_'.join(_.split('_')[1:]) for _ in dats]
+        ax.set_title(txt)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+    fig.tight_layout()
+    return fig
+    
+    
+plt.close('all')
+fig = plot_boxplots(data_df)
+
+save=False
+if save:
+    file = 'boxPlot_' + str(sheet) + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
 
 #%%
 # pltconfig = config.rc_params()
