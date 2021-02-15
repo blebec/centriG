@@ -832,8 +832,12 @@ def plot_d1_d2_low(datadf, sheet):
     # ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
     
     # labels
-    ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
+    # ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
     ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
+
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+
 
     # diff/ref
     ax = fig.add_subplot(223)
@@ -871,6 +875,9 @@ def plot_d1_d2_low(datadf, sheet):
     fxs = (intercept + slope * xs[0], 
            intercept + slope * xs[1]) 
     ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
 
     # diff/mean
     ax = fig.add_subplot(224)
@@ -912,6 +919,14 @@ def plot_d1_d2_low(datadf, sheet):
 
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_d1_d2_low',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} , data <-> sheet {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+
     fig.tight_layout()
     return fig
 
