@@ -766,8 +766,6 @@ def plot_d1_d2_low(datadf, sheet):
     cols = subdf.columns
     ax.scatter(subdf[cols[0]], subdf[cols[1]],
                marker='o', s=65, alpha=0.8, color='tab:blue')
-    # ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65,
-    #            alpha=0.8, color='tab:blue')
     med = subdf[cols[0]].median()
     mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
@@ -797,51 +795,78 @@ def plot_d1_d2_low(datadf, sheet):
     ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
     ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
 
+    # diff vs depth
     ax = fig.add_subplot(222)
     subdf = (df[select[2]] - df[select[1]]).dropna()
     ax.plot(subdf, 'o', alpha=0.8, ms=10, color='tab:blue')
-    med = (df[select[2]] - df[select[1]]).median()
-    mad = (df[select[2]] - df[select[1]]).mad()
+    med = subdf.median()
+    mad = subdf.mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
     ax.axhline(med + 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(med - 2*mad, color='tab:blue', 
-               linewidth=2, linestyle=':', alpha=0.7)
-    
+               linewidth=2, linestyle=':', alpha=0.7)    
     txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
            transform=ax.transAxes, color='tab:blue')
     # layers
-    ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.4)
+    ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.3)
+    txt = 'layer IV'
+    ax.text(x=(depths[1] + depths[2])/2, y = ax.get_ylim()[1], s=txt,
+           va='top', ha='center', color='tab:grey')
+    txt = '{}  minus  {}'.format(
+        '_'.join(select[2].split('_')[1:]),
+        '_'.join(select[1].split('_')[1:]))
+    ax.set_ylabel(txt)
     
-    ax.set_ylabel('{}  minus  {}'.format(select[2], select[1]))
     #ax.set_ylim((ax.get_ylim)()[::-1])
     ax.axhline(0, color='tab:gray')
-    ax.set_xlabel('depth')
+    ax.set_xlabel('depth (electrode nb)')
+    # regress
+    slope, intercept = np.polyfit(subdf.index, subdf.values, 1)
+    xs = (subdf.index.min(), 
+          subdf.index.max())
+    fxs = (intercept + slope * xs[0], 
+           intercept + slope * xs[1]) 
+    # ? fit interest in that case
+    # ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+    
+    # labels
+    ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
+    ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
 
-    ax = fig.add_subplot(223)    
-    ax.scatter(df[select[1]].tolist(), (df[select[2]]-df[select[1]]).tolist(), 
+    # diff/ref
+    ax = fig.add_subplot(223)
+    subdf = pd.DataFrame(df[select[1]].copy())
+    txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
+    subdf[txt] = df[select[2]]-df[select[1]]
+    subdf = subdf.dropna()
+    cols = subdf.columns
+    ax.scatter(subdf[cols[0]], subdf[cols[1]], 
                marker='o', s=65, alpha=0.8, color='tab:blue')
-    med = df[select[1]].median()
-    mad = df[select[1]].mad()
+    med = subdf[cols[0]].median()
+    mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = 'med={:.0f} ± mad ={:.0f}'.format(med, mad)
     ax.text(0.5, 0.9, txt, va='bottom', ha='center',
             transform=ax.transAxes, color='tab:blue')
-    med = (df[select[2]] - df[select[1]]).median()
-    mad = (df[select[2]] - df[select[1]]).mad()
+    med = subdf[cols[1]].median()
+    mad = subdf[cols[1]].mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
     ax.axhline(med + 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(med - 2*mad, color='tab:blue', 
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(0, color='k')
-    ax.set_ylabel('{} minus {}'.format(select[2], select[1]))
-    ax.set_xlabel('{}'.format(select[1]))
+    ax.set_ylabel('{}'.format(cols[1]))
+    ax.set_xlabel('{}'.format(cols[0]))
     txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
             transform=ax.transAxes, color='tab:blue')
-    
+    #TODO linear regression
+
+
+    # diff/mean
     ax = fig.add_subplot(224)
     ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(), 
                marker='o', s=65, alpha=0.8, color='tab:blue')
