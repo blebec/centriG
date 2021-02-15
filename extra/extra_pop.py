@@ -750,38 +750,56 @@ def plot_d1_d2_low(datadf, sheet):
     depths.append(datadf.index.max())
     
     # latencies
-    select = ['layers', 'latOn_d0_(c)', 'latOn_d1_s_(25°/s)']
     select = ['layers', 'on_d0_0c', 'on_d1_s0_25']
-   # select = ['layers', 'latOn_d0_(s+c)_25°/s', 'latOn_d1_s_(25°/s)']
+    # remove outliers    
     df = datadf[select].copy()
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
-
     
     fig = plt.figure(figsize=(12,12))
     fig.suptitle('manip {} (med ± mad values)'.format(sheet))
 
+    # d1 vs do
     ax = fig.add_subplot(221)
-    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65,
-               alpha=0.8, color='tab:blue')
-    lims = (df[df.columns[1:]].min().min() - 5, df[df.columns[1:]].max().max() + 5)
-    med = df[select[1]].median()
-    mad = df[select[1]].mad()
+    subdf = df[[select[1], select[2]]].dropna()
+    cols = subdf.columns
+    ax.scatter(subdf[cols[0]], subdf[cols[1]],
+               marker='o', s=65, alpha=0.8, color='tab:blue')
+    # ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), marker='o', s=65,
+    #            alpha=0.8, color='tab:blue')
+    med = subdf[cols[0]].median()
+    mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    med = df[select[2]].median()
-    mad = df[select[2]].mad()
+    txt = '{:.0f}±{:.0f} msec'.format(med, mad)
+    ax.text(0.5, 0.05, txt, va='bottom', ha='right',
+           transform=ax.transAxes, color='tab:blue')
+    
+    med = subdf[cols[1]].median()
+    mad = subdf[cols[1]].mad()
     ax.axhspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-
+    txt = '{:.0f}±{:.0f} msec'.format(med, mad)
+    ax.text(0.05, 0.55, txt, va='bottom', ha='left',
+           transform=ax.transAxes, color='tab:blue')
+    # toto  use floor and ceil
+    lims = (subdf.min().min() - 5, subdf.max().max() + 5)
     ax.set_ylim(lims)
     ax.set_xlim(lims)
     ax.plot(lims, lims)
-    ax.set_xlabel(select[1])
-    ax.set_ylabel(select[2])
+    # regress
+    slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
+    xs = (subdf[cols[0]].min(), 
+          subdf[cols[0]].max())
+    fxs = (intercept + slope * subdf[cols[0]].min(), 
+           intercept + slope * subdf[cols[0]].max()) 
+    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+
+    ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
+    ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
 
     ax = fig.add_subplot(222)
-    ax.plot(df.index, df[select[2]] - df[select[1]], 'o', alpha = 0.8, ms=10,
-            color='tab:blue')
+    subdf = (df[select[2]] - df[select[1]]).dropna()
+    ax.plot(subdf, 'o', alpha=0.8, ms=10, color='tab:blue')
     med = (df[select[2]] - df[select[1]]).median()
     mad = (df[select[2]] - df[select[1]]).mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
