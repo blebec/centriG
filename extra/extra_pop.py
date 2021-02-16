@@ -765,8 +765,17 @@ sigDf = pd.DataFrame(pd.Series(allpop))
 
 #%%
 
-
-def plot_d1_d2_low(datadf, sheet):
+def plot_d1_d0_low(datadf, sheet, high=False):
+    """
+    plot the d1 d0 relation
+    input:
+        datadf : pandas dataframe
+        sheet : the sheet number from the related xcel file
+    """
+    # high speed
+    isi = {0: 27.8, 1: 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
 
     # layer depths limits
     d = 0
@@ -779,11 +788,18 @@ def plot_d1_d2_low(datadf, sheet):
 
     # latencies
     select = ['layers', 'on_d0_0c_25', 'on_d1_s0_25']
+    # high speed
+    if high:
+        select = ['layers', 'on_d0_0c_25', 'on_d0_sc_150']
+
     # remove outliers
     df = datadf[select].copy()
+    if high:
+        df['on_d0_sc_150'] = df['on_d0_sc_150'] + isi_shift
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
+
 
     fig = plt.figure(figsize=(10, 12))
     fig.suptitle('manip {}   (med ± mad values)'.format(sheet))
@@ -935,8 +951,8 @@ def plot_d1_d2_low(datadf, sheet):
     ax.set_ylabel(cols[0])
     ax.set_xlabel('{} d0 d1'.format(cols[1]))
     txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(1, 0.55, txt, va='bottom', ha='right',
-            transform=ax.transAxes, color='tab:blue')
+    ax.text(ax.get_xlim()[1], med, txt, 
+            va='bottom', ha='right', color='tab:blue')
     ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
             va='bottom', ha='right', color='tab:blue')
 
@@ -956,7 +972,7 @@ def plot_d1_d2_low(datadf, sheet):
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'extra/extra_pop/plot_d1_d2_low',
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_d1_d0_low',
                  ha='right', va='bottom', alpha=0.4)
         txt = '{} , data <-> sheet {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
@@ -964,18 +980,23 @@ def plot_d1_d2_low(datadf, sheet):
     fig.tight_layout()
     return fig
 
+
 plt.close('all')
+high = False
 for sheet in range(2):
     # sheet = 1
     print(sheet)
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
-    fig = plot_d1_d2_low(data_df, sheet)
+    fig = plot_d1_d0_low(data_df, sheet, high)
 
     save = False
     if save:
         sheet = str(sheet)
-        file = 'latOn_d2d1_low_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+        if high:
+            file = 'latOn_d1d0_high_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+        else:
+            file = 'latOn_d1d0_low_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
         dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
         filename = os.path.join(dirname, file)
         fig.savefig(filename)
@@ -991,6 +1012,8 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     isi_shift = isi.get(sheet, 0)
     select = ['layers', 'latOn_d0_(c)',
               'latOn_d1_s_(25°/s)', 'latOn_d0_(s+c)_150°/s']
+    select = ['layers', 'on_d0_0c_25',
+              'on_d1_s0_25', 'on_d0_sc_150']
     df = datadf[select].copy()
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
