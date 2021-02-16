@@ -8,6 +8,7 @@ Created on Thu Jan 21 12:42:53 2021
 
 import os
 from datetime import datetime
+from math import floor, ceil
 # from importlib import reload
 
 # import matplotlib.gridspec as gridspec
@@ -366,7 +367,7 @@ def plot_boxplots(datadf, removemax=True):
         ax.set_title(txt)
         ax.set_xticklabels(labels, rotation=45, ha='right')
         txt = 'med ± 2*mad'
-        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad + 5, s=txt,
+        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad, s=txt,
                 color='tab:blue',  va='bottom', ha='left')
     for ax in axes:
         for spine in ['top', 'right']:
@@ -473,7 +474,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     # xcel = False
     if xcel:
         df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
-        selection = ['on_d0_0c', 'on_d0_sc_25', 'on_d0_sc_150',
+        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
                      'on_d1_s0_25', 'on_d1_s0_150', 'on_d1_sc_150']
     else:
         selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
@@ -674,7 +675,9 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_latencies',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} , data <-> sheet {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        txt = '{} , data <-> sheet {} : {}'.format(date, 
+                                                 '_'.join(str(sheet).split('_')[:3]),
+                                                 params.get(sheet, ''))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
 
@@ -685,7 +688,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
 
 new = False
 if new :
-    sheet = 0
+    sheet = 1
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
 
@@ -780,11 +783,35 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     # layer depths limits
     d = 0
     depths = []
-    for _ in datadf.layers.value_counts().values[:-1]:
-        d += _
+    for num in datadf.layers.value_counts().values[:-1]:
+        d += num
         depths.append(d)
     depths.insert(0, 0)
     depths.append(datadf.index.max())
+    
+    # plot intervals:
+    def add_conf_interval(ax, data, kind='med'):
+            med = data.median()
+            mad = data.mad()
+            ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+            ax.axhline(med + 2*mad, color='tab:blue',
+                       linewidth=2, linestyle=':', alpha=0.7)
+            ax.axhline(med - 2*mad, color='tab:blue',
+                       linewidth=2, linestyle=':', alpha=0.7)
+            txt = '{:.0f}±{:.0f}'.format(med, mad)
+            ax.text(ax.get_xlim()[1], med, txt, 
+                    va='bottom', ha='right', color='tab:blue')
+            ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
+                    va='bottom', ha='right', color='tab:blue')
+            
+    def add_regress(ax, data):
+            slope, intercept = np.polyfit(data[cols[0]], data[cols[1]], 1)
+            xs = (data[cols[0]].min(),
+                  data[cols[0]].max())
+            fxs = (intercept + slope * data[cols[0]].min(),
+                   intercept + slope * subdf[cols[0]].max())
+            ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+
 
     # latencies
     select = ['layers', 'on_d0_0c_25', 'on_d1_s0_25']
@@ -801,17 +828,18 @@ def plot_d1_d0_low(datadf, sheet, high=False):
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
 
 
-    fig = plt.figure(figsize=(10, 12))
+    # fig = plt.figure(figsize=(10, 12))
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 12))
+    axes = axes.flatten()
     fig.suptitle('manip {}   (med ± mad values)'.format(sheet))
 
     # d1 vs do
-    ax = fig.add_subplot(221)
+    ax = axes[0]
     subdf = df[[select[1], select[2]]].dropna()
     cols = subdf.columns
     ax.scatter(subdf[cols[0]], subdf[cols[1]],
                marker='o', s=65, alpha=0.8, color='tab:blue')
-    med = subdf[cols[0]].median()
-    mad = subdf[cols[0]].mad()
+    med, mad = subdf[cols[0]].median(), subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
     ax.text(med, subdf.max().max(), txt, 
@@ -823,67 +851,40 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     ax.text(subdf.max().max(), med , txt, 
             va='center', ha='right', color='tab:blue')
     # toto  use floor and ceil
-    lims = (subdf.min().min() - 5, subdf.max().max() + 5)
+    lims = (floor(subdf.min().min()/5)*5, ceil(subdf.max().max()/5)*5)
     ax.set_ylim(lims)
     ax.set_xlim(lims)
     ax.plot(lims, lims)
     # regress
-    slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
-    xs = (subdf[cols[0]].min(),
-          subdf[cols[0]].max())
-    fxs = (intercept + slope * subdf[cols[0]].min(),
-           intercept + slope * subdf[cols[0]].max())
-    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+    add_regress(ax, subdf)
 
     ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
     ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
 
     # diff vs depth
-    ax = fig.add_subplot(222)
+    ax = axes[1]
     subdf = (df[select[2]] - df[select[1]]).dropna()
-    ax.plot(subdf, 'o', alpha=0.8, ms=10, color='tab:blue')
-    med = subdf.median()
-    mad = subdf.mad()
-    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(ax.get_xlim()[1], med, txt, 
-            va='bottom', ha='right', color='tab:blue')
+    subdf = subdf.reset_index()
+    cols = subdf.columns
+    ax.plot(subdf[cols[0]], subdf[cols[1]], 'o', alpha=0.8, ms=10, color='tab:blue')
+    # ax.plot(subdf, 'o', alpha=0.8, ms=10, color='tab:blue')
+    add_conf_interval(ax, subdf[cols[1]])
+
     # layers
     ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.3)
     txt = 'layer IV'
     ax.text(x=(depths[1] + depths[2])/2, y = ax.get_ylim()[1], s=txt,
            va='top', ha='center', color='tab:grey')
-    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
-            va='bottom', ha='right', color='tab:blue')
-
-    #ax.set_ylim((ax.get_ylim)()[::-1])
-    ax.axhline(0, color='tab:gray')
     ax.set_xlabel('depth (electrode nb)')
     # regress
-    slope, intercept = np.polyfit(subdf.index, subdf.values, 1)
-    xs = (subdf.index.min(),
-          subdf.index.max())
-    fxs = (intercept + slope * xs[0],
-           intercept + slope * xs[1])
-    # ? fit interest in that case
-    # ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+    add_regress(ax, subdf)
 
     # labels
-    # ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
-    # ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
     ax.set_ylabel(txt)
 
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
-
-
     # diff/ref
-    ax = fig.add_subplot(223)
+    ax = axes[2]
     subdf = pd.DataFrame(df[select[1]].copy())
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
     subdf[txt] = df[select[2]]-df[select[1]]
@@ -897,14 +898,9 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     txt = '{:.0f}±{:.0f}'.format(med, mad)
     ax.text(med, ax.get_ylim()[1], txt, 
             va='top', ha='center', color='tab:blue')
-    med = subdf[cols[1]].median()
-    mad = subdf[cols[1]].mad()
-    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(0, color='k')
+ 
+    add_conf_interval(ax, subdf[cols[1]])
+    
     # labels
     ax.set_ylabel('{}'.format(cols[1]))
     ax.set_xlabel('{}'.format(cols[0]))
@@ -914,58 +910,34 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
             va='bottom', ha='right', color='tab:blue')
     # regress
-    slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
-    xs = (subdf[cols[0]].min(),
-          subdf[cols[0]].max())
-    fxs = (intercept + slope * xs[0],
-           intercept + slope * xs[1])
-    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
-
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
+    add_regress(ax, subdf)
 
     # diff/mean
-    ax = fig.add_subplot(224)
+    ax = axes[3]
     subdf = pd.DataFrame(df[select[2]] - df[select[1]]).dropna()
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
     subdf.columns= [txt]
     subdf['moy'] = df[[select[2], select[1]]].mean(axis=1)
+    subdf = subdf[reversed(subdf.columns)]
     cols = subdf.columns
-    ax.plot(subdf[cols[1]], subdf[cols[0]], 'o', alpha=0.8, ms=10, color='tab:blue')
-    # ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(),
-    #            marker='o', s=65, alpha=0.8, color='tab:blue')
-    med = subdf[cols[1]].median()
-    mad = subdf[cols[1]].mad()
+    ax.plot(subdf[cols[0]], subdf[cols[1]], 'o', alpha=0.8, ms=10, color='tab:blue')
+    med = subdf[cols[0]].median()
+    mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
     ax.text(med, ax.get_ylim()[1], txt, 
             va='top', ha='center', color='tab:blue')
-    med = subdf[cols[0]].median()
-    mad = subdf[cols[0]].mad()
-    ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue',
-               linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(0, color='k')
-    ax.set_ylabel(cols[0])
-    ax.set_xlabel('{} d0 d1'.format(cols[1]))
-    txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(ax.get_xlim()[1], med, txt, 
-            va='bottom', ha='right', color='tab:blue')
-    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
-            va='bottom', ha='right', color='tab:blue')
-
+    
+    add_conf_interval(ax, subdf[cols[1]])
+    ax.set_xlabel('{} (d0 d1)'.format(cols[0]))
+    ax.set_ylabel(cols[1])
     # regress
-    slope, intercept = np.polyfit(subdf[cols[1]], subdf[cols[0]], 1)
-    xs = (subdf[cols[1]].min(),
-          subdf[cols[1]].max())
-    fxs = (intercept + slope * xs[0],
-           intercept + slope * xs[1])
-    ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+    add_regress(ax, subdf)
 
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
+    for ax in axes[1:]:
+        ax.axhline(0, color='tab:gray')
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
 
     if anot:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
