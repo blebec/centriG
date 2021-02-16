@@ -232,12 +232,12 @@ def load_latencies(sheet=0):
     cols = [_.replace('integral', 'int') for _ in cols]
     cols = [_.replace('toptime', 'top') for _ in cols]
     cols = [_.replace('_(10_=_yes;_0_=_no)', '') for _ in cols]
-    
+
     cols = [_.replace('(s+c)', 'sc') for _ in cols]
     cols = [_.replace('s+c', 'sc') for _ in cols]
     cols = [_.replace('_s_', '_s0') for _ in cols]
     cols = [_.replace('(c)', '0c') for _ in cols]
- 
+
     cols = [_.replace('°/s', '') for _ in cols]
     cols = [_.replace('(', '_') for _ in cols]
     cols = [_.replace(')', '_') for _ in cols]
@@ -247,7 +247,7 @@ def load_latencies(sheet=0):
     cols = [_.replace('δ', 'D_') for _ in cols]
     cols = [_.replace('center', '0c') for _ in cols]
     cols = [_.replace('s_', 's0_') for _ in cols]
-    
+
     cols = [_.replace('d0_0c', 'd0_0c_25') for _ in cols]
     # cols = [_.replace('(150°/s)', '150') for _ in cols]
     # cols = [_.replace('150°/s', '150') for _ in cols]
@@ -333,14 +333,14 @@ def plot_boxplots(datadf, removemax=True):
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
-    
+
     # remove values of 100 <-> no detection
     if removemax:
         for col in datadf.columns:
             if data_df[col].dtypes == float:
                 datadf[col] = datadf[col].apply(
                     lambda x : x if x < 100 else np.nan)
-    
+
     fig, axes = plt.subplots(nrows=1, ncols=3)
     axes = axes.flatten()
     for i, dats in enumerate([ons, hhtimes, ints]):
@@ -359,14 +359,14 @@ def plot_boxplots(datadf, removemax=True):
         med = datadf[dats[0]].median()
         mad = datadf[dats[0]].mad()
         ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-        ax.axhline(med + 2*mad, color='tab:blue', 
+        ax.axhline(med + 2*mad, color='tab:blue',
                    linewidth=2, linestyle=':', alpha=0.7)
-        ax.axhline(med - 2*mad, color='tab:blue', 
-                   linewidth=2, linestyle=':', alpha=0.7)            
+        ax.axhline(med - 2*mad, color='tab:blue',
+                   linewidth=2, linestyle=':', alpha=0.7)
         ax.set_title(txt)
         ax.set_xticklabels(labels, rotation=45, ha='right')
         txt = 'med ± 2*mad'
-        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad + 5, s=txt, 
+        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad + 5, s=txt,
                 color='tab:blue',  va='bottom', ha='left')
     for ax in axes:
         for spine in ['top', 'right']:
@@ -383,8 +383,8 @@ def plot_boxplots(datadf, removemax=True):
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
-    
-    
+
+
 plt.close('all')
 fig = plot_boxplots(data_df)
 
@@ -427,13 +427,16 @@ def plot_all_histo(df):
             # q1 = df[col].quantile(q=0.98)
             # ax.set_xlim(q0, q1)
     if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_all_histo',
                  ha='right', va='bottom', alpha=0.4)
         txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
-    
+
     return fig
 
 plt.close('all')
@@ -470,7 +473,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     # xcel = False
     if xcel:
         df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
-        selection = ['on_d0_0c', 'on_d0_sc_25', 'on_d0_sc_150', 
+        selection = ['on_d0_0c', 'on_d0_sc_25', 'on_d0_sc_150',
                      'on_d1_s0_25', 'on_d1_s0_150', 'on_d1_sc_150']
     else:
         selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
@@ -764,7 +767,7 @@ sigDf = pd.DataFrame(pd.Series(allpop))
 
 
 def plot_d1_d2_low(datadf, sheet):
-    
+
     # layer depths limits
     d = 0
     depths = []
@@ -773,17 +776,17 @@ def plot_d1_d2_low(datadf, sheet):
         depths.append(d)
     depths.insert(0, 0)
     depths.append(datadf.index.max())
-    
+
     # latencies
-    select = ['layers', 'on_d0_0c', 'on_d1_s0_25']
-    # remove outliers    
+    select = ['layers', 'on_d0_0c_25', 'on_d1_s0_25']
+    # remove outliers
     df = datadf[select].copy()
     for col in df.columns[1:]:
         df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
         df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
-    
+
     fig = plt.figure(figsize=(10, 12))
-    fig.suptitle('manip {} (med ± mad values)'.format(sheet))
+    fig.suptitle('manip {}   (med ± mad values)'.format(sheet))
 
     # d1 vs do
     ax = fig.add_subplot(221)
@@ -794,16 +797,15 @@ def plot_d1_d2_low(datadf, sheet):
     med = subdf[cols[0]].median()
     mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    txt = '{:.0f}±{:.0f} msec'.format(med, mad)
-    ax.text(0.5, 0.05, txt, va='bottom', ha='right',
-           transform=ax.transAxes, color='tab:blue')
-    
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(med, subdf.max().max(), txt, 
+            va='top', ha='center', color='tab:blue')
     med = subdf[cols[1]].median()
     mad = subdf[cols[1]].mad()
     ax.axhspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    txt = '{:.0f}±{:.0f} msec'.format(med, mad)
-    ax.text(0.05, 0.55, txt, va='bottom', ha='left',
-           transform=ax.transAxes, color='tab:blue')
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(subdf.max().max(), med , txt, 
+            va='center', ha='right', color='tab:blue')
     # toto  use floor and ceil
     lims = (subdf.min().min() - 5, subdf.max().max() + 5)
     ax.set_ylim(lims)
@@ -811,10 +813,10 @@ def plot_d1_d2_low(datadf, sheet):
     ax.plot(lims, lims)
     # regress
     slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
-    xs = (subdf[cols[0]].min(), 
+    xs = (subdf[cols[0]].min(),
           subdf[cols[0]].max())
-    fxs = (intercept + slope * subdf[cols[0]].min(), 
-           intercept + slope * subdf[cols[0]].max()) 
+    fxs = (intercept + slope * subdf[cols[0]].min(),
+           intercept + slope * subdf[cols[0]].max())
     ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
 
     ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
@@ -827,38 +829,38 @@ def plot_d1_d2_low(datadf, sheet):
     med = subdf.median()
     mad = subdf.mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue', 
+    ax.axhline(med + 2*mad, color='tab:blue',
                linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue', 
-               linewidth=2, linestyle=':', alpha=0.7)    
-    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
-    ax.text(1, 0.55, txt, va='bottom', ha='right',
-           transform=ax.transAxes, color='tab:blue')
+    ax.axhline(med - 2*mad, color='tab:blue',
+               linewidth=2, linestyle=':', alpha=0.7)
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(ax.get_xlim()[1], med, txt, 
+            va='bottom', ha='right', color='tab:blue')
     # layers
     ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.3)
     txt = 'layer IV'
     ax.text(x=(depths[1] + depths[2])/2, y = ax.get_ylim()[1], s=txt,
            va='top', ha='center', color='tab:grey')
-    txt = '{}  minus  {}'.format(
-        '_'.join(select[2].split('_')[1:]),
-        '_'.join(select[1].split('_')[1:]))
-    ax.set_ylabel(txt)
-    
+    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
+            va='bottom', ha='right', color='tab:blue')
+
     #ax.set_ylim((ax.get_ylim)()[::-1])
     ax.axhline(0, color='tab:gray')
     ax.set_xlabel('depth (electrode nb)')
     # regress
     slope, intercept = np.polyfit(subdf.index, subdf.values, 1)
-    xs = (subdf.index.min(), 
+    xs = (subdf.index.min(),
           subdf.index.max())
-    fxs = (intercept + slope * xs[0], 
-           intercept + slope * xs[1]) 
+    fxs = (intercept + slope * xs[0],
+           intercept + slope * xs[1])
     # ? fit interest in that case
     # ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
-    
+
     # labels
     # ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
-    ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
+    # ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
+    txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
+    ax.set_ylabel(txt)
 
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
@@ -871,34 +873,36 @@ def plot_d1_d2_low(datadf, sheet):
     subdf[txt] = df[select[2]]-df[select[1]]
     subdf = subdf.dropna()
     cols = subdf.columns
-    ax.scatter(subdf[cols[0]], subdf[cols[1]], 
+    ax.scatter(subdf[cols[0]], subdf[cols[1]],
                marker='o', s=65, alpha=0.8, color='tab:blue')
     med = subdf[cols[0]].median()
     mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    txt = 'med={:.0f} ± mad ={:.0f}'.format(med, mad)
-    ax.text(0.5, 0.9, txt, va='bottom', ha='center',
-            transform=ax.transAxes, color='tab:blue')
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(med, ax.get_ylim()[1], txt, 
+            va='top', ha='center', color='tab:blue')
     med = subdf[cols[1]].median()
     mad = subdf[cols[1]].mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue', 
+    ax.axhline(med + 2*mad, color='tab:blue',
                linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue', 
+    ax.axhline(med - 2*mad, color='tab:blue',
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(0, color='k')
     # labels
     ax.set_ylabel('{}'.format(cols[1]))
     ax.set_xlabel('{}'.format(cols[0]))
-    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
-    ax.text(1, 0.55, txt, va='bottom', ha='right',
-            transform=ax.transAxes, color='tab:blue')   
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(ax.get_xlim()[1], med, txt, 
+            va='bottom', ha='right', color='tab:blue')
+    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
+            va='bottom', ha='right', color='tab:blue')
     # regress
     slope, intercept = np.polyfit(subdf[cols[0]], subdf[cols[1]], 1)
-    xs = (subdf[cols[0]].min(), 
+    xs = (subdf[cols[0]].min(),
           subdf[cols[0]].max())
-    fxs = (intercept + slope * xs[0], 
-           intercept + slope * xs[1]) 
+    fxs = (intercept + slope * xs[0],
+           intercept + slope * xs[1])
     ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
 
     for spine in ['top', 'right']:
@@ -912,40 +916,45 @@ def plot_d1_d2_low(datadf, sheet):
     subdf['moy'] = df[[select[2], select[1]]].mean(axis=1)
     cols = subdf.columns
     ax.plot(subdf[cols[1]], subdf[cols[0]], 'o', alpha=0.8, ms=10, color='tab:blue')
-    # ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(), 
+    # ax.scatter(((df[select[1]] + df[select[2]])/2).tolist(), (df[select[2]]-df[select[1]]).tolist(),
     #            marker='o', s=65, alpha=0.8, color='tab:blue')
     med = subdf[cols[1]].median()
     mad = subdf[cols[1]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
-    txt = 'med={:.0f} ± mad={:.0f}'.format(med, mad)
-    ax.text(0.5, 0.9, txt, va='bottom', ha='center',
-            transform=ax.transAxes, color='tab:blue')
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
+    ax.text(med, ax.get_ylim()[1], txt, 
+            va='top', ha='center', color='tab:blue')
     med = subdf[cols[0]].median()
     mad = subdf[cols[0]].mad()
     ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-    ax.axhline(med + 2*mad, color='tab:blue', 
+    ax.axhline(med + 2*mad, color='tab:blue',
                linewidth=2, linestyle=':', alpha=0.7)
-    ax.axhline(med - 2*mad, color='tab:blue', 
+    ax.axhline(med - 2*mad, color='tab:blue',
                linewidth=2, linestyle=':', alpha=0.7)
     ax.axhline(0, color='k')
     ax.set_ylabel(cols[0])
     ax.set_xlabel('{} d0 d1'.format(cols[1]))
-    txt = '{:.0f} ± {:.0f} msec'.format(med, mad)
+    txt = '{:.0f}±{:.0f}'.format(med, mad)
     ax.text(1, 0.55, txt, va='bottom', ha='right',
             transform=ax.transAxes, color='tab:blue')
-    
+    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
+            va='bottom', ha='right', color='tab:blue')
+
     # regress
     slope, intercept = np.polyfit(subdf[cols[1]], subdf[cols[0]], 1)
-    xs = (subdf[cols[1]].min(), 
+    xs = (subdf[cols[1]].min(),
           subdf[cols[1]].max())
-    fxs = (intercept + slope * xs[0], 
-           intercept + slope * xs[1]) 
+    fxs = (intercept + slope * xs[0],
+           intercept + slope * xs[1])
     ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
 
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
 
     if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_d1_d2_low',
                  ha='right', va='bottom', alpha=0.4)
@@ -963,7 +972,7 @@ for sheet in range(2):
     data_df = clean_df(data_df, mult=4)
     fig = plot_d1_d2_low(data_df, sheet)
 
-    save=False
+    save = False
     if save:
         sheet = str(sheet)
         file = 'latOn_d2d1_low_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
@@ -980,7 +989,7 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     isi = {0: 27.8, 1: 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
-    select = ['layers', 'latOn_d0_(c)', 
+    select = ['layers', 'latOn_d0_(c)',
               'latOn_d1_s_(25°/s)', 'latOn_d0_(s+c)_150°/s']
     df = datadf[select].copy()
     for col in df.columns[1:]:
@@ -991,7 +1000,7 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     fig = plt.figure(figsize=(12,6))
     fig.suptitle(sheet)
     ax = fig.add_subplot(121)
-    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(), 
+    ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(),
                marker='o', s=65,
                alpha=0.6, color='tab:blue',
                label='_'.join(select[2].split('_')[1:]))
@@ -1003,7 +1012,7 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
                alpha=0.6, color='tab:orange',
                label= label)
 
-    lims = (df[df.columns[1:]].min().min() - 5, 
+    lims = (df[df.columns[1:]].min().min() - 5,
             df[df.columns[1:]].max().max() + 5)
     ax.set_ylim(lims)
     ax.set_xlim(lims)
