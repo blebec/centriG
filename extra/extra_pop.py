@@ -248,7 +248,7 @@ def load_latencies(sheet=0):
     cols = [_.replace('center', '0c') for _ in cols]
     cols = [_.replace('s_', 's0_') for _ in cols]
     
-    
+    cols = [_.replace('d0_0c', 'd0_0c_25') for _ in cols]
     # cols = [_.replace('(150°/s)', '150') for _ in cols]
     # cols = [_.replace('150°/s', '150') for _ in cols]
     # cols = [_.replace('(25)', '_25') for _ in cols]
@@ -319,6 +319,8 @@ def print_global_stats(statsdf, statssigdf):
             statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
             col))
 
+params = {0 : '1319_CXLEFT',
+          1 : '2019_CXRIGHT'}
 sheet = 0
 data_df = load_latencies(sheet)
 data_df = clean_df(data_df, mult=4)
@@ -327,12 +329,18 @@ stats_df_sig = data_df[data_df.significancy].describe()
 
 #%% desribe basics
 
-def plot_boxplots(datadf):
+def plot_boxplots(datadf, removemax=True):
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
-
-
+    
+    # remove values of 100 <-> no detection
+    if removemax:
+        for col in datadf.columns:
+            if data_df[col].dtypes == float:
+                datadf[col] = datadf[col].apply(
+                    lambda x : x if x < 100 else np.nan)
+    
     fig, axes = plt.subplots(nrows=1, ncols=3)
     axes = axes.flatten()
     for i, dats in enumerate([ons, hhtimes, ints]):
@@ -348,9 +356,26 @@ def plot_boxplots(datadf):
         elif dats == ints:
             txt = 'integrals'
             labels = ['_'.join(_.split('_')[1:]) for _ in dats]
+        med = datadf[dats[0]].median()
+        mad = datadf[dats[0]].mad()
+        ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+        ax.axhline(med + 2*mad, color='tab:blue', 
+                   linewidth=2, linestyle=':', alpha=0.7)
+        ax.axhline(med - 2*mad, color='tab:blue', 
+                   linewidth=2, linestyle=':', alpha=0.7)            
         ax.set_title(txt)
         ax.set_xticklabels(labels, rotation=45, ha='right')
+        txt = 'med ± 2*mad'
+        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad + 5, s=txt, 
+                color='tab:blue',  va='bottom', ha='left')
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+
     if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_boxplots',
                  ha='right', va='bottom', alpha=0.4)
