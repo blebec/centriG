@@ -707,53 +707,122 @@ if save:
 
 #%%  to be adpated
 
-# def statsmodel_diff_mean(df, param=params):
-#     df = df.dropna()
-#     # extract correlation
-#     y = df.diffe
-#     x = df.moy
-#     # build the model & apply the fit
-#     x = sm.add_constant(x) # constant intercept term
-#     model = sm.OLS(y, x)
-#     fitted = model.fit()
-#     print(fitted.summary())
+def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True):
+    """
+    plot the latencies
+    input :
+        df : pandasDataFrame
+        lat_mini : start time to use (values before are dropped)
+        lat_maxi : end time to use (values after are removed)
+    output :
+        matplotlib figure
+    """
+    isi = {0: 27.8, 1: 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
+    #data filtering
+    # xcel = False
+    if xcel:
+        df = datadf[datadf.columns[[1,3,4,5,6,8,7]]].copy()
+        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
+                     'on_d1_s0_25', 'on_d1_s0_150', 'on_d1_sc_150']
+    else:
+        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
+                 'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
+    selection.insert(0, 'layers')
+    df = datadf[selection].copy()
+    cols = df.columns[1:]
+    for col in cols:
+        df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
+        df[col] = df[col].apply(lambda x: x if x > lat_mini else np.nan)
+    # select columns
+    d0_cols = df.columns[:4]
+    d1_cols = df.columns[[0,4,5,6]]
+    
+    cols = ['layers', 'on_d0_sc_25', 'on_d0_sc_150', 'on_d1_sc_150']
+    
+    # layer depths limits
+    d = 0
+    depths = []
+    for _ in df.layers.value_counts().values[:-1]:
+        d += _
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(df.index.max())
+    
+    colors = ['tab:red', 'tab:orange', 'tab:green']
 
-#     #make prediction
-#     x_pred = np.linspace(x.min()[1], x.max()[1], 50)
-#     x_pred2 = sm.add_constant(x_pred) # constant intercept term
-#     y_pred = fitted.predict(x_pred2)
-#     print(y_pred)
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for i, col in enumerate(cols[1:]):
+        x = df.index
+        y = df[col]
+        label = col
+        if col == 'on_d0_sc_150':
+            y += isi_shift
+            label += '_shifted'
+        ax.plot(y, x, '.', 
+                color=colors[i], alpha=0.7, ms=10, label=label)
+        meds = df.groupby('layers')[col].median()
+        mads = df.groupby('layers')[col].mad()
+        for j, med in enumerate(meds):
+            ax.vlines(med, depths[j], depths[j+1], color=colors[i],
+                      alpha=0.5, linewidth=3)
+            txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
+                df[col].median(), df[col].mad(),
+                meds.values[0], meds.values[1], meds.values[2])
+            ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i],
+                    va='bottom', ha='right', transform=ax.transAxes)
 
-#     fig = plt.figure(figsize=(8, 6))
-#     ax = fig.add_subplot(111)
-#     # x = 'ip1m'  # PVC
-#     # y = 'ip2m'  # jug
-#     sm.graphics.mean_diff_plot(m1=df.jug, m2=df.cvp, ax=ax)
-#     ax.plot(x_pred, y_pred, color='tab:red', linewidth=2, alpha=0.8)
-#     txt = 'difference = {:.2f} + {:.2f} mean'.format(
-#         fitted.params['const'], fitted.params['moy'])
-#     ax.text(13.5, -1, txt, va='bottom', ha='right', color='tab:red')
+    for d in depths:
+        ax.axhline(d, color='tab:grey', alpha=0.5)
 
-#     ax.axvline(df.moy.mean(), color='tab:orange', linewidth=2, alpha=0.6)
-#     txt = 'measures = \n {:.2f} ± {:.2f}'.format(
-#         df.moy.mean(), df.moy.std())
-#     ax.text(8.7, -2.7, txt, color='tab:orange', va='center', ha='right')
+    ax.legend(loc='upper right')
+    ax.set_xlim(0, 100)
+    ax.set_ylim(ax.get_ylim()[::-1])
 
-#     ax.axhline(df.diffe.mean(), color='tab:orange', linewidth=2, alpha=0.6)
-#     txt = 'differences = \n {:.2f} ± {:.2f}'.format(
-#         df.diffe.mean(), df.diffe.std())
-#     ax.text(13.5, 0.6, txt, color='tab:orange', va='center', ha='right')
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
 
-#     ax.set_ylabel('jug - cvp    (mmHg)')  # ip2m - ip1m
-#     ax.set_xlabel('mean jug|cvp    (mmHg)')
-#     ax.axhline(0, color='tab:blue', alpha=0.6)
-#     for spine in ['left', 'top', 'right', 'bottom']:
-#         ax.spines[spine].set_visible(False)
-#     fig.text(0.99, 0.01, 'cDesbois', ha='right', va='bottom', alpha=0.4, size=12)
-#     fig.text(0.01, 0.01, param['file'], ha='left', va='bottom', alpha=0.4)
-#     return fig
+    ax.set_ylabel('depth')
+    ax.set_xlabel('time (msec)')
 
-# df = datadf[datadf.columns[3:9]].copy()
+    if anot:
+        txt = 'out of [{}, {}] msec range were excluded'.format(lat_mini, lat_maxi)
+        fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_latencies_bis',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} , data <-> sheet {} : {}'.format(date, 
+                                                 '_'.join(str(sheet).split('_')[:3]),
+                                                 params.get(sheet, ''))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+
+    return fig
+
+plt.close('all')
+
+fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=True)
+
+new = False
+if new :
+    sheet = 1
+    data_df = load_latencies(sheet)
+    data_df = clean_df(data_df, mult=4)
+
+#sheet = file
+
+plt.close('all')
+fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=True)
+
+save = False
+if save:
+    sheet = str(sheet)
+    file = 'latencies_bis' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
 
 
 #%% significancy
