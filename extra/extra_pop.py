@@ -62,8 +62,13 @@ plt.rcParams.update({
 
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 
-#% to load the csv
+
 def load_csv_latencies(filename):
+    """
+    load the csv file containing the latencies
+    
+    """
+
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
     # dernière = D1 sc 150 °/C
@@ -80,7 +85,6 @@ def load_csv_latencies(filename):
     hh_stim = dict(enumerate(['0c', 's0', 'sc', 'spc'], start=1))
     hh_speeds = dict(enumerate([25, 50, 100, 150, None], start=1))
     # integral
-
 
     onDict = {
         '1' : '0c_25',
@@ -120,9 +124,10 @@ def load_csv_latencies(filename):
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]
     sigs = [_ for _ in cols if _.startswith('sig')]
-    #on names
+   
+    # on names
     new = []
-    maxi = len(ons) -1
+    maxi = len(ons) - 1
     for i, item in enumerate(ons):
         if i == maxi - 1:
             txt = 'd0_blk'
@@ -255,8 +260,8 @@ def load_latencies(sheet=0):
     # cols = [_.replace('(25)', '_25') for _ in cols]
 
 
-#        selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
-#                 'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
+        # selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
+        #         'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
 
     cols[0] = 'channel'
     # clean row1 replace exp and pre
@@ -277,6 +282,7 @@ def load_latencies(sheet=0):
     df.int_d0 = df.int_d0.astype(float)
     df.significancy = (df.significancy/10).astype(bool)
     return df
+
 
 #% replace ± 3mad by nan
 def clean_df(df, mult=3):
@@ -331,6 +337,9 @@ stats_df_sig = data_df[data_df.significancy].describe()
 #%% desribe basics
 
 def plot_boxplots(datadf, removemax=True):
+    """
+    stat boxplot description for latencies
+    """
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
@@ -403,7 +412,9 @@ plt.rcParams.update({'axes.titlesize': 'small'})
 
 
 def plot_all_histo(df):
-
+    """
+    histograms for all the reponses
+    """
     fig, axes = plt.subplots(nrows=4, ncols=7, figsize=(21, 16))
     axes = axes.flatten()
     cols = []
@@ -450,6 +461,7 @@ if save:
     fig.savefig(filename)
 
 #%% test dotplot
+plt.rcParams.update({'axes.titlesize': 'medium'})
 
 #TODO use floats not integers
 # indiquer le nombre de réponses/conditions
@@ -717,9 +729,9 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
     output :
         matplotlib figure
     """
-    isi = {0: 27.8, 1: 34.7,
+    isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
-    isi_shift = isi.get(sheet, 0)
+    isi_shift = isi.get(str(sheet), 0)
     #data filtering
     # xcel = False
     if xcel:
@@ -736,8 +748,8 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
         df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
         df[col] = df[col].apply(lambda x: x if x > lat_mini else np.nan)
     # select columns
-    d0_cols = df.columns[:4]
-    d1_cols = df.columns[[0,4,5,6]]
+    # d0_cols = df.columns[:4]
+    # d1_cols = df.columns[[0,4,5,6]]
     
     cols = ['layers', 'on_d0_sc_25', 'on_d0_sc_150', 'on_d1_sc_150']
     
@@ -761,6 +773,7 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
         if col == 'on_d0_sc_150':
             y += isi_shift
             label += '_shifted'
+            print('shifted {} by {} msec'.format(col, isi_shift))
         ax.plot(y, x, '.', 
                 color=colors[i], alpha=0.7, ms=10, label=label)
         meds = df.groupby('layers')[col].median()
@@ -774,8 +787,9 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
             ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i],
                     va='bottom', ha='right', transform=ax.transAxes)
 
-    for d in depths:
-        ax.axhline(d, color='tab:grey', alpha=0.5)
+    # for d in depths:
+    #     ax.axhline(d, color='tab:grey', alpha=0.5)
+    ax.axhspan(depths[1], depths[2], color='tab:grey', alpha=0.4)
 
     ax.legend(loc='upper right')
     ax.set_xlim(0, 100)
