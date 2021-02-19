@@ -66,7 +66,7 @@ paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 def load_csv_latencies(filename):
     """
     load the csv file containing the latencies
-    
+
     """
 
     # blocs de 3 3 stim = une vitesse
@@ -124,7 +124,7 @@ def load_csv_latencies(filename):
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]
     sigs = [_ for _ in cols if _.startswith('sig')]
-   
+
     # on names
     new = []
     maxi = len(ons) - 1
@@ -303,8 +303,6 @@ def clean_df(df, mult=3):
                 mad = ser.mad()
                 if (len(ser.loc[ser > (med + mult * mad)]) > 0) or \
                     len(ser.loc[ser < (med - mult * mad)]) > 0:
-                        # print('_' * 10)
-                        # print(ser.name)
                     num = len(ser.loc[ser > (med + 3 * mad)])
                     num += len(ser.loc[ser < (med - 3 * mad)])
                     print ('{:.0f} values to remove for {:s}'.format(num, ser.name))
@@ -687,7 +685,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_latencies',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} , data <-> sheet {} : {}'.format(date, 
+        txt = '{} , data <-> sheet {} : {}'.format(date,
                                                  '_'.join(str(sheet).split('_')[:3]),
                                                  params.get(sheet, ''))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
@@ -750,9 +748,9 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
     # select columns
     # d0_cols = df.columns[:4]
     # d1_cols = df.columns[[0,4,5,6]]
-    
+
     cols = ['layers', 'on_d0_sc_25', 'on_d0_sc_150', 'on_d1_sc_150']
-    
+
     # layer depths limits
     d = 0
     depths = []
@@ -761,7 +759,7 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
         depths.append(d)
     depths.insert(0, 0)
     depths.append(df.index.max())
-    
+
     colors = ['tab:red', 'tab:orange', 'tab:green']
 
     fig = plt.figure()
@@ -774,7 +772,7 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
             y += isi_shift
             label += '_shifted'
             print('shifted {} by {} msec'.format(col, isi_shift))
-        ax.plot(y, x, '.', 
+        ax.plot(y, x, '.',
                 color=colors[i], alpha=0.7, ms=10, label=label)
         meds = df.groupby('layers')[col].median()
         mads = df.groupby('layers')[col].mad()
@@ -807,7 +805,7 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=True)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_latencies_bis',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} , data <-> sheet {} : {}'.format(date, 
+        txt = '{} , data <-> sheet {} : {}'.format(date,
                                                  '_'.join(str(sheet).split('_')[:3]),
                                                  params.get(sheet, ''))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
@@ -871,30 +869,30 @@ def plot_d1_d0_low(datadf, sheet, high=False):
         depths.append(d)
     depths.insert(0, 0)
     depths.append(datadf.index.max())
-    
+
     # plot intervals:
     def add_conf_interval(ax, data, kind='med'):
-            med = data.median()
-            mad = data.mad()
-            ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
-            ax.axhline(med + 2*mad, color='tab:blue',
-                       linewidth=2, linestyle=':', alpha=0.7)
-            ax.axhline(med - 2*mad, color='tab:blue',
-                       linewidth=2, linestyle=':', alpha=0.7)
-            txt = '{:.0f}±{:.0f}'.format(med, mad)
-            ax.text(ax.get_xlim()[1], med, txt, 
-                    va='bottom', ha='right', color='tab:blue')
-            ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
-                    va='bottom', ha='right', color='tab:blue')
-            
-    def add_regress(ax, data):
-            slope, intercept = np.polyfit(data[cols[0]], data[cols[1]], 1)
-            xs = (data[cols[0]].min(),
-                  data[cols[0]].max())
-            fxs = (intercept + slope * data[cols[0]].min(),
-                   intercept + slope * subdf[cols[0]].max())
-            ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
+        # add med ± 2mad lines to the ax
+        med = data.median()
+        mad = data.mad()
+        ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+        ax.axhline(med + 2*mad, color='tab:blue',
+                   linewidth=2, linestyle=':', alpha=0.7)
+        ax.axhline(med - 2*mad, color='tab:blue',
+                   linewidth=2, linestyle=':', alpha=0.7)
+        txt = '{:.0f}±{:.0f}'.format(med, mad)
+        ax.text(ax.get_xlim()[1], med, txt,
+                va='bottom', ha='right', color='tab:blue')
+        ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
+                va='bottom', ha='right', color='tab:blue')
 
+    def add_regress(ax, data):
+        # add linear degression to the ax
+        slope, intercept = np.polyfit(data[cols[0]], data[cols[1]], 1)
+        xs = (data[cols[0]].min(), data[cols[0]].max())
+        fxs = (intercept + slope * data[cols[0]].min(),
+               intercept + slope * subdf[cols[0]].max())
+        ax.plot(xs, fxs, color='tab:red', linewidth=2, alpha=0.8)
 
     # latencies
     select = ['layers', 'on_d0_0c_25', 'on_d1_s0_25']
@@ -914,10 +912,14 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     # fig = plt.figure(figsize=(10, 12))
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 12))
     axes = axes.flatten()
-    fig.suptitle('manip {}   (med ± mad values)'.format(sheet))
+    txt = 'manip {}   (med ± mad values)'.format(sheet)
+    if high:
+        txt = '{}   NB high speed is shifted by one ISI ({} msec)'.format(txt, isi_shift)
+    fig.suptitle(txt)
 
     # d1 vs do
     ax = axes[0]
+    ax.set_title('scatter')
     subdf = df[[select[1], select[2]]].dropna()
     cols = subdf.columns
     ax.scatter(subdf[cols[0]], subdf[cols[1]],
@@ -925,13 +927,13 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     med, mad = subdf[cols[0]].median(), subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(med, subdf.max().max(), txt, 
+    ax.text(med, subdf.max().max(), txt,
             va='top', ha='center', color='tab:blue')
     med = subdf[cols[1]].median()
     mad = subdf[cols[1]].mad()
     ax.axhspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(subdf.max().max(), med , txt, 
+    ax.text(subdf.max().max(), med , txt,
             va='center', ha='right', color='tab:blue')
     # toto  use floor and ceil
     lims = (floor(subdf.min().min()/5)*5, ceil(subdf.max().max()/5)*5)
@@ -940,19 +942,22 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     ax.plot(lims, lims)
     # regress
     add_regress(ax, subdf)
-
-    ax.set_xlabel('_'.join(cols[0].split('_')[1:]))
-    ax.set_ylabel('_'.join(cols[1].split('_')[1:]))
+    txt = '_'.join(cols[0].split('_')[1:])
+    ax.set_xlabel(txt)
+    txt = '_'.join(cols[1].split('_')[1:])
+    if high:
+        txt = '{} + {} msec'.format(txt, isi_shift)
+    ax.set_ylabel(txt)
 
     # diff vs depth
     ax = axes[1]
+    ax.set_title('diff / depth')
     subdf = (df[select[2]] - df[select[1]]).dropna()
     subdf = subdf.reset_index()
     cols = subdf.columns
     ax.plot(subdf[cols[0]], subdf[cols[1]], 'o', alpha=0.8, ms=10, color='tab:blue')
     # ax.plot(subdf, 'o', alpha=0.8, ms=10, color='tab:blue')
     add_conf_interval(ax, subdf[cols[1]])
-
     # layers
     ax.axvspan(depths[1], depths[2], color='tab:grey', alpha=0.3)
     txt = 'layer IV'
@@ -961,13 +966,17 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     ax.set_xlabel('depth (electrode nb)')
     # regress
     add_regress(ax, subdf)
-
     # labels
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
+    if high:
+        txt = '{} - {}'.format(
+            '_'.join(select[2].split('_')[2:]),
+            '_'.join(select[1].split('_')[2:]))
     ax.set_ylabel(txt)
 
     # diff/ref
     ax = axes[2]
+    ax.set_title('diff / ref')
     subdf = pd.DataFrame(df[select[1]].copy())
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
     subdf[txt] = df[select[2]]-df[select[1]]
@@ -979,24 +988,23 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(med, ax.get_ylim()[1], txt, 
+    ax.text(med, ax.get_ylim()[1], txt,
             va='top', ha='center', color='tab:blue')
- 
     add_conf_interval(ax, subdf[cols[1]])
-    
     # labels
-    ax.set_ylabel('{}'.format(cols[1]))
+    txt = '{}'.format(cols[1])
+    if high:
+        txt = '{} - {}'.format(
+            '_'.join(select[2].split('_')[2:]),
+            '_'.join(select[1].split('_')[2:]))
+    ax.set_ylabel(txt)
     ax.set_xlabel('{}'.format(cols[0]))
-    txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(ax.get_xlim()[1], med, txt, 
-            va='bottom', ha='right', color='tab:blue')
-    ax.text(ax.get_xlim()[1], med + 2*mad, 'med+2*mad',
-            va='bottom', ha='right', color='tab:blue')
-    # regress
+     # regress
     add_regress(ax, subdf)
 
     # diff/mean
     ax = axes[3]
+    ax.set_title('diff / mean')
     subdf = pd.DataFrame(df[select[2]] - df[select[1]]).dropna()
     txt = '{}-{}'.format(select[2].split('_')[1:][0], select[1].split('_')[1:][0])
     subdf.columns= [txt]
@@ -1008,12 +1016,17 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     mad = subdf[cols[0]].mad()
     ax.axvspan(med-mad, med+mad, color='tab:blue', alpha=0.3)
     txt = '{:.0f}±{:.0f}'.format(med, mad)
-    ax.text(med, ax.get_ylim()[1], txt, 
+    ax.text(med, ax.get_ylim()[1], txt,
             va='top', ha='center', color='tab:blue')
-    
+
     add_conf_interval(ax, subdf[cols[1]])
     ax.set_xlabel('{} (d0 d1)'.format(cols[0]))
-    ax.set_ylabel(cols[1])
+    txt = cols[1]
+    if high:
+        txt = '{} - {}'.format(
+            '_'.join(select[2].split('_')[2:]),
+            '_'.join(select[1].split('_')[2:]))
+    ax.set_ylabel(txt)
     # regress
     add_regress(ax, subdf)
 
@@ -1036,8 +1049,8 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     return fig
 
 
-plt.close('all')
-high = False
+# plt.close('all')
+high = True
 for sheet in range(2):
     # sheet = 1
     print(sheet)
@@ -1045,7 +1058,7 @@ for sheet in range(2):
     data_df = clean_df(data_df, mult=4)
     fig = plot_d1_d0_low(data_df, sheet, high)
 
-    save = False
+    save = True
     if save:
         sheet = str(sheet)
         if high:
