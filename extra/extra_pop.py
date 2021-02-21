@@ -457,11 +457,12 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
-    
-#%%
-def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet):
 
-    datadf = data_df.copy() 
+#%%
+def plot_on_histo(datadf, removemax=True, sheet= sheet,
+                  diff=False, shift=False, hh=False):
+
+    datadf = data_df.copy()
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
@@ -475,13 +476,15 @@ def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet)
         for col in datadf.columns:
             if data_df[col].dtypes == float:
                 datadf[col] = datadf[col].apply(
-                    lambda x : x if x < 100 else np.nan)        
+                    lambda x : x if x < 100 else np.nan)
+    if hh:
+        ons = hhtimes
     # plotting
-    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12), 
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
                              sharex=True, sharey=True)
     txt = '{} {}'.format(params.get(sheet, sheet), 'on latencies')
     if diff:
-        txt = '{} ({})'.format(txt, 'centerOnly - cond')
+        txt = '{} ({})'.format(txt, 'cond - centerOnly')
     if shift:
         txt = '{} ({})'.format(txt, 'on_d0_sc_150 shifted')
     fig.suptitle(txt)
@@ -492,14 +495,14 @@ def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet)
     mad = datadf[ons[0]].mad()
     maxi = 0
     for i, col in enumerate(ons):
-        ax = axes[i]    
+        ax = axes[i]
         if diff:
-            ser = (datadf[col] - datadf[ons[0]]).dropna()
+            ser = (datadf[ons[0]] - datadf[col]).dropna()
             med = ser.median()
             mad = ser.mad()
             ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
             ax.axvline(med, color=colors[i], alpha=0.5, linewidth=2)
-        else : 
+        else :
             ser = datadf[col].dropna()
             ax.axvspan(med - mad, med+mad, color='tab:blue', alpha=0.3)
             ax.axvline(med, color='tab:blue', alpha=0.5, linewidth=2)
@@ -510,16 +513,19 @@ def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet)
         maxi = max(0, max(np.histogram(ser, bins=20)[0]))
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
+    for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
     if diff:
         ax.set_ylim(0, maxi)
-    
+        for ax in axes:
+            ax.axvline(0, color='tab:blue', linewidth=2)
+
     for i in [0,3]:
         axes[i].set_ylabel('nb of electrodes')
     for i in [3,4,5]:
         axes[i].set_xlabel('time')
-    
+
     if anot:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
         fig.text(0.5, 0.01, txt,
@@ -532,26 +538,35 @@ def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet)
     fig.tight_layout()
     return fig
 
-plt.close('all')
-diff = False
-shift = True
-
-fig = plot_on_histo(data_df, removemax=True, diff=diff, shift=shift)
-
-save = False
-if save:
+def save_fig(fig, diff=diff, shift=shift, hh=hh, sheet=sheet, paths=paths):
     sheet = str(sheet)
-    txt = 'latOn_histo_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+    txt = 'latOn_histo_' + str('_'.join(sheet.split('_')[:3]))
     if diff:
         txt += 'diff_'
     if shift:
-        txt += 'shift'
+        txt += 'shift_'
+    if hh:
+        txt += 'hh_'
     file = txt + '.pdf'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
 
+plt.close('all')
+diff = True
+shift = True
+hh = False
+# what=[True, False]
+# for diff in what:
+#     for shift in what :
+#         for hh in what:
+#             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
+#             save_fig(fig, diff, shift, hh)
+
+
+fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
+save_fig(fig, diff, shift, hh)
 
 #%% test dotplot
 plt.rcParams.update({'axes.titlesize': 'medium'})
