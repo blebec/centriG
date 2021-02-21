@@ -204,7 +204,7 @@ if csvLoad:
     data_df = load_csv_latencies(file_name)
 
 #%
-def load_latencies(sheet=0):
+def load_latencies(sheet='0'):
     """
     load the xcel file
     Parameters
@@ -216,7 +216,7 @@ def load_latencies(sheet=0):
     -------
     pandas dataframe
     """
-    sheet = ['EXP 1', 'EXP 2'][sheet]
+    sheet = ['EXP 1', 'EXP 2'][int(sheet)]
     paths['data'] = os.path.join(paths['owncFig'], 'infos_extra')
     file = 'Tableau_info_integrales_latences.xlsx'
     filename = os.path.join(paths['data'], file)
@@ -324,9 +324,9 @@ def print_global_stats(statsdf, statssigdf):
             statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
             col))
 
-params = {0 : '1319_CXLEFT',
-          1 : '2019_CXRIGHT'}
-sheet = 0
+params = {'0' : '1319_CXLEFT',
+          '1' : '2019_CXRIGHT'}
+sheet = '0'
 data_df = load_latencies(sheet)
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
@@ -457,6 +457,101 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
+    
+#%%
+def plot_on_histo(datadf, removemax=True, diff=False, shift=False, sheet= sheet):
+
+    datadf = data_df.copy() 
+    ons = [_ for _ in datadf. columns if _.startswith('on')]
+    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
+    ints = [_ for _ in datadf.columns if 'int' in _]
+    isi = {'0': 27.8, '1': 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
+    if shift:
+        datadf['on_d0_sc_150'] += isi_shift
+        # remove values of 100 <-> no detection
+    if removemax:
+        for col in datadf.columns:
+            if data_df[col].dtypes == float:
+                datadf[col] = datadf[col].apply(
+                    lambda x : x if x < 100 else np.nan)        
+    # plotting
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12), 
+                             sharex=True, sharey=True)
+    txt = '{} {}'.format(params.get(sheet, sheet), 'on latencies')
+    if diff:
+        txt = '{} ({})'.format(txt, 'centerOnly - cond')
+    if shift:
+        txt = '{} ({})'.format(txt, 'on_d0_sc_150 shifted')
+    fig.suptitle(txt)
+
+    axes = axes.flatten()
+    colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
+    med = datadf[ons[0]].median()
+    mad = datadf[ons[0]].mad()
+    maxi = 0
+    for i, col in enumerate(ons):
+        ax = axes[i]    
+        if diff:
+            ser = (datadf[col] - datadf[ons[0]]).dropna()
+            med = ser.median()
+            mad = ser.mad()
+            ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
+            ax.axvline(med, color=colors[i], alpha=0.5, linewidth=2)
+        else : 
+            ser = datadf[col].dropna()
+            ax.axvspan(med - mad, med+mad, color='tab:blue', alpha=0.3)
+            ax.axvline(med, color='tab:blue', alpha=0.5, linewidth=2)
+        # txt = '_'.join(col.split('_')[1:])
+        txt = col
+        ax.hist(ser, bins=20, color=colors[i], alpha=0.7, rwidth=0.9)
+        # scale if diff
+        maxi = max(0, max(np.histogram(ser, bins=20)[0]))
+        ax.set_title(txt)
+        ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    if diff:
+        ax.set_ylim(0, maxi)
+    
+    for i in [0,3]:
+        axes[i].set_ylabel('nb of electrodes')
+    for i in [3,4,5]:
+        axes[i].set_xlabel('time')
+    
+    if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_histo',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
+diff = False
+shift = True
+
+fig = plot_on_histo(data_df, removemax=True, diff=diff, shift=shift)
+
+save = False
+if save:
+    sheet = str(sheet)
+    txt = 'latOn_histo_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+    if diff:
+        txt += 'diff_'
+    if shift:
+        txt += 'shift'
+    file = txt + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
+
+
 
 #%% test dotplot
 plt.rcParams.update({'axes.titlesize': 'medium'})
@@ -698,7 +793,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
 
 new = False
 if new :
-    sheet = 1
+    sheet = '1'
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
 
