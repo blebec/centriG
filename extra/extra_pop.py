@@ -15,6 +15,7 @@ from math import floor, ceil
 # import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 import statsmodels.api as sm
@@ -462,20 +463,20 @@ if save:
 def plot_on_histo(datadf, removemax=True, sheet= sheet,
                   diff=False, shift=False, hh=False):
 
-    datadf = data_df.copy()
-    ons = [_ for _ in datadf. columns if _.startswith('on')]
-    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
-    ints = [_ for _ in datadf.columns if 'int' in _]
+    df = datadf.copy()
+    ons = [_ for _ in df. columns if _.startswith('on')]
+    hhtimes = [_ for _ in df.columns if 'hhtime' in _]
+    ints = [_ for _ in df.columns if 'int' in _]
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
     if shift:
-        datadf['on_d0_sc_150'] += isi_shift
+        df['on_d0_sc_150'] += isi_shift
         # remove values of 100 <-> no detection
     if removemax:
-        for col in datadf.columns:
-            if data_df[col].dtypes == float:
-                datadf[col] = datadf[col].apply(
+        for col in df.columns:
+            if df[col].dtypes == float:
+                df[col] = df[col].apply(
                     lambda x : x if x < 100 else np.nan)
     if hh:
         ons = hhtimes
@@ -491,19 +492,19 @@ def plot_on_histo(datadf, removemax=True, sheet= sheet,
 
     axes = axes.flatten()
     colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
-    med = datadf[ons[0]].median()
-    mad = datadf[ons[0]].mad()
+    med = df[ons[0]].median()
+    mad = df[ons[0]].mad()
     maxi = 0
     for i, col in enumerate(ons):
         ax = axes[i]
         if diff:
-            ser = (datadf[ons[0]] - datadf[col]).dropna()
+            ser = (df[ons[0]] - df[col]).dropna()
             med = ser.median()
             mad = ser.mad()
             ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
             ax.axvline(med, color=colors[i], alpha=0.5, linewidth=2)
         else :
-            ser = datadf[col].dropna()
+            ser = df[col].dropna()
             ax.axvspan(med - mad, med+mad, color='tab:blue', alpha=0.3)
             ax.axvline(med, color='tab:blue', alpha=0.5, linewidth=2)
         # txt = '_'.join(col.split('_')[1:])
@@ -554,9 +555,9 @@ def save_fig(fig, diff=diff, shift=shift, hh=hh, sheet=sheet, paths=paths):
 
 
 plt.close('all')
-diff = True
-shift = True
-hh = False
+# diff = True
+# shift = True
+# hh = False
 # what=[True, False]
 # for diff in what:
 #     for shift in what :
@@ -565,36 +566,37 @@ hh = False
 #             save_fig(fig, diff, shift, hh)
 
 
-fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
-save_fig(fig, diff, shift, hh)
+fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
+
+# save_fig(fig, diff, shift, hh)
 
 #%% scatter individuals
 def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                   diff=False, shift=False, hh=False):
 
-    # datadf = data_df.copy()
+    df = datadf.copy()
     # layer depths limits
     d = 0
     depths = []
-    for _ in datadf.layers.value_counts().values[:-1]:
+    for _ in df.layers.value_counts().values[:-1]:
         d += _
         depths.append(d)
     depths.insert(0, 0)
-    depths.append(datadf.index.max())
+    depths.append(df.index.max())
 
-    ons = [_ for _ in datadf. columns if _.startswith('on')]
-    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
-    ints = [_ for _ in datadf.columns if 'int' in _]
+    ons = [_ for _ in df. columns if _.startswith('on')]
+    hhtimes = [_ for _ in df.columns if 'hhtime' in _]
+    ints = [_ for _ in df.columns if 'int' in _]
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
     if shift:
-        datadf['on_d0_sc_150'] += isi_shift
-        # remove values of 100 <-> no detection
+        df['on_d0_sc_150'] += isi_shift
+    # remove values of 100 <-> no detection
     if removemax:
-        for col in datadf.columns:
-            if data_df[col].dtypes == float:
-                datadf[col] = datadf[col].apply(
+        for col in df.columns:
+            if df[col].dtypes == float:
+                df[col] = df[col].apply(
                     lambda x : x if x < 100 else np.nan)
     if hh:
         ons = hhtimes
@@ -610,45 +612,48 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
 
     axes = axes.flatten()
     colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
-    ref_med = datadf[ons[0]].median()
-    ref_mad = datadf[ons[0]].mad()
+    ref_med = df[ons[0]].median()
+    ref_mad = df[ons[0]].mad()
 
-    ref_meds = datadf.groupby('layers')[ons[0]].median()
-    ref_mads = datadf.groupby('layers')[ons[0]].mad()
+    ref_meds = df.groupby('layers')[ons[0]].median()
+    ref_mads = df.groupby('layers')[ons[0]].mad()
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
         ax.axhspan(depths[1], depths[2], color='tab:grey', alpha=0.2)
         if diff:
-            ser = (datadf[ons[0]] - datadf[col]).dropna()
+            ser = (df[ons[0]] - df[col]).dropna()
         else :
-            ser = datadf[col].dropna()
+            ser = df[col].dropna()
             # refs
             for j, (med, mad) in enumerate(zip(ref_meds, ref_mads)):
                 ymin = depths[j]
                 ymax = depths[j+1]
-                ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue', 
+                ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue',
                            alpha=0.5, linewidth=2)
-                ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue', 
+                ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue',
                             alpha=0.5, linewidth=2, linestyle=':')
-                ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue', 
+                ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue',
                             alpha=0.5, linewidth=2, linestyle=':')
         # intervals
         for j in range(len(depths[:-1])):
             ymin, ymax = depths[j], depths[j+1]
             med = ser.loc[ymin:ymax].median()
             mad = ser.loc[ymin:ymax].mad()
-            ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i], 
+            ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i],
                       alpha=0.5, linewidth=2)
             ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
                       color=colors[i], alpha=0.3, linewidth=0.5))
         txt = col
+        # print('_')
+        # print(col)
+        # print(ser.values)
         ax.scatter(ser.values, ser.index, color=colors[i], alpha=0.7)
         # scale if diff
         # maxi = max(0, max(np.histogram(ser, bins=20)[0]))
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
-    
+
     ax.set_ylim(ax.get_ylim()[::-1])
     for ax in axes:
         for spine in ['top', 'right']:
@@ -667,17 +672,43 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_histo',
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_scatter',
                  ha='right', va='bottom', alpha=0.4)
         txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 
-plt.close('all')
+def save_scatter(fig, diff=diff, shift=shift, hh=hh, sheet=sheet, paths=paths):
+    sheet = str(sheet)
+    txt = 'latOn_scatter_' + str('_'.join(sheet.split('_')[:3]))
+    if diff:
+        txt += 'diff_'
+    if shift:
+        txt += 'shift_'
+    if hh:
+        txt += 'hh_'
+    file = txt + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
 
-fig = plot_on_scatter(data_df, removemax=True, sheet=sheet,
-                      diff=False, shift=False, hh=False)
+
+plt.close('all')
+# diff = True
+# shift = True
+# hh = False
+# what=[True, False]
+# for diff in what:
+#     for shift in what :
+#         for hh in what:
+#             fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh, 
+#                                   removemax=True)
+            # save_scatter(fig, diff, shift, hh)
+
+
+fig = plot_on_scatter(data_df, diff=False, shift=True, hh=False, removemax=True)
+
 
 #%% test dotplot
 plt.rcParams.update({'axes.titlesize': 'medium'})
@@ -919,7 +950,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
 
 new = False
 if new :
-    sheet = '1'
+    sheet = '0'
     data_df = load_latencies(sheet)
     data_df = clean_df(data_df, mult=4)
 
