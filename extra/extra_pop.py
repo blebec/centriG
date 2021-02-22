@@ -615,18 +615,12 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
 
     ref_meds = datadf.groupby('layers')[ons[0]].median()
     ref_mads = datadf.groupby('layers')[ons[0]].mad()
-
-    maxi = 0
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
         ax.axhspan(depths[1], depths[2], color='tab:grey', alpha=0.2)
         if diff:
             ser = (datadf[ons[0]] - datadf[col]).dropna()
-            med = ser.median()
-            mad = ser.mad()
-            ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
-            ax.axvline(med, color=colors[i], alpha=0.5, linewidth=2)
         else :
             ser = datadf[col].dropna()
             # refs
@@ -639,17 +633,15 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                             alpha=0.5, linewidth=2, linestyle=':')
                 ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue', 
                             alpha=0.5, linewidth=2, linestyle=':')
-            # intervals
-            meds = datadf.groupby('layers')[col].median()
-            mads = datadf.groupby('layers')[col].mad()
-            for j, (med, mad) in enumerate(zip(meds, mads)):
-                ymin = depths[j]
-                ymax = depths[j+1]
-                ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i], 
-                           alpha=0.5, linewidth=2)
-                ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
-                          color=colors[i], alpha=0.3, linewidth=0.5))
-        # txt = '_'.join(col.split('_')[1:])
+        # intervals
+        for j in range(len(depths[:-1])):
+            ymin, ymax = depths[j], depths[j+1]
+            med = ser.loc[ymin:ymax].median()
+            mad = ser.loc[ymin:ymax].mad()
+            ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i], 
+                      alpha=0.5, linewidth=2)
+            ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
+                      color=colors[i], alpha=0.3, linewidth=0.5))
         txt = col
         ax.scatter(ser.values, ser.index, color=colors[i], alpha=0.7)
         # scale if diff
@@ -661,10 +653,9 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-    # if diff:
-    #     ax.set_ylim(0, maxi)
-    #     for ax in axes:
-    #         ax.axvline(0, color='tab:blue', linewidth=2)
+    if diff:
+        for ax in axes:
+            ax.axvline(0, color='tab:blue', linewidth=2)
 
     for i in [0,3]:
         axes[i].set_ylabel('electrode (depth)')
