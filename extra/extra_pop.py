@@ -568,6 +568,126 @@ hh = False
 fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
 save_fig(fig, diff, shift, hh)
 
+#%% scatter individuals
+def plot_on_scatter(datadf, removemax=True, sheet=sheet,
+                  diff=False, shift=False, hh=False):
+
+    # datadf = data_df.copy()
+    # layer depths limits
+    d = 0
+    depths = []
+    for _ in datadf.layers.value_counts().values[:-1]:
+        d += _
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(datadf.index.max())
+
+    ons = [_ for _ in datadf. columns if _.startswith('on')]
+    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
+    ints = [_ for _ in datadf.columns if 'int' in _]
+    isi = {'0': 27.8, '1': 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+    isi_shift = isi.get(sheet, 0)
+    if shift:
+        datadf['on_d0_sc_150'] += isi_shift
+        # remove values of 100 <-> no detection
+    if removemax:
+        for col in datadf.columns:
+            if data_df[col].dtypes == float:
+                datadf[col] = datadf[col].apply(
+                    lambda x : x if x < 100 else np.nan)
+    if hh:
+        ons = hhtimes
+    # plotting
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
+                             sharex=True, sharey=True)
+    txt = '{} {}'.format(params.get(sheet, sheet), 'on latencies')
+    if diff:
+        txt = '{} ({})'.format(txt, 'cond - centerOnly')
+    if shift:
+        txt = '{} ({})'.format(txt, 'on_d0_sc_150 shifted')
+    fig.suptitle(txt)
+
+    axes = axes.flatten()
+    colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
+    ref_med = datadf[ons[0]].median()
+    ref_mad = datadf[ons[0]].mad()
+
+    ref_meds = datadf.groupby('layers')[ons[0]].median()
+    ref_mads = datadf.groupby('layers')[ons[0]].mad()
+
+    maxi = 0
+    for i, col in enumerate(ons):
+        ax = axes[i]
+        #layers
+        ax.axhspan(depths[1], depths[2], color='tab:grey', alpha=0.2)
+        if diff:
+            ser = (datadf[ons[0]] - datadf[col]).dropna()
+            med = ser.median()
+            mad = ser.mad()
+            ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
+            ax.axvline(med, color=colors[i], alpha=0.5, linewidth=2)
+        else :
+            ser = datadf[col].dropna()
+            # refs
+            for j, (med, mad) in enumerate(zip(ref_meds, ref_mads)):
+                ymin = depths[j]
+                ymax = depths[j+1]
+                ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue', 
+                           alpha=0.5, linewidth=2)
+                ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue', 
+                            alpha=0.5, linewidth=2, linestyle=':')
+                ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue', 
+                            alpha=0.5, linewidth=2, linestyle=':')
+            # intervals
+            meds = datadf.groupby('layers')[col].median()
+            mads = datadf.groupby('layers')[col].mad()
+            for j, (med, mad) in enumerate(zip(meds, mads)):
+                ymin = depths[j]
+                ymax = depths[j+1]
+                ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i], 
+                           alpha=0.5, linewidth=2)
+                ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
+                          color=colors[i], alpha=0.3, linewidth=0.5))
+        # txt = '_'.join(col.split('_')[1:])
+        txt = col
+        ax.scatter(ser.values, ser.index, color=colors[i], alpha=0.7)
+        # scale if diff
+        # maxi = max(0, max(np.histogram(ser, bins=20)[0]))
+        ax.set_title(txt)
+        ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
+    
+    ax.set_ylim(ax.get_ylim()[::-1])
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    # if diff:
+    #     ax.set_ylim(0, maxi)
+    #     for ax in axes:
+    #         ax.axvline(0, color='tab:blue', linewidth=2)
+
+    for i in [0,3]:
+        axes[i].set_ylabel('electrode (depth)')
+    for i in [3,4,5]:
+        axes[i].set_xlabel('time')
+
+    if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_histo',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
+
+fig = plot_on_scatter(data_df, removemax=True, sheet=sheet,
+                      diff=False, shift=False, hh=False)
+
 #%% test dotplot
 plt.rcParams.update({'axes.titlesize': 'medium'})
 
