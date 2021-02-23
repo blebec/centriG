@@ -282,6 +282,8 @@ def load_latencies(sheet='0'):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     df.int_d0 = df.int_d0.astype(float)
     df.significancy = (df.significancy/10).astype(bool)
+    data_df.rf_bigger_than_stim = data_df.rf_bigger_than_stim.apply(
+        lambda x: False if x=='NO' else True)
     return df
 
 
@@ -327,8 +329,12 @@ def print_global_stats(statsdf, statssigdf):
 
 params = {'0' : '1319_CXLEFT',
           '1' : '2019_CXRIGHT'}
-sheet = '0'
+sheet = '1'
 data_df = load_latencies(sheet)
+# stat
+data_df = data_df[data_df.significancy]
+data_df = data_df[data_df.significancy]
+# clean
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
 stats_df_sig = data_df[data_df.significancy].describe()
@@ -539,7 +545,7 @@ def plot_on_histo(datadf, removemax=True, sheet= sheet,
     fig.tight_layout()
     return fig
 
-def save_fig(fig, diff=diff, shift=shift, hh=hh, sheet=sheet, paths=paths):
+def save_fig(fig, diff, shift, hh, sheet, paths):
     sheet = str(sheet)
     txt = 'latOn_histo_' + str('_'.join(sheet.split('_')[:3]))
     if diff:
@@ -565,7 +571,6 @@ plt.close('all')
 #             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
 #             save_fig(fig, diff, shift, hh)
 
-
 fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
 
 # save_fig(fig, diff, shift, hh)
@@ -589,6 +594,8 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     ints = [_ for _ in df.columns if 'int' in _]
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+# TODO check (old = 27.8 & 34.7 new ? and 21 for 150°/sec
+# ? ISI + stroke duration
     isi_shift = isi.get(sheet, 0)
     if shift:
         df['on_d0_sc_150'] += isi_shift
@@ -707,7 +714,7 @@ plt.close('all')
             # save_scatter(fig, diff, shift, hh)
 
 
-fig = plot_on_scatter(data_df, diff=False, shift=True, hh=False, removemax=True)
+fig = plot_on_scatter(data_df, diff=True, shift=True, hh=False, removemax=True)
 
 
 #%% test dotplot
