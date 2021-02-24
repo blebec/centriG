@@ -282,10 +282,30 @@ def load_latencies(sheet='0'):
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     df.int_d0 = df.int_d0.astype(float)
     df.significancy = (df.significancy/10).astype(bool)
-    data_df.rf_bigger_than_stim = data_df.rf_bigger_than_stim.apply(
+    df.rf_bigger_than_stim = df.rf_bigger_than_stim.apply(
         lambda x: False if x=='NO' else True)
     return df
 
+def extract_layers(df):
+    """
+    Parameters
+    ----------
+    df : pandas dataFrame with a layer column
+    Returns
+    -------
+    dico : key = layer, value = tuple eletrode number range
+    """
+    d = 0
+    depths = []
+    for _ in df.layers.value_counts().values[:-1]:
+        d += _
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(df.index.max())
+    vals = list(zip(depths[:-1], depths[1:]))
+    keys = df.layers.unique()
+    dico = dict(zip(keys, vals))
+    return dico
 
 #% replace ± 3mad by nan
 def clean_df(df, mult=3):
@@ -329,11 +349,13 @@ def print_global_stats(statsdf, statssigdf):
 
 params = {'0' : '1319_CXLEFT',
           '1' : '2019_CXRIGHT'}
-sheet = '1'
+sheet = '0'
 data_df = load_latencies(sheet)
+layers_loc = extract_layers(data_df)
+
 # stat
 data_df = data_df[data_df.significancy]
-data_df = data_df[data_df.significancy]
+#data_df = data_df[data_df.significancy]
 # clean
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
@@ -497,7 +519,8 @@ def plot_on_histo(datadf, removemax=True, sheet= sheet,
     fig.suptitle(txt)
 
     axes = axes.flatten()
-    colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
+    colors = ('tab:blue', 'tab:red', 'tab:orange', 
+              'tab:red', 'tab:orange', 'tab:green')
     med = df[ons[0]].median()
     mad = df[ons[0]].mad()
     maxi = 0
@@ -548,12 +571,12 @@ def plot_on_histo(datadf, removemax=True, sheet= sheet,
 def save_fig(fig, diff, shift, hh, sheet, paths):
     sheet = str(sheet)
     txt = 'latOn_histo_' + str('_'.join(sheet.split('_')[:3]))
-    if diff:
-        txt += 'diff_'
-    if shift:
-        txt += 'shift_'
     if hh:
-        txt += 'hh_'
+        txt += '_hh'
+    if shift:
+        txt += '_shift'
+    if diff:
+        txt += '_diff'
     file = txt + '.pdf'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
@@ -561,15 +584,12 @@ def save_fig(fig, diff, shift, hh, sheet, paths):
 
 
 plt.close('all')
-# diff = True
-# shift = True
-# hh = False
-# what=[True, False]
-# for diff in what:
-#     for shift in what :
-#         for hh in what:
-#             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
-#             save_fig(fig, diff, shift, hh)
+what=[True, False]
+for diff in what:
+    for shift in what :
+        for hh in what:
+            fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
+            save_fig(fig, diff, shift, hh, sheet, paths)
 
 fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
 
@@ -580,15 +600,17 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                   diff=False, shift=False, hh=False):
 
     df = datadf.copy()
-    # layer depths limits
-    d = 0
-    depths = []
-    for _ in df.layers.value_counts().values[:-1]:
-        d += _
-        depths.append(d)
-    depths.insert(0, 0)
-    depths.append(df.index.max())
-
+    # # layer depths limits
+    # d = 0
+    # depths = []
+    # for _ in df.layers.value_counts().values[:-1]:
+    #     d += _
+    #     depths.append(d)
+    # depths.insert(0, 0)
+    # depths.append(df.index.max())
+    # # if no recording in deep layers
+    # if max(depths) < 64: 
+    #     depths.append(64)
     ons = [_ for _ in df. columns if _.startswith('on')]
     hhtimes = [_ for _ in df.columns if 'hhtime' in _]
     ints = [_ for _ in df.columns if 'int' in _]
@@ -603,8 +625,7 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     if removemax:
         for col in df.columns:
             if df[col].dtypes == float:
-                df[col] = df[col].apply(
-                    lambda x : x if x < 100 else np.nan)
+                df.loc[df[col] == 100, col] = np.nan
     if hh:
         ons = hhtimes
     # plotting
@@ -619,38 +640,58 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
 
     axes = axes.flatten()
     colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
+    # global stat
     ref_med = df[ons[0]].median()
     ref_mad = df[ons[0]].mad()
 
-    ref_meds = df.groupby('layers')[ons[0]].median()
-    ref_mads = df.groupby('layers')[ons[0]].mad()
+    # ref_meds = df.groupby('layers')[ons[0]].median()
+    # ref_mads = df.groupby('layers')[ons[0]].mad()
+    # layer based stat
+    layerloc = pd.DataFrame(layers_loc, index=['dmin', 'dmax']).T
+    layerloc['ref_meds'] = df.groupby('layers')[ons[0]].median()
+    layerloc['ref_mads'] = df.groupby('layers')[ons[0]].mad()
+    
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
-        ax.axhspan(depths[1], depths[2], color='tab:grey', alpha=0.2)
+        ax.axhspan(layerloc.loc['4'].dmin, layerloc.loc['4'].dmax, color='tab:grey', alpha=0.2)
         if diff:
-            ser = (df[ons[0]] - df[col]).dropna()
+            # ser = (df[ons[0]] - df[col]).dropna()
+            df['toplot'] = df[ons[0]] - df[col]
+            temp = df[['layers', 'toplot']].dropna()
         else :
-            ser = df[col].dropna()
+            # ser = df[col].dropna()
+            temp = df[['layers', col]].dropna()  
             # refs
-            for j, (med, mad) in enumerate(zip(ref_meds, ref_mads)):
-                ymin = depths[j]
-                ymax = depths[j+1]
-                ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue',
-                           alpha=0.5, linewidth=2)
-                ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue',
-                            alpha=0.5, linewidth=2, linestyle=':')
-                ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue',
-                            alpha=0.5, linewidth=2, linestyle=':')
+            # for j, (med, mad) in enumerate(zip(ref_meds, ref_mads)):
+            for j in range(len(layerloc)):
+                ymin, ymax, med, mad = layerloc.iloc[j][
+                    ['dmin', 'dmax', 'ref_meds', 'ref_mads']]
+                # ymin = depths[j]
+                # ymax = depths[j+1]
+                if med is not np.nan:
+                    ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue',
+                              alpha=0.5, linewidth=2)
+                    ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue',
+                              alpha=0.5, linewidth=2, linestyle=':')
+                    ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue',
+                              alpha=0.5, linewidth=2, linestyle=':')
         # intervals
-        for j in range(len(depths[:-1])):
-            ymin, ymax = depths[j], depths[j+1]
-            med = ser.loc[ymin:ymax].median()
-            mad = ser.loc[ymin:ymax].mad()
-            ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i],
-                      alpha=0.5, linewidth=2)
-            ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
-                      color=colors[i], alpha=0.3, linewidth=0.5))
+        # for j in range(len(depths[:-1])):
+            # ymin, ymax = depths[j], depths[j+1]
+            # med = ser.loc[ymin:ymax].median()
+            # mad = ser.loc[ymin:ymax].mad()
+        layerloc['meds'] = temp.groupby('layers').median()
+        layerloc['mads'] = temp.groupby('layers').mad()
+        for j in range(len(layerloc)):
+            ymin, ymax, med, mad = layerloc.iloc[j][
+                ['dmin', 'dmax', 'meds', 'mads']]
+            # test if values are present
+            if med is not np.nan:
+                ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i],
+                          alpha=0.5, linewidth=2)
+                ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
+                                       color=colors[i], alpha=0.3, linewidth=0.5))
         txt = col
         # print('_')
         # print(col)
@@ -661,7 +702,9 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
 
-    ax.set_ylim(ax.get_ylim()[::-1])
+    # ax.set_ylim(ax.get_ylim()[::-1])
+    ax.set_ylim(layerloc.dmax.max(), layerloc.dmin.min())
+    
     for ax in axes:
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -688,13 +731,13 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
 
 def save_scatter(fig, diff=diff, shift=shift, hh=hh, sheet=sheet, paths=paths):
     sheet = str(sheet)
-    txt = 'latOn_scatter_' + str('_'.join(sheet.split('_')[:3]))
-    if diff:
-        txt += 'diff_'
-    if shift:
-        txt += 'shift_'
+    txt = 'on_scatter_' + str('_'.join(sheet.split('_')[:3]))
     if hh:
-        txt += 'hh_'
+        txt += '_hh'
+    if shift:
+        txt += '_shift'
+    if diff:
+        txt += '_diff'
     file = txt + '.pdf'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
@@ -705,16 +748,16 @@ plt.close('all')
 # diff = True
 # shift = True
 # hh = False
-# what=[True, False]
-# for diff in what:
-#     for shift in what :
-#         for hh in what:
-#             fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh, 
-#                                   removemax=True)
-            # save_scatter(fig, diff, shift, hh)
+what=[True, False]
+for diff in what:
+    for shift in what :
+        for hh in what:
+            fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh, 
+                                  removemax=True)
+#             save_scatter(fig, diff, shift, hh)
 
 
-fig = plot_on_scatter(data_df, diff=True, shift=True, hh=False, removemax=True)
+# fig = plot_on_scatter(data_df, diff=True, shift=True, hh=False, removemax=False)
 
 
 #%% test dotplot
@@ -957,8 +1000,9 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
 
 new = False
 if new :
-    sheet = '0'
+    sheet = '1'
     data_df = load_latencies(sheet)
+    data_df = data_df[data_df.significancy]
     data_df = clean_df(data_df, mult=4)
 
 #sheet = file
