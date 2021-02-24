@@ -260,7 +260,6 @@ def load_latencies(sheet='0'):
     # cols = [_.replace('150°/s', '150') for _ in cols]
     # cols = [_.replace('(25)', '_25') for _ in cols]
 
-
         # selection = ['on_d0_0c_25', 'on_d0_sc_25', 'on_d0_sc_150',
         #         'on_d1_s0_25', 'on_d1_sc_150', 'on_d1_s0_150']
 
@@ -285,6 +284,7 @@ def load_latencies(sheet='0'):
     df.rf_bigger_than_stim = df.rf_bigger_than_stim.apply(
         lambda x: False if x=='NO' else True)
     return df
+
 
 def extract_layers(df):
     """
@@ -488,7 +488,7 @@ if save:
     fig.savefig(filename)
 
 #%%
-def plot_on_histo(datadf, removemax=True, sheet= sheet,
+def plot_on_histo(datadf, removemax=True, sheet=sheet,
                   diff=False, shift=False, hh=False):
 
     df = datadf.copy()
@@ -584,12 +584,12 @@ def save_fig(fig, diff, shift, hh, sheet, paths):
 
 
 plt.close('all')
-what=[True, False]
-for diff in what:
-    for shift in what :
-        for hh in what:
-            fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
-            save_fig(fig, diff, shift, hh, sheet, paths)
+# what=[True, False]
+# for diff in what:
+#     for shift in what :
+#         for hh in what:
+#             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
+#           #  save_fig(fig, diff, shift, hh, sheet, paths)
 
 fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
 
@@ -597,20 +597,9 @@ fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
 
 #%% scatter individuals
 def plot_on_scatter(datadf, removemax=True, sheet=sheet,
-                  diff=False, shift=False, hh=False):
+                  diff=False, shift=False, hh=False, layersloc=layers_loc):
 
     df = datadf.copy()
-    # # layer depths limits
-    # d = 0
-    # depths = []
-    # for _ in df.layers.value_counts().values[:-1]:
-    #     d += _
-    #     depths.append(d)
-    # depths.insert(0, 0)
-    # depths.append(df.index.max())
-    # # if no recording in deep layers
-    # if max(depths) < 64: 
-    #     depths.append(64)
     ons = [_ for _ in df. columns if _.startswith('on')]
     hhtimes = [_ for _ in df.columns if 'hhtime' in _]
     ints = [_ for _ in df.columns if 'int' in _]
@@ -644,17 +633,14 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     ref_med = df[ons[0]].median()
     ref_mad = df[ons[0]].mad()
 
-    # ref_meds = df.groupby('layers')[ons[0]].median()
-    # ref_mads = df.groupby('layers')[ons[0]].mad()
-    # layer based stat
-    layerloc = pd.DataFrame(layers_loc, index=['dmin', 'dmax']).T
-    layerloc['ref_meds'] = df.groupby('layers')[ons[0]].median()
-    layerloc['ref_mads'] = df.groupby('layers')[ons[0]].mad()
+    bylayer = pd.DataFrame(layersloc, index=['dmin', 'dmax']).T
+    bylayer['ref_meds'] = df.groupby('layers')[ons[0]].median()
+    bylayer['ref_mads'] = df.groupby('layers')[ons[0]].mad()
     
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
-        ax.axhspan(layerloc.loc['4'].dmin, layerloc.loc['4'].dmax, color='tab:grey', alpha=0.2)
+        ax.axhspan(bylayer.loc['4'].dmin, bylayer.loc['4'].dmax, color='tab:grey', alpha=0.2)
         if diff:
             # ser = (df[ons[0]] - df[col]).dropna()
             df['toplot'] = df[ons[0]] - df[col]
@@ -662,14 +648,16 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         else :
             # ser = df[col].dropna()
             temp = df[['layers', col]].dropna()  
+            df['toplot'] = df[col]
+            temp = df[['layers', 'toplot']].dropna()
             # refs
             # for j, (med, mad) in enumerate(zip(ref_meds, ref_mads)):
-            for j in range(len(layerloc)):
-                ymin, ymax, med, mad = layerloc.iloc[j][
+            for j in range(len(bylayer)):
+                ymin, ymax, med, mad = bylayer.iloc[j][
                     ['dmin', 'dmax', 'ref_meds', 'ref_mads']]
                 # ymin = depths[j]
                 # ymax = depths[j+1]
-                if med is not np.nan:
+                if not np.isnan(med):
                     ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue',
                               alpha=0.5, linewidth=2)
                     ax.vlines(med-mad, ymin=ymin, ymax=ymax, color='tab:blue',
@@ -681,29 +669,27 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
             # ymin, ymax = depths[j], depths[j+1]
             # med = ser.loc[ymin:ymax].median()
             # mad = ser.loc[ymin:ymax].mad()
-        layerloc['meds'] = temp.groupby('layers').median()
-        layerloc['mads'] = temp.groupby('layers').mad()
-        for j in range(len(layerloc)):
-            ymin, ymax, med, mad = layerloc.iloc[j][
+        bylayer['meds'] = temp.groupby('layers').median()
+        bylayer['mads'] = temp.groupby('layers').mad()
+        for j in range(len(bylayer)):
+            ymin, ymax, med, mad = bylayer.iloc[j][
                 ['dmin', 'dmax', 'meds', 'mads']]
             # test if values are present
-            if med is not np.nan:
+            if not np.isnan(med):
                 ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i],
-                          alpha=0.5, linewidth=2)
-                ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, height=(ymax - ymin),
-                                       color=colors[i], alpha=0.3, linewidth=0.5))
+                           alpha=0.5, linewidth=2)
+                ax.add_patch(Rectangle((med - mad, ymin), width=2*mad, 
+                                       height=(ymax - ymin), color=colors[i], 
+                                       alpha=0.3, linewidth=0.5))
         txt = col
-        # print('_')
-        # print(col)
-        # print(ser.values)
-        ax.scatter(ser.values, ser.index, color=colors[i], alpha=0.7)
+        ax.scatter(temp.toplot.values, temp.index, color=colors[i], alpha=0.7)
         # scale if diff
         # maxi = max(0, max(np.histogram(ser, bins=20)[0]))
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
 
     # ax.set_ylim(ax.get_ylim()[::-1])
-    ax.set_ylim(layerloc.dmax.max(), layerloc.dmin.min())
+    ax.set_ylim(bylayer.dmax.max(), bylayer.dmin.min())
     
     for ax in axes:
         for spine in ['top', 'right']:
@@ -748,16 +734,17 @@ plt.close('all')
 # diff = True
 # shift = True
 # hh = False
-what=[True, False]
-for diff in what:
-    for shift in what :
-        for hh in what:
-            fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh, 
-                                  removemax=True)
+# what=[True, False]
+# for diff in what:
+#     for shift in what :
+#         for hh in what:
+#             fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh, 
+#                                   removemax=True)
 #             save_scatter(fig, diff, shift, hh)
 
 
-# fig = plot_on_scatter(data_df, diff=True, shift=True, hh=False, removemax=False)
+fig = plot_on_scatter(data_df, diff=False, shift=True, 
+                      hh=False, removemax=False)
 
 
 #%% test dotplot
@@ -769,7 +756,8 @@ plt.rcParams.update({'axes.titlesize': 'medium'})
 # cahanger D0 par t0 = D0, t0 = D1
 
 
-def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
+def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
+                   layersloc=layers_loc):
     """
     plot the latencies
     input :
@@ -779,7 +767,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     output :
         matplotlib figure
     """
-    isi = {0: 27.8, 1: 34.7,
+    isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
     #data filtering
@@ -802,13 +790,14 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     d1_cols = df.columns[[0,4,5,6]]
 
     # layer depths limits
-    d = 0
-    depths = []
-    for _ in df.layers.value_counts().values[:-1]:
-        d += _
-        depths.append(d)
-    depths.insert(0, 0)
-    depths.append(df.index.max())
+    # d = 0
+    # depths = []
+    # for _ in df.layers.value_counts().values[:-1]:
+    #     d += _
+    #     depths.append(d)
+    # depths.insert(0, 0)
+    # depths.append(df.index.max())
+    bylayer = pd.DataFrame(layersloc, index=['dmin', 'dmax']).T
 
     # plotting
     fig = plt.figure(figsize=(15, 12))
@@ -827,30 +816,42 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     colors = ['tab:blue', 'tab:red', 'tab:orange', 'tab:green']
 
     for k, dcols in enumerate([d0_cols, d1_cols]):
-    # k=0
+    # k = 0
     # dcols = d0_cols
         ax = [ax0, ax1][k]
         vax = v0 #[v0, v1][k]
         hax = [h0, h1][k]
         for i, col in enumerate(dcols[1:]):     # drop layers column
-        # i=0
-        # col = cols[0]
+        # i = 0
+        # col = cols[i]
+            # depth / time
             x = df[col].values.tolist()     # latency value in [0, 100] msec
             y = df[col].index.tolist()      # electrodes / depths
             ax.plot(x, y, '.', color=colors[i+k], markersize=10, alpha=0.5,
                     label=col)
             # ax.axvline(cop[col].median(), color=colors[i], alpha=0.5, linewidth=3)
-            meds = df.groupby('layers')[col].median()
-            mads = df.groupby('layers')[col].mad()
-            for j, med in enumerate(meds):
-                ax.vlines(med, depths[j], depths[j+1], color=colors[i+k],
+            # meds = df.groupby('layers')[col].median()
+            # mads = df.groupby('layers')[col].mad()
+            bylayer['meds'] = df.groupby('layers')[col].median()
+            bylayer['mads'] = df.groupby('layers')[col].mad()
+            for j in range(len(bylayer)):
+                ymin, ymax, med, mad = bylayer.iloc[j][
+                    ['dmin', 'dmax', 'meds', 'mads']]
+                # test if values are present
+                if not np.isnan(med):
+                    ax.vlines(med, ymin, ymax, color=colors[i+k],
                           alpha=0.5, linewidth=3)
+            # for j, med in enumerate(meds):
+            #     ax.vlines(med, depths[j], depths[j+1], color=colors[i+k],
+            #               alpha=0.5, linewidth=3)
             ax.legend(loc='upper right')
             txt = 'med : {:.0f}±{:02.0f} ({:.0f}, {:.0f}, {:.0f})'.format(
                 df[col].median(), df[col].mad(),
-                meds.values[0], meds.values[1], meds.values[2])
+                bylayer.meds.values[0], bylayer.meds.values[1], 
+                bylayer.meds.values[2])
             ax.text(x=1, y=0.43 - i/8, s=txt, color=colors[i+k],
                     va='bottom', ha='right', transform=ax.transAxes)
+
             ## vertical histogramm
             # v_height, v_width = np.histogram(x, bins=20, range=(0,100),
             #                                  density=True)
@@ -864,21 +865,50 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
             else:
                 vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
                          linestyle=':', linewidth=3)
-            ## horizontal histogramm
-            y = [0.3*(i-1)+_ for _ in range(len(meds))]
+
+            ## horizontal histogramm (with nan not plotted)
+            # y = [0.3*(i-1)+_ for _ in range(len(bylayer))]
+            
+            bylayer['y'] = [0.3*(i-1)+_ for _ in range(len(bylayer))]
+
+            bylayer['width'] = bylayer['mads']
+            bylayer['left'] = bylayer.meds - bylayer.mads
+            y, width, left = bylayer[['y', 'width','left']].dropna().T.values.tolist()
+            hax.barh(y=y,
+                     width=width, 
+                     left=left,
+                     height=0.3, color=colors[i+k], alpha=0.4)
+            
+            bylayer['width'] = bylayer['mads']
+            bylayer['left'] = bylayer.meds
+            y, width, left = bylayer[['y', 'width','left']].dropna().T.values.tolist()
+            hax.barh(y=y,
+                     width=width, 
+                     left=left,
+                     height=0.3, color=colors[i+k], alpha=0.4)
+
+            bylayer['width'] = 1
+            bylayer['left'] = bylayer.meds
+            y, left = bylayer[['y', 'left']].dropna().T.values.tolist()
+            hax.barh(y=y,
+                     width=1, 
+                     left=left,
+                     height=0.3, color=colors[i+k], alpha=1)
+
             # histo
             # hax.barh(y=y, width=meds.values, xerr=mads.values, height=0.3,
             #          color=colors[i+k], alpha=0.4)
             # box
-            hax.barh(y=y,
-                     width=mads.values, left=(meds - mads).values,
-                     height=0.3, color=colors[i+k], alpha=0.4)
-            hax.barh(y=y,
-                     width=mads.values, left=meds.values,
-                     height=0.3, color=colors[i+k], alpha=0.4)
-            hax.barh(y=y,
-                     width=1, left=meds.values - .5,
-                     height=0.3, color=colors[i+k], alpha=1)
+            # hax.barh(y=y,
+            #          width=bylayer.mads.tolist(), 
+            #          left=(bylayer.meds - bylayer.mads).tolist(),
+            #          height=0.3, color=colors[i+k], alpha=0.4)
+            # hax.barh(y=y,
+            #          width=bylayer.mads.values, left=bylayer.meds.values,
+            #          height=0.3, color=colors[i+k], alpha=0.4)
+            # hax.barh(y=y,
+            #          width=1, left=bylayer.meds.values - .5,
+            #          height=0.3, color=colors[i+k], alpha=1)
     # shift
     col = d0_cols[3]        # 'latOn_d0_(s+c)_150°/s'
     x = (df[col] + isi_shift).values.tolist()     # latency value in [0, 100] msec
@@ -889,32 +919,41 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
                          linewidth=2, label='150°/sec_I.S.I._shifted')
     v0.legend(loc=2)
 
-    meds = df.groupby('layers')[col].median() + isi_shift
-    mads = df.groupby('layers')[col].mad()
-    y = [0.3*(2-1)+_ for _ in range(len(meds))]
+    bylayer['meds'] = df.groupby('layers')[col].median() + isi_shift
+    bylayer['mads'] = df.groupby('layers')[col].mad()
+    y = [0.3*(2-1)+_ for _ in range(len(bylayer.meds))]
+    
     h0.barh(y=y,
-           width=mads.values, left=(meds - mads).values,
-           height=0.3, color='tab:grey', alpha=0.4)
+           width=bylayer.mads.values, 
+           left=(bylayer.meds - bylayer.mads).values,
+           height=0.3, color='tab:grey', alpha=0.4
+           )
     h0.barh(y=y,
-             width=mads.values, left=meds.values,
+             width=bylayer.mads.values, left=bylayer.meds.values,
              height=0.3, color='tab:grey', alpha=0.4)
     h0.barh(y=y,
-             width=1, left=meds.values - .5,
+             width=1, left=bylayer.meds.values - .5,
              height=0.3, color='tab:grey', alpha=1)
 
-    ## plot nb of cells
-    cells = df.groupby('layers').count()
+    ## plot nb of cells (by layer -> pb if some layers are not presented)
+    # cells = df.groupby('layers').count()
+    bylayer = bylayer.join(df.groupby('layers').count())
     #cells = cells / len(df)     # normalise
     allcolors = colors[:-1] + colors[1:]
     # x = cells.columns
     alphas = [0.4, 0.6, 0.4]
     # ls = ['-']*3 + [':']*3
-    x = list(range(len(cells.columns)))
-    for i in range(len(cells))[::-1]:
-        y = cells.iloc[i].values
-        c0.bar(x=x, height=y, bottom=depths[i], alpha=alphas[i],
+    # nb of protocols
+    protocols = df.columns[1:]
+    x = list(range(len(protocols)))
+    # cells by layer
+    for i in range(len(bylayer))[::-1]:
+        y = bylayer[protocols].iloc[i].values
+        c0.bar(x=x, height=y, bottom=bylayer.iloc[i].dmin, alpha=alphas[i],
                color=allcolors, edgecolor='tab:grey')
-
+    for y in bylayer.dmin:
+        c0.axhline(y, color='tab:grey', alpha=0.4)
+    
     # references lines
     v0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
     h0.axvline(df[d0_cols[1]].median(), color='tab:blue', alpha=0.5)
@@ -924,13 +963,14 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     # scatters
     ax1.set_xlabel('msec')
     ax1.set_xlim((0, 100))
-    ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
+    # ax1.set_ylim(ax.get_ylim()[::-1])    # O=surfave, 65=deep
+    ax1.set_ylim(bylayer.dmax.max(), bylayer.dmin.min())
     for i, ax in enumerate([ax0, ax1]):
         ax.set_ylabel('depth')
         ax.set_xlabel('D{} based time (msec)'.format(i))
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-        for d in depths:
+        for d in bylayer.dmin:
             ax.axhline(d, color='tab:grey', alpha=0.5)
 
     # vertical histo/kde
@@ -950,7 +990,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
     for ax in [c0]:
         for spine in ['bottom', 'right']:
             ax.spines[spine].set_visible(False)
-        for d in depths[:-1]:
+        for d in bylayer.dmin:
             ax.axhline(d, color='tab:grey', alpha=0.5)
 
         ax.set_xticks([])
@@ -962,8 +1002,9 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False):
 
     # horizontal histo
     h0.set_title('med ± mad', color='tab:grey')
-    h0.set_ylim(h0.get_ylim()[::-1])
+#    h0.set_ylim(h0.get_ylim()[::-1])
     labels = list(df.layers.unique())
+    labels = ['2/3', '4', '5/6']
     for i, ax in enumerate([h0, h1]):
         # ax.set_xticks([])
         ax.set_yticks(range(len(labels)))
