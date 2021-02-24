@@ -88,7 +88,9 @@ def load_csv_latencies(filename):
     params.update({temp[0]: temp[1]})
     del temp, header
     
-    data_df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)    
+    df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)    
+    df = df.set_index(df.columns[0]).T
+    cols = df.columns
 
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -222,7 +224,7 @@ if csvLoad:
     
     files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv', 
              '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[0]
+    file = files[1]
     sheet=file
     file_name = os.path.join(paths['data'], file)
 
