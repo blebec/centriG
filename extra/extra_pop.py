@@ -69,6 +69,26 @@ def load_csv_latencies(filename):
     load the csv file containing the latencies
 
     """
+    # header
+    header = []
+    with open(filename, 'r') as f:
+        for i, line in enumerate(f):
+            if i > 1:
+                break
+            else:
+                header.append(line)
+    header = [_.replace('\n', '') for _ in header]
+    header[0] = header[0].split(';')    
+    header[1] = header[1].replace('speed;', 'speed:')            
+    temp = [tuple(_.split(':')) for _ in header[0]]
+    params = {a:b for a,b in temp}
+    temp = header[1].split(':')
+    temp[1] = [float(_) for _ in temp[1].split(';') if _]
+    temp[1] = [int(_) for _ in temp[1] if _]
+    params.update({temp[0]: temp[1]})
+    del temp, header
+    
+    data_df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)    
 
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -199,6 +219,10 @@ if csvLoad:
     # file = files[3]
     file = '1319_CXLEFT_TUN25_s30_csv_test.csv'
     file = '2019_CXRIGHT_TUN21_s30_csv_test.csv'
+    
+    files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv', 
+             '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
+    file = files[0]
     sheet=file
     file_name = os.path.join(paths['data'], file)
 
