@@ -69,6 +69,7 @@ def load_csv_latencies(filename):
     load the csv file containing the latencies
 
     """
+    filename = '/Users/cdesbois/ownCloud/cgFigures/data/data_extra/2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv'
     # header
     header = []
     with open(filename, 'r') as f:
@@ -79,18 +80,19 @@ def load_csv_latencies(filename):
                 header.append(line)
     header = [_.replace('\n', '') for _ in header]
     header[0] = header[0].split(';')
+    header[0] = [_.replace('total number of stim', 'nbstim') for _ in header[0]]
+    header[0] = [_.replace(' ', '') for _ in header[0]]
     header[1] = header[1].replace('speed;', 'speed:')
     temp = [tuple(_.split(':')) for _ in header[0]]
     params = {a:b for a,b in temp}
+    params['nbstim'] = int(float(params['nbstim']))
+    params['blank'] = params['blank'].lower() in ['true', 1]
     temp = header[1].split(':')
     temp[1] = [float(_) for _ in temp[1].split(';') if _]
     temp[1] = [int(_) for _ in temp[1] if _]
     params.update({temp[0]: temp[1]})
     del temp, header
 
-    df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)
-    df = df.set_index(df.columns[0]).T
-    cols = df.columns
 
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -135,7 +137,7 @@ def load_csv_latencies(filename):
         '2' : 'lfp'
         }
 
-    df = pd.read_csv(filename, sep=';', header=None)
+    df = pd.read_csv(filename, skiprows=2, sep=';', header=None)
     df = df.set_index(df.columns[0]).T
     cols = df.columns
     cols = [_.replace('_latency_PG0.VEC_PST_HALF_LATENCY_TOP_AE', '') for _ in cols]
@@ -147,6 +149,32 @@ def load_csv_latencies(filename):
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]
     sigs = [_ for _ in cols if _.startswith('sig')]
+
+    speeds = params['speed']
+    speeds = [str(_) for _ in speeds]
+    speeds = [x for three in zip(speeds,speeds,speeds) for x in three]
+    speeds.append('00')
+    speeds.append('150')
+    print('='*30)
+    print('len(speeds)={}  len(ons)={}'.format(len(speeds), len(ons)))    
+
+    stims = ['0c', 's0', 'sc'] * (len(ons)//3)
+    stims.append('00')
+    stims.append('sc')
+    print('='*30)
+    print('len(stims)={}  len(ons)={}'.format(len(stims), len(ons)))    
+    
+    times = ['d1' if _ == 's0' else 'd0' for _ in stims ]
+    times[-1] = 'd1'
+    print('='*30)
+    print('len(times)={}  len(ons)={}'.format(len(times), len(ons)))    
+    
+    protocs = ['_'.join((a,b,c)) for a,b,c in zip(times, stims, speeds)]
+
+    for i, col in enumerate(protocs,1):
+        index = cols.index('on[{}]'.format(i))
+        cols[index] = col
+
 
     # on names
     new = []
