@@ -64,12 +64,12 @@ plt.rcParams.update({
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 
 
-def load_csv_latencies(filename):
+def load_csv(filename):
     """
     load the csv file containing the latencies
 
     """
-    filename = '/Users/cdesbois/ownCloud/cgFigures/data/data_extra/2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv'
+    # filename = '/Users/cdesbois/ownCloud/cgFigures/data/data_extra/2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv'
     # header
     header = []
     with open(filename, 'r') as f:
@@ -168,55 +168,26 @@ def load_csv_latencies(filename):
     times[-1] = 'd1'
     print('='*30)
     print('len(times)={}  len(ons)={}'.format(len(times), len(ons)))    
-    
-    protocs = ['_'.join((a,b,c)) for a,b,c in zip(times, stims, speeds)]
-
+    # replace names    
+    protocs = ['_'.join(('on',a,b,c)) for a,b,c in zip(times, stims, speeds)]
     for i, col in enumerate(protocs,1):
         index = cols.index('on[{}]'.format(i))
         cols[index] = col
+    protocs = ['_'.join(('int',a,b,c)) for a,b,c in zip(times, stims, speeds)]
+    for i, col in enumerate(protocs,1):
+        index = cols.index('int[{}]'.format(i))
+        cols[index] = col
+    cols = [_.replace('sig[1]', 'significancy') for _ in cols]
 
-
-    # on names
-    new = []
-    maxi = len(ons) - 1
-    for i, item in enumerate(ons):
-        if i == maxi - 1:
-            txt = 'd0_blk'
-        elif i == maxi:
-            txt = '{}_{}'.format(on_stim[2], on_speeds[3])
-            txt = txt.replace('d0', 'd1')
-        else:
-            a, b = divmod(i, 3)
-            txt = '{}_{}'.format(on_stim[b], on_speeds[a])
-        # print('{}   {}'.format(txt, item))
-        new.append('on_' + txt)
-    ons = new
-
-    newcols = []
-    for item in [hhs, ons, ints, sigs]:
-        newcols.extend(item)
-    # for item in cols:
-    #     mes, cond = item.split('[')
-    #     if item.startswith('hh'):
-    #         a, b, c = cond.strip('[').strip(']').split(',')
-    #         txt = '{}_{}_{}'.format( stimDict.get(a, a),
-    #                                 speedDict.get(b,b),
-    #                                 spkDict.get(c, c))
-    #         newcols.append('{}_{}'.format(mes, txt))
-    #     elif item.startswith(('on', 'int')):
-    #         a = onDict.get(cond.strip(']'), cond)
-    #         txt = '{}_{}'.format(mes, a)
-    #         newcols.append(txt)
-    #     else:
-    #         newcols.append(item)
-
-    df.columns = newcols
+    df.columns = cols
     # remove the last line
     df = df.dropna()
     # normalise sig (ie 1 or 0 instead of 10 or 0)
-    if [_ for _ in df.columns if 'sig' in _ ]:
-        df[[_ for _ in df.columns if 'sig' in _ ]] /= 10
-
+    for col in df.columns:
+        if 'sig' in col:
+            print(col)
+            df[col] = df[col]/10
+            df[col] = df[col].astype(bool)
     # layers
     layers = pd.read_csv(os.path.join(os.path.dirname(filename),
                                       'layers.csv'), sep=';')
@@ -241,23 +212,6 @@ def load_csv_latencies(filename):
     df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
     return df
 
-csvLoad = False
-if csvLoad:
-    files = os.listdir(paths['data'])
-    files = [_ for _ in files if _[:4].isdigit()]
-
-    # file = files[3]
-    file = '1319_CXLEFT_TUN25_s30_csv_test.csv'
-    file = '2019_CXRIGHT_TUN21_s30_csv_test.csv'
-
-    files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
-             '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[1]
-    sheet=file
-    file_name = os.path.join(paths['data'], file)
-
-    data_df = load_csv_latencies(file_name)
-
 #%
 def load_latencies(sheet='0'):
     """
@@ -272,9 +226,9 @@ def load_latencies(sheet='0'):
     pandas dataframe
     """
     sheet = ['EXP 1', 'EXP 2'][int(sheet)]
-    paths['data'] = os.path.join(paths['owncFig'], 'infos_extra')
+    paths['xcel'] = os.path.join(paths['owncFig'], 'infos_extra')
     file = 'Tableau_info_integrales_latences.xlsx'
-    filename = os.path.join(paths['data'], file)
+    filename = os.path.join(paths['xcel'], file)
     df = pd.read_excel(filename, sheet_name=sheet, header=1)
     # adapt columns
     cols = [_.lower().strip() for _ in df.columns]
@@ -406,12 +360,25 @@ def print_global_stats(statsdf, statssigdf):
             statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
             col))
 
-params = {'0' : '1319_CXLEFT',
-          '1' : '2019_CXRIGHT'}
-sheet = '0'
-data_df = load_latencies(sheet)
-layers_loc = extract_layers(data_df)
 
+csvLoad = True
+if csvLoad:
+    paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
+    files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
+    # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
+    #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
+    file = files[1]
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
+    data_df = load_csv(file_name)
+else:
+    params = {'0' : '1319_CXLEFT',
+              '1' : '2019_CXRIGHT'}
+    sheet = '0'
+    data_df = load_latencies(sheet)
+
+
+layers_loc = extract_layers(data_df)
 # only significant part
 data_df = data_df[data_df.significancy]
 #data_df = data_df[data_df.significancy]
@@ -427,7 +394,7 @@ def plot_boxplots(datadf, removemax=True):
     stat boxplot description for latencies
     """
     ons = [_ for _ in datadf. columns if _.startswith('on')]
-    hhtimes = [_ for _ in datadf.columns if 'hhtime' in _]
+    hhs = [_ for _ in datadf.columns if 'hh' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
 
     # remove values of 100 <-> no detection
