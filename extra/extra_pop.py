@@ -92,6 +92,7 @@ def load_csv(filename):
     temp[1] = [int(_) for _ in temp[1] if _]
     params.update({temp[0]: temp[1]})
     del temp, header
+    params['file'] = os.path.basename(file_name)
 
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -120,19 +121,19 @@ def load_csv(filename):
     speeds.append('00')
     speeds.append('150')
     print('='*30)
-    print('len(speeds)={}  len(ons)={}'.format(len(speeds), len(ons)))    
+    print('len(speeds)={}  len(ons)={}'.format(len(speeds), len(ons)))
 
     stims = ['0c', 's0', 'sc'] * (len(ons)//3)
     stims.append('00')
     stims.append('sc')
     print('='*30)
-    print('len(stims)={}  len(ons)={}'.format(len(stims), len(ons)))    
-    
+    print('len(stims)={}  len(ons)={}'.format(len(stims), len(ons)))
+
     times = ['d1' if _ == 's0' else 'd0' for _ in stims ]
     times[-1] = 'd1'
     print('='*30)
-    print('len(times)={}  len(ons)={}'.format(len(times), len(ons)))    
-    # replace names    
+    print('len(times)={}  len(ons)={}'.format(len(times), len(ons)))
+    # replace names
     protocs = ['_'.join(('on',a,b,c)) for a,b,c in zip(times, stims, speeds)]
     for i, col in enumerate(protocs,1):
         index = cols.index('on[{}]'.format(i))
@@ -184,7 +185,7 @@ def load_csv(filename):
         '6' : '5/6'
         }
     df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
-    return df
+    return df, params
 
 #%
 def load_latencies(sheet='0'):
@@ -337,7 +338,6 @@ def print_global_stats(statsdf, statssigdf):
 
 csvLoad = True
 if csvLoad:
-    params={}
     paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
@@ -345,7 +345,7 @@ if csvLoad:
     file = files[1]
     sheet=file
     file_name = os.path.join(paths['data'], file)
-    data_df = load_csv(file_name)
+    data_df, params = load_csv(file_name)
 else:
     params = {'0' : '1319_CXLEFT',
               '1' : '2019_CXRIGHT'}
@@ -364,18 +364,35 @@ stats_df = data_df.describe()
 
 #%% desribe basics
 
-def plot_boxplots(datadf, removemax=True, params=params):
+def plot_boxplots(datadf, removemax=True, params=params, mes=None):
     """
     stat boxplot description for latencies
+    input:
+        datadf = pandas dataframe
+        removemax : boolean to remove values of 100 msec
+        params:  dicionary (containing the speeds used)
+        measure in [on, hh and inte], default=None ie all
     """
     ons = [_ for _ in datadf. columns if _.startswith('on')]
-    hhs = [_ for _ in datadf.columns if 'hh' in _]
-    ints = [_ for _ in datadf.columns if 'int' in _]
+    hhs = [_ for _ in datadf.columns if _.startswith('hh')]
+    ints = [_ for _ in datadf.columns if _.startswith('int')]
+    # group by stimulation
 
-
-    ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
-    hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
-    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
+    if mes is None:
+        ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
+        hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
+        ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
+        conds =  [ons, hhs, ints]
+    else:
+        dico = {'on':ons, 'hh':hhs, 'inte':ints}
+        kind = dico.get(mes, None)
+        bysim = sorted(kind, key=lambda x: x.split('_')[2])
+        #remove blank
+        for item in bysim:
+            if item.split('_')[2] == '00':
+                bysim.remove(item)
+        r = len(params['speed'])
+        conds = [bysim[:r], bysim[r:2*r], bysim[2*r:]]
 
     # remove values of 100 <-> no detection
     if removemax:
@@ -385,22 +402,15 @@ def plot_boxplots(datadf, removemax=True, params=params):
 
     fig, axes = plt.subplots(nrows=1, ncols=3)
     axes = axes.flatten()
-    for i, dats in enumerate([ons, hhs, ints]):
+
+    for i, dats in enumerate(conds):
         ax = axes[i]
+        txt = dats[0].split('_')[0]
+        ax.set_title(txt)
         for col in dats:
             if len(datadf[col].dropna()) == 0:
                 dats.remove(col)
-        ax.boxplot(datadf[dats].dropna())
-        txt = dats[0].split('_')[0]
-        if dats == ons:
-            txt = 'ons_latency'
-            labels = ['_'.join(_.split('_')[1:]) for _ in dats]
-        elif dats == hhs:
-            txt = 'hh_times'
-            labels = ['_'.join(_.split('_hhtime_lat_')[:]) for _ in dats]
-        elif dats == ints:
-            txt = 'integrals'
-            labels = ['_'.join(_.split('_')[1:]) for _ in dats]
+        ax.boxplot(datadf[dats].dropna(), meanline=True, showmeans=True)
         labels = ['_'.join(_.split('_')[1:]) for _ in dats]
         med = datadf[dats[0]].median()
         mad = datadf[dats[0]].mad()
@@ -409,7 +419,6 @@ def plot_boxplots(datadf, removemax=True, params=params):
                    linewidth=2, linestyle=':', alpha=0.7)
         ax.axhline(med - 2*mad, color='tab:blue',
                    linewidth=2, linestyle=':', alpha=0.7)
-        ax.set_title(txt)
         ax.set_xticklabels(labels, rotation=45, ha='right')
         txt = 'med ± 2*mad'
         ax.text(x=ax.get_xlim()[0], y=med  + 2* mad, s=txt,
@@ -434,7 +443,7 @@ def plot_boxplots(datadf, removemax=True, params=params):
 # start_time = time.time()
 
 plt.close('all')
-fig = plot_boxplots(data_df)
+fig = plot_boxplots(data_df, mes='on')
 # print("--- %s seconds ---" % (time.time() - start_time))
 
 save=False
@@ -520,7 +529,7 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
         cols = ons
     dats = [_ for _ in cols if 'd0' in _]
     dats += [_ for _ in cols if 'd1' in _]
-    
+
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
            '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8}
@@ -626,12 +635,12 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     df = datadf.copy()
     ons = [_ for _ in df. columns if _.startswith('on')]
     hhs = [_ for _ in df.columns if _.startswith('hh')]
-    ints = [_ for _ in df.columns if _.startswith('int')] 
+    ints = [_ for _ in df.columns if _.startswith('int')]
     # limit for csv file
     ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
     ons.remove('on_d0_0c_150')
     hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
-    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]  
+    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
     # kind of plot
     if hh:
         cols = hhs
@@ -639,9 +648,9 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         cols = ons
     dats = [_ for _ in cols if _.startswith('on_d0')]
     dats += ([_ for _ in cols if _.startswith('on_d1')])
-    
-    
-    
+
+
+
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
            '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
@@ -656,7 +665,7 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
             if df[col].dtypes == float:
                 df.loc[df[col] == 100, col] = np.nan
     if hh:
-        ons = hhtimes
+        ons = hhs
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
                              sharex=True, sharey=True)
