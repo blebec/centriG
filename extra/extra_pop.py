@@ -93,49 +93,12 @@ def load_csv(filename):
     params.update({temp[0]: temp[1]})
     del temp, header
 
-
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
     # dernière = D1 sc 150 °/C
     # avant dernière = blank
     # t0 = D1 pour s0 et dernière SC150
     # t0 = D0 pour le reste (including blank)
-
-    # on
-    on_speeds = dict(enumerate([25, 50, 100, 150, None], start=0))
-    on_stim = dict(enumerate(['d0_0c', 'd1_s0', 'd0_sc'], start=0))
-    last = {'d1_sc', 150}
-    blast = {'d0_blank'}
-    # hh
-    hh_stim = dict(enumerate(['0c', 's0', 'sc', 'spc'], start=1))
-    hh_speeds = dict(enumerate([25, 50, 100, 150, None], start=1))
-    # integral
-
-    onDict = {
-        '1' : '0c_25',
-        '2' : 's0_25',
-        '3' : 'sc_25',
-        '10' : '0c_150',
-        '11' : 's0_150',
-        '12' : 'sc_150'
-        }
-
-    stimDict = {
-        '1' : '0c',
-        '2' : 's0',
-        '3' : 'sc',
-        '4' : 'spc'
-            }
-
-    speedDict = {
-        '1' : '25',
-        '4' : '150'
-        }
-
-    spkDict = {
-        '1' : 'mua',
-        '2' : 'lfp'
-        }
 
     df = pd.read_csv(filename, skiprows=2, sep=';', header=None)
     df = df.set_index(df.columns[0]).T
@@ -144,7 +107,8 @@ def load_csv(filename):
     cols = [_.replace('set_latency_PG0.FIRST_CROSS_LIST', '') for _ in cols]
     cols = [_.replace('egral_PG0.INTEGRAL_LATENCY_LIST', '') for _ in cols]
     cols = [_.replace('nificativity_PG0.SIG_LIST_LAT', '') for _ in cols]
-
+    #______________________
+    # rename the conditions
     hhs = [_ for _ in cols if _.startswith('hh')]
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]
@@ -178,8 +142,18 @@ def load_csv(filename):
         index = cols.index('int[{}]'.format(i))
         cols[index] = col
     cols = [_.replace('sig[1]', 'significancy') for _ in cols]
-
+# TODO = to be checked
+    protocs = ['_'.join(('hh',a,b,c)) for a,b,c in zip(times, stims, speeds)]
+    protocs = protocs[:len(hhs)]        # not all teh conditions are present
+    for i, col in enumerate(protocs,1):
+        for item in cols:
+            if 'hh[' in item:
+                index = cols.index(item)
+                cols[index] = col
+                print(item)
+                break
     df.columns = cols
+
     # remove the last line
     df = df.dropna()
     # normalise sig (ie 1 or 0 instead of 10 or 0)
@@ -363,6 +337,7 @@ def print_global_stats(statsdf, statssigdf):
 
 csvLoad = True
 if csvLoad:
+    params={}
     paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
@@ -389,13 +364,18 @@ stats_df = data_df.describe()
 
 #%% desribe basics
 
-def plot_boxplots(datadf, removemax=True):
+def plot_boxplots(datadf, removemax=True, params=params):
     """
     stat boxplot description for latencies
     """
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhs = [_ for _ in datadf.columns if 'hh' in _]
     ints = [_ for _ in datadf.columns if 'int' in _]
+
+
+    ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
+    hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
+    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
 
     # remove values of 100 <-> no detection
     if removemax:
@@ -405,19 +385,23 @@ def plot_boxplots(datadf, removemax=True):
 
     fig, axes = plt.subplots(nrows=1, ncols=3)
     axes = axes.flatten()
-    for i, dats in enumerate([ons, hhtimes, ints]):
+    for i, dats in enumerate([ons, hhs, ints]):
         ax = axes[i]
+        for col in dats:
+            if len(datadf[col].dropna()) == 0:
+                dats.remove(col)
         ax.boxplot(datadf[dats].dropna())
         txt = dats[0].split('_')[0]
         if dats == ons:
             txt = 'ons_latency'
             labels = ['_'.join(_.split('_')[1:]) for _ in dats]
-        elif dats == hhtimes:
+        elif dats == hhs:
             txt = 'hh_times'
             labels = ['_'.join(_.split('_hhtime_lat_')[:]) for _ in dats]
         elif dats == ints:
             txt = 'integrals'
             labels = ['_'.join(_.split('_')[1:]) for _ in dats]
+        labels = ['_'.join(_.split('_')[1:]) for _ in dats]
         med = datadf[dats[0]].median()
         mad = datadf[dats[0]].mad()
         ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
@@ -520,11 +504,26 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
                   diff=False, shift=False, hh=False):
 
     df = datadf.copy()
+    # extract columns of interest
     ons = [_ for _ in df. columns if _.startswith('on')]
-    hhtimes = [_ for _ in df.columns if 'hhtime' in _]
+    hhs = [_ for _ in df.columns if 'hh' in _]
     ints = [_ for _ in df.columns if 'int' in _]
+    # limit for csv file
+    ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
+    ons.remove('on_d0_0c_150')
+    hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
+  #  hhs.remove('hh_d0_0c_150')
+    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
+    if hh:
+        cols = hhs
+    else:
+        cols = ons
+    dats = [_ for _ in cols if 'd0' in _]
+    dats += [_ for _ in cols if 'd1' in _]
+    
     isi = {'0': 27.8, '1': 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8}
     isi_shift = isi.get(sheet, 0)
     if shift:
         df['on_d0_sc_150'] += isi_shift
@@ -532,9 +531,7 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
     if removemax:
         for col in df.columns:
             if df[col].dtypes == float:
-                df.loc[df[col] > 100, [col]] = np.nan
-    if hh:
-        ons = hhtimes
+                df.loc[df[col] > 100, col] = np.nan
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
                              sharex=True, sharey=True)
@@ -548,13 +545,13 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
     axes = axes.flatten()
     colors = ('tab:blue', 'tab:red', 'tab:orange',
               'tab:red', 'tab:orange', 'tab:green')
-    med = df[ons[0]].median()
-    mad = df[ons[0]].mad()
+    med = df[dats[0]].median()
+    mad = df[dats[0]].mad()
     maxi = 0
-    for i, col in enumerate(ons):
+    for i, col in enumerate(dats):
         ax = axes[i]
         if diff:
-            ser = (df[ons[0]] - df[col]).dropna()
+            ser = (df[dats[0]] - df[col]).dropna()
             med = ser.median()
             mad = ser.mad()
             ax.axvspan(med - mad, med+mad, color= colors[i], alpha=0.3)
@@ -618,7 +615,7 @@ plt.close('all')
 #             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
 #           #  save_fig(fig, diff, shift, hh, sheet, paths)
 
-fig = plot_on_histo(data_df, diff=True, shift=True, hh=False, removemax=True)
+fig = plot_on_histo(data_df, diff=False, shift=False, hh=True, removemax=True)
 
 # save_fig(fig, diff, shift, hh)
 
@@ -628,10 +625,26 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
 
     df = datadf.copy()
     ons = [_ for _ in df. columns if _.startswith('on')]
-    hhtimes = [_ for _ in df.columns if 'hhtime' in _]
-    ints = [_ for _ in df.columns if 'int' in _]
+    hhs = [_ for _ in df.columns if _.startswith('hh')]
+    ints = [_ for _ in df.columns if _.startswith('int')] 
+    # limit for csv file
+    ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
+    ons.remove('on_d0_0c_150')
+    hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
+    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]  
+    # kind of plot
+    if hh:
+        cols = hhs
+    else:
+        cols = ons
+    dats = [_ for _ in cols if _.startswith('on_d0')]
+    dats += ([_ for _ in cols if _.startswith('on_d1')])
+    
+    
+    
     isi = {'0': 27.8, '1': 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
 # TODO check (old = 27.8 & 34.7 new ? and 21 for 150°/sec
 # ? ISI + stroke duration
     isi_shift = isi.get(sheet, 0)
@@ -794,7 +807,8 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
         matplotlib figure
     """
     isi = {'0': 27.8, '1': 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
     isi_shift = isi.get(sheet, 0)
     #data filtering
     # xcel = False
@@ -811,7 +825,7 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
     for col in cols:
         df.loc[df[col] > lat_maxi, col] = np.nan
         df.loc[df[col] < lat_mini, col] = np.nan
-    # select columns
+    # select columns (d0 based, d1 based)
     d0_cols = df.columns[:4]
     d1_cols = df.columns[[0,4,5,6]]
     # depth
@@ -875,14 +889,16 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
             #                                  density=True)
             # vax.bar(v_width[:-1], v_height, width=5, color=colors[i+k],
             #         align='edge', alpha=0.4)
-            kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
-            x_kde = np.linspace(0,100, 20)
-            if k == 0:
-                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
-                         linewidth=2)
-            else:
-                vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
-                         linestyle=':', linewidth=3)
+            xvals = [_ for _ in x if not np.isnan(_)]
+            if len(xvals) > 0:
+                kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
+                x_kde = np.linspace(0,100, 20)
+                if k == 0:
+                    vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
+                             linewidth=2)
+                else:
+                    vax.plot(x_kde, kde(x_kde), color=colors[i+k], alpha=0.6,
+                             linestyle=':', linewidth=3)
 
             ## horizontal histogramm (with nan not plotted)
             bylayer['y'] = [0.3*(i-1)+_ for _ in range(len(bylayer))]
