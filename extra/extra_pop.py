@@ -78,8 +78,8 @@ def load_csv_latencies(filename):
             else:
                 header.append(line)
     header = [_.replace('\n', '') for _ in header]
-    header[0] = header[0].split(';')    
-    header[1] = header[1].replace('speed;', 'speed:')            
+    header[0] = header[0].split(';')
+    header[1] = header[1].replace('speed;', 'speed:')
     temp = [tuple(_.split(':')) for _ in header[0]]
     params = {a:b for a,b in temp}
     temp = header[1].split(':')
@@ -87,8 +87,8 @@ def load_csv_latencies(filename):
     temp[1] = [int(_) for _ in temp[1] if _]
     params.update({temp[0]: temp[1]})
     del temp, header
-    
-    df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)    
+
+    df = pd.read_csv(filename, skiprows=2, sep=';', header=None).head(3)
     df = df.set_index(df.columns[0]).T
     cols = df.columns
 
@@ -221,8 +221,8 @@ if csvLoad:
     # file = files[3]
     file = '1319_CXLEFT_TUN25_s30_csv_test.csv'
     file = '2019_CXRIGHT_TUN21_s30_csv_test.csv'
-    
-    files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv', 
+
+    files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
              '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
     file = files[1]
     sheet=file
@@ -345,7 +345,7 @@ def clean_df(df, mult=3):
         count = 0
         for col in df.columns:
             if df[col].dtype != float:
-                pass
+                df.loc[df[col] == 'None', [col]] = np.nan
             else:
                 ser = df[col]
                 med = ser.median()
@@ -358,10 +358,12 @@ def clean_df(df, mult=3):
                         num, ser.name))
                     total += num
                     # print('-' * 10)
-                    df[col] = df[col].apply(
-                        lambda x: x if x > (med - 3 * mad) else np.nan)
-                    df[col] = df[col].apply(
-                        lambda x: x if x < (med + 3 * mad) else np.nan)
+                    df.loc[df[col] < (med - 3*mad), [col]] = np.nan
+                    df.loc[df[col] > (med + 3*mad), [col]] = np.nan
+                    # df[col] = df[col].apply(
+                    #     lambda x: x if x > (med - 3 * mad) else np.nan)
+                    # df[col] = df[col].apply(
+                    #     lambda x: x if x < (med + 3 * mad) else np.nan)
                     count += 1
     print('='*10)
     print ('removed {} values'.format(total))
@@ -382,13 +384,13 @@ sheet = '0'
 data_df = load_latencies(sheet)
 layers_loc = extract_layers(data_df)
 
-# stat
+# only significant part
 data_df = data_df[data_df.significancy]
 #data_df = data_df[data_df.significancy]
 # clean
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
-stats_df_sig = data_df[data_df.significancy].describe()
+# stats_df_sig = data_df[data_df.significancy].describe()
 
 #%% desribe basics
 
@@ -404,8 +406,7 @@ def plot_boxplots(datadf, removemax=True):
     if removemax:
         for col in datadf.columns:
             if data_df[col].dtypes == float:
-                datadf[col] = datadf[col].apply(
-                    lambda x : x if x < 100 else np.nan)
+                 datadf.loc[datadf[col] > 100, [col]] = np.nan
 
     fig, axes = plt.subplots(nrows=1, ncols=3)
     axes = axes.flatten()
@@ -450,9 +451,12 @@ def plot_boxplots(datadf, removemax=True):
     fig.tight_layout()
     return fig
 
+# import time
+# start_time = time.time()
 
 plt.close('all')
 fig = plot_boxplots(data_df)
+# print("--- %s seconds ---" % (time.time() - start_time))
 
 save=False
 if save:
@@ -533,8 +537,7 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
     if removemax:
         for col in df.columns:
             if df[col].dtypes == float:
-                df[col] = df[col].apply(
-                    lambda x : x if x < 100 else np.nan)
+                df.loc[df[col] > 100, [col]] = np.nan
     if hh:
         ons = hhtimes
     # plotting
@@ -811,8 +814,8 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
     df = datadf[selection].copy()
     cols = df.columns[1:]
     for col in cols:
-        df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
-        df[col] = df[col].apply(lambda x: x if x > lat_mini else np.nan)
+        df.loc[df[col] > lat_maxi, col] = np.nan
+        df.loc[df[col] < lat_mini, col] = np.nan
     # select columns
     d0_cols = df.columns[:4]
     d1_cols = df.columns[[0,4,5,6]]
@@ -1081,8 +1084,8 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet,
     df = datadf[selection].copy()
     cols = df.columns[1:]
     for col in cols:
-        df[col] = df[col].apply(lambda x: x if x < lat_maxi else np.nan)
-        df[col] = df[col].apply(lambda x: x if x > lat_mini else np.nan)
+        df.loc[df[col] > lat_maxi, col] = np.nan
+        df.loc[df[col] < lat_mini, col] = np.nan
     # select columns
     # d0_cols = df.columns[:4]
     # d1_cols = df.columns[[0,4,5,6]]
@@ -1253,9 +1256,8 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     if high:
         df['on_d0_sc_150'] = df['on_d0_sc_150'] + isi_shift
     for col in df.columns[1:]:
-        df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
-        df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
-
+        df.loc[df[col] == 100, col] = np.nan
+        df.loc[df[col] < 1, col] = np.nan
 
     # fig = plt.figure(figsize=(10, 12))
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 12))
@@ -1433,8 +1435,8 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
               'on_d1_s0_25', 'on_d0_sc_150']
     df = datadf[select].copy()
     for col in df.columns[1:]:
-        df[col] = df[col].apply(lambda x: x if x < 100 else np.nan)
-        df[col] = df[col].apply(lambda x: x if x > 1 else np.nan)
+        df.loc[df[col] == 100, col] = np.nan
+        df.loc[df[col] < 1, col] = np.nan
     if shift:
         df[select[3]] = df[select[3]] + isi_shift
     fig = plt.figure(figsize=(12,6))
