@@ -348,7 +348,7 @@ if csvLoad:
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
     #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[0]
+    file = files[1]
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = load_csv(file_name)
@@ -533,50 +533,60 @@ def plot_all_histo(df):
     """
     histograms for all the reponses
     """
-    fig, axes = plt.subplots(nrows=4, ncols=7, figsize=(21, 16))
-    axes = axes.flatten()
-    cols = []
-    for col in df.columns:
-        if df[col].dtype == 'float64':
-            cols.append(col)
-    for i, col in enumerate(cols):
-        ax = axes[i]
-        df[col].hist(bins=20, ax=ax, density=True)
-        ax.set_title(col)
-        med = df[col].median()
-        mad = df[col].mad()
-        ax.axvline(med, color='tab:orange')
-        ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom',
-                transform=ax.transAxes, size='small', color='tab:orange',
-                backgroundcolor='w')
-    for ax in fig.get_axes():
-        for spine in ['left', 'top', 'right']:
-            ax.spines[spine].set_visible(False)
-            ax.set_yticks([])
-            # q0 = df[col].quantile(q=0.02)
-            # q1 = df[col].quantile(q=0.98)
-            # ax.set_xlim(q0, q1)
-    if anot:
-        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
-        fig.text(0.5, 0.01, txt,
-                 ha='center', va='bottom', alpha=0.4)
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'extra/extra_pop/plot_all_histo',
-                 ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
-        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
-    fig.tight_layout()
-
-    return fig
+    figs = []
+    for mes in ['on', 'hh', 'int']:
+        cols = []
+        for col in df.columns:
+            if mes in col:
+                cols.append(col)
+        # cols = [st for st in df.columns is mes in st]
+        fig, axes = plt.subplots(nrows=4, ncols=5, figsize=(21, 16))
+        axes = axes.flatten()
+        # cols = []
+        # for col in df[cols]:
+        #     if df[col].dtype == 'float64':
+        #         cols.append(col)
+        for i, col in enumerate(cols):
+            ax = axes[i]
+            df[col].hist(bins=20, ax=ax, density=True)
+            ax.set_title(col)
+            med = df[col].median()
+            mad = df[col].mad()
+            ax.axvline(med, color='tab:orange')
+            ax.text(0.6, 0.6, f'{med:.1f}±{mad:.1f}', ha='left', va='bottom',
+                    transform=ax.transAxes, size='small', color='tab:orange',
+                    backgroundcolor='w')
+        for ax in fig.get_axes():
+            for spine in ['left', 'top', 'right']:
+                ax.spines[spine].set_visible(False)
+                ax.set_yticks([])
+        if anot:
+            txt = '{} ({})'.format(params.get(sheet, sheet), sheet)
+            if len(txt) > 4:
+                txt = '_'.join(txt.split('_')[:3])
+            fig.text(0.5, 0.01, txt,
+                     ha='center', va='bottom', alpha=0.4)
+            date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            fig.text(0.99, 0.01, 'extra/extra_pop/plot_all_histo',
+                     ha='right', va='bottom', alpha=0.4)
+            txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+            fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+        fig.tight_layout()
+        figs.append(fig)
+    return figs
 
 plt.close('all')
-fig = plot_all_histo(data_df)
+fig0, fig1, fig2 = plot_all_histo(data_df)
 save = False
 if save:
-    file = 'allHisto' + str(sheet) + '.pdf'
-    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    txt = str(sheet)
+    if len(txt) > 4:
+        txt = '_'.join(txt.split('_')[:3])
+    for fig, mes in zip([fig0, fig1, fig2], ['on', 'hh', 'int']):
+        file = '_'.join(['allHisto', txt, mes]) + '.pdf'
+        dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+        filename = os.path.join(dirname, file)
+        fig.savefig(filename)
 
 #%%
 def plot_on_histo(datadf, removemax=True, sheet=sheet,
@@ -595,8 +605,10 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
     ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
     if hh:
         cols = hhs
+        title = 'hh latencies'
     else:
         cols = ons
+        title = 'on latencies'
     dats = [_ for _ in cols if 'd0' in _]
     dats += [_ for _ in cols if 'd1' in _]
 
@@ -614,12 +626,11 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
                              sharex=True, sharey=True)
-    txt = '{} {}'.format(params.get(sheet, sheet), 'on latencies')
     if diff:
-        txt = '{} ({})'.format(txt, 'cond - centerOnly')
+        title = '{} ({})'.format(title, 'cond - centerOnly')
     if shift:
-        txt = '{} ({})'.format(txt, 'on_d0_sc_150 shifted')
-    fig.suptitle(txt)
+        titlet = '{} ({})'.format(title, 'on_d0_sc_150 shifted')
+    fig.suptitle(title)
 
     axes = axes.flatten()
     colors = ('tab:blue', 'tab:red', 'tab:orange',
@@ -641,7 +652,8 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
             ax.axvline(med, color='tab:blue', alpha=0.5, linewidth=2)
         # txt = '_'.join(col.split('_')[1:])
         txt = col
-        ax.hist(ser, bins=20, color=colors[i], alpha=0.7, rwidth=0.9)
+        # ax.hist(ser, bins=20, color=colors[i], alpha=0.7, rwidth=0.9)
+        ax.hist(ser, bins=range(1, 100, 2), color=colors[i], alpha=0.7, rwidth=0.9)
         # scale if diff
         maxi = max(0, max(np.histogram(ser, bins=20)[0]))
         ax.set_title(txt)
@@ -660,13 +672,15 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
         axes[i].set_xlabel('time')
 
     if anot:
-        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        txt = params.get(sheet, sheet)
+        if len(txt) > 4:
+            txt = '_'.join(txt.split('_')[:3])
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_histo',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        txt = '{}'.format(date)
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
@@ -692,7 +706,7 @@ plt.close('all')
 #     for shift in what :
 #         for hh in what:
 #             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
-#           #  save_fig(fig, diff, shift, hh, sheet, paths)
+#             save_fig(fig, diff, shift, hh, sheet, paths)
 
 fig = plot_on_histo(data_df, diff=False, shift=False, hh=True, removemax=True)
 
