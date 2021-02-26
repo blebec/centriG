@@ -428,7 +428,7 @@ plt.close('all')
 #             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
 #             save_fig(fig, diff, shift, hh, sheet, paths)
 
-fig = plot_on_histo(data_df, diff=False, shift=False, hh=False, removemax=True)
+fig = plot_on_histo(data_df, diff=True, shift=False, hh=False, removemax=True)
 
 # save_fig(fig, diff, shift, hh)
 
@@ -567,6 +567,12 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         txt = '{} ({})'.format(params.get(sheet, sheet), sheet)
         if len(sheet) > 4:
             txt = '_'.join(txt.split('_')[:3])
+        if hh:
+            txt += ' hh '
+        if shift:
+            txt += ' shift '
+        if diff:
+            txt += ' diff '
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -581,8 +587,10 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     return fig
 
 def save_scatter(fig, diff, shift, hh, sheet=sheet, paths=paths):
-    sheet = str(sheet)
-    txt = 'on_scatter_' + str('_'.join(sheet.split('_')[:3]))
+    txt  = str(sheet)
+    if len(sheet) > 4:
+        txt = '_'.join(txt.split('_')[:3])
+    txt = 'on_scatter_' + txt
     if hh:
         txt += '_hh'
     if shift:
@@ -599,17 +607,17 @@ plt.close('all')
 # diff = True
 # shift = True
 # hh = False
-# what=[True, False]
-# for diff in what:
-#     for shift in what :
-#         for hh in what:
-#             fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh,
-#                                   removemax=True)
-#             save_scatter(fig, diff, shift, hh)
+what=[True, False]
+for diff in what:
+    for shift in what :
+        for hh in what:
+            fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh,
+                                  removemax=True)
+            save_scatter(fig, diff, shift, hh)
 
 # TODO implement the shift for all speeds
-fig = plot_on_scatter(data_df, diff=False, shift=False,
-                      hh=True, removemax=True)
+# fig = plot_on_scatter(data_df, diff=False, shift=False,
+#                       hh=True, removemax=True)
 
 
 #%% test dotplot
@@ -632,8 +640,10 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
     output :
         matplotlib figure
     """
+# TODO update this shift
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8,
            '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
     isi_shift = isi.get(sheet, 0)
     #data filtering
@@ -874,20 +884,23 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
 
 new = False
 if new :
-    sheet = '0'
-    data_df = load_latencies(sheet)
-    data_df = data_df[data_df.significancy]
-    data_df = clean_df(data_df, mult=4)
-
-#sheet = file
+    file = files[0]
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
+    data_df, params = ld.load_csv(file_name)
+    data_df = data_df[data_df.sigcenter]
+    data_df = data_df[data_df['sig[2]'].astype(bool)]
+    data_df = ld.clean_df(data_df, mult=4)
 
 plt.close('all')
-fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=True)
+fig = plot_latencies(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=False)
 
 save = False
 if save:
-    sheet = str(sheet)
-    file = 'latencies_' + str('_'.join(sheet.split('_')[:3])) + '.pdf'
+    txt = str(sheet)
+    if len(sheet) > 4:
+        txt = '_'.join(sheet.split('_')[:3])
+    file = 'latencies_' + txt + '.pdf'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
@@ -895,7 +908,7 @@ if save:
 #%%  to be adpated
 
 def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet,
-                       layersloc=layers_loc, xcel=True):
+                       layersloc=layers_loc, xcel=False):
     """
     plot the latencies
     input :
@@ -905,9 +918,12 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet,
     output :
         matplotlib figure
     """
+# TODO update this shift
     isi = {'0': 27.8, '1': 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
-    isi_shift = isi.get(str(sheet), 0)
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
+    isi_shift = isi.get(sheet, 0)
     #data filtering
     # xcel = False
     if xcel:
@@ -1002,14 +1018,18 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet,
 
 plt.close('all')
 
-fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80, sheet=sheet, xcel=True)
+fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80, 
+                         sheet=sheet, xcel=False)
 
 new = False
 if new :
-    sheet = 1
-    data_df = load_latencies(sheet)
-    data_df = data_df[data_df.significancy]
-    data_df = clean_df(data_df, mult=4)
+    file = files[1]
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
+    data_df, params = ld.load_csv(file_name)
+    data_df = data_df[data_df.sigcenter]
+    data_df = data_df[data_df['sig[2]'].astype(bool)]
+    data_df = ld.clean_df(data_df, mult=4)
 
 #sheet = file
 

@@ -13,14 +13,6 @@ import numpy as np
 import pandas as pd
 
 import config
-# import fig_proposal as figp
-# import general_functions as gfunc
-# import load.load_data as ldat
-# import load.load_traces as ltra
-# import old.old_figs as ofig
-
-# import itertools
-
 
 # nb description with pandas:
 pd.options.display.max_columns = 30
@@ -63,23 +55,22 @@ def load_csv(filename):
         for i, line in enumerate(f):
             if i > 1:
                 break
-            else:
-                header.append(line)
+            header.append(line)
     header = [_.replace('\n', '') for _ in header]
     header[0] = header[0].split(';')
     header[0] = [_.replace('total number of stim', 'nbstim') for _ in header[0]]
     header[0] = [_.replace(' ', '') for _ in header[0]]
     header[1] = header[1].replace('speed;', 'speed:')
     temp = [tuple(_.split(':')) for _ in header[0]]
-    params = {a:b for a,b in temp}
-    params['nbstim'] = int(float(params['nbstim']))
-    params['blank'] = params['blank'].lower() in ['true', 1]
+    param = {a:b for a,b in temp}
+    param['nbstim'] = int(float(param['nbstim']))
+    param['blank'] = param['blank'].lower() in ['true', 1]
     temp = header[1].split(':')
     temp[1] = [float(_) for _ in temp[1].split(';') if _]
     temp[1] = [int(_) for _ in temp[1] if _]
-    params.update({temp[0]: temp[1]})
+    param.update({temp[0]: temp[1]})
     del temp, header
-    params['file'] = os.path.basename(filename)
+    param['file'] = os.path.basename(filename)
 
     # blocs de 3 3 stim = une vitesse
     # avant dernière = blanc
@@ -101,21 +92,21 @@ def load_csv(filename):
     ons = [_ for _ in cols if _.startswith('on')]
     ints = [_ for _ in cols if _.startswith('int')]
     sigs = [_ for _ in cols if _.startswith('sig')]
-
-    speeds = params['speed']
+    # speed
+    speeds = param['speed']
     speeds = [str(_) for _ in speeds]
     speeds = [x for three in zip(speeds,speeds,speeds) for x in three]
     speeds.append('00')
     speeds.append('150')
     print('='*30)
     print('len(speeds)={}  len(ons)={}'.format(len(speeds), len(ons)))
-
+    # stimulations
     stims = ['0c', 's0', 'sc'] * (len(ons)//3)
     stims.append('00')
     stims.append('sc')
     print('='*30)
     print('len(stims)={}  len(ons)={}'.format(len(stims), len(ons)))
-
+    # reference time d0 or d1
     times = ['d1' if _ == 's0' else 'd0' for _ in stims ]
     times[-1] = 'd1'
     print('='*30)
@@ -130,7 +121,7 @@ def load_csv(filename):
         index = cols.index('int[{}]'.format(i))
         cols[index] = col
     cols = [_.replace('sig[1]', 'sigcenter') for _ in cols]
-# TODO = to be checked
+    # HH measures
     protocs = ['_'.join(('hh',a,b,c)) for a,b,c in zip(times, stims, speeds)]
     protocs = protocs[:len(hhs)]        # not all teh conditions are present
     for i, col in enumerate(protocs,1):
@@ -142,7 +133,7 @@ def load_csv(filename):
                 break
     df.columns = cols
 
-    # remove the last line
+    # remove the last line (error in .csv construction)
     df = df.dropna()
     # normalise sig (ie 1 or 0 instead of 10 or 0)
     for col in df.columns:
@@ -158,7 +149,7 @@ def load_csv(filename):
     layers = pd.read_csv(os.path.join(os.path.dirname(filename),
                                       'layers.csv'), sep=';')
     layers = layers.set_index(layers.columns[0]).T
-
+    # check for filename
     cols = [_ for _ in layers.columns if _ in os.path.basename(filename)]
     if len(cols) == 1:
         col = cols[0]
@@ -176,10 +167,10 @@ def load_csv(filename):
         '6' : '5/6'
         }
     df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
-    return df, params
+    return df, param
 
-#%
-def load_latencies(sheet='0'):
+
+def load_latencies(xcelsheet='0'):
     """
     load the xcel file
     Parameters
@@ -191,7 +182,7 @@ def load_latencies(sheet='0'):
     -------
     pandas dataframe
     """
-    sheet = ['EXP 1', 'EXP 2'][int(sheet)]
+    sheet = ['EXP 1', 'EXP 2'][int(xcelsheet)]
     paths['xcel'] = os.path.join(paths['owncFig'], 'infos_extra')
     file = 'Tableau_info_integrales_latences.xlsx'
     filename = os.path.join(paths['xcel'], file)
@@ -355,4 +346,3 @@ if __name__ == '__main__':
     # clean
     data_df = clean_df(data_df, mult=4)
     stats_df = data_df.describe()
-
