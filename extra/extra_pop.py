@@ -348,7 +348,7 @@ if csvLoad:
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
     #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[1]
+    file = files[0]
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = load_csv(file_name)
@@ -362,7 +362,7 @@ else:
 layers_loc = extract_layers(data_df)
 # only significant part
 data_df = data_df[data_df.sigcenter]
-#data_df = data_df[data_df.significancy]
+data_df = data_df[data_df['sig[2]'].astype(bool)]
 # clean
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
@@ -614,22 +614,25 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
 
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
-           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv': 34.7}
     isi_shift = isi.get(sheet, 0)
     if shift:
         df['on_d0_sc_150'] += isi_shift
-        # remove values of 100 <-> no detection
+        if not hh:
+            txt = ' (& on_d0_sc_150 shifted by {} msec)'.format(isi_shift)
+            title += txt
+            
+    # remove values of 100 <-> no detection
     if removemax:
         for col in df.columns:
             if df[col].dtypes == float:
-                df.loc[df[col] > 100, col] = np.nan
+                df.loc[df[col] > 98, col] = np.nan
     # plotting
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
                              sharex=True, sharey=True)
     if diff:
         title = '{} ({})'.format(title, 'cond - centerOnly')
-    if shift:
-        titlet = '{} ({})'.format(title, 'on_d0_sc_150 shifted')
     fig.suptitle(title)
 
     axes = axes.flatten()
@@ -708,33 +711,37 @@ plt.close('all')
 #             fig = plot_on_histo(data_df, diff=diff, shift=shift, hh=hh, removemax=True)
 #             save_fig(fig, diff, shift, hh, sheet, paths)
 
-fig = plot_on_histo(data_df, diff=False, shift=False, hh=True, removemax=True)
+fig = plot_on_histo(data_df, diff=False, shift=False, hh=False, removemax=True)
 
 # save_fig(fig, diff, shift, hh)
 
 #%% scatter individuals
 def plot_on_scatter(datadf, removemax=True, sheet=sheet,
-                  diff=False, shift=False, hh=False, layersloc=layers_loc):
+                    diff=False, shift=False, hh=False, layersloc=layers_loc):
 
+    colordict = {'0c':'tab:blue', 's0':'tab:green', 'sc':'tab:red', 
+              '00': 'tab:grey'}
+    
     df = datadf.copy()
     ons = [_ for _ in df. columns if _.startswith('on')]
+    ons = ons[:-2]
     hhs = [_ for _ in df.columns if _.startswith('hh')]
     ints = [_ for _ in df.columns if _.startswith('int')]
     # limit for csv file
-    ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
-    ons.remove('on_d0_0c_150')
-    hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
-    ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
+    # ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
+    # ons.remove('on_d0_0c_150')
+    # hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
+    # ints = [_ for _ in ints if _.split('_')[-1] in ('25', '150')]
     # kind of plot
     if hh:
         cols = hhs
+        title = 'hhs'
     else:
         cols = ons
-    dats = [_ for _ in cols if _.startswith('on_d0')]
-    dats += ([_ for _ in cols if _.startswith('on_d1')])
-
-
-
+        title = 'ons'
+    # dats = [_ for _ in cols if _.startswith('on_d0')]
+    # dats += ([_ for _ in cols if _.startswith('on_d1')])
+    
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
            '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
@@ -743,25 +750,31 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     isi_shift = isi.get(sheet, 0)
     if shift:
         df['on_d0_sc_150'] += isi_shift
+        if not hh:
+            txt = ' (& on_d0_sc_150 shifted by {}'.format(isi_shift)
+            title += txt
     # remove values of 100 <-> no detection
     if removemax:
         for col in df.columns:
             if df[col].dtypes == float:
-                df.loc[df[col] == 100, col] = np.nan
+                df.loc[df[col] > 98, col] = np.nan
     if hh:
         ons = hhs
     # plotting
-    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
+    
+    
+    # fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
+    #                          sharex=True, sharey=True)
+    fig, axes = plt.subplots(nrows=ceil(len(ons)/3), ncols=3, figsize=(15,24),
                              sharex=True, sharey=True)
-    txt = '{} {}'.format(params.get(sheet, sheet), 'on latencies')
+ 
     if diff:
-        txt = '{} ({})'.format(txt, 'cond - centerOnly')
-    if shift:
-        txt = '{} ({})'.format(txt, 'on_d0_sc_150 shifted')
-    fig.suptitle(txt)
+        title = '{} ({})'.format(title, 'cond - centerOnly')
+    fig.suptitle(title)
 
     axes = axes.flatten()
-    colors = ('tab:blue', 'tab:red', 'tab:orange', 'tab:red', 'tab:orange', 'tab:green')
+    colors = ('tab:blue', 'tab:red', 'tab:orange', 
+              'tab:red', 'tab:orange', 'tab:green')
     # global stat
     ref_med = df[ons[0]].median()
     ref_mad = df[ons[0]].mad()
@@ -773,10 +786,13 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
-        ax.axhspan(bylayer.loc['4'].dmin, bylayer.loc['4'].dmax, color='tab:grey', alpha=0.2)
+        ax.axhspan(bylayer.loc['4'].dmin, bylayer.loc['4'].dmax, 
+                   color='tab:grey', alpha=0.2)
         if diff:
-            # ser = (df[ons[0]] - df[col]).dropna()
-            df['toplot'] = df[ons[0]] - df[col]
+            # one ref
+#            df['toplot'] = df[ons[0]] - df[col]
+            # one ref / speed
+            df['toplot'] = df[ons[3 * (i // 3)]] - df[col]
             temp = df[['layers', 'toplot']].dropna()
         else :
             # ser = df[col].dropna()
@@ -788,8 +804,6 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
             for j in range(len(bylayer)):
                 ymin, ymax, med, mad = bylayer.iloc[j][
                     ['dmin', 'dmax', 'ref_meds', 'ref_mads']]
-                # ymin = depths[j]
-                # ymax = depths[j+1]
                 if not np.isnan(med):
                     ax.vlines(med, ymin=ymin, ymax=ymax, color='tab:blue',
                               alpha=0.5, linewidth=2)
@@ -797,11 +811,6 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                               alpha=0.5, linewidth=2, linestyle=':')
                     ax.vlines(med+mad, ymin=ymin, ymax=ymax, color='tab:blue',
                               alpha=0.5, linewidth=2, linestyle=':')
-        # intervals
-        # for j in range(len(depths[:-1])):
-            # ymin, ymax = depths[j], depths[j+1]
-            # med = ser.loc[ymin:ymax].median()
-            # mad = ser.loc[ymin:ymax].mad()
         bylayer['meds'] = temp.groupby('layers').median()
         bylayer['mads'] = temp.groupby('layers').mad()
         for j in range(len(bylayer)):
@@ -809,15 +818,16 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                 ['dmin', 'dmax', 'meds', 'mads']]
             # test if values are present
             if not np.isnan(med):
-                ax.vlines(med, ymin=ymin, ymax=ymax, color=colors[i],
+                ax.vlines(med, ymin=ymin, ymax=ymax, 
+                          color=colordict[col.split('_')[2]],
                            alpha=0.5, linewidth=2)
                 ax.add_patch(Rectangle((med - mad, ymin), width=2*mad,
-                                       height=(ymax - ymin), color=colors[i],
+                                       height=(ymax - ymin), 
+                                       color=colordict[col.split('_')[2]],
                                        alpha=0.3, linewidth=0.5))
         txt = col
-        ax.scatter(temp.toplot.values, temp.index, color=colors[i], alpha=0.7)
-        # scale if diff
-        # maxi = max(0, max(np.histogram(ser, bins=20)[0]))
+        ax.scatter(temp.toplot.values, temp.index, 
+                   color=colordict[col.split('_')[2]], alpha=0.7)
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
 
@@ -831,21 +841,26 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         for ax in axes:
             ax.axvline(0, color='tab:blue', linewidth=2)
 
-    for i in [0,3]:
-        axes[i].set_ylabel('electrode (depth)')
-    for i in [3,4,5]:
+    for i in range(0, len(axes), 3):
+        axes[i].set_ylabel('depth')
+    for i in range(len(axes)-3, len(axes)):
         axes[i].set_xlabel('time')
 
     if anot:
-        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        txt = '{} ({})'.format(params.get(sheet, sheet), sheet)
+        if len(sheet) > 4:
+            txt = '_'.join(txt.split('_')[:3])
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_on_scatter',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        txt = '{}'.format(date)
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
+    fig.subplots_adjust(top=0.967, bottom=0.058, 
+                        left=0.038, right=0.995, 
+                        hspace=0.5, wspace=0.099)
     return fig
 
 def save_scatter(fig, diff, shift, hh, sheet=sheet, paths=paths):
@@ -875,8 +890,9 @@ plt.close('all')
 #                                   removemax=True)
 #             save_scatter(fig, diff, shift, hh)
 
-fig = plot_on_scatter(data_df, diff=False, shift=True,
-                      hh=False, removemax=False)
+# TODO implement the shift for all speeds
+fig = plot_on_scatter(data_df, diff=False, shift=False,
+                      hh=True, removemax=True)
 
 
 #%% test dotplot
