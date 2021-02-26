@@ -142,7 +142,7 @@ def load_csv(filename):
     for i, col in enumerate(protocs,1):
         index = cols.index('int[{}]'.format(i))
         cols[index] = col
-    cols = [_.replace('sig[1]', 'significancy') for _ in cols]
+    cols = [_.replace('sig[1]', 'sigcenter') for _ in cols]
 # TODO = to be checked
     protocs = ['_'.join(('hh',a,b,c)) for a,b,c in zip(times, stims, speeds)]
     protocs = protocs[:len(hhs)]        # not all teh conditions are present
@@ -151,7 +151,7 @@ def load_csv(filename):
             if 'hh[' in item:
                 index = cols.index(item)
                 cols[index] = col
-                print(item)
+                # print(item)
                 break
     df.columns = cols
 
@@ -163,6 +163,10 @@ def load_csv(filename):
             print(col)
             df[col] = df[col]/10
             df[col] = df[col].astype(bool)
+        if col == 'on_d1_sc_150':
+            if df[col].mean() > 100:
+                df[col] = df[col] - 868
+                print('removed 868 msec to {}'.format(col))
     # layers
     layers = pd.read_csv(os.path.join(os.path.dirname(filename),
                                       'layers.csv'), sep=';')
@@ -239,6 +243,8 @@ def load_latencies(sheet='0'):
     cols = [_.replace('s_', 's0_') for _ in cols]
 
     cols = [_.replace('d0_0c', 'd0_0c_25') for _ in cols]
+    cols = [_.replace('significancy', 'sigcenter') for _ in cols]
+    
     # cols = [_.replace('(150°/s)', '150') for _ in cols]
     # cols = [_.replace('150°/s', '150') for _ in cols]
     # cols = [_.replace('(25)', '_25') for _ in cols]
@@ -263,7 +269,7 @@ def load_latencies(sheet='0'):
     df.set_index('channel', inplace=True)
     df.layers = df.layers.apply(lambda x: x.split(' ')[1])
     df.int_d0 = df.int_d0.astype(float)
-    df.significancy = (df.significancy/10).astype(bool)
+    df.sigcenter = (df.sigcenter/10).astype(bool)
     df.rf_bigger_than_stim = df.rf_bigger_than_stim.apply(
         lambda x: False if x=='NO' else True)
     return df
@@ -335,7 +341,7 @@ def print_global_stats(statsdf, statssigdf):
             statssigdf.loc['mean', [col]][0], statssigdf.loc['std', [col]][0],
             col))
 
-
+#==============
 csvLoad = True
 if csvLoad:
     paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
@@ -349,18 +355,61 @@ if csvLoad:
 else:
     params = {'0' : '1319_CXLEFT',
               '1' : '2019_CXRIGHT'}
-    sheet = '0'
+    sheet = '1'
     data_df = load_latencies(sheet)
 
 
 layers_loc = extract_layers(data_df)
 # only significant part
-data_df = data_df[data_df.significancy]
+data_df = data_df[data_df.sigcenter]
 #data_df = data_df[data_df.significancy]
 # clean
 data_df = clean_df(data_df, mult=4)
 stats_df = data_df.describe()
 # stats_df_sig = data_df[data_df.significancy].describe()
+
+#%% check names
+def check_names(df):
+    splited = [_.split('_') for _ in df.columns]
+    for i in range(8):
+        names = set([_[i] for _ in splited if len(_)>i])
+        if names:
+            print('{}   {}'.format(i, names))
+
+# bug with cond = 'on_d1_sc_150'
+#choose file
+def check_diff():
+    for num in range(2):
+        paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
+        files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
+        # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
+        #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
+        file = files[num]
+        sheet=file
+        file_name = os.path.join(paths['data'], file)
+        data_df, params = load_csv(file_name)
+        csvdf = data_df.copy()
+
+        params = {'0' : '1319_CXLEFT',
+                  '1' : '2019_CXRIGHT'}
+        sheet = str(num)
+        data_df = load_latencies(sheet)
+        xceldf = data_df.copy()
+        
+        cond = 'on_d1_sc_150'
+        meancsv = csvdf.describe().loc['mean'].loc[cond]
+        meanxcel = xceldf.describe().loc['mean'].loc[cond]
+        stdcsv = csvdf.describe().loc['std'].loc[cond]
+        stdxcel = xceldf.describe().loc['std'].loc[cond]
+        print('-'*20)
+        print('file {}'.format('_'.join(file.split('_')[:2])))
+        print('xcel {:.1f}±{:.1f}, csv {:.1f}±{:.1f}'.format(meanxcel, stdxcel, meancsv, stdcsv))
+        # xcel 43.9±20.0, csv 908.4±18.9
+        delta = meancsv - meanxcel
+        print('delta is {:.2f}'.format(delta))
+        # delta = 864.5011574074074
+        
+# check_diff()
 
 #%% desribe basics
 
@@ -429,12 +478,14 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
 
     if anot:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        if len(txt) > 5:
+            txt = '_'.join(sheet.split('_')[:3])
         fig.text(0.5, 0.01, txt,
                  ha='center', va='bottom', alpha=0.4)
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'extra/extra_pop/plot_boxplots',
                  ha='right', va='bottom', alpha=0.4)
-        txt = '{} {}'.format(date, '_'.join(str(sheet).split('_')[:3]))
+        txt = '{}'.format(date)
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
@@ -443,15 +494,22 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
 # start_time = time.time()
 
 plt.close('all')
-fig = plot_boxplots(data_df, mes='on')
+mes = None
+for mes in [None, 'on', 'hh', 'inte']:
+    fig = plot_boxplots(data_df, mes=mes)
 # print("--- %s seconds ---" % (time.time() - start_time))
 
-save=False
-if save:
-    file = 'boxPlot_' + str(sheet) + '.pdf'
-    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    save=True
+    if save:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        if len(txt) > 5:
+            txt = '_'.join(sheet.split('_')[:3])
+            if mes:
+                txt = '_'.join([txt, mes])
+            file = 'boxPlot_' + txt + '.pdf'
+            dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+            filename = os.path.join(dirname, file)
+            fig.savefig(filename)
 
 #%%
 # pltconfig = config.rc_params()
