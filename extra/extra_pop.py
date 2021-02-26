@@ -244,7 +244,7 @@ def load_latencies(sheet='0'):
 
     cols = [_.replace('d0_0c', 'd0_0c_25') for _ in cols]
     cols = [_.replace('significancy', 'sigcenter') for _ in cols]
-    
+
     # cols = [_.replace('(150°/s)', '150') for _ in cols]
     # cols = [_.replace('150°/s', '150') for _ in cols]
     # cols = [_.replace('(25)', '_25') for _ in cols]
@@ -348,7 +348,7 @@ if csvLoad:
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
     #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[1]
+    file = files[0]
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = load_csv(file_name)
@@ -395,7 +395,7 @@ def check_diff():
         sheet = str(num)
         data_df = load_latencies(sheet)
         xceldf = data_df.copy()
-        
+
         cond = 'on_d1_sc_150'
         meancsv = csvdf.describe().loc['mean'].loc[cond]
         meanxcel = xceldf.describe().loc['mean'].loc[cond]
@@ -408,7 +408,7 @@ def check_diff():
         delta = meancsv - meanxcel
         print('delta is {:.2f}'.format(delta))
         # delta = 864.5011574074074
-        
+
 # check_diff()
 
 #%% desribe basics
@@ -425,8 +425,8 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhs = [_ for _ in datadf.columns if _.startswith('hh')]
     ints = [_ for _ in datadf.columns if _.startswith('int')]
+# TODO sort HH order before plotting
     # group by stimulation
-
     if mes is None:
         ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
         hhs = [_ for _ in hhs if _.split('_')[-1] in ('25', '150')]
@@ -448,11 +448,15 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
         for col in datadf.columns:
             if data_df[col].dtypes == float:
                  datadf.loc[datadf[col] > 100, [col]] = np.nan
-
-    fig, axes = plt.subplots(nrows=1, ncols=3)
+    if mes is None:
+        fig, axes = plt.subplots(nrows=1, ncols=3)
+    else:
+        fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True)
     axes = axes.flatten()
 
     for i, dats in enumerate(conds):
+        # i = 0
+        # dats = conds[i]
         ax = axes[i]
         txt = dats[0].split('_')[0]
         ax.set_title(txt)
@@ -460,9 +464,14 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
             if len(datadf[col].dropna()) == 0:
                 dats.remove(col)
         ax.boxplot(datadf[dats].dropna(), meanline=True, showmeans=True)
+        # nb of cells
+        y = datadf[dats].count().values
+        for j, n in enumerate(y, 1):
+            ax.text(x=j, y=0, s=str(n),
+                    ha='center', va='center', color='tab:grey')
         labels = ['_'.join(_.split('_')[1:]) for _ in dats]
-        med = datadf[dats[0]].median()
-        mad = datadf[dats[0]].mad()
+        med = datadf[dats[0]].dropna().median()
+        mad = datadf[dats[0]].dropna().mad()
         ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
         ax.axhline(med + 2*mad, color='tab:blue',
                    linewidth=2, linestyle=':', alpha=0.7)
@@ -473,8 +482,11 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
         ax.text(x=ax.get_xlim()[0], y=med  + 2* mad, s=txt,
                 color='tab:blue',  va='bottom', ha='left')
     for ax in axes:
+        ax.set_ylim(-4, ax.get_ylim()[1])
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
+    if mes is None:
+        axes[1].set_ylim(axes[0].get_ylim())
 
     if anot:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
@@ -499,7 +511,7 @@ for mes in [None, 'on', 'hh', 'inte']:
     fig = plot_boxplots(data_df, mes=mes)
 # print("--- %s seconds ---" % (time.time() - start_time))
 
-    save=True
+    save=False
     if save:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
         if len(txt) > 5:
