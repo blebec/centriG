@@ -87,6 +87,10 @@ stats_df = data_df.describe()
 
 #%% check names
 def check_names(df):
+    """
+    decompose the column name structure
+
+    """
     splited = [_.split('_') for _ in df.columns]
     for i in range(8):
         names = set([_[i] for _ in splited if len(_)>i])
@@ -96,6 +100,9 @@ def check_names(df):
 # bug with cond = 'on_d1_sc_150'
 #choose file
 def check_diff():
+    """
+    check for time shift
+    """
     for num in range(2):
         paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
         files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
@@ -139,6 +146,8 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
         params:  dicionary (containing the speeds used)
         measure in [on, hh and inte], default=None ie all
     """
+    colordict = {'0c':'tab:grey', 's0':'tab:green', 'sc':'tab:red', 
+                 '00': 'tab:blue'}
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhs = [_ for _ in datadf.columns if _.startswith('hh')]
     ints = [_ for _ in datadf.columns if _.startswith('int')]
@@ -180,7 +189,21 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
         for col in dats:
             if len(datadf[col].dropna()) == 0:
                 dats.remove(col)
-        ax.boxplot(datadf[dats].dropna(), meanline=True, showmeans=True)
+        bp = ax.boxplot(datadf[dats].dropna(), meanline=True, showmeans=True,
+                         patch_artist=True)
+        # add color code
+        colors = [colordict[_.split('_')[2]] for _ in dats]
+        colors_doubled = [a for tup in zip(colors, colors) for a in tup]
+        # lines
+        # for i, line in enumerate(bp['boxes']):
+        #     line.set_color(colors[i])
+        # for i, line in enumerate(bp['caps']):
+        #     line.set_color(colors_doubled[i])
+        # for i, line in enumerate(bp['whiskers']):
+        #     line.set_color(colors_doubled[i])
+        # box
+        for i, patch in enumerate(bp['boxes']):
+            patch.set(facecolor=colors[i], alpha=0.3)
         # nb of cells
         y = datadf[dats].count().values
         for j, n in enumerate(y, 1):
@@ -228,7 +251,7 @@ for mes in [None, 'on', 'hh', 'inte']:
     fig = plot_boxplots(data_df, mes=mes)
 # print("--- %s seconds ---" % (time.time() - start_time))
 
-    save=False
+    save=True
     if save:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
         if len(txt) > 5:
