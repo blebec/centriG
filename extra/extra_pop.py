@@ -78,8 +78,8 @@ else:
 
 layers_loc = ld.extract_layers(data_df)
 # only significant part
-data_df = data_df[data_df.sigcenter]
-data_df = data_df[data_df['sig[2]'].astype(bool)]
+data_df = data_df[data_df.sig_center]
+data_df = data_df[data_df['sig_surround'].astype(bool)]
 # clean
 data_df = ld.clean_df(data_df, mult=4)
 stats_df = data_df.describe()
@@ -98,7 +98,7 @@ def check_names(df):
             print('{}   {}'.format(i, names))
 
 # bug with cond = 'on_d1_sc_150'
-#choose file
+# choose file
 def check_diff():
     """
     check for time shift
@@ -111,13 +111,13 @@ def check_diff():
         file = files[num]
         sheet=file
         file_name = os.path.join(paths['data'], file)
-        data_df, params = load_csv(file_name)
+        data_df, params = ld.load_csv(file_name)
         csvdf = data_df.copy()
 
         params = {'0' : '1319_CXLEFT',
                   '1' : '2019_CXRIGHT'}
         sheet = str(num)
-        data_df = load_latencies(sheet)
+        data_df = ld.load_latencies(sheet)
         xceldf = data_df.copy()
 
         cond = 'on_d1_sc_150'
@@ -146,7 +146,7 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
         params:  dicionary (containing the speeds used)
         measure in [on, hh and inte], default=None ie all
     """
-    colordict = {'0c':'tab:grey', 's0':'tab:green', 'sc':'tab:red', 
+    colordict = {'0c':'tab:grey', 's0':'tab:green', 'sc':'tab:red',
                  '00': 'tab:blue'}
     ons = [_ for _ in datadf. columns if _.startswith('on')]
     hhs = [_ for _ in datadf.columns if _.startswith('hh')]
@@ -193,7 +193,7 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
                          patch_artist=True)
         # add color code
         colors = [colordict[_.split('_')[2]] for _ in dats]
-        colors_doubled = [a for tup in zip(colors, colors) for a in tup]
+        # colors_doubled = [a for tup in zip(colors, colors) for a in tup]
         # lines
         # for i, line in enumerate(bp['boxes']):
         #     line.set_color(colors[i])
@@ -223,6 +223,7 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
                 color='tab:blue',  va='bottom', ha='left')
     for ax in axes:
         ax.set_ylim(-4, ax.get_ylim()[1])
+        ax.grid()
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
     if mes is None:
@@ -262,6 +263,156 @@ for mes in [None, 'on', 'hh', 'inte']:
             dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
             filename = os.path.join(dirname, file)
             fig.savefig(filename)
+
+#%% filter process
+
+
+
+def filter_effect(filename=file_name, removemax=True, params=params, mes='on'):
+    """
+    stat boxplot description significance effect
+    input:
+        datadf = pandas dataframe
+        removemax : boolean to remove values of 100 msec
+        params:  dicionary (containing the speeds used)
+        measure in [on, hh and inte], default=on
+    """
+    measures = ['on', 'hh' ,'inte']
+    if mes not in measures:
+        print ('mes shoud be in {}'.format(measures))
+        return
+    if mes == 'inte':
+        mes = mes[:-1]
+# TODO change filename
+    #load
+    all_df, params = ld.load_csv(filename)
+    all_df['nsig_surround'] = all_df.sig_surround.apply(lambda x: np.invert(x))
+    #remove blank
+    for col in all_df.columns:
+        if col.count('_') > 2:
+            if col.split('_')[2] == '00':
+                all_df.drop(col, axis=1, inplace=True)
+    # remove values of 100 <-> no detection
+    if removemax:
+        for col in all_df.columns:
+            if all_df[col].dtypes == float:
+                  all_df.loc[all_df[col] > 98, [col]] = np.nan
+    # dispatch dataframes
+    c_df = all_df[all_df.sig_center]
+    s_df = all_df[all_df.sig_surround]
+    sc_df = c_df[c_df.sig_surround]
+    cNs_df = c_df[c_df.nsig_surround]
+    Ns_df = all_df[all_df.nsig_surround]
+    #dfs = [c_df, s_df, sc_df, cNs_df]
+    dfs = {'all' : all_df,
+            'c_sig' : c_df,
+           'sc _sig' : sc_df,
+           'notS_sig': Ns_df,
+           's_sig' : s_df,
+           'cNotS_sig' : cNs_df,
+           }
+
+    colordict = {'0c':'tab:grey', 's0':'tab:green', 'sc':'tab:red',
+                 '00': 'tab:blue'}
+
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(14, 16),
+                                 sharey=True)
+    axes = axes.flatten()
+    fig.suptitle(mes)
+
+    for i, k in enumerate(dfs):
+        # i = 0
+        ax = axes[i]
+        ax.set_title(k)
+        df = dfs[k]
+        cols = [_ for _ in all_df. columns if _.startswith(mes)]
+        for j, col in enumerate(cols):
+            # j = 0
+            # dats = conds[i]
+            if len(df[col].dropna()) == 0:
+                cols.remove(col)
+        bp = ax.boxplot(df[cols].dropna(), meanline=True,
+                        showmeans=True, patch_artist=True)
+        # add color code
+        colors = [colordict[_.split('_')[2]] for _ in cols]
+        # colors_doubled = [a for tup in zip(colors, colors) for a in tup]
+        # lines
+        # for i, line in enumerate(bp['boxes']):
+        #     line.set_color(colors[i])
+        # for i, line in enumerate(bp['caps']):
+        #     line.set_color(colors_doubled[i])
+        # for i, line in enumerate(bp['whiskers']):
+        #     line.set_color(colors_doubled[i])
+        # box
+        for i, patch in enumerate(bp['boxes']):
+               patch.set(facecolor=colors[i], alpha=0.3)
+        # nb of cells
+        y = df[cols].count().values
+        for j, n in enumerate(y, 1):
+            ax.text(x=j, y=0, s=str(n),
+                    ha='center', va='center', color='tab:grey')
+        labels = [_.split('_')[-1] for _ in cols]
+        med = df[cols].dropna().median()[0]
+        mad = df[cols].dropna().mad()[0]
+        ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
+        ax.axhline(med + 2*mad, color='tab:blue',
+                   linewidth=2, linestyle=':', alpha=0.7)
+        ax.axhline(med - 2*mad, color='tab:blue',
+                   linewidth=2, linestyle=':', alpha=0.7)
+        ax.set_xticklabels(labels, rotation=45, ha='right')
+        txt = 'med ± 2*mad'
+        ax.text(x=ax.get_xlim()[0], y=med  + 2* mad, s=txt,
+                color='tab:blue',  va='bottom', ha='left')
+    for ax in axes:
+        ax.set_ylim(-4, ax.get_ylim()[1])
+        # ax.grid()
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    if mes is None:
+        axes[1].set_ylim(axes[0].get_ylim())
+
+    if anot:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        if len(txt) > 5:
+            txt = '_'.join(sheet.split('_')[:3])
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/filter_effect',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{}'.format(date)
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+# import time
+# start_time = time.time()
+
+paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
+files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
+# files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
+#          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
+file = files[0]
+sheet=file
+file_name = os.path.join(paths['data'], file)
+data_df, params = ld.load_csv(file_name)
+plt.close('all')
+for mes in ['on', 'hh', 'inte']:
+    fig = filter_effect(file_name, removemax=True, params=params, mes=mes)
+# print("--- %s seconds ---" % (time.time() - start_time))
+
+    save=False
+    if save:
+        txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
+        if len(txt) > 5:
+            txt = '_'.join(sheet.split('_')[:3])
+        txt = '_'.join([txt, mes])
+        file = 'sig_boxPlot_' + txt + '.pdf'
+        dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+        filename = os.path.join(dirname, file)
+        fig.savefig(filename)
+        print(file)
+
 
 #%%
 # pltconfig = config.rc_params()
@@ -362,7 +513,7 @@ def plot_on_histo(datadf, removemax=True, sheet=sheet,
         if not hh:
             txt = ' (& on_d0_sc_150 shifted by {} msec)'.format(isi_shift)
             title += txt
-            
+
     # remove values of 100 <-> no detection
     if removemax:
         for col in df.columns:
@@ -459,9 +610,9 @@ fig = plot_on_histo(data_df, diff=True, shift=False, hh=False, removemax=True)
 def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                     diff=False, shift=False, hh=False, layersloc=layers_loc):
 
-    colordict = {'0c':'tab:blue', 's0':'tab:green', 'sc':'tab:red', 
+    colordict = {'0c':'tab:blue', 's0':'tab:green', 'sc':'tab:red',
               '00': 'tab:grey'}
-    
+
     df = datadf.copy()
     ons = [_ for _ in df. columns if _.startswith('on')]
     ons = ons[:-2]
@@ -481,7 +632,7 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         title = 'ons'
     # dats = [_ for _ in cols if _.startswith('on_d0')]
     # dats += ([_ for _ in cols if _.startswith('on_d1')])
-    
+
     isi = {'0': 27.8, '1': 34.7,
            '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
            '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
@@ -501,19 +652,19 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     if hh:
         ons = hhs
     # plotting
-    
-    
+
+
     # fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
     #                          sharex=True, sharey=True)
     fig, axes = plt.subplots(nrows=ceil(len(ons)/3), ncols=3, figsize=(15,24),
                              sharex=True, sharey=True)
- 
+
     if diff:
         title = '{} ({})'.format(title, 'cond - centerOnly')
     fig.suptitle(title)
 
     axes = axes.flatten()
-    colors = ('tab:blue', 'tab:red', 'tab:orange', 
+    colors = ('tab:blue', 'tab:red', 'tab:orange',
               'tab:red', 'tab:orange', 'tab:green')
     # global stat
     ref_med = df[ons[0]].median()
@@ -526,7 +677,7 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
     for i, col in enumerate(ons):
         ax = axes[i]
         #layers
-        ax.axhspan(bylayer.loc['4'].dmin, bylayer.loc['4'].dmax, 
+        ax.axhspan(bylayer.loc['4'].dmin, bylayer.loc['4'].dmax,
                    color='tab:grey', alpha=0.2)
         if diff:
             # one ref
@@ -558,15 +709,15 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                 ['dmin', 'dmax', 'meds', 'mads']]
             # test if values are present
             if not np.isnan(med):
-                ax.vlines(med, ymin=ymin, ymax=ymax, 
+                ax.vlines(med, ymin=ymin, ymax=ymax,
                           color=colordict[col.split('_')[2]],
                            alpha=0.5, linewidth=2)
                 ax.add_patch(Rectangle((med - mad, ymin), width=2*mad,
-                                       height=(ymax - ymin), 
+                                       height=(ymax - ymin),
                                        color=colordict[col.split('_')[2]],
                                        alpha=0.3, linewidth=0.5))
         txt = col
-        ax.scatter(temp.toplot.values, temp.index, 
+        ax.scatter(temp.toplot.values, temp.index,
                    color=colordict[col.split('_')[2]], alpha=0.7)
         ax.set_title(txt)
         ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
@@ -604,8 +755,8 @@ def plot_on_scatter(datadf, removemax=True, sheet=sheet,
         txt = '{}'.format(date)
         fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
-    fig.subplots_adjust(top=0.967, bottom=0.058, 
-                        left=0.038, right=0.995, 
+    fig.subplots_adjust(top=0.967, bottom=0.058,
+                        left=0.038, right=0.995,
                         hspace=0.5, wspace=0.099)
     return fig
 
@@ -1041,7 +1192,7 @@ def plot_latencies_bis(datadf, lat_mini=10, lat_maxi=80, sheet=sheet,
 
 plt.close('all')
 
-fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80, 
+fig = plot_latencies_bis(data_df, lat_mini=0, lat_maxi=80,
                          sheet=sheet, xcel=False)
 
 new = False

@@ -120,7 +120,8 @@ def load_csv(filename):
     for i, col in enumerate(protocs,1):
         index = cols.index('int[{}]'.format(i))
         cols[index] = col
-    cols = [_.replace('sig[1]', 'sigcenter') for _ in cols]
+    cols = [_.replace('sig[1]', 'sig_center') for _ in cols]
+    cols = [_.replace('sig[2]', 'sig_surround') for _ in cols]
     # HH measures
     protocs = ['_'.join(('hh',a,b,c)) for a,b,c in zip(times, stims, speeds)]
     protocs = protocs[:len(hhs)]        # not all teh conditions are present
@@ -275,11 +276,12 @@ def extract_layers(df):
     return dico
 
 #% replace ± 3mad by nan
-def clean_df(df, mult=3):
+def clean_df(datadf, mult=3):
     """
     replace by nan values outside med ± mult*mad
 
     """
+    df = datadf.copy()
     total = 0
     count = 1
     while count > 0:
@@ -341,8 +343,8 @@ if __name__ == '__main__':
 
     layers_loc = extract_layers(data_df)
     # only significant part
-    data_df = data_df[data_df.sigcenter]
-    data_df = data_df[data_df['sig[2]'].astype(bool)]
+    data_df = data_df[data_df.sig_center]
+    data_df = data_df[data_df['sig_surround'].astype(bool)]
     # clean
     data_df = clean_df(data_df, mult=4)
     stats_df = data_df.describe()
