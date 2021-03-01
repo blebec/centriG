@@ -787,7 +787,7 @@ for diff in what:
         for hh in what:
             fig = plot_on_scatter(data_df, diff=diff, shift=shift, hh=hh,
                                   removemax=True)
-            save_scatter(fig, diff, shift, hh)
+            # save_scatter(fig, diff, shift, hh)
 
 # TODO implement the shift for all speeds
 # fig = plot_on_scatter(data_df, diff=False, shift=False,
