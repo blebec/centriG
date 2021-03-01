@@ -210,8 +210,8 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
             ax.text(x=j, y=0, s=str(n),
                     ha='center', va='center', color='tab:grey')
         labels = ['_'.join(_.split('_')[1:]) for _ in dats]
-        med = datadf[dats[0]].dropna().median()
-        mad = datadf[dats[0]].dropna().mad()
+        med = datadf[dats].dropna().median()[0]
+        mad = datadf[dats].dropna().mad()[0]
         ax.axhline(med, color='tab:blue', linewidth=3, alpha=0.7)
         ax.axhline(med + 2*mad, color='tab:blue',
                    linewidth=2, linestyle=':', alpha=0.7)
@@ -252,7 +252,7 @@ for mes in [None, 'on', 'hh', 'inte']:
     fig = plot_boxplots(data_df, mes=mes)
 # print("--- %s seconds ---" % (time.time() - start_time))
 
-    save=True
+    save=False
     if save:
         txt = 'file= {} ({})'.format(params.get(sheet, sheet), sheet)
         if len(txt) > 5:
