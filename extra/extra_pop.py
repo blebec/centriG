@@ -65,7 +65,7 @@ if csvLoad:
     files = [file for file in os.listdir(paths['data']) if file[:4].isdigit()]
     # files = ['1319_CXLEFT_TUN25_s30_csv_test_noblank.csv',
     #          '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv']
-    file = files[0]
+    file = files[1]
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = ld.load_csv(file_name)
@@ -606,6 +606,133 @@ fig = plot_on_histo(data_df, diff=True, shift=False, hh=False, removemax=True)
 
 # save_fig(fig, diff, shift, hh)
 
+#%% histo 3 by three
+
+def plot_histo_3conds(datadf, removemax=True, sheet=sheet,
+                  diff=False, shift=False, hh=False, mes='on'):
+
+    df = datadf.copy()
+    # extract columns of interest
+    ons = [_ for _ in df. columns if _.startswith('on')]
+    ons = ons[:-2]  # just recordings
+    hhs = [_ for _ in df.columns if 'hh' in _]
+    ints = [_ for _ in df.columns if 'int' in _]
+    ints = ints[:-2]
+    # choose data
+    dico = {'on':ons, 'hh':hhs, 'inte':ints}
+    dats = dico.get(mes, None)
+    if dats is None:
+        return
+    title = mes
+
+    isi = {'0': 27.8, '1': 34.7,
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '1319_CXLEFT_TUN25_s30_csv_test_noblank.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv': 34.7}
+    isi_shift = isi.get(sheet, 0)
+    if shift:
+        df['on_d0_sc_150'] += isi_shift
+        if not hh:
+            txt = ' (& on_d0_sc_150 shifted by {} msec)'.format(isi_shift)
+            title += txt
+
+    # remove values of 100 <-> no detection
+    if removemax:
+        for col in df.columns:
+            if df[col].dtypes == float:
+                df.loc[df[col] > 98, col] = np.nan
+    # plotting
+    fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(15,12),
+                             sharex=True, sharey=True)
+    if diff:
+        title = '{} ({})'.format(title, 'cond - centerOnly')
+    fig.suptitle(title)
+
+    axes = axes.flatten()
+    colordict = {'0c':'tab:grey', 's0':'tab:green', 'sc':'tab:red',
+              '00': 'tab:blue'}
+    # med = df[dats[0]].median()
+    # mad = df[dats[0]].mad()
+    maxi = 0
+    
+    for i, col in enumerate(dats):
+        ax = axes[i//3]
+        # axT = ax.twinx()
+        if diff:
+            ser = (df[dats[3*(i//3)]] - df[col]).dropna()
+            med = ser.median()
+            mad = ser.mad()
+            # ax.axvspan(med - mad, med + mad, 
+            #            color= colordict[col.split('_')[2]], alpha=0.3)
+            ax.axvline(med, color=colordict[col.split('_')[2]], alpha=0.5, 
+                        linewidth=2)
+            print(ser)
+        else :
+            ser = df[col].dropna()
+            # ax.axvspan(med - mad, med+mad, color='tab:blue', alpha=0.3)
+            # ax.axvline(med, color='tab:blue', alpha=0.5, linewidth=2)
+        # txt = '_'.join(col.split('_')[1:])
+        txt = col.split('_')[-1]
+        # ax.hist(ser, bins=20, color=colors[i], alpha=0.7, rwidth=0.9)
+        ax.hist(ser, bins=range(1, 100, 2), color=colordict[col.split('_')[2]], 
+                alpha=0.7, rwidth=0.9, density=True)
+        x = ser.values.tolist()
+        # xvals = [_ for _ in x if not np.isnan(_)]
+        if len(ser) > 0 and ser.median() > 0:
+            print(col)
+            # kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
+            kde = stats.gaussian_kde(ser)
+            x_kde = np.linspace(0,100, 20)
+            ax.plot(x_kde, kde(x_kde), color=colordict[col.split('_')[2]], 
+                    alpha=1, linewidth=2, linestyle='-')
+            # ax.axvline(ser.median(), color=colordict[col.split('_')[2]], 
+            #            alpha=0.5, linewidth=2)
+
+        # scale if diff
+        maxi = max(0, max(np.histogram(ser, bins=20)[0]))
+        ax.set_title(txt)
+        ax.axvline(0, color='tab:grey', linewidth=2, alpha = 0.5)
+    for ax in axes:
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
+    if diff:
+        ax.set_ylim(0, maxi)
+        for ax in axes:
+            ax.axvline(0, color='tab:blue', linewidth=2)
+
+    # for i in [0,3]:
+    #     axes[i].set_ylabel('nb of electrodes')
+    for i in [3,4,5]:
+        axes[i].set_xlabel('time')
+
+    if anot:
+        txt = params.get(sheet, sheet)
+        if len(txt) > 4:
+            txt = '_'.join(txt.split('_')[:3])
+        fig.text(0.5, 0.01, txt,
+                 ha='center', va='bottom', alpha=0.4)
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'extra/extra_pop/plot_histo_3conds',
+                 ha='right', va='bottom', alpha=0.4)
+        txt = '{}'.format(date)
+        fig.text(0.01, 0.01, txt, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
+mes = 'inte'
+fig = plot_histo_3conds(data_df, mes=mes, diff=False)
+
+save = False
+if save:
+    txt = str(sheet)
+    if len(sheet) > 4:
+        txt = '_'.join(sheet.split('_')[:3])
+    file = 'threeCond_histo_' + mes + '_' + txt + '.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'extra')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
+
 #%% scatter individuals
 def plot_on_scatter(datadf, removemax=True, sheet=sheet,
                     diff=False, shift=False, hh=False, layersloc=layers_loc):
@@ -1058,12 +1185,12 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
 
 new = False
 if new :
-    file = files[0]
+    file = files[1]
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = ld.load_csv(file_name)
-    data_df = data_df[data_df.sigcenter]
-    data_df = data_df[data_df['sig[2]'].astype(bool)]
+    data_df = data_df[data_df.sig_center]
+    data_df = data_df[data_df.sig_surround.astype(bool)]
     data_df = ld.clean_df(data_df, mult=4)
 
 plt.close('all')
@@ -1201,8 +1328,8 @@ if new :
     sheet=file
     file_name = os.path.join(paths['data'], file)
     data_df, params = ld.load_csv(file_name)
-    data_df = data_df[data_df.sigcenter]
-    data_df = data_df[data_df['sig[2]'].astype(bool)]
+    data_df = data_df[data_df.sig_center]
+    data_df = data_df[data_df.sig_surround.astype(bool)]
     data_df = ld.clean_df(data_df, mult=4)
 
 #sheet = file
