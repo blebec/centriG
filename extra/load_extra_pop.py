@@ -168,6 +168,15 @@ def load_csv(filename):
         '6' : '5/6'
         }
     df.layers = df.layers.apply(lambda x: layersDict.get(x, x))
+    # layers limit
+    depths = []
+    d = 0
+    for num in df.layers.value_counts().values[:-1]:
+        d += num
+        depths.append(d)
+    depths.insert(0, 0)
+    depths.append(df.index.max())
+    param['layerLimit'] = depths
     return df, param
 
 

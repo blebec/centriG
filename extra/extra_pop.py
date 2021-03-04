@@ -654,7 +654,7 @@ def plot_histo_3conds(datadf, removemax=True, sheet=sheet,
     # med = df[dats[0]].median()
     # mad = df[dats[0]].mad()
     maxi = 0
-    
+
     for i, col in enumerate(dats):
         ax = axes[i//3]
         # axT = ax.twinx()
@@ -662,9 +662,9 @@ def plot_histo_3conds(datadf, removemax=True, sheet=sheet,
             ser = (df[dats[3*(i//3)]] - df[col]).dropna()
             med = ser.median()
             mad = ser.mad()
-            # ax.axvspan(med - mad, med + mad, 
+            # ax.axvspan(med - mad, med + mad,
             #            color= colordict[col.split('_')[2]], alpha=0.3)
-            ax.axvline(med, color=colordict[col.split('_')[2]], alpha=0.5, 
+            ax.axvline(med, color=colordict[col.split('_')[2]], alpha=0.5,
                         linewidth=2)
             print(ser)
         else :
@@ -674,7 +674,7 @@ def plot_histo_3conds(datadf, removemax=True, sheet=sheet,
         # txt = '_'.join(col.split('_')[1:])
         txt = col.split('_')[-1]
         # ax.hist(ser, bins=20, color=colors[i], alpha=0.7, rwidth=0.9)
-        ax.hist(ser, bins=range(1, 100, 2), color=colordict[col.split('_')[2]], 
+        ax.hist(ser, bins=range(1, 100, 2), color=colordict[col.split('_')[2]],
                 alpha=0.7, rwidth=0.9, density=True)
         x = ser.values.tolist()
         # xvals = [_ for _ in x if not np.isnan(_)]
@@ -683,9 +683,9 @@ def plot_histo_3conds(datadf, removemax=True, sheet=sheet,
             # kde = stats.gaussian_kde([_ for _ in x if not np.isnan(_)])
             kde = stats.gaussian_kde(ser)
             x_kde = np.linspace(0,100, 20)
-            ax.plot(x_kde, kde(x_kde), color=colordict[col.split('_')[2]], 
+            ax.plot(x_kde, kde(x_kde), color=colordict[col.split('_')[2]],
                     alpha=1, linewidth=2, linestyle='-')
-            # ax.axvline(ser.median(), color=colordict[col.split('_')[2]], 
+            # ax.axvline(ser.median(), color=colordict[col.split('_')[2]],
             #            alpha=0.5, linewidth=2)
 
         # scale if diff
@@ -1122,10 +1122,10 @@ def plot_latencies(datadf, lat_mini=10, lat_maxi=80, sheet=sheet, xcel=False,
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
     for i, col in enumerate(df.columns[1:]):
-        diff_med = (df[d0_cols[1]] - df[col]).median()
-        diff_mad = (df[d0_cols[1]] - df[col]).mad()
+        # diff_med = (df[d0_cols[1]] - df[col]).median()
+        # diff_mad = (df[d0_cols[1]] - df[col]).mad()
         diff_mean = (df[d0_cols[1]] - df[col]).mean()
-        diff_std = (df[d0_cols[1]] - df[col]).std()
+        # diff_std = (df[d0_cols[1]] - df[col]).std()
         txt = 'diff mean : {:.1f}'.format(diff_mean)
         ax.text(x=1, y=0.9 - i/8, s=txt, color=allcolors[i],
                 va='bottom', ha='right', transform=ax.transAxes)
@@ -1358,7 +1358,7 @@ sigDf = pd.DataFrame(pd.Series(allpop))
 
 #%%
 
-def plot_d1_d0_low(datadf, sheet, high=False):
+def plot_d1_d0_low(datadf, sheet, param, high=False):
     """
     plot the d1 d0 relation
     input:
@@ -1367,17 +1367,20 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     """
     # high speed
     isi = {0: 27.8, 1: 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
     isi_shift = isi.get(sheet, 0)
 
     # layer depths limits
-    d = 0
-    depths = []
-    for num in datadf.layers.value_counts().values[:-1]:
-        d += num
-        depths.append(d)
-    depths.insert(0, 0)
-    depths.append(datadf.index.max())
+    # d = 0
+    # depths = []
+    # for num in datadf.layers.value_counts().values[:-1]:
+    #     d += num
+    #     depths.append(d)
+    # depths.insert(0, 0)
+    # depths.append(datadf.index.max())
+
+    depths = param.get('layerLimit', None)
 
     # plot intervals:
     def add_conf_interval(ax, data, kind='med'):
@@ -1420,9 +1423,12 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     # fig = plt.figure(figsize=(10, 12))
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 12))
     axes = axes.flatten()
-    txt = 'manip {}   (med ± mad values)'.format(sheet)
+    txt = sheet
+    if len(sheet) > 4:
+        txt = '_'.join(sheet.split('_')[:3])
+    txt = '{} (med ± mad values)'.format(txt)
     if high:
-        txt = '{}   NB high speed is shifted by one ISI ({} msec)'.format(txt, isi_shift)
+        txt = '{}   NB high speed shifted by one ISI ({} msec)'.format(txt, isi_shift)
     fig.suptitle(txt)
 
     # d1 vs do
@@ -1556,16 +1562,18 @@ def plot_d1_d0_low(datadf, sheet, high=False):
     fig.tight_layout()
     return fig
 
+plt.close('all')
 
-# plt.close('all')
 high = True
-for sheet in range(2):
-    # sheet = 1
-    print(sheet)
-    data_df = load_latencies(sheet)
-    data_df = data_df[data_df.significancy]
-    data_df = clean_df(data_df, mult=4)
-    fig = plot_d1_d0_low(data_df, sheet, high)
+for file in files:
+    # file = files[1]
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
+    data_df, params = ld.load_csv(file_name)
+    data_df = data_df[data_df.sig_center]
+    data_df = data_df[data_df.sig_surround.astype(bool)]
+    data_df = ld.clean_df(data_df, mult=4)
+    fig = plot_d1_d0_low(data_df, sheet, param=params, high=high)
 
     save = False
     if save:
@@ -1585,7 +1593,8 @@ plt.close('all')
 
 def plot_d1_d2_high(datadf, sheet, shift=True):
     isi = {0: 27.8, 1: 34.7,
-           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8}
+           '1319_CXLEFT_TUN25_s30_csv_test.csv' : 27.8,
+           '2019_CXRIGHT_TUN21_s30_csv_test_noblank.csv' : 34.7}
     isi_shift = isi.get(sheet, 0)
     select = ['layers', 'latOn_d0_(c)',
               'latOn_d1_s_(25°/s)', 'latOn_d0_(s+c)_150°/s']
@@ -1598,7 +1607,10 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     if shift:
         df[select[3]] = df[select[3]] + isi_shift
     fig = plt.figure(figsize=(12,6))
-    fig.suptitle(sheet)
+    txt = sheet
+    if len(sheet) > 4:
+        txt = '_'.join(sheet.split('_')[:3])
+    fig.suptitle(txt)
     ax = fig.add_subplot(121)
     ax.scatter(df[select[1]].tolist(), df[select[2]].tolist(),
                marker='o', s=65,
@@ -1610,7 +1622,7 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
     ax.scatter(df[select[1]].tolist(), df[select[3]].tolist(),
                marker='o', s=65,
                alpha=0.6, color='tab:orange',
-               label= label)
+               label=label)
 
     lims = (df[df.columns[1:]].min().min() - 5,
             df[df.columns[1:]].max().max() + 5)
@@ -1640,12 +1652,14 @@ def plot_d1_d2_high(datadf, sheet, shift=True):
 
 
 plt.close('all')
-for sheet in range(2):
-    # sheet = 1
-    print(sheet)
-    data_df = load_latencies(sheet)
-    data_df = data_df[data_df.significancy]
-    data_df = clean_df(data_df, mult=4)
+for file in files:
+    # file = files[1]
+    sheet=file
+    file_name = os.path.join(paths['data'], file)
+    data_df, params = ld.load_csv(file_name)
+    data_df = data_df[data_df.sig_center]
+    data_df = data_df[data_df.sig_surround.astype(bool)]
+    data_df = ld.clean_df(data_df, mult=4)
     fig = plot_d1_d2_high(data_df, sheet)
 
     save=False
