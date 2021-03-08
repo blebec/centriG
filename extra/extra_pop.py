@@ -57,8 +57,6 @@ plt.rcParams.update({
 
 paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
 
-
-
 csvLoad = True
 if csvLoad:
     paths['data'] = os.path.join(paths['owncFig'], 'data', 'data_extra')
@@ -70,6 +68,7 @@ if csvLoad:
     file_name = os.path.join(paths['data'], file)
     data_df, params = ld.load_csv(file_name)
 else:
+    # xcel
     params = {'0' : '1319_CXLEFT',
               '1' : '2019_CXRIGHT'}
     sheet = '1'
