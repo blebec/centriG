@@ -92,7 +92,7 @@ def check_names(df):
     """
     splited = [_.split('_') for _ in df.columns]
     for i in range(8):
-        names = set([_[i] for _ in splited if len(_)>i])
+        names = {_[i] for _ in splited if len(_)>i}
         if names:
             print('{}   {}'.format(i, names))
 
@@ -151,6 +151,7 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
     hhs = [_ for _ in datadf.columns if _.startswith('hh')]
     ints = [_ for _ in datadf.columns if _.startswith('int')]
 # TODO sort HH order before plotting
+    # hhs = sorted(hhs, key=lambda x: x.split('_')[2])
     # group by stimulation
     if mes is None:
         ons = [_ for _ in ons if _.split('_')[-1] in ('25', '150')]
@@ -172,7 +173,7 @@ def plot_boxplots(datadf, removemax=True, params=params, mes=None):
     if removemax:
         for col in datadf.columns:
             if data_df[col].dtypes == float:
-                 datadf.loc[datadf[col] > 100, [col]] = np.nan
+                datadf.loc[datadf[col] > 100, [col]] = np.nan
     if mes is None:
         fig, axes = plt.subplots(nrows=1, ncols=3)
     else:
@@ -295,7 +296,7 @@ def filter_effect(filename=file_name, removemax=True, params=params, mes='on'):
     if removemax:
         for col in all_df.columns:
             if all_df[col].dtypes == float:
-                  all_df.loc[all_df[col] > 98, [col]] = np.nan
+                all_df.loc[all_df[col] > 98, [col]] = np.nan
     # dispatch dataframes
     c_df = all_df[all_df.sig_center]
     s_df = all_df[all_df.sig_surround]
@@ -344,7 +345,7 @@ def filter_effect(filename=file_name, removemax=True, params=params, mes='on'):
         #     line.set_color(colors_doubled[i])
         # box
         for i, patch in enumerate(bp['boxes']):
-               patch.set(facecolor=colors[i], alpha=0.3)
+            patch.set(facecolor=colors[i], alpha=0.3)
         # nb of cells
         y = df[cols].count().values
         for j, n in enumerate(y, 1):
