@@ -371,7 +371,7 @@ def plot_both(gdf=bined_df):
     ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
            align=align, color=std_colors['green'],
            edgecolor='k', alpha=0.8, label='impulse'.title())
-    txt = 'Apparent Horizontal Propagation Speed (AHSP) m/s'
+    txt = 'Apparent Speed of Horizontal Propagation  (ASHP) m/s'
     ax.set_xlabel(txt)
     ax.set_ylabel('nb of Measures')
     ax.legend()
