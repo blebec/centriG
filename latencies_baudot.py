@@ -50,7 +50,7 @@ plt.rcParams.update(
      'axes.xmargin': 0}
 )
 
-filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.xlsx'
+file_name = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.xlsx'
 #%%
 
 # filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/Figure latence GABY + histo.xls'
@@ -93,6 +93,7 @@ def load_onsets():
     cols[-3] = cols[-3].replace('lat_sig_', '').split('.')[0]
     cols[-3] = cols[-3].replace('_s', '_seq').split('.')[0]
     df.columns = cols
+    df['moy_c-p'] *= (-1) # correction to obtain relative latency
     return df
 
 
@@ -115,7 +116,8 @@ def plot_onsetTransfertFunc(df):
 
     for i, stim in enumerate(stims):
         temp = df.loc[df.stim == stim, values].dropna()
-        x = -1 * temp[values[0]].values
+        # x = -1 * temp[values[0]].values
+        x = temp[values[0]].values
         y = temp[values[1]].values
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=stim, edgecolor='w')
@@ -152,6 +154,96 @@ fig = plot_onsetTransfertFunc(data_df)
 save = False
 if save:
     file = 'onsetTransfertFunc.png'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
+    filename = os.path.join(dirname, file)
+    fig.savefig(filename)
+
+#%% histogrammes
+
+plt.close('all')
+
+def histo_inAndOut(df):
+
+    # df = data_df.copy()
+
+    fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(8,6),
+                          sharex=True, sharey=True)
+    axes = axes.flatten(order='F')
+
+    values = ['moy_c-p', 'psth_seq-c']
+    stims = df.stim.unique()
+    colors = ['tab:brown', std_colors['green'],
+              std_colors['yellow'],std_colors['red']]
+
+    # define bins
+    maxi = max(data_df[values[0]].quantile(q=.95),
+               data_df[values[1]].quantile(q=.95))
+    mini = min(data_df[values[0]].quantile(q=.05),
+               data_df[values[1]].quantile(q=.05))
+    maxi = ceil(maxi/5)*5
+    mini = floor(mini/5)*5
+    # in = VM
+    for i, stim in enumerate(stims):
+        ax = axes[i]
+        temp = df.loc[df.stim == stim, values[0]].dropna()
+        a, b, c = temp.quantile([.25, .5, .75])
+        ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
+        ax.axvspan(a, c, color=colors[i], alpha=0.3)
+        height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
+                                 density=True)
+        txt = '{:.1f} ({:.0f} {:.0f})'.format(a, b, c)
+        ax.text(x=1, y=0.5, s=txt, color='tab:grey', fontsize='small',
+                va='bottom', ha='right', transform=ax.transAxes)
+        x = x[:-1]
+        align='edge' # ie right edge
+        # NB ax.bar, x value = lower
+        ax.bar(x, height=height, width=5, align=align,
+               color=colors[i], edgecolor='k', alpha=0.6, label='stim')
+        ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
+    # out = Spk
+    for i, stim in enumerate(stims):
+        ax = axes[i+4]
+        temp = df.loc[df.stim == stim, values[1]].dropna()
+        a, b, c = temp.quantile([.25, .5, .75])
+        ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
+        ax.axvspan(a, c, color=colors[i], alpha=0.3)
+        txt = '{:.1f} ({:.0f} {:.0f})'.format(a, b, c)
+        ax.text(x=1, y=0.5, s=txt, color='tab:grey', fontsize='small',
+                va='bottom', ha='right', transform=ax.transAxes)
+        height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
+                                 density=True)
+        x = x[:-1]
+        align='edge' # ie right edge
+        # NB ax.bar, x value = lower
+        ax.bar(x, height=height, width=5, align=align,
+               color=colors[i], edgecolor='k', alpha=0.6, label='stim')
+        ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
+
+    for ax in axes:
+        for spine in ['left', 'top', 'right']:
+            ax.spines[spine].set_visible(False)
+        ax.set_yticks([])
+
+    axes[0].set_title('Input (Vm))')
+    axes[4].set_title('Output (Spk)')
+    axes[3].set_xlabel('Onset Relative Latency (msec)')
+    axes[7].set_xlabel('Onset Relative Latency (msec)')
+
+
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
+
+plt.close('all')
+fig = histo_inAndOut(data_df)
+
+save = False
+if save:
+    file = 'histo_inAndOut.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
