@@ -181,42 +181,29 @@ def histo_inAndOut(df):
                data_df[values[1]].quantile(q=.05))
     maxi = ceil(maxi/5)*5
     mini = floor(mini/5)*5
-    # in = VM
-    for i, stim in enumerate(stims):
-        ax = axes[i]
-        temp = df.loc[df.stim == stim, values[0]].dropna()
-        a, b, c = temp.quantile([.25, .5, .75])
-        ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
-        ax.axvspan(a, c, color=colors[i], alpha=0.3)
-        height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
-                                 density=True)
-        txt = '{:.1f} ({:.0f} {:.0f})'.format(a, b, c)
-        ax.text(x=1, y=0.5, s=txt, color='tab:grey', fontsize='small',
-                va='bottom', ha='right', transform=ax.transAxes)
-        x = x[:-1]
-        align='edge' # ie right edge
-        # NB ax.bar, x value = lower
-        ax.bar(x, height=height, width=5, align=align,
-               color=colors[i], edgecolor='k', alpha=0.6, label='stim')
-        ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
-    # out = Spk
-    for i, stim in enumerate(stims):
-        ax = axes[i+4]
-        temp = df.loc[df.stim == stim, values[1]].dropna()
-        a, b, c = temp.quantile([.25, .5, .75])
-        ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
-        ax.axvspan(a, c, color=colors[i], alpha=0.3)
-        txt = '{:.1f} ({:.0f} {:.0f})'.format(a, b, c)
-        ax.text(x=1, y=0.5, s=txt, color='tab:grey', fontsize='small',
-                va='bottom', ha='right', transform=ax.transAxes)
-        height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
-                                 density=True)
-        x = x[:-1]
-        align='edge' # ie right edge
-        # NB ax.bar, x value = lower
-        ax.bar(x, height=height, width=5, align=align,
-               color=colors[i], edgecolor='k', alpha=0.6, label='stim')
-        ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
+    #plot
+    for k in range(2):      # [vm, spk]
+        for i, stim in enumerate(stims):
+            ax = axes[i + 4*k]
+            temp = df.loc[df.stim == stim, values[k]].dropna()
+            a, b, c = temp.quantile([.25, .5, .75])
+            ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
+            ax.axvspan(a, c, color=colors[i], alpha=0.3)
+            txt = 'med= {:.0f}'.format(b)
+            ax.text(x=1, y=0.8, s=txt, color='tab:grey', fontsize='small',
+                    va='bottom', ha='right', transform=ax.transAxes)
+            txt = '{} cells'.format(len(temp))
+            ax.text(x=0, y=0.8, s=txt, color='tab:grey', fontsize='small',
+                    va='bottom', ha='left', transform=ax.transAxes)
+            # histo
+            height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
+                                     density=True)
+            x = x[:-1]
+            align='edge' # ie right edge
+            # NB ax.bar, x value = lower
+            ax.bar(x, height=height, width=5, align=align,
+                   color=colors[i], edgecolor='k', alpha=0.6, label='stim')
+            ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
 
     for ax in axes:
         for spine in ['left', 'top', 'right']:
@@ -227,7 +214,6 @@ def histo_inAndOut(df):
     axes[4].set_title('Output (Spk)')
     axes[3].set_xlabel('Onset Relative Latency (msec)')
     axes[7].set_xlabel('Onset Relative Latency (msec)')
-
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
