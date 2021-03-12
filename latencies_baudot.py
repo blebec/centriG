@@ -118,8 +118,9 @@ def plot_onsetTransfertFunc(df):
         # x = -1 * temp[values[0]].values
         x = temp[values[0]].values
         y = temp[values[1]].values
+        label = '{} {}'.format(stim, len(temp))
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
-                   s=100, alpha=0.8, label=stim, edgecolor='w')
+                   s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
         x = x.reshape(len(x), 1)
         y = y.reshape(len(x), 1)
@@ -217,7 +218,7 @@ def histo_inAndOut(df):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
+        fig.text(0.99, 0.01, 'latencies_baudot.py:histo_inOut',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
