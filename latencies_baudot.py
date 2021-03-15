@@ -72,7 +72,7 @@ def load_onsets():
     #
     df = data_dict['DITRIB latence min max calcul 1']
     # remove empty columns
-    df = df.dropna(axis=1, how='all')
+    df = df.dropna(axis=1, how='all')? ""
     df = df.drop(0)
 
     # kinds of stimulation formating
@@ -97,6 +97,21 @@ def load_onsets():
 
 
 data_df = load_onsets()
+
+#%%
+
+def lenOfRecording(df):
+    names = [_ for _ in df.nom.unique() if _[:3].isdigit()]
+    cells = {_[:4] for _ in names}
+
+    print('='*15)
+    print('nb of recordings for latencies = {}'.format(len(names)))
+    print (names)
+    print('='*15)
+    print('nb of unique numId = {}'.format(len(cells)))
+    print (cells)
+
+lenOfRecording(data_df)
 #%%
 
 def plot_onsetTransfertFunc(df):
