@@ -404,6 +404,29 @@ def dotplot_cell_depth_all(spread='sect', amp='gain'):
 plt.close('all')
 
 
+def load_for_depth():
+    data50 = ldat.load_cell_contributions('vm')
+    # retain only the neuron names
+    data50.reset_index(inplace=True)
+    data50.Neuron = data50.Neuron.apply(lambda x: x.split('_')[0])
+    data50.set_index('Neuron', inplace=True)
+    # layers (.csv file include decimals in dephts -> bugs)
+    filename = os.path.join(paths['owncFig'], 
+                            'cells/centri_neurons_histolog_170105.xlsx')
+    df = pd.read_excel(filename)
+    df.set_index('Neuron', inplace=True)
+    # lay_df = pd.concat([data50, df])
+    lay_df = pd.concat([data50, df], axis=1, join='inner')
+    labelled = lay_df.dropna(subset=['CDLayer']).copy()
+    kind = 'cpisosect_time50'
+    labelled.CDLayer = labelled.CDLayer.astype('int')
+    # sort by response
+    labelled = labelled.sort_values(by=kind, ascending=False)
+    # an the sort by depth
+    labelled = labelled.sort_values(by='CDLayer', ascending=True)
+    depths = labelled.dropna(axis=1).CDLayer
+    depths.value_counts().sort_index().to_clipboard()
+    tot_nb_labelled = len(df.dropna(axis=1, how='all').CDLayer.dropna().astype(int))
 
 #%%
 
