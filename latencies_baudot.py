@@ -91,7 +91,7 @@ def load_onsets():
     cols[-4] = cols[-4].replace('_s', '_seq').split('.')[0]
     cols[-3] = cols[-3].replace('lat_sig_', '').split('.')[0]
     cols[-3] = cols[-3].replace('_s', '_seq').split('.')[0]
-    df.columns = cols
+    df.columns = cols  
     df['moy_c-p'] *= (-1) # correction to obtain relative latency
     return df
 
@@ -100,7 +100,7 @@ data_df = load_onsets()
 
 #%%
 
-def lenOfRecording(df):
+def printLenOfRecording(df):
     names = [_ for _ in df.nom.unique() if _[:3].isdigit()]
     cells = {_[:5] for _ in names}
 
@@ -111,7 +111,7 @@ def lenOfRecording(df):
     print('nb of unique numId = {}'.format(len(cells)))
     print (cells)
 
-lenOfRecording(data_df)
+printLenOfRecording(data_df)
 #%%
 
 def plot_onsetTransfertFunc(df):
