@@ -133,7 +133,10 @@ def plot_onsetTransfertFunc(df):
         # x = -1 * temp[values[0]].values
         x = temp[values[0]].values
         y = temp[values[1]].values
-        label = '{} {}'.format(stim, len(temp))
+        # corr
+        r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
+        
+        label = '{} r2={:.3f}'.format(stim, r2)
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
@@ -141,8 +144,9 @@ def plot_onsetTransfertFunc(df):
         y = y.reshape(len(x), 1)
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
-        ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
-                linewidth=3, alpha=0.7)
+        if r2 > 0.001:
+            ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
+                    linewidth=3, alpha=0.7)
     ax.legend()
     ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
