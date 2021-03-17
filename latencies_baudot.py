@@ -15,6 +15,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from sklearn import linear_model
+from scipy import stats
 
 
 import config
@@ -136,7 +137,7 @@ def plot_onsetTransfertFunc(df):
         # corr
         r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         
-        label = '{} r2={:.3f}'.format(stim, r2)
+        label = '{} {}  r2={:.3f}'.format(len(temp), stim, r2)
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
