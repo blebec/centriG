@@ -82,6 +82,8 @@ def load_onsets():
     # remove empty columns
     df = df.dropna(axis=1, how='all')
     df = df.drop(0)
+    # remove empty rows
+    df = df.dropna(axis=0, how='all')
 
     # kinds of stimulation formating
     df[df.columns[0]] = df[df.columns[0]].fillna(method='ffill')
@@ -103,7 +105,7 @@ def load_onsets():
     df['moy_c-p'] *= (-1) # correction to obtain relative latency
     for col in ['moy_c-p', 'psth_seq-c']:
         df[col] = df[col].astype(float)
-    return df
+        return df
 
 
 data_df = load_onsets()
@@ -141,7 +143,6 @@ def plot_onsetTransfertFunc(inputdf):
     fig.suptitle('spk Vm onset-time transfert function')
     ax = fig.add_subplot(111)
 
-
     for i, stim in enumerate(stims):
         df = datadf.loc[datadf.stim == stim, cols]
         # remove outliers
@@ -149,8 +150,8 @@ def plot_onsetTransfertFunc(inputdf):
         df.loc[df[cols[0]] > xscales[1]] = np.nan
         df = df.dropna()
         # x = -1 * temp[values[0]].values
-        x = df[cols[0]].values
-        y = df[cols[1]].values
+        x = df[cols[0]].values.astype(float)
+        y = df[cols[1]].values.astype(float)
         # corr
         # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         lregr = stats.linregress(x,y)
@@ -176,7 +177,7 @@ def plot_onsetTransfertFunc(inputdf):
         ax.spines[spine].set_visible(False)
 
     ax.set_ylim(-30, 30)
-    ax.set_xlim(-30, 70)
+    ax.set_xlim(xscales)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -216,11 +217,10 @@ def histo_inAndOut(inputdf, removeOutliers=True):
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
     if removeOutliers:
-        #xscales
-        xmin = -30
-        xmax = 70
-        datadf.loc[datadf[cols[0]] > xmax] = np.nan
-        datadf.loc[datadf[cols[0]] < xmin] = np.nan
+        # xscales
+        xscales = [-30, 70]
+        datadf.loc[datadf[cols[0]] < xscales[0]] = np.nan
+        datadf.loc[datadf[cols[0]] > xscales[1]] = np.nan
 
     # define bins
     maxi = max(datadf[cols[0]].quantile(q=.95),
@@ -229,7 +229,7 @@ def histo_inAndOut(inputdf, removeOutliers=True):
                datadf[cols[1]].quantile(q=.05))
     maxi = ceil(maxi/5)*5
     mini = floor(mini/5)*5
-    #plot
+    # plot
     for k in range(2):      # [vm, spk]
         for i, stim in enumerate(stims):
             ax = axes[i + 4*k]
@@ -254,10 +254,9 @@ def histo_inAndOut(inputdf, removeOutliers=True):
             ax.axvline(0, color='tab:blue', alpha=0.7, linewidth=2)
 
     for ax in axes:
+        ax.set_yticks([])
         for spine in ['left', 'top', 'right']:
             ax.spines[spine].set_visible(False)
-        ax.set_yticks([])
-
     axes[0].set_title('Input (Vm)')
     axes[4].set_title('Output (Spk)')
     axes[3].set_xlabel('Onset Relative Latency (msec)')
@@ -269,7 +268,7 @@ def histo_inAndOut(inputdf, removeOutliers=True):
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
         if removeOutliers:
-            txt = 'only [{}, {}] range '.format(xmin, xmax)
+            txt = 'only {} range '.format(xscales)
             fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
@@ -288,21 +287,19 @@ if save:
 plt.close('all')
 
 
-def plot_diffMean(inputdf, removeOutliers=True):
+def plot_diffMean(inputdf, removeOutliers=True, refMean=True):
 # datadf = data_df.copy()
     datadf = inputdf.copy()
     cols = ['moy_c-p', 'psth_seq-c']
     stims = datadf.stim.unique()
-    markers = {'cf' : '^', 'cp' : 'v'}
+    markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
     if removeOutliers:
         #xscales
-        xmin = -30
-        xmax = 70
-        datadf.loc[datadf[cols[0]] > xmax] = np.nan
-        datadf.loc[datadf[cols[0]] < xmin] = np.nan
-
+        xscales = [-30, 70]
+        datadf.loc[datadf[cols[0]] < xscales[0]] = np.nan
+        datadf.loc[datadf[cols[0]] > xscales[1]] = np.nan
 
     fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12),
                              sharex=True, sharey=True)
@@ -311,7 +308,10 @@ def plot_diffMean(inputdf, removeOutliers=True):
     for i, stim in enumerate(stims):
         ax = axes[i]
         df = datadf.loc[datadf.stim == stim, cols].dropna().copy()
-        x = df.mean(axis=1)
+        if refMean:
+            x = df.mean(axis=1)
+        else:
+            x = df[cols[0]]
         y = df.diff(axis=1)[cols[1]]
         # y = (df[cols[1]] - df[cols[0]])
         # quantiles
@@ -340,13 +340,14 @@ def plot_diffMean(inputdf, removeOutliers=True):
         ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
         ax.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
         ax.set_ylabel('spikes - vm (msec)')
-        ax.set_xlabel('Vm Spk mean onset relative latency (msec)')
+        if refMean:
+            ax.set_xlabel('mean(Vm, Spk) onset relative latency (msec)')
+        else:
+            ax.set_xlabel('Vm onset relative latency (msec)')
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
-
     ax.set_ylim(-60, 60)
     # ax.set_xlim(-25, 60)
-
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_diffMean',
@@ -356,7 +357,8 @@ def plot_diffMean(inputdf, removeOutliers=True):
     return fig
 
 plt.close('all')
-figure = plot_diffMean(data_df)
+ref_mean = True
+figure = plot_diffMean(data_df, refMean=ref_mean)
 save = False
 if save:
     file = 'diffMean.png'
