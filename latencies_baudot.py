@@ -94,6 +94,8 @@ def load_onsets():
     cols[-3] = cols[-3].replace('_s', '_seq').split('.')[0]
     df.columns = cols  
     df['moy_c-p'] *= (-1) # correction to obtain relative latency
+    for col in ['moy_c-p', 'psth_seq-c']:
+        df[col] = df[col].astype(float)
     return df
 
 
@@ -119,9 +121,9 @@ def plot_onsetTransfertFunc(df):
     """
     plot the vm -> time onset transfert function
     """
-    values = ['moy_c-p', 'psth_seq-c']
+    cols = ['moy_c-p', 'psth_seq-c']
     stims = df.stim.unique()
-    markers = {'cf' : '^', 'cp' : 'v'}
+    markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
 
@@ -130,10 +132,16 @@ def plot_onsetTransfertFunc(df):
     ax = fig.add_subplot(111)
 
     for i, stim in enumerate(stims):
-        temp = df.loc[df.stim == stim, values].dropna()
+        temp = df.loc[df.stim == stim, cols]
+        # remove outliers
+        xmin = -30, 
+        xmax = 70
+        temp.loc[temp[cols[0]] > xmax] = np.nan
+        temp.loc[temp[cols[0]] < xmin] = np.nan
+        temp = temp.dropna()
         # x = -1 * temp[values[0]].values
-        x = temp[values[0]].values
-        y = temp[values[1]].values
+        x = temp[cols[0]].values
+        y = temp[cols[1]].values
         # corr
         r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         
