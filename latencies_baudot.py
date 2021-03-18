@@ -66,6 +66,13 @@ file_name = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.
 
 
 def load_onsets():
+    """
+    load the excel data and format it
+
+    Returns
+    -------
+    df : pandas dataframe
+    """
     filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/Figure latence GABY + histo.xls'
     data_dict = pd.read_excel(filename, None)
     for k in data_dict:
@@ -92,7 +99,7 @@ def load_onsets():
     cols[-4] = cols[-4].replace('_s', '_seq').split('.')[0]
     cols[-3] = cols[-3].replace('lat_sig_', '').split('.')[0]
     cols[-3] = cols[-3].replace('_s', '_seq').split('.')[0]
-    df.columns = cols  
+    df.columns = cols
     df['moy_c-p'] *= (-1) # correction to obtain relative latency
     for col in ['moy_c-p', 'psth_seq-c']:
         df[col] = df[col].astype(float)
@@ -117,35 +124,39 @@ def printLenOfRecording(df):
 printLenOfRecording(data_df)
 #%%
 
-def plot_onsetTransfertFunc(df):
+def plot_onsetTransfertFunc(inputdf):
     """
     plot the vm -> time onset transfert function
     """
+    datadf = inputdf.copy()
     cols = ['moy_c-p', 'psth_seq-c']
-    stims = df.stim.unique()
+    stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
+    #xscales
+    xscales = [-30, 70]
 
     fig = plt.figure(figsize=(8, 6))
     fig.suptitle('spk Vm onset-time transfert function')
     ax = fig.add_subplot(111)
 
+
     for i, stim in enumerate(stims):
-        temp = df.loc[df.stim == stim, cols]
+        df = datadf.loc[datadf.stim == stim, cols]
         # remove outliers
-        xmin = -30, 
-        xmax = 70
-        temp.loc[temp[cols[0]] > xmax] = np.nan
-        temp.loc[temp[cols[0]] < xmin] = np.nan
-        temp = temp.dropna()
+        df.loc[df[cols[0]] < xscales[0]] = np.nan
+        df.loc[df[cols[0]] > xscales[1]] = np.nan
+        df = df.dropna()
         # x = -1 * temp[values[0]].values
-        x = temp[cols[0]].values
-        y = temp[cols[1]].values
+        x = df[cols[0]].values
+        y = df[cols[1]].values
         # corr
-        r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
-        
-        label = '{} {}  r2={:.3f}'.format(len(temp), stim, r2)
+        # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
+        lregr = stats.linregress(x,y)
+        r2 = lregr.rvalue ** 2
+        print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
+        label = '{} {}  r2={:.3f}'.format(len(df), stim, r2)
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
@@ -172,60 +183,68 @@ def plot_onsetTransfertFunc(df):
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        txt = 'only {} range'.format(xscales)
+        fig.text(0.5, 0.01, txt, ha='right', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 
 
 plt.close('all')
-fig = plot_onsetTransfertFunc(data_df)
+figure = plot_onsetTransfertFunc(data_df)
 
 save = False
 if save:
     file = 'onsetTransfertFunc.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    figure.savefig(file_name)
 
 #%% histogrammes
 
 plt.close('all')
 
-def histo_inAndOut(df):
+def histo_inAndOut(inputdf, removeOutliers=True):
 
-    # df = data_df.copy()
+    datadf = inputdf.copy()
 
     fig, axes = plt.subplots(nrows=4, ncols=2, figsize=(8,6),
                           sharex=True, sharey=True)
     axes = axes.flatten(order='F')
 
-    values = ['moy_c-p', 'psth_seq-c']
-    stims = df.stim.unique()
+    cols = ['moy_c-p', 'psth_seq-c']
+    stims = datadf.stim.unique()
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
+    if removeOutliers:
+        #xscales
+        xmin = -30
+        xmax = 70
+        datadf.loc[datadf[cols[0]] > xmax] = np.nan
+        datadf.loc[datadf[cols[0]] < xmin] = np.nan
 
     # define bins
-    maxi = max(data_df[values[0]].quantile(q=.95),
-               data_df[values[1]].quantile(q=.95))
-    mini = min(data_df[values[0]].quantile(q=.05),
-               data_df[values[1]].quantile(q=.05))
+    maxi = max(datadf[cols[0]].quantile(q=.95),
+               datadf[cols[1]].quantile(q=.95))
+    mini = min(datadf[cols[0]].quantile(q=.05),
+               datadf[cols[1]].quantile(q=.05))
     maxi = ceil(maxi/5)*5
     mini = floor(mini/5)*5
     #plot
     for k in range(2):      # [vm, spk]
         for i, stim in enumerate(stims):
             ax = axes[i + 4*k]
-            temp = df.loc[df.stim == stim, values[k]].dropna()
-            a, b, c = temp.quantile([.25, .5, .75])
+            df = datadf.loc[datadf.stim == stim, cols[k]].dropna()
+            a, b, c = df.quantile([.25, .5, .75])
             ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
             ax.axvspan(a, c, color=colors[i], alpha=0.3)
             txt = 'med= {:.0f}'.format(b)
             ax.text(x=1, y=0.8, s=txt, color='tab:grey', fontsize='small',
                     va='bottom', ha='right', transform=ax.transAxes)
-            txt = '{} cells'.format(len(temp))
+            txt = '{} cells'.format(len(df))
             ax.text(x=0, y=0.8, s=txt, color='tab:grey', fontsize='small',
                     va='bottom', ha='left', transform=ax.transAxes)
             # histo
-            height, x = np.histogram(temp.values, bins=range(mini, maxi, 5),
+            height, x = np.histogram(df.values, bins=range(mini, maxi, 5),
                                      density=True)
             x = x[:-1]
             align='edge' # ie right edge
@@ -239,7 +258,7 @@ def histo_inAndOut(df):
             ax.spines[spine].set_visible(False)
         ax.set_yticks([])
 
-    axes[0].set_title('Input (Vm))')
+    axes[0].set_title('Input (Vm)')
     axes[4].set_title('Output (Spk)')
     axes[3].set_xlabel('Onset Relative Latency (msec)')
     axes[7].set_xlabel('Onset Relative Latency (msec)')
@@ -249,43 +268,53 @@ def histo_inAndOut(df):
         fig.text(0.99, 0.01, 'latencies_baudot.py:histo_inOut',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        if removeOutliers:
+            txt = 'only [{}, {}] range '.format(xmin, xmax)
+            fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
 
 plt.close('all')
-fig = histo_inAndOut(data_df)
+figure = histo_inAndOut(data_df, removeOutliers=True)
 
 save = False
 if save:
     file = 'histo_inAndOut.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    figure.savefig(file_name)
 
 #%% diff /ref
 plt.close('all')
 
 
-def plot_diffMean(df):
-# df = data_df.copy()
-
-    values = ['moy_c-p', 'psth_seq-c']
-    stims = df.stim.unique()
+def plot_diffMean(inputdf, removeOutliers=True):
+# datadf = data_df.copy()
+    datadf = inputdf.copy()
+    cols = ['moy_c-p', 'psth_seq-c']
+    stims = datadf.stim.unique()
     markers = {'cf' : '^', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
+    if removeOutliers:
+        #xscales
+        xmin = -30
+        xmax = 70
+        datadf.loc[datadf[cols[0]] > xmax] = np.nan
+        datadf.loc[datadf[cols[0]] < xmin] = np.nan
 
-    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12), 
+
+    fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(12, 12),
                              sharex=True, sharey=True)
     axes = axes.flatten()
 
     for i, stim in enumerate(stims):
         ax = axes[i]
-        temp = df.loc[df.stim == stim, values].dropna().copy()
-        x = temp.mean(axis=1)
-        y = temp.diff(axis=1)[values[1]]
-        # y = (temp[values[1]] - temp[values[0]])
-        # quantiles        
+        df = datadf.loc[datadf.stim == stim, cols].dropna().copy()
+        x = df.mean(axis=1)
+        y = df.diff(axis=1)[cols[1]]
+        # y = (df[cols[1]] - df[cols[0]])
+        # quantiles
         a, b, c = x.quantile([.25, .5, .75])
         ax.axvline(b, color=colors[i], alpha=0.6, linewidth=2)
         ax.axvspan(a, c, color=colors[i], alpha=0.3)
@@ -305,7 +334,7 @@ def plot_diffMean(df):
         ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
                 linewidth=3, alpha=0.7)
         ax.legend()
-        txt = '{} cells'.format(len(temp))
+        txt = '{} cells'.format(len(df))
         ax.text(x=0.05, y=0.7, s=txt, color='tab:grey', fontsize='small',
                 va='bottom', ha='left', transform=ax.transAxes)
         ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
@@ -327,10 +356,10 @@ def plot_diffMean(df):
     return fig
 
 plt.close('all')
-fig = plot_diffMean(data_df)
+figure = plot_diffMean(data_df)
 save = False
 if save:
     file = 'diffMean.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    figure.savefig(file_name)
