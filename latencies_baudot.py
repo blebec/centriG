@@ -157,7 +157,8 @@ def plot_onsetTransfertFunc(inputdf):
         lregr = stats.linregress(x,y)
         r2 = lregr.rvalue ** 2
         print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
-        label = '{} {}  r2={:.3f}'.format(len(df), stim, r2)
+        # label = '{} {}  r2={:.3f}'.format(len(df), stim, r2)
+        label = '{} cells, {}'.format(len(df), stim)
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
@@ -165,9 +166,13 @@ def plot_onsetTransfertFunc(inputdf):
         y = y.reshape(len(x), 1)
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
-        if r2 > 0.001:
-            ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
-                    linewidth=3, alpha=0.7)
+        # if r2 > 0.001:
+        #     ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
+        #             linewidth=3, alpha=0.7)
+        
+    mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
+    maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
+    ax.plot([mini, maxi], [mini, maxi], '-', color='tab:grey', alpha=0.5)
     ax.legend()
     ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
