@@ -105,10 +105,29 @@ def load_onsets():
     df['moy_c-p'] *= (-1) # correction to obtain relative latency
     for col in ['moy_c-p', 'psth_seq-c']:
         df[col] = df[col].astype(float)
-        return df
+    # cleaning
+    # remove moy, ...
+    to_remove = [_ for _ in df.nom.unique() if not _[:3].isdigit()]
+    for rem in to_remove: 
+        df = df.drop(df[df.nom == rem].index)
+    df.nom = df.nom.apply(lambda st: st.split()[0])
+    # remove duplicated columns (names)
+    df = df.T.drop_duplicates().T
+    # remove col 17
+    df = df.drop(labels='unnamed:_17', axis=1)
+    
+    # convet dtypes
+    cols = []
+    for col in df.columns:
+        try:
+            df[col] = df[col].astype(float)
+        except:
+            cols.append(col)
+    return df
 
 
 data_df = load_onsets()
+df = data_df.copy()
 
 #%%
 
