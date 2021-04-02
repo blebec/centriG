@@ -75,42 +75,45 @@ def load_onsets():
     """
     filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/Figure latence GABY + histo.xls'
     data_dict = pd.read_excel(filename, None)
-    for k in data_dict:
-        print(k)
-    #
+    # for k in data_dict:
+    #     print(k)
     df = data_dict['DITRIB latence min max calcul 1']
-    # remove empty columns
+    # remove empty columns and rows
     df = df.dropna(axis=1, how='all')
     df = df.drop(0)
-    # remove empty rows
     df = df.dropna(axis=0, how='all')
-
-    # kinds of stimulation formating
-    df[df.columns[0]] = df[df.columns[0]].fillna(method='ffill')
-    df[df.columns[0]] = df[df.columns[0]].apply(lambda st: '_'.join(st.lower().split(' ')[::-1]))
-    df[df.columns[-1]] = df[df.columns[-1]].fillna(method='ffill')
-    df[df.columns[-1]] = df[df.columns[-1]].apply(lambda st: st.lower())
-    df = df.rename(columns = {df.columns[0]: 'stim', df.columns[-1]:'repr'})
+    # format stimulation formating
+    df = df.rename(columns={df.columns[0]:'stim', df.columns[-1]:'repr'})
+    # fill all cells with appropriate stimulation
+    df.stim = df.stim.fillna(method='ffill')
+    df.repr = df.repr.fillna(method='ffill')
+    # format stim ['cf_para', 'cf_iso', 'cp_para', 'cp_iso']
+    df.stim = df.stim.apply(lambda st: '_'.join(st.lower().split(' ')[::-1]))
+    df.repr = df.repr.apply(lambda st: st.lower())
 
     # manage columns names
     cols = [st.lower() for st in df.columns]
     cols = [_.replace('correlation', 'corr') for _ in cols]
     cols = [_.replace('airsign', 'sig') for _ in cols]
+    cols = [_.replace('psth', 'spk') for _ in cols]
+    cols = [_.replace('moy', 'vm') for _ in cols]
+    cols = [_.replace('nom', 'name') for _ in cols]
     cols = ['_'.join(_.split(' ')) for _ in cols]
-    cols[-4] = cols[-4].replace('lat_sig_', '').split('.')[0]
-    cols[-4] = cols[-4].replace('_s', '_seq').split('.')[0]
-    cols[-3] = cols[-3].replace('lat_sig_', '').split('.')[0]
+    
+    cols[-4] = cols[-4].replace('lat_sig_', 'lat_').split('.')[0]
+    cols[-4] = cols[-4].replace('_s-', '_seq-').split('.')[0]
+    cols[-3] = cols[-3].replace('lat_sig_', 'lat_').split('.')[0]
     cols[-3] = cols[-3].replace('_s', '_seq').split('.')[0]
     df.columns = cols
-    df['moy_c-p'] *= (-1) # correction to obtain relative latency
-    for col in ['moy_c-p', 'psth_seq-c']:
-        df[col] = df[col].astype(float)
+    # df['lat_vm_c-p'] *= (-1) # correction to obtain relative latency
+    # for col in ['moy_c-p', 'psth_seq-c']:
+    #     df[col] = df[col].astype(float)
     # cleaning
     # remove moy, ...
-    to_remove = [_ for _ in df.nom.unique() if not _[:3].isdigit()]
+    to_remove = [_ for _ in df.name.unique() if not _[:3].isdigit()]
     for rem in to_remove: 
-        df = df.drop(df[df.nom == rem].index)
-    df.nom = df.nom.apply(lambda st: st.split()[0])
+        df = df.drop(df[df.name == rem].index)
+    df.name = df.name.apply(lambda st: st.split()[0])
     # remove duplicated columns (names)
     df = df.T.drop_duplicates().T
     # remove col 17
@@ -132,7 +135,7 @@ df = data_df.copy()
 #%%
 
 def printLenOfRecording(df):
-    names = [_ for _ in df.nom.unique() if _[:3].isdigit()]
+    names = [_ for _ in df.name.unique() if _[:3].isdigit()]
     cells = {_[:5] for _ in names}
 
     print('='*15)
@@ -150,16 +153,17 @@ def plot_onsetTransfertFunc(inputdf):
     plot the vm -> time onset transfert function
     """
     datadf = inputdf.copy()
-    cols = ['moy_c-p', 'psth_seq-c']
+    cols = ['lat_vm_c-p', 'lat_spk_seq-c']
     stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
     #xscales
-    xscales = [-30, 70]
+    xscales = [-70, 30]
 
     fig = plt.figure(figsize=(8, 6))
-    fig.suptitle('spk Vm onset-time transfert function')
+    # fig.suptitle('spk Vm onset-time transfert function')
+    fig.suptitle('delta latency effect (msec)')
     ax = fig.add_subplot(111)
 
     for i, stim in enumerate(stims):
@@ -189,19 +193,21 @@ def plot_onsetTransfertFunc(inputdf):
         #     ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
         #             linewidth=3, alpha=0.7)
         
-    mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
-    maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
-    ax.plot([mini, maxi], [mini, maxi], '-', color='tab:grey', alpha=0.5)
+    # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
+    # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
+    # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
     ax.legend()
     ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
-    ax.set_ylabel('spikes onset relative latency (msec)')
-    ax.set_xlabel('Vm onset relative latency (msec)')
+    # ax.set_ylabel('spikes onset relative latency (msec)')
+    ax.set_ylabel('spikes : (surround + center) - center')
+    # ax.set_xlabel('Vm onset relative latency (msec)')
+    ax.set_xlabel('Vm : center - surround')
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
 
-    ax.set_ylim(-30, 30)
-    ax.set_xlim(xscales)
+    # ax.set_ylim(-30, 30)
+    # ax.set_xlim(xscales)
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -389,3 +395,7 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
+
+
+#%%
+
