@@ -154,6 +154,7 @@ def plot_onsetTransfertFunc(inputdf):
     """
     datadf = inputdf.copy()
     cols = ['lat_vm_c-p', 'lat_spk_seq-c']
+    cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
@@ -180,8 +181,8 @@ def plot_onsetTransfertFunc(inputdf):
         lregr = stats.linregress(x,y)
         r2 = lregr.rvalue ** 2
         print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
-        # label = '{} {}  r2={:.3f}'.format(len(df), stim, r2)
-        label = '{} cells, {}'.format(len(df), stim)
+        label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
+        # label = '{} cells, {}'.format(len(df), stim)
         ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # regress:
@@ -189,10 +190,9 @@ def plot_onsetTransfertFunc(inputdf):
         y = y.reshape(len(x), 1)
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
-        # if r2 > 0.001:
-        #     ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
-        #             linewidth=3, alpha=0.7)
-        
+        if r2 > 0.01:
+            ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
+                    linewidth=3, alpha=0.5)
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
     # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
     # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
@@ -202,13 +202,13 @@ def plot_onsetTransfertFunc(inputdf):
     # ax.set_ylabel('spikes onset relative latency (msec)')
     ax.set_ylabel('spikes : (surround + center) - center')
     # ax.set_xlabel('Vm onset relative latency (msec)')
-    ax.set_xlabel('Vm : center - surround')
+    #ax.set_xlabel('Vm : center - surround')
+    ax.set_xlabel('Vm : (surround + center) - center')
     for spine in ['top', 'right']:
         ax.spines[spine].set_visible(False)
-
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
-
+    ax.set_xlim(-35, 15)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
@@ -243,6 +243,7 @@ def histo_inAndOut(inputdf, removeOutliers=True):
     axes = axes.flatten(order='F')
 
     cols = ['moy_c-p', 'psth_seq-c']
+    cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()
     colors = ['tab:brown', std_colors['green'],
               std_colors['yellow'],std_colors['red']]
@@ -320,7 +321,7 @@ plt.close('all')
 def plot_diffMean(inputdf, removeOutliers=True, refMean=True):
 # datadf = data_df.copy()
     datadf = inputdf.copy()
-    cols = ['moy_c-p', 'psth_seq-c']
+    cols = ['moy_c-p', 'psth_seq-c']    
     stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
