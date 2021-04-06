@@ -99,7 +99,7 @@ def load_onsets():
     cols = [_.replace('moy', 'vm') for _ in cols]
     cols = [_.replace('nom', 'name') for _ in cols]
     cols = ['_'.join(_.split(' ')) for _ in cols]
-    
+
     cols[-4] = cols[-4].replace('lat_sig_', 'lat_').split('.')[0]
     cols[-4] = cols[-4].replace('_s-', '_seq-').split('.')[0]
     cols[-3] = cols[-3].replace('lat_sig_', 'lat_').split('.')[0]
@@ -111,14 +111,14 @@ def load_onsets():
     # cleaning
     # remove moy, ...
     to_remove = [_ for _ in df.name.unique() if not _[:3].isdigit()]
-    for rem in to_remove: 
+    for rem in to_remove:
         df = df.drop(df[df.name == rem].index)
     df.name = df.name.apply(lambda st: st.split()[0])
     # remove duplicated columns (names)
     df = df.T.drop_duplicates().T
     # remove col 17
     df = df.drop(labels='unnamed:_17', axis=1)
-    
+
     # convet dtypes
     cols = []
     for col in df.columns:
@@ -148,6 +148,20 @@ def printLenOfRecording(df):
 printLenOfRecording(data_df)
 #%%
 
+  # kde = stats.gaussian_kde(ser)
+  # x_kde = np.linspace(0,100, 20)
+  # ax.plot(x_kde, kde(x_kde), color=colordict[col.split('_')[2]],
+  # alpha=1, linewidth=2, linestyle='-')
+
+plt.close('all')
+
+
+
+#%%
+
+from matplotlib.gridspec import GridSpec
+from scipy import stats
+
 def plot_onsetTransfertFunc(inputdf):
     """
     plot the vm -> time onset transfert function
@@ -162,12 +176,26 @@ def plot_onsetTransfertFunc(inputdf):
     #xscales
     xscales = [-70, 30]
 
-    fig = plt.figure(figsize=(8, 6))
-    # fig.suptitle('spk Vm onset-time transfert function')
-    fig.suptitle('delta latency effect (msec)')
-    ax = fig.add_subplot(111)
+    # fig = plt.figure(figsize=(8, 6))
+    # # fig.suptitle('spk Vm onset-time transfert function')
+    # fig.suptitle('delta latency effect (msec)')
+    # ax = fig.add_subplot(111)
 
-    for i, stim in enumerate(stims):
+    # plotting
+    fig = plt.figure(figsize=(14, 12))
+    gs = GridSpec(3,3)
+    # vertical histogram/kde
+    v0 = fig.add_subplot(gs[0, :2])
+    # v0.set_title('v0')
+    # scatter plot
+    ax0 = fig.add_subplot(gs[1:, :2], sharex=v0)
+    # ax0.set_title('ax0')
+    # horizontal histogram
+    h0 = fig.add_subplot(gs[1:, 2], sharey=ax0)
+    # h0.set_title('h0')
+
+    colors = colors[1:]
+    for i, stim in enumerate(stims[1:]):
         df = datadf.loc[datadf.stim == stim, cols]
         # remove outliers
         df.loc[df[cols[0]] < xscales[0]] = np.nan
@@ -183,32 +211,56 @@ def plot_onsetTransfertFunc(inputdf):
         print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
         label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
         # label = '{} cells, {}'.format(len(df), stim)
-        ax.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
+        ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
+        # kde
+        kde = stats.gaussian_kde(x)
+        x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
+        v0.plot(x_kde, kde(x_kde), color=colors[i], 
+                alpha=1, linewidth=2, linestyle='-')
+        q = np.quantile(x, q=[.25, .5, .75])
+        v0.axvline(q[1], color=colors[i], alpha=1)
+        v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
+        kde = stats.gaussian_kde(y)
+        y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
+        h0.plot(kde(y_kde), y_kde, color=colors[i], 
+                alpha=1, linewidth=2, linestyle='-')
+        h0.axhline(q[1], color=colors[i], alpha=1)
+        h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
+
         # regress:
         x = x.reshape(len(x), 1)
         y = y.reshape(len(x), 1)
         regr = linear_model.LinearRegression()
         regr.fit(x,y)
         if r2 > 0.01:
-            ax.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
-                    linewidth=3, alpha=0.5)
+            ax0.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
+                     linewidth=3, alpha=0.5)
+
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
     # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
     # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
-    ax.legend()
-    ax.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
-    ax.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    ax0.legend()
+    ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax.set_ylabel('spikes : (surround + center) - center')
+    ax0.set_ylabel('spikes : (surround + center) - center')
     # ax.set_xlabel('Vm onset relative latency (msec)')
     #ax.set_xlabel('Vm : center - surround')
-    ax.set_xlabel('Vm : (surround + center) - center')
+    ax0.set_xlabel('Vm : (surround + center) - center')
     for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
+        ax0.spines[spine].set_visible(False)
+    for spine in ['left', 'top', 'right']:
+        v0.spines[spine].set_visible(False)
+    v0.set_yticks([])
+    v0.set_yticklabels([])
+    for spine in ['top', 'right', 'bottom']:
+        h0.spines[spine].set_visible(False)
+    h0.set_xticks([])
+    h0.set_xticklabels([])
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
-    ax.set_xlim(-35, 15)
+    ax0.set_xlim(-35, 15)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
@@ -232,9 +284,9 @@ if save:
 
 #%% histogrammes
 
-plt.close('all')
+# plt.close('all')
 
-def histo_inAndOut(inputdf, removeOutliers=True):
+def histo_inAndOut(inputdf, removeOutliers=True, onlyCouple=True):
 
     datadf = inputdf.copy()
 
@@ -252,7 +304,8 @@ def histo_inAndOut(inputdf, removeOutliers=True):
         xscales = [-30, 70]
         datadf.loc[datadf[cols[0]] < xscales[0]] = np.nan
         datadf.loc[datadf[cols[0]] > xscales[1]] = np.nan
-
+    if onlyCouple:
+        datadf[cols] = datadf[cols].dropna()
     # define bins
     maxi = max(datadf[cols[0]].quantile(q=.95),
                datadf[cols[1]].quantile(q=.95))
@@ -305,8 +358,7 @@ def histo_inAndOut(inputdf, removeOutliers=True):
     return fig
 
 plt.close('all')
-figure = histo_inAndOut(data_df, removeOutliers=True)
-
+figure = histo_inAndOut(data_df, removeOutliers=True, onlyCouple=True)
 save = False
 if save:
     file = 'histo_inAndOut.png'
@@ -321,7 +373,7 @@ plt.close('all')
 def plot_diffMean(inputdf, removeOutliers=True, refMean=True):
 # datadf = data_df.copy()
     datadf = inputdf.copy()
-    cols = ['moy_c-p', 'psth_seq-c']    
+    cols = ['moy_c-p', 'psth_seq-c']
     stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
