@@ -71,9 +71,9 @@ def load2(age='new'):
 def load_cell_contributions(rec='vm', amp='engy', age='new'):
     """
     load the corresponding xcel file
-    age in ['old', 'new'] (old <-> time50, gain50, old way)
+    rec in ['vm' or 'spk']
     amp in ['gain', 'engy']
-    kind in ['vm' or 'spk']
+    age in ['old', 'new'] (old <-> time50, gain50, old way)
     """
     if age == 'old':
         names_dico = dict(
@@ -82,7 +82,7 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
             )
         filename = names_dico.get(rec)
     elif age == 'new':
-#        dirname = os.path.join(paths['pg'], 'data', 'data_to_use')
+        # dirname = os.path.join(paths['pg'], 'data', 'data_to_use')
         dirname = os.path.join(paths['owncFig'], 'data', 'index')
         if rec == 'vm' and amp == 'gain':
             filename = os.path.join(dirname, 'time50gain50Vm.xlsx')
