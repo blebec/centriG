@@ -12,10 +12,11 @@ from importlib import reload
 from math import ceil, floor
 
 import matplotlib.pyplot as plt
+from matplotlib.gridspec import GridSpec
 import numpy as np
 import pandas as pd
-from sklearn import linear_model
 from scipy import stats
+from sklearn import linear_model
 
 
 import config
@@ -159,8 +160,7 @@ plt.close('all')
 
 #%%
 
-from matplotlib.gridspec import GridSpec
-from scipy import stats
+
 
 def plot_onsetTransfertFunc(inputdf):
     """
@@ -169,10 +169,10 @@ def plot_onsetTransfertFunc(inputdf):
     datadf = inputdf.copy()
     cols = ['lat_vm_c-p', 'lat_spk_seq-c']
     cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
-    stims = datadf.stim.unique()
+    stims = datadf.stim.unique()[::-1]
     markers = {'cf' : 'o', 'cp' : 'v'}
-    colors = ['tab:brown', std_colors['green'],
-              std_colors['yellow'],std_colors['red']]
+    colors = [std_colors['red'], std_colors['yellow'],
+              std_colors['green'],'tab:brown']
     #xscales
     xscales = [-70, 30]
 
@@ -183,6 +183,7 @@ def plot_onsetTransfertFunc(inputdf):
 
     # plotting
     fig = plt.figure(figsize=(14, 12))
+    fig.suptitle('baudot latencies')
     gs = GridSpec(3,3)
     # vertical histogram/kde
     v0 = fig.add_subplot(gs[0, :2])
@@ -193,10 +194,10 @@ def plot_onsetTransfertFunc(inputdf):
     # horizontal histogram
     h0 = fig.add_subplot(gs[1:, 2], sharey=ax0)
     # h0.set_title('h0')
-   
+
     # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
-    colors = colors[1:]
-    for i, stim in enumerate(stims[1:]):
+    # colors = colors[]
+    for i, stim in enumerate(stims[:-1]):
         df = datadf.loc[datadf.stim == stim, cols]
         # remove outliers
         df.loc[df[cols[0]] < xscales[0]] = np.nan
@@ -217,14 +218,14 @@ def plot_onsetTransfertFunc(inputdf):
         # kde
         kde = stats.gaussian_kde(x)
         x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
-        v0.plot(x_kde, kde(x_kde), color=colors[i], 
+        v0.plot(x_kde, kde(x_kde), color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         q = np.quantile(x, q=[.25, .5, .75])
         v0.axvline(q[1], color=colors[i], alpha=1)
         v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
         kde = stats.gaussian_kde(y)
         y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
-        h0.plot(kde(y_kde), y_kde, color=colors[i], 
+        h0.plot(kde(y_kde), y_kde, color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         h0.axhline(q[1], color=colors[i], alpha=1)
         h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
@@ -278,7 +279,7 @@ figure = plot_onsetTransfertFunc(data_df)
 
 save = False
 if save:
-    file = 'onsetTransfertFunc.png'
+    file = 'm_onsetTransfertFunc.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
@@ -459,10 +460,10 @@ amps = ['gain', 'engy']
 def load_cgLat_vmSpk():
     """
     load latencies values for vm and spikes from centrigabor protocols
-    return: 
+    return:
         pandas dataframe
     """
-    
+
     vm_df = ldat.load_cell_contributions('vm')
     # filter
     cols = vm_df.columns
@@ -474,7 +475,7 @@ def load_cgLat_vmSpk():
     cols = ['_'.join([_.split('sect')[0], 'vm']) for _ in cols]
     vm_df.columns = cols
     # reorder
-    vm_df = vm_df.iloc[:, [3, 0, 1, 2]]
+    vm_df = vm_df.iloc[:, [3, 0, 2, 1]]
 
     spk_df = ldat.load_cell_contributions('spk')
     # filter
@@ -492,7 +493,7 @@ def load_cgLat_vmSpk():
     # combine
     df = pd.concat([vm_df, spk_df], axis=1)
     df = df.dropna()
-    
+
     return df
 
 
@@ -500,13 +501,13 @@ def plot_cg_onsetTransfertFunc(cgdf):
     """
     plot the vm -> time onset transfert function
     """
-    df = cgdf.copy()
+    datadf = cgdf.copy()
     # cols = ['lat_vm_c-p', 'lat_spk_seq-c']
     # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
-    stims = datadf.stim.unique()
-    markers = {'cf' : 'o', 'cp' : 'v'}
-    colors = ['tab:brown', std_colors['green'],
-              std_colors['yellow'],std_colors['red']]
+    stims = [_.split('_')[0] for _ in datadf.columns if 'vm' in _]
+    markers = {'cf' : 'o', 'cp' : 'v', 'rd' : '+'}
+    colors = [std_colors['red'], std_colors['yellow'],
+              std_colors['green']]
     #xscales
     xscales = [-70, 30]
 
@@ -517,6 +518,7 @@ def plot_cg_onsetTransfertFunc(cgdf):
 
     # plotting
     fig = plt.figure(figsize=(14, 12))
+    fig.suptitle('centrigabor latencies (to = center only)')
     gs = GridSpec(3,3)
     # vertical histogram/kde
     v0 = fig.add_subplot(gs[0, :2])
@@ -527,14 +529,16 @@ def plot_cg_onsetTransfertFunc(cgdf):
     # horizontal histogram
     h0 = fig.add_subplot(gs[1:, 2], sharey=ax0)
     # h0.set_title('h0')
-   
+
     # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
-    colors = colors[1:]
     for i, stim in enumerate(stims[1:]):
-        df = datadf.loc[datadf.stim == stim, cols]
+        cols = ['_'.join([stim, 'vm']), '_'.join([stim, 'spk'])]
+        df = datadf[cols] * -1
         # remove outliers
-        df.loc[df[cols[0]] < xscales[0]] = np.nan
-        df.loc[df[cols[0]] > xscales[1]] = np.nan
+        # df.loc[df[cols[0]] < xscales[0]] = np.nan
+        # df.loc[df[cols[0]] > xscales[1]] = np.nan
+        df.loc[df[cols[0]] < xscales[0]].apply(lambda x : np.nan)
+        df.loc[df[cols[0]] > xscales[1]].apply(lambda x : np.nan)
         df = df.dropna()
         # x = -1 * temp[values[0]].values
         x = df[cols[0]].values.astype(float)
@@ -543,22 +547,23 @@ def plot_cg_onsetTransfertFunc(cgdf):
         # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         lregr = stats.linregress(x,y)
         r2 = lregr.rvalue ** 2
-        print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
-        label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
+        st = '_'.join([stim[:2], stim[2:]])
+        print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(st, r2, lregr.stderr))
+        label = '{} {}  r2={:.2f}'.format(len(df), st, r2)
         # label = '{} cells, {}'.format(len(df), stim)
-        ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
+        ax0.scatter(x, y, color=colors[i], marker=markers[stim[:2]],
                    s=100, alpha=0.8, label=label, edgecolor='w')
         # kde
         kde = stats.gaussian_kde(x)
         x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
-        v0.plot(x_kde, kde(x_kde), color=colors[i], 
+        v0.plot(x_kde, kde(x_kde), color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         q = np.quantile(x, q=[.25, .5, .75])
         v0.axvline(q[1], color=colors[i], alpha=1)
         v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
         kde = stats.gaussian_kde(y)
         y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
-        h0.plot(kde(y_kde), y_kde, color=colors[i], 
+        h0.plot(kde(y_kde), y_kde, color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         h0.axhline(q[1], color=colors[i], alpha=1)
         h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
@@ -575,14 +580,17 @@ def plot_cg_onsetTransfertFunc(cgdf):
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
     # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
     # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
+    # for ax in [ax0, v0, h0]:
     ax0.legend()
-    ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    v0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    h0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax0.set_ylabel('spikes : (surround + center) - center')
+    ax0.set_ylabel('spikes : lat 50 (msec)')
     # ax.set_xlabel('Vm onset relative latency (msec)')
-    #ax.set_xlabel('Vm : center - surround')
-    ax0.set_xlabel('Vm : (surround + center) - center')
+    # ax.set_xlabel('Vm : center - surround')
+    ax0.set_xlabel('Vm lat 50 (msec)')
     for spine in ['top', 'right']:
         ax0.spines[spine].set_visible(False)
     for spine in ['left', 'top', 'right']:
@@ -595,7 +603,7 @@ def plot_cg_onsetTransfertFunc(cgdf):
     h0.set_xticklabels([])
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
-    ax0.set_xlim(-35, 15)
+    # ax0.set_xlim(-35, 15)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
@@ -608,14 +616,13 @@ def plot_cg_onsetTransfertFunc(cgdf):
 
 
 plt.close('all')
-figure = plot_onsetTransfertFunc(data_df)
+
+cg_df = load_cgLat_vmSpk()
+figure = plot_cg_onsetTransfertFunc(cg_df)
 
 save = False
 if save:
-    file = 'onsetTransfertFunc.png'
+    file = 'mcg_onsetTransfertFunc.png'
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
-
-
-cg_df = load_cgLat_vmSpk()
