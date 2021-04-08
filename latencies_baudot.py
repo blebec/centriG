@@ -159,9 +159,154 @@ plt.close('all')
 
 
 #%%
+def plot_phaseEffect(inputdf):
+    """
+    plot the vm -> time onset transfert function
+    """
+    datadf = inputdf.copy()
+    cols = ['lat_vm_c-p', 'lat_spk_seq-c']
+#    cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
+    stims = datadf.stim.unique()[::-1]
+    markers = {'cf' : 'o', 'cp' : 'v'}
+    colors = [std_colors['red'], std_colors['yellow'],
+              std_colors['green'],'tab:brown']
+    #xscales
+    xscales = [-70, 30]
+
+    # fig = plt.figure(figsize=(8, 6))
+    # # fig.suptitle('spk Vm onset-time transfert function')
+    # fig.suptitle('delta latency effect (msec)')
+    # ax = fig.add_subplot(111)
+
+    # plotting
+    fig = plt.figure(figsize=(14, 12))
+    fig.suptitle('impact of temporal phase')
+    gs = GridSpec(3,3)
+    # vertical histogram/kde
+    v0 = fig.add_subplot(gs[0, :2])
+    # v0.set_title('v0')
+    # scatter plot
+    ax0 = fig.add_subplot(gs[1:, :2], sharex=v0)
+    # ax0.set_title('ax0')
+    # horizontal histogram
+    h0 = fig.add_subplot(gs[1:, 2], sharey=ax0)
+    # h0.set_title('h0')
+
+    # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
+    # colors = colors[]
+    for i, stim in enumerate(stims[:-1]):
+        df = datadf.loc[datadf.stim == stim, cols]
+        # remove outliers
+        df.loc[df[cols[0]] < xscales[0]] = np.nan
+        df.loc[df[cols[0]] > xscales[1]] = np.nan
+        df = df.dropna()
+        x = df[cols[0]].values.astype(float)
+        x *= -1
+        y = df[cols[1]].values.astype(float)
+        # corr
+        # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
+        lregr = stats.linregress(x,y)
+        r2 = lregr.rvalue ** 2
+        print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
+        # label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
+        label = '{} cells, {}'.format(len(df), stim)
+        ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
+                   s=100, alpha=0.8, label=label, edgecolor='w')
+        # kde
+        kde = stats.gaussian_kde(x)
+        # x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
+        x_kde = np.arange(-30, 50, 1)
+        v0.plot(x_kde, kde(x_kde), color=colors[i],
+                alpha=1, linewidth=2, linestyle='-')
+        v0.fill_between(x_kde, kde(x_kde), 0, color=colors[i],
+                alpha=0.3, linewidth=2, linestyle='-')
+        q = np.quantile(x, q=[.25, .5, .75])
+        v0.axvline(q[1], color=colors[i], alpha=1)
+        # v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
+        kde = stats.gaussian_kde(y)
+        # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
+        y_kde = np.arange(-30, 20, 1)
+        h0.plot(kde(y_kde), y_kde, color=colors[i],
+                alpha=1, linewidth=2, linestyle='-')
+        h0.fill_between(kde(y_kde), y_kde, color=colors[i],
+                alpha=0.3)
+        q = np.quantile(y, q=[.25, .5, .75])
+        h0.axhline(q[1], color=colors[i], alpha=1)
+        # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
+
+        # regress:
+        # x = x.reshape(len(x), 1)
+        # y = y.reshape(len(x), 1)
+        # regr = linear_model.LinearRegression()
+        # regr.fit(x,y)
+        # if r2 > 0.01:
+        #     ax0.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
+        #              linewidth=3, alpha=0.5)
+    # add global fit
+    df = datadf[cols].copy()
+    df.loc[df[cols[0]] < xscales[0]] = np.nan
+    df.loc[df[cols[0]] > xscales[1]] = np.nan
+    df = df.dropna()
+    df = df.sort_values(by=df.columns[0])
+    x = df[cols[0]] * -1
+    y = df[cols[1]]
+    z = np.polyfit(x, y, 2)
+    p = np.poly1d(z)
+    ax0.plot(x, p(x), linewidth=4, color='tab:grey', alpha=0.3)
+    
+
+    
+    # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
+    # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
+    # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
+    ax0.legend(loc='upper left')
+    ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
+    # ax.set_ylabel('spikes onset relative latency (msec)')
+    ax0.set_ylabel('center spiking latency (msec)')
+    # ax.set_xlabel('Vm onset relative latency (msec)')
+    #ax.set_xlabel('Vm : center - surround')
+    ax0.set_xlabel('relative Vm latency (surround - center) (msec)')
+    for spine in ['top', 'right']:
+        ax0.spines[spine].set_visible(False)
+    for spine in ['left', 'top', 'right']:
+        v0.spines[spine].set_visible(False)
+    v0.set_yticks([])
+    v0.set_yticklabels([])
+    for spine in ['top', 'right', 'bottom']:
+        h0.spines[spine].set_visible(False)
+    h0.set_xticks([])
+    h0.set_xticklabels([])
+    # ax.set_ylim(-30, 30)
+    # ax.set_xlim(xscales)
+    ax0.set_xlim(-27, 48)
+    
+    v0.set_ylim(0, v0.get_ylim()[1])
+    h0.set_xlim(0, h0.get_xlim()[1])
+    
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        txt = 'only {} range'.format(xscales)
+        fig.text(0.5, 0.01, txt, ha='right', va='bottom', alpha=0.4)
+    fig.tight_layout()
+    return fig
 
 
+plt.close('all')
+figure = plot_phaseEffect(data_df)
 
+save = False
+if save:
+    file = 'phaseEffect.png'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
+    file_name = os.path.join(dirname, file)
+    figure.savefig(file_name)
+
+
+#%%
 def plot_onsetTransfertFunc(inputdf):
     """
     plot the vm -> time onset transfert function
