@@ -57,7 +57,8 @@ file_name = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.
 # filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/Figure latence GABY + histo.xls'
 
 # #%% all   ... and forget
-# filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/traitement_latencepiero_S-C_final_papier_2.xls'
+# filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/
+#traitement_latencepiero_S-C_final_papier_2.xls'
 # data_dict = pd.read_excel(filename, None)
 # for key in data_dict:
 #     print(key)
@@ -165,7 +166,7 @@ def plot_phaseEffect(inputdf):
     """
     datadf = inputdf.copy()
     cols = ['lat_vm_c-p', 'lat_spk_seq-c']
-#    cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
+    # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()[::-1]
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = [std_colors['red'], std_colors['yellow'],
@@ -242,20 +243,30 @@ def plot_phaseEffect(inputdf):
         # if r2 > 0.01:
         #     ax0.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
         #              linewidth=3, alpha=0.5)
+
     # add global fit
     df = datadf[cols].copy()
     df.loc[df[cols[0]] < xscales[0]] = np.nan
     df.loc[df[cols[0]] > xscales[1]] = np.nan
     df = df.dropna()
     df = df.sort_values(by=df.columns[0])
-    x = df[cols[0]] * -1
-    y = df[cols[1]]
-    z = np.polyfit(x, y, 2)
-    p = np.poly1d(z)
-    ax0.plot(x, p(x), linewidth=4, color='tab:grey', alpha=0.3)
-    
 
-    
+    temp = df[df[df.columns[0]] > 0]
+    x = temp[cols[0]] * -1
+    y = temp[cols[1]]
+    slope1, inter1, r1, p1, _ = stats.linregress(x,y)
+    f1 = lambda x : slope1 * x + inter1
+
+    temp = df[df[df.columns[0]] < 0]
+    x = temp[cols[0]] * -1
+    y = temp[cols[1]]
+    slope2, inter2, r2, p2, _ = stats.linregress(x,y)
+    f2 = lambda x : slope2 * x + inter2
+
+    x_intersect = (inter2 - inter1) / (slope1 - slope2)
+    ax0.plot([-30, x_intersect, 48], [f1(-30), f1(x_intersect), f2(48)],
+            linewidth=10, color='tab:grey', alpha=0.3)
+
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
     # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
     # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
@@ -280,13 +291,13 @@ def plot_phaseEffect(inputdf):
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
     ax0.set_xlim(-27, 48)
-    
+
     v0.set_ylim(0, v0.get_ylim()[1])
     h0.set_xlim(0, h0.get_xlim()[1])
-    
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'latencies_baudot.py:plot_onsetTransfertFunc',
+        fig.text(0.99, 0.01, 'latencies_baudot.py:plot_phaseEffect',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
         txt = 'only {} range'.format(xscales)
@@ -688,7 +699,7 @@ def plot_cg_onsetTransfertFunc(param='time'):
         if param == 'time':
             df = datadf[cols] * -1
         else:
-            df = datadf[cols]            
+            df = datadf[cols]
         # remove outliers
         # df.loc[df[cols[0]] < xscales[0]] = np.nan
         # df.loc[df[cols[0]] > xscales[1]] = np.nan
