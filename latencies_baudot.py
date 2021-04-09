@@ -132,7 +132,7 @@ def load_onsets():
 
 
 data_df = load_onsets()
-df = data_df.copy()
+#df = data_df.copy()
 
 #%%
 
@@ -169,10 +169,19 @@ def plot_phaseEffect(inputdf):
     # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()[::-1]
     markers = {'cf' : 'o', 'cp' : 'v'}
+    markers = {'cf_iso' : 'd', 'cf_para' : 'p', 'cp_iso' : 'P', 'cp_para' : 'X'}
+
     colors = [std_colors['red'], std_colors['yellow'],
               std_colors['green'],'tab:brown']
+    # convert (center minus periphery) to (periphery minus center)
+    datadf[cols[0]] = datadf[cols[0]] * (-1)
+
     #xscales
-    xscales = [-70, 30]
+    xmin = -30
+    xmax = 55
+    xscales = [xmin, xmax]
+    ymin = -30
+    ymax = 20
 
     # fig = plt.figure(figsize=(8, 6))
     # # fig.suptitle('spk Vm onset-time transfert function')
@@ -182,27 +191,30 @@ def plot_phaseEffect(inputdf):
     # plotting
     fig = plt.figure(figsize=(14, 12))
     fig.suptitle('impact of temporal phase')
-    gs = GridSpec(3,3)
+    gs = GridSpec(4,4)
     # vertical histogram/kde
-    v0 = fig.add_subplot(gs[0, :2])
+    v0 = fig.add_subplot(gs[0, :3])
     # v0.set_title('v0')
     # scatter plot
-    ax0 = fig.add_subplot(gs[1:, :2], sharex=v0)
+    ax0 = fig.add_subplot(gs[1:, :3], sharex=v0)
     # ax0.set_title('ax0')
     # horizontal histogram
-    h0 = fig.add_subplot(gs[1:, 2], sharey=ax0)
+    h0 = fig.add_subplot(gs[1:, 3], sharey=ax0)
     # h0.set_title('h0')
+    # c0 = fig.add_subplot((gs[0,3]))
 
     # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
     # colors = colors[]
-    for i, stim in enumerate(stims[:-1]):
+    # for i, stim in enumerate(stims):
+    # plot in revers order
+    for j, stim in enumerate(stims[::-1]):
+        i = len(stims) - j - 1
         df = datadf.loc[datadf.stim == stim, cols]
         # remove outliers
         df.loc[df[cols[0]] < xscales[0]] = np.nan
         df.loc[df[cols[0]] > xscales[1]] = np.nan
         df = df.dropna()
         x = df[cols[0]].values.astype(float)
-        x *= -1
         y = df[cols[1]].values.astype(float)
         # corr
         # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
@@ -210,27 +222,32 @@ def plot_phaseEffect(inputdf):
         r2 = lregr.rvalue ** 2
         print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
         # label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
-        label = '{} cells, {}'.format(len(df), stim)
-        ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
-                   s=100, alpha=0.8, label=label, edgecolor='w')
+        label = '{}_cells {}'.format(len(df), stim)
+        ax0.scatter(x, y, color=colors[i], marker=markers[stim],
+                   s=150, alpha=0.8, label=label, edgecolor='w')
+        # ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
+        #            s=100, alpha=0.8, label=label, edgecolor='w')
         # kde
         kde = stats.gaussian_kde(x)
         # x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
-        x_kde = np.arange(-30, 50, 1)
+        x_kde = np.arange(xmin, xmax, 1)
         v0.plot(x_kde, kde(x_kde), color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         v0.fill_between(x_kde, kde(x_kde), 0, color=colors[i],
-                alpha=0.3, linewidth=2, linestyle='-')
+                alpha=0.2, linewidth=2, linestyle='-')
         q = np.quantile(x, q=[.25, .5, .75])
         v0.axvline(q[1], color=colors[i], alpha=1)
         # v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
         kde = stats.gaussian_kde(y)
         # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
-        y_kde = np.arange(-30, 20, 1)
+        y_kde = np.arange(ymin, ymax, 1)
         h0.plot(kde(y_kde), y_kde, color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
-        h0.fill_between(kde(y_kde), y_kde, color=colors[i],
+        h0.fill_betweenx(y_kde, kde(y_kde), 0, color=colors[i],
                 alpha=0.3)
+        # h0.fill_between(kde(y_kde), y_kde, 0, color=colors[i],
+        #         alpha=0.3)
+
         q = np.quantile(y, q=[.25, .5, .75])
         h0.axhline(q[1], color=colors[i], alpha=1)
         # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
@@ -251,20 +268,20 @@ def plot_phaseEffect(inputdf):
     df = df.dropna()
     df = df.sort_values(by=df.columns[0])
 
-    temp = df[df[df.columns[0]] > 0]
-    x = temp[cols[0]] * -1
+    temp = df[df[df.columns[0]] < 5]
+    x = temp[cols[0]]
     y = temp[cols[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x,y)
     f1 = lambda x : slope1 * x + inter1
 
-    temp = df[df[df.columns[0]] < 0]
-    x = temp[cols[0]] * -1
+    temp = df[df[df.columns[0]] > -5]
+    x = temp[cols[0]]
     y = temp[cols[1]]
     slope2, inter2, r2, p2, _ = stats.linregress(x,y)
     f2 = lambda x : slope2 * x + inter2
 
     x_intersect = (inter2 - inter1) / (slope1 - slope2)
-    ax0.plot([-30, x_intersect, 48], [f1(-30), f1(x_intersect), f2(48)],
+    ax0.plot([xmin, x_intersect, xmax], [f1(xmin), f1(x_intersect), f2(xmax)],
             linewidth=10, color='tab:grey', alpha=0.3)
 
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
@@ -274,10 +291,10 @@ def plot_phaseEffect(inputdf):
     ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax0.set_ylabel('center spiking latency (msec)')
+    ax0.set_ylabel('spiking relative latency  (sequence minus center) (msec)')
     # ax.set_xlabel('Vm onset relative latency (msec)')
     #ax.set_xlabel('Vm : center - surround')
-    ax0.set_xlabel('relative Vm latency (surround - center) (msec)')
+    ax0.set_xlabel('Vm relative latency (surround - center) (msec)')
     for spine in ['top', 'right']:
         ax0.spines[spine].set_visible(False)
     for spine in ['left', 'top', 'right']:
@@ -290,11 +307,12 @@ def plot_phaseEffect(inputdf):
     h0.set_xticklabels([])
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
-    ax0.set_xlim(-27, 48)
+    ax0.set_xlim(xmin, xmax)
 
     v0.set_ylim(0, v0.get_ylim()[1])
     h0.set_xlim(0, h0.get_xlim()[1])
-
+    ax0.set_ylim(-28, 19)
+    ax0.set_xlim(-28, 52)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_phaseEffect',
