@@ -160,7 +160,7 @@ plt.close('all')
 
 
 #%%
-def plot_phaseEffect(inputdf):
+def plot_phaseEffect(inputdf, corner=False):
     """
     plot the vm -> time onset transfert function
     """
@@ -201,7 +201,8 @@ def plot_phaseEffect(inputdf):
     # horizontal histogram
     h0 = fig.add_subplot(gs[1:, 3], sharey=ax0)
     # h0.set_title('h0')
-    # c0 = fig.add_subplot((gs[0,3]))
+    if corner:
+        c0 = fig.add_subplot((gs[0,3]), sharex=ax0, sharey=ax0)
 
     # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
     # colors = colors[]
@@ -235,9 +236,10 @@ def plot_phaseEffect(inputdf):
                 alpha=1, linewidth=2, linestyle='-')
         v0.fill_between(x_kde, kde(x_kde), 0, color=colors[i],
                 alpha=0.2, linewidth=2, linestyle='-')
-        q = np.quantile(x, q=[.25, .5, .75])
-        v0.axvline(q[1], color=colors[i], alpha=1)
-        # v0.axvspan(q[0], q[-1], ymin=i*.3, ymax=(i+1)*.3, color=colors[i], alpha=0.3)
+        qx = np.quantile(x, q=[.25, .5, .75])
+        v0.axvline(qx[1], color=colors[i], alpha=1)
+        # v0.axvspan(qx[0], qx[-1], ymin=i*.3, ymax=(i+1)*.3, 
+        # color=colors[i], alpha=0.3)
         kde = stats.gaussian_kde(y)
         # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
         y_kde = np.arange(ymin, ymax, 1)
@@ -248,10 +250,14 @@ def plot_phaseEffect(inputdf):
         # h0.fill_between(kde(y_kde), y_kde, 0, color=colors[i],
         #         alpha=0.3)
 
-        q = np.quantile(y, q=[.25, .5, .75])
-        h0.axhline(q[1], color=colors[i], alpha=1)
+        qy = np.quantile(y, q=[.25, .5, .75])
+        h0.axhline(qy[1], color=colors[i], alpha=1)
         # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
-
+        if corner:
+            c0.plot([qx[1], qx[1]], [qy[0], qy[-1]], 
+                    linewidth=3, color=colors[i], alpha=1)
+            c0.plot([qy[0], qx[-1]], [qy[1], qy[1]], 
+                    linewidth=3, color=colors[i], alpha=1)
         # regress:
         # x = x.reshape(len(x), 1)
         # y = y.reshape(len(x), 1)
@@ -305,6 +311,15 @@ def plot_phaseEffect(inputdf):
         h0.spines[spine].set_visible(False)
     h0.set_xticks([])
     h0.set_xticklabels([])
+    
+    if corner:
+        for spine in ['top', 'right']:
+            c0.spines[spine].set_visible(False)
+        c0.set_xticks([])
+        c0.set_xticklabels([])   
+        c0.set_yticks([])
+        c0.set_yticklabels([])
+       
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
     ax0.set_xlim(xmin, xmax)
@@ -325,7 +340,7 @@ def plot_phaseEffect(inputdf):
 
 
 plt.close('all')
-figure = plot_phaseEffect(data_df)
+figure = plot_phaseEffect(data_df, corner=False)
 
 save = False
 if save:
