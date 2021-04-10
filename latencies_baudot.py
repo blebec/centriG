@@ -16,6 +16,7 @@ from matplotlib.gridspec import GridSpec
 import numpy as np
 import pandas as pd
 from scipy import stats
+import statsmodels.api as sm
 from sklearn import linear_model
 
 
@@ -160,6 +161,49 @@ plt.close('all')
 
 
 #%%
+def get_switch(datadf):
+    """
+    find the switch point for bilinear fit
+    """
+    # see https://datatofish.com/statsmodels-linear-regression/
+    datadf = data_df
+    cols = ['lat_vm_c-p', 'lat_spk_seq-c']
+
+    df = datadf[cols].copy()
+    # df.loc[df[cols[0]] < xscales[0]] = np.nan
+    # df.loc[df[cols[0]] > xscales[1]] = np.nan
+    df = df.dropna()
+    df = df.sort_values(by=df.columns[0])
+    df = df.reset_index(drop=True)
+
+    LR = []
+    for i in range(2,len(df) -1):
+        data = df.iloc[:i].copy()
+        X = data[cols[0]]
+        Y = data[cols[1]]
+        X = sm.add_constant(X)  # add a constant
+        model = sm.OLS(Y, X).fit()
+        # print('{}- residuals = {:.4}'.format(i, np.sum(model.resid)))
+        res = np.sum(np.array(model.resid) **2)
+        data = df.iloc[i:].copy()
+        X = data[cols[0]]
+        Y = data[cols[1]]
+        X = sm.add_constant(X)  # add a constant
+        model = sm.OLS(Y, X).fit()
+        # print('{}- residuals = {:.4}'.format(i, np.sum(model.resid)))
+        res += np.sum(np.array(model.resid) ** 2)
+        LR.append(abs(res))
+    mini = np.argsort(LR)[0]
+    vm_switch = df.loc[mini, ['lat_vm_c-p']][0]
+    plot = False
+    if plot:
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.plot(LR)
+        ax.axvline(mini)
+    return vm_switch
+
+
 def plot_phaseEffect(inputdf, corner=False):
     """
     plot the vm -> time onset transfert function
@@ -238,7 +282,7 @@ def plot_phaseEffect(inputdf, corner=False):
                 alpha=0.2, linewidth=2, linestyle='-')
         qx = np.quantile(x, q=[.25, .5, .75])
         v0.axvline(qx[1], color=colors[i], alpha=1)
-        # v0.axvspan(qx[0], qx[-1], ymin=i*.3, ymax=(i+1)*.3, 
+        # v0.axvspan(qx[0], qx[-1], ymin=i*.3, ymax=(i+1)*.3,
         # color=colors[i], alpha=0.3)
         kde = stats.gaussian_kde(y)
         # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
@@ -254,9 +298,9 @@ def plot_phaseEffect(inputdf, corner=False):
         h0.axhline(qy[1], color=colors[i], alpha=1)
         # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
         if corner:
-            c0.plot([qx[1], qx[1]], [qy[0], qy[-1]], 
+            c0.plot([qx[1], qx[1]], [qy[0], qy[-1]],
                     linewidth=3, color=colors[i], alpha=1)
-            c0.plot([qy[0], qx[-1]], [qy[1], qy[1]], 
+            c0.plot([qy[0], qx[-1]], [qy[1], qy[1]],
                     linewidth=3, color=colors[i], alpha=1)
         # regress:
         # x = x.reshape(len(x), 1)
@@ -273,14 +317,16 @@ def plot_phaseEffect(inputdf, corner=False):
     df.loc[df[cols[0]] > xscales[1]] = np.nan
     df = df.dropna()
     df = df.sort_values(by=df.columns[0])
-
-    temp = df[df[df.columns[0]] < 5]
+    # switch
+    switch = get_switch(df)
+    print('bilinear switch is for vm={:.1f}'.format(switch))
+    temp = df[df[df.columns[0]] <=  switch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x,y)
     f1 = lambda x : slope1 * x + inter1
 
-    temp = df[df[df.columns[0]] > -5]
+    temp = df[df[df.columns[0]] >= switch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope2, inter2, r2, p2, _ = stats.linregress(x,y)
@@ -311,15 +357,15 @@ def plot_phaseEffect(inputdf, corner=False):
         h0.spines[spine].set_visible(False)
     h0.set_xticks([])
     h0.set_xticklabels([])
-    
+
     if corner:
         for spine in ['top', 'right']:
             c0.spines[spine].set_visible(False)
         c0.set_xticks([])
-        c0.set_xticklabels([])   
+        c0.set_xticklabels([])
         c0.set_yticks([])
         c0.set_yticklabels([])
-       
+
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
     ax0.set_xlim(xmin, xmax)
@@ -829,3 +875,33 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
+
+#%%
+
+def diff_cp_cf():
+    cp_iso = data_df.loc[data_df.stim == 'cp_iso', ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+    cp_iso.columns = ['cp_iso_lat_s-c']
+
+    cf_iso = data_df.loc[data_df.stim == 'cf_iso', ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+    cf_iso.columns = ['cf_iso_lat_s-c']
+
+    df = pd.concat([cp_iso, cf_iso], axis=1)
+    df['diffe'] = df['cp_iso_lat_s-c'] - df['cf_iso_lat_s-c']
+
+    fig = plt.figure(figsize=(8,6))
+    ax = fig.add_subplot(111)
+    ax.hist(df.diffe, bins=15, color='tab:red', alpha=0.8, edgecolor='k')
+    fig.suptitle('cp_iso lat sequence-center minus cf_iso lat sequence-center')
+    for spine in ['left', 'top', 'right']:
+        ax.spines[spine].set_visible(False)
+    ax.set_yticks([])
+    ax.set_xlabel('msec')
+    ax.axvline(x=0)
+
+    fig.tight_layout()
+
+    return fig
+
+plt.close('all')
+fig = diff_cp_cf()
+
