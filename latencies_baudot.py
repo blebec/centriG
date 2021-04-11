@@ -161,7 +161,7 @@ plt.close('all')
 
 
 #%%
-def get_switch(datadf):
+def get_switch(datadf, plot=False):
     """
     find the switch point for bilinear fit
     (minimal x value of the squared residuals)
@@ -196,15 +196,25 @@ def get_switch(datadf):
         res += np.sum(np.array(model.resid) ** 2)
        # print(res)
         LR.append(res)
-    mini = np.argsort(LR)[0]
-    vm_switch = df.loc[mini, ['lat_vm_c-p']][0]
-    plot = False
+    # find minimum residuals location 
+    i_mini = np.argsort(LR)[0]                        # index value
+    x_miniLoc = df.loc[i_mini, ['lat_vm_c-p']][0]     # x value
     if plot:
         fig = plt.figure()
+        fig.suptitle('residuals for a double linear fit')
         ax = fig.add_subplot(111)
         ax.plot(LR)
-        ax.axvline(mini)
-    return vm_switch
+        ax.axvline(i_mini)
+        txt = 'i= {} \nx= {}'.format(i_mini, x_miniLoc)
+        ax.text(x=i_mini + 1, y=ax.get_ylim()[1], s=txt, va='top', ha='left')
+        ax.set_ylabel('squared sum of minimals')
+        ax.set_xlabel('split index location')
+        for spine in ('top', 'right'):
+            ax.spines[spine].set_visible(False)
+
+        fig.tight_layout()
+
+    return x_miniLoc
 
 
 def plot_phaseEffect(inputdf, corner=False):
@@ -318,10 +328,9 @@ def plot_phaseEffect(inputdf, corner=False):
     df = datadf[cols].copy()
     df.loc[df[cols[0]] < xscales[0]] = np.nan
     df.loc[df[cols[0]] > xscales[1]] = np.nan
-    df = df.dropna()
-    df = df.sort_values(by=df.columns[0])
+    df = df.sort_values(by=df.columns[0]).dropna()
     # switch
-    switch = get_switch(df[cols])
+    switch = get_switch(df)
     print('bilinear switch is for vm={:.1f}'.format(switch))
     temp = df[df[df.columns[0]] <=  switch]
     x = temp[cols[0]]
