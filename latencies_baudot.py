@@ -164,35 +164,38 @@ plt.close('all')
 def get_switch(datadf):
     """
     find the switch point for bilinear fit
+    (minimal x value of the squared residuals)
+    input : pandas dataframe with two columns
+    return x switch value
     """
     # see https://datatofish.com/statsmodels-linear-regression/
-    datadf = data_df
-    cols = ['lat_vm_c-p', 'lat_spk_seq-c']
 
-    df = datadf[cols].copy()
-    # df.loc[df[cols[0]] < xscales[0]] = np.nan
-    # df.loc[df[cols[0]] > xscales[1]] = np.nan
-    df = df.dropna()
-    df = df.sort_values(by=df.columns[0])
-    df = df.reset_index(drop=True)
-
-    LR = []
+    df = datadf.copy()
+    df = df.dropna().sort_values(by=df.columns[0]).reset_index(drop=True)
+    cols = df.columns
+    LR = [] ## sum of squared residuals
+    # perform left and right linear fit
     for i in range(2,len(df) -1):
-        data = df.iloc[:i].copy()
+        # left
+        data = df.iloc[:i]
+        # data = df.iloc[:i].copy()
         X = data[cols[0]]
         Y = data[cols[1]]
         X = sm.add_constant(X)  # add a constant
         model = sm.OLS(Y, X).fit()
-        # print('{}- residuals = {:.4}'.format(i, np.sum(model.resid)))
+        # squared left linear fit residuals
         res = np.sum(np.array(model.resid) **2)
-        data = df.iloc[i:].copy()
+        # right
+        data = df.iloc[i:]
+        # data = df.iloc[i:].copy()
         X = data[cols[0]]
         Y = data[cols[1]]
         X = sm.add_constant(X)  # add a constant
         model = sm.OLS(Y, X).fit()
-        # print('{}- residuals = {:.4}'.format(i, np.sum(model.resid)))
+        # append sauared right linear fit residuals
         res += np.sum(np.array(model.resid) ** 2)
-        LR.append(abs(res))
+       # print(res)
+        LR.append(res)
     mini = np.argsort(LR)[0]
     vm_switch = df.loc[mini, ['lat_vm_c-p']][0]
     plot = False
@@ -318,7 +321,7 @@ def plot_phaseEffect(inputdf, corner=False):
     df = df.dropna()
     df = df.sort_values(by=df.columns[0])
     # switch
-    switch = get_switch(df)
+    switch = get_switch(df[cols])
     print('bilinear switch is for vm={:.1f}'.format(switch))
     temp = df[df[df.columns[0]] <=  switch]
     x = temp[cols[0]]
