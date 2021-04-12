@@ -932,7 +932,7 @@ def hist_diff_lat(datadf):
     for spine in ['left', 'top', 'right']:
         ax.spines[spine].set_visible(False)
     ax.set_yticks([])
-    ax.set_xlabel('(sequence-center lat) minus (sequence-center lat) (msec')
+    ax.set_xlabel('(sequence-center lat) minus (sequence-center lat) (msec)')
     ax.axvline(x=0)
     ax.legend(loc='upper left')
     if anot:
