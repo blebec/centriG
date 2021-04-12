@@ -196,7 +196,7 @@ def get_switch(datadf, plot=False):
         res += np.sum(np.array(model.resid) ** 2)
        # print(res)
         LR.append(res)
-    # find minimum residuals location 
+    # find minimum residuals location
     i_mini = np.argsort(LR)[0]                        # index value
     x_miniLoc = df.loc[i_mini, ['lat_vm_c-p']][0]     # x value
     if plot:
@@ -890,30 +890,65 @@ if save:
 
 #%%
 
-def diff_cp_cf():
-    cp_iso = data_df.loc[data_df.stim == 'cp_iso', ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+def hist_diff_lat(datadf):
+    cp_iso = datadf.loc[datadf.stim == 'cp_iso',
+                        ['name', 'lat_sig_vm_s-c.1']].set_index('name')
     cp_iso.columns = ['cp_iso_lat_s-c']
+    cp_para = datadf.loc[datadf.stim == 'cp_para',
+                         ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+    cp_para.columns = ['cp_para_lat_s-c']
 
-    cf_iso = data_df.loc[data_df.stim == 'cf_iso', ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+    cf_iso = datadf.loc[datadf.stim == 'cf_iso',
+                        ['name', 'lat_sig_vm_s-c.1']].set_index('name')
     cf_iso.columns = ['cf_iso_lat_s-c']
+    cf_para = datadf.loc[datadf.stim == 'cf_para',
+                         ['name', 'lat_sig_vm_s-c.1']].set_index('name')
+    cf_para.columns = ['cf_para_lat_s-c']
 
-    df = pd.concat([cp_iso, cf_iso], axis=1)
-    df['diffe'] = df['cp_iso_lat_s-c'] - df['cf_iso_lat_s-c']
+    df1 = pd.concat([cp_iso, cf_iso], axis=1).dropna()
+    df1['diffe'] = df1['cp_iso_lat_s-c'] - df1['cf_iso_lat_s-c']
 
-    fig = plt.figure(figsize=(8,6))
-    ax = fig.add_subplot(111)
-    ax.hist(df.diffe, bins=15, color='tab:red', alpha=0.8, edgecolor='k')
-    fig.suptitle('cp_iso lat sequence-center minus cf_iso lat sequence-center')
+    df2 = pd.concat([cp_para, cf_para], axis=1).dropna()
+    df2['diffe'] = df2['cp_para_lat_s-c'] - df2['cf_para_lat_s-c']
+
+
+    # fig, axes = plt.subplots(nrows=1, ncols=2, sharex=True, sharey=True)
+    # axes = axes.flatten()
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(8,6),
+                             sharex=True, sharey=True)
+
+    fig.suptitle('delta latency')
+    axtitles = ['cp_iso minus cf_iso', 'cp_para minus cf_para']
+    # for i, df in enumerate([df1, df2][0]):
+        # ax = axes[i]
+    i = 0
+    df = df1
+    ax = axes
+    ax.set_title(axtitles[i])
+    color = ['tab:red', 'tab:green'][i]
+    txt = '{} cells'.format(len(df))
+    ax.hist(df.diffe, bins=15, color=color, alpha=0.8, edgecolor='k',
+            label=txt)
     for spine in ['left', 'top', 'right']:
         ax.spines[spine].set_visible(False)
     ax.set_yticks([])
-    ax.set_xlabel('msec')
+    ax.set_xlabel('(sequence-center lat) minus (sequence-center lat) (msec')
     ax.axvline(x=0)
-
+    ax.legend(loc='upper left')
+    if anot:
+        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        fig.text(0.99, 0.01, 'latencies_baudot.py:hist_diff_lat',
+                 ha='right', va='bottom', alpha=0.4)
+        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     fig.tight_layout()
-
     return fig
 
 plt.close('all')
-fig = diff_cp_cf()
+fig = hist_diff_lat(data_df)
+save = False
+if save:
+    file = 'histDiffLat.pdf'
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
+    file_name = os.path.join(dirname, file)
+    figure.savefig(file_name)
 
