@@ -622,7 +622,8 @@ def plot_trace_1x2(stdcolors, **kwargs):
         fig.text(0.99, 0.01, 'pop_traces.py:plot_trace_1x2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        fig.text(0.5, 0.01, spread, ha='center', va='bottom', alpha=0.4)
+        txt = 'pop traces           {}'.format(spread)
+        fig.text(0.5, 0.01, txt, ha='center', va='bottom', alpha=0.4)
     return fig
 
 
@@ -641,14 +642,16 @@ dico = {'age': 'new',
 dico['spread'] = 'sect'
 
 fig = plot_trace_1x2(std_colors, **dico)
-save = True
+save = False
 if save:
-    file = 'vmSpkUFill_' + dico['spread'] + '.pdf'
-    fig.savefig(os.path.join(paths['save'], 'popfill', file))
+    # file = 'vmSpkUFill_' + dico['spread'] + '.pdf'
+    # fig.savefig(os.path.join(paths['save'], 'popfill', file))
     #update current
     if dico['spread'] == 'sect':
+        file = 'o8_vmSpkUFill_' + dico['spread']
         folder = os.path.join(paths['owncFig'],
                               'pythonPreview', 'current', 'fig')
-        filename = os.path.join(folder, file)
-        fig.savefig(filename, format='pdf')
+        for ext in ['.png', '.pdf']:
+            filename = os.path.join(folder, (file + ext))
+            fig.savefig(filename)
 

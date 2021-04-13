@@ -497,7 +497,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
                          fill=False, alpha=0.6, edgecolor='k',
                          facecolor=colors[0])
         if key == 'D0':
-            rect = Rectangle(xy=(box_dico[key], vlocs[1]), width=step, 
+            rect = Rectangle(xy=(box_dico[key], vlocs[1]), width=step,
                              height=0.3, fill=True, alpha=0.6, edgecolor='w',
                              facecolor=colors[0])
         ax.add_patch(rect)
@@ -507,25 +507,29 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
         fig.text(0.99, 0.01, 'fill.py:plot_indFill_popPredict',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'predict', ha='left', va='bottom', alpha=0.4)
     return fig
 
 
 plt.close('all')
 # indi_df = load_filldata('indi')
-fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df, 
+fig = plot_indFill_popPredict(inddata=indi_df, popdata=pop_df,
                               stdcolors=std_colors, anot=anot)
 save = False
 if save:
+    file = 'indFill_popPredict'
+    ext = '.png'
     folder = os.path.join(paths['owncFig'],
-                           'pythonPreview', 'fillingIn', 'indFill_popFill')
-    file = 'indFill_popPredict.pdf'
-    filename = os.path.join(folder, file)
+                              'pythonPreview', 'fillingIn', 'indFill_popFill')
+    filename = os.path.join(folder, (file + ext))
     fig.savefig(filename)
     # to update current
+    file = 'o11_' + file
     folder = os.path.join(paths['owncFig'],
-                           'pythonPreview', 'current', 'fig')
-    filename = os.path.join(folder, file)
-    fig.savefig(filename, format='pdf')
+                          'pythonPreview', 'current', 'fig')
+    for ext in ['.png', '.pdf']:
+        filename = os.path.join(folder, (file + ext))
+        fig.savefig(filename)
 
 
 
@@ -907,7 +911,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     axes.append(ax)
     ax1 = fig.add_subplot(224, sharex=ax, sharey=ax)
     axes.append(ax1)
-    
+
     # fill pop
     spks = df.columns[13:18]
     vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
@@ -928,7 +932,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.annotate("n=12", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.annotate("SurroundThenCenter", xy=(1, 1), size='large',
-                 xycoords="axes fraction", ha='right', va='top')    
+                 xycoords="axes fraction", ha='right', va='top')
     # spk pop
     ax = axes[1]
     for i, col in enumerate(spks):
@@ -940,7 +944,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     vspread = .06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
     ax.set_xlim(-20,50)
-    ax.set_ylabel('Normalized firing rate')
+    ax.set_ylabel('Normalized Firing Rate')
     ax.annotate("n=7", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.set_xlabel('Relative Time (ms)')
@@ -968,7 +972,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
                  xycoords="axes fraction", ha='center')
     ax.annotate("SurroundOnly", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
-   
+
     # gen population
     ax = axes[3]
     cols = gen_df.columns
@@ -1028,6 +1032,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
         fig.text(0.99, 0.01, 'fill.py:plot_fill_combi',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'summary', ha='center', va='bottom', alpha=0.4)
 
     return fig
 
@@ -1045,11 +1050,13 @@ save = False
 if save:
     folder = os.path.join(paths['owncFig'],
                            'pythonPreview', 'fillingIn', 'indFill_popFill')
-    file = 'fill_combi.pdf'
-    filename = os.path.join(folder, file)
+    file = 'fill_combi'
+    filename = os.path.join(folder, (file + 'png'))
     fig.savefig(filename)
-     # update current   
+    # update current
+    file = 'o12_' + file
     folder = os.path.join(paths['owncFig'],
                           'pythonPreview', 'current', 'fig')
-    filename = os.path.join(folder, file)
-    fig.savefig(filename, format='pdf')
+    for ext in ['.png', '.pdf']:
+        filename = os.path.join(folder, (file + ext))
+        fig.savefig(filename)

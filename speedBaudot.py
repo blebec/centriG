@@ -349,8 +349,8 @@ def plot_both(gdf=bined_df):
            color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
     gdf.pool += gdf.gm
 
-    # txt = 'Apparent Horizontal Propagation Speed (AHSP) m/s'
-    # ax.set_xlabel(txt)
+    txt = 'Infered Cortical Speed (m/s)'
+    ax.set_xlabel(txt)
     ax.set_ylabel('nb of Cells')
     ax.legend()
     txt = 'n = {:.0f}'.format(gdf.cgpop.sum())
@@ -371,7 +371,7 @@ def plot_both(gdf=bined_df):
     ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
            align=align, color=std_colors['green'],
            edgecolor='k', alpha=0.8, label='impulse'.title())
-    txt = 'Apparent Speed of Horizontal Propagation  (ASHP) m/s'
+    txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
     ax.set_xlabel(txt)
     ax.set_ylabel('nb of Measures')
     ax.legend()
@@ -398,6 +398,7 @@ def plot_both(gdf=bined_df):
         fig.text(0.99, 0.01, 'speedBaudot.py:plot_both',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'cortical speed', ha='center', va='bottom', alpha=0.4)
     return fig
 
 
@@ -409,6 +410,12 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
+    #update current
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'current', 'fig')
+    file = 'o9_optSpreedBoth'
+    for ext in ['.png', '.pdf']:
+        filename = os.path.join(dirname, (file + ext))
+        fig.savefig(filename)
 
 
 #%%

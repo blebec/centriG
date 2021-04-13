@@ -84,7 +84,7 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
              #(fraction of Center-only response)']
     else:
         anoty = [titles['time50'], titles.get(amp, '')]
-    
+
     # plot
     fig, axes = plt.subplots(4, 2, figsize=(11.6, 12), sharex=True,
                              sharey='col', squeeze=False)#•sharey=True,
@@ -180,6 +180,7 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
         fig.text(0.99, 0.01, 'sorted.py:plot_all_sorted_responses',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'sorted', ha='left', va='bottom', alpha=0.4)        
     return fig
 
 # old
@@ -190,15 +191,21 @@ plt.close('all')
 
 kind = ['vm', 'spk'][0]
 
-fig = plot_all_sorted_responses(overlap=True, sort_all=False,
-                                 kind=kind, amp='engy', age='new')
+# fig = plot_all_sorted_responses(overlap=True, sort_all=False,
+#                                  kind=kind, amp='engy', age='new')
 
 fig = plot_all_sorted_responses(overlap=True, sort_all=True,
                                  kind=kind, amp='engy', age='new')
+save = False
+if save:
+    name = 'o7_sorted_vmSect_engy'
+    paths['save'] = os.path.join(paths['owncFig'],
+                                 'pythonPreview', 'current', 'fig')
+    for ext in ['.png', '.pdf']:
+        fig.savefig(os.path.join(paths['save'], (name + ext)))
 
-
-fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
-                                 kind=kind, amp='engy', age='new')
+# fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
+#                                  kind=kind, amp='engy', age='new')
 #%%
 plt.close('all')
 save = False

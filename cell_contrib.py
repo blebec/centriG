@@ -432,7 +432,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
         fig.text(1, 0.01, 'cellContribution:plot_separate_1x3',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        txt = "{} {} ({} cells) ".format(mes, spread, len(data))
+        txt = "select      {} {} ({} cells) ".format(mes, spread, len(data))
         fig.text(0.5, 0.01, txt, ha='center', va='bottom', fontsize=14, 
                  alpha = 0.4)
  
@@ -444,23 +444,25 @@ plt.close('all')
 save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
-for mes in ['vm', 'spk']:
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-    for spread in ['sect', 'full']:
-        fig = plot_separate_1x3(data, sig_cells,
-                                spread=spread, mes=mes, amp=amp)
-        if save:
-            file = 'contrib_' + mes.title() + spread.title() + '_Box.pdf'
-            folder = os.path.join(paths['owncFig'],
-                                  'pythonPreview', 'sorted', 'sorted&contrib')
-            filename = os.path.join(folder, file)
+mes = ['vm', 'spk'][0]
+data = ldat.load_cell_contributions(mes, age='new', amp=amp)
+spread = ['sect', 'full'][0]
+fig = plot_separate_1x3(data, sig_cells,
+                        spread=spread, mes=mes, amp=amp)
+if save:
+    file = 'contrib_' + mes.title() + spread.title() + '_Box'
+    folder = os.path.join(paths['owncFig'],
+                          'pythonPreview', 'sorted', 'sorted&contrib')
+    filename = os.path.join(folder, (file + '.png'))
+    fig.savefig(filename)
+    # for current
+    if mes == 'vm' and amp == 'engy' and spread == 'sect':
+        file = 'o7_' + file
+        folder = os.path.join(paths['owncFig'],
+                              'pythonPreview', 'current', 'fig')
+        for ext in ['.png', '.pdf']:
+            filename = os.path.join(folder, (file + ext))
             fig.savefig(filename)
-            # for current
-            if mes == 'vm' and amp == 'engy' and spread == 'sect':
-                folder = os.path.join(paths['owncFig'],
-                                       'pythonPreview', 'current', 'fig')
-                filename = os.path.join(folder, file)
-                fig.savefig(filename, format='pdf')
 
 #%% composite with filling in
 

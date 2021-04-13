@@ -86,7 +86,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         ax.plot(datadf[col], color=colors[i], alpha=alphas[i],
                 label=col)
     # response point
-    x_pos = dict(old = 41.5, new = 43.5)
+    x_pos = dict(old=41.5, new=43.5)
     x = x_pos[age]
     y = datadf.indiVmctr.loc[x]
     #blue point and vline
@@ -109,7 +109,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         ax.fill_between(df.index, df[col],
                         color=rev_colors[i], alpha=0.5, label=col)
     # response point
-    x_pos = dict(old = 39.8, new = 55.5)
+    x_pos = dict(old=39.8, new=55.5)
     x = x_pos[age]
     y = datadf.indiSpkCtr.loc[x]
     ax.plot(x, y, 'o', color='tab:blue', ms=10, alpha=0.8)
@@ -211,7 +211,7 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
                'Normalized Vm',
                '']
 
-    ylabels_spk = ['Firing Rate (spikes/s)',
+    ylabels_spk = ['Firing Rate (Spk/s)',
                'Normalized Spk/s',
                '']
     ylabels = ylabels_vm + ylabels_spk
@@ -318,11 +318,12 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
         fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'fig2', ha='center', va='bottom', alpha=0.4)
     return fig
 
 # =============================================================================
 # NB two possible examples:
-# cellule A= 1509E_CXG4, cellule B = 1427A_CXG4    
+# cellule A= 1509E_CXG4, cellule B = 1427A_CXG4
 # - actual
 # cellA : xlim= (-200, 150)
 # blue point
@@ -344,20 +345,20 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
 #
 # =============================================================================
 
-
+plt.close('all')
 #data
 age = ['old', 'new'][1]
-try:  
-    fig2_df
-except:
+if 'fig2_df' not in globals():
     fig2_df, fig2_cols = ldat.load2(age)
 fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols,
                    anot=anot, age=age, onlyPos=False)
 save = False
 if save:
+    name = 'o6_fig2'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
-    fig.savefig(os.path.join(paths['save'], 'fig2.pdf'))
+    for ext in ['.png', '.pdf']:
+        fig.savefig(os.path.join(paths['save'], (name + ext)))
 
 # =============================================================================
 ## other views
@@ -575,8 +576,8 @@ def plot_speed(substract=False):
         ax.plot(df[col], color=colors[i], alpha=alphas[i],
                 label=col, linewidth=1.5)
     ax.set_ylabel('Normalized Vm')
-    ax.text(0.8, 0.9, 'CP-ISO', ha='left', va='center', 
-            transform=ax.transAxes, size='large')
+    # ax.text(0.8, 0.9, 'CP-ISO', ha='left', va='center',
+    #         transform=ax.transAxes, size='large')
 
     # fontname = 'Arial', fontsize = 14)
     ax.set_xlabel('Relative Time (ms)')
@@ -599,7 +600,8 @@ def plot_speed(substract=False):
     #                handlelength=0)
     # for line, text in zip(leg.get_lines(), leg.get_texts()):
     #    text.set_color(line.get_color())
-    ax.text(0.1, 0.8, 'n=12', ha='left', va='center', 
+    txt = 'CP-ISO \nn=12'
+    ax.text(0.1, 0.8, txt, ha='center', va='center',
             transform=ax.transAxes, size='large')
 
     # ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
@@ -620,23 +622,25 @@ def plot_speed(substract=False):
     else:
         custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
-        
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'centrifigs.py:plot_speed',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        fig.text(0.5, 0.01, 'speed', ha='center', va='bottom', alpha=0.4)
     return fig
 
-fig1 = plot_speed()
-#fig2 = plot_speed(substract=True)
-## alpha=0.8, figsize = 8,6, ha = 'left'
+fig = plot_speed()
+
 save = False
 if save:
+    file = 'o10_speed'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
-    filename = os.path.join(paths['save'], 'speed.pdf')
-    fig1.savefig(filename)
+    for ext in ['.png', '.pdf']:
+        filename = os.path.join(paths['save'], (file + ext))
+        fig.savefig(filename)    
 
 #%% test to change the x scale
 

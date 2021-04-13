@@ -227,7 +227,8 @@ def plot_phaseEffect(inputdf, corner=False):
     stims = datadf.stim.unique()[::-1]
     markers = {'cf' : 'o', 'cp' : 'v'}
     markers = {'cf_iso' : 'd', 'cf_para' : 'p', 'cp_iso' : 'P', 'cp_para' : 'X'}
-
+    legends = dict(zip(['cf_para', 'cf_iso', 'cp_para', 'cp_iso'],
+                       ['CF_CROSS', 'CF_ISO', 'CP-CROSS', 'CP-ISO']))
     colors = [std_colors['red'], std_colors['yellow'],
               std_colors['green'],'tab:brown']
     # convert (center minus periphery) to (periphery minus center)
@@ -275,12 +276,12 @@ def plot_phaseEffect(inputdf, corner=False):
         x = df[cols[0]].values.astype(float)
         y = df[cols[1]].values.astype(float)
         # corr
-        # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
+        r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         lregr = stats.linregress(x,y)
-        r2 = lregr.rvalue ** 2
         print('{} \t r2= {:.3f} \t stdErrFit= {:.3f}'.format(stim, r2, lregr.stderr))
+        r2 = lregr.rvalue ** 2
         # label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
-        label = '{}_cells {}'.format(len(df), stim)
+        label = '{}'.format(legends[stim])
         ax0.scatter(x, y, color=colors[i], marker=markers[stim],
                    s=150, alpha=0.8, label=label, edgecolor='w')
         # ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
@@ -355,10 +356,10 @@ def plot_phaseEffect(inputdf, corner=False):
     ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.8)
     ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.8)
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax0.set_ylabel('spiking relative latency  (sequence minus center) (msec)')
+    ax0.set_ylabel('spiking relative latency (msec)')
     # ax.set_xlabel('Vm onset relative latency (msec)')
     #ax.set_xlabel('Vm : center - surround')
-    ax0.set_xlabel('Vm relative latency (surround - center) (msec)')
+    ax0.set_xlabel('Vm relative latency (msec)')
     for spine in ['top', 'right']:
         ax0.spines[spine].set_visible(False)
     for spine in ['left', 'top', 'right']:
@@ -391,7 +392,7 @@ def plot_phaseEffect(inputdf, corner=False):
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_phaseEffect',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        txt = 'only {} range'.format(xscales)
+        txt = 'phase effect     only {} range'.format(xscales)
         fig.text(0.5, 0.01, txt, ha='right', va='bottom', alpha=0.4)
     fig.tight_layout()
     return fig
@@ -406,6 +407,12 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
+
+    name = 'o9_phaseEffect'
+    paths['save'] = os.path.join(paths['owncFig'],
+                                 'pythonPreview', 'current', 'fig')
+    for ext in ['.png', '.pdf']:
+        figure.savefig(os.path.join(paths['save'], (name + ext)))
 
 
 #%%
