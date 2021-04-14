@@ -351,12 +351,12 @@ def plot_phaseEffect(inputdf, corner=False):
         h0.axhline(qy[1], color=colors[i], alpha=1)
         # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
         if corner:
+            txt = '{}c{}r'.format(len(df.name.unique()), len(df))
             c0.plot([qx[1], qx[1]], [qy[0], qy[-1]],
                     linewidth=3, color=colors[i], alpha=0.7,
-                    label=str(len(x))+'c')
+                    label=txt)
             c0.plot([qy[0], qx[-1]], [qy[1], qy[1]],
                     linewidth=3, color=colors[i], alpha=0.7)
-            txt = 'n={}'.format(len(x))
 
         # regress:
         # x = x.reshape(len(x), 1)
@@ -397,7 +397,9 @@ def plot_phaseEffect(inputdf, corner=False):
         c0.set_xticklabels([])
         c0.set_yticks([])
         c0.set_yticklabels([])
-        c0.legend(ncol=2, fontsize='small', loc='lower right')
+        c0.legend(ncol=2, fontsize='small', loc='lower right',
+                  labelcolor=colors[::-1], frameon=False,
+                  markerfirst=False)
 
     # ax.set_ylim(-30, 30)
     # ax.set_xlim(xscales)
