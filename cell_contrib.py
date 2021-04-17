@@ -117,10 +117,12 @@ def plot_cell_contribution(df, kind=''):
     colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
 
     conds = [(a, b) for a in ['sect', 'full'] for b in ['time', 'engy']]
-    titles = dict(time = 'Time Advance (% significant cells)',
-                  engy = r'$\Delta$ Energy (% significant cells)',
+    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
+                  engy = r'$\Delta$ Response (% significant cells)',
                   sect = 'Sector',
-                  full = 'Full')
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
     fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8,8))
     axes = axes.flatten()
     for i, ax in enumerate(axes):
@@ -181,10 +183,12 @@ def plot_composite_sectFull_2X1(df, sigcells, kind='', amp='engy'):
 
     stims = ('sect', 'full')
     params = ('time', amp)
-    titles = dict(time = r'Time Advance (% significant cells)',
-                  engy = r'$\Delta$ Energy (% significant cells)',
+    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
+                  engy = r'$\Delta$ Response (% significant cells)',
                   sect = 'Sector',
-                  full = 'Full')
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
     axes = axes.flatten()
     titles = ['sector', 'full']
@@ -270,8 +274,8 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
 
 #    stims = ('sect', 'full')
     params = ('time', amp)
-    titles = dict(time = r'Latency Advance (% significant cells)',
-                  engy = r'$\Delta$ Energy (% significant cells)',
+    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
+                  engy = r'$\Delta$ Response (% significant cells)',
                   sect = 'Sector',
                   full = 'Full',
                   vm = 'Vm',
@@ -351,7 +355,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
     cell contribution, to go to the bottom of the preceding stat description
     """
     titles = dict(time = r'$\Delta$ Latency',
-                  engy = r'$\Delta$ Energy',
+                  engy = r'$\Delta$ Response',
                   sect = 'Sector',
                   full = 'Full',
                   vm = 'Vm',
@@ -479,10 +483,12 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
 
     stims = ('sect', 'full')
     params = ('time', amp, 'fill')
-    titles = dict(time = r'Time Advance (% significant cells)',
-                  engy = r'$\Delta$ Energy (% significant cells)',
+    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
+                  engy = r'$\Delta$ Response (% significant cells)',
                   sect = 'Sector',
-                  full = 'Full')
+                  full = 'Full',
+                  vm = 'Vm',
+                  spk = 'Spikes')
     fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
     axes = axes.flatten()
     titles = ['sector', 'full']
@@ -577,8 +583,8 @@ def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
 
     stims = ('sect', 'full')
     params = ('time', amp, 'fill')
-    titles = dict(time = r'Time Advance (% significant cells)',
-                  engy = r'$\Delta$ Energy (% significant cells)',
+    titles = dict(time = r'$\Delta Latency(% significant cells)',
+                  engy = r'$\Delta$ Response (% significant cells)',
                   sect = 'Sector',
                   full = 'Full')
     fig = plt.figure(figsize=(4,4))
@@ -639,7 +645,7 @@ def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
     return fig
 
 plt.close('all')
-save = True
+save = False
 amp = ['gain', 'engy'][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
 for spread in ['sect', 'full']:

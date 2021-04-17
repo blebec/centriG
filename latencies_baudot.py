@@ -40,18 +40,21 @@ os.chdir(paths['pg'])
 paths['data'] = os.path.join(paths['owncFig'], 'data')
 
 
-plt.rcParams.update(
-    {'font.sans-serif': ['Arial'],
-     'font.size': 14,
-     'legend.fontsize': 'medium',
-     'figure.figsize': (11.6, 5),
-     'figure.dpi': 100,
-     'axes.labelsize': 'medium',
-     'axes.titlesize': 'medium',
-     'xtick.labelsize': 'medium',
-     'ytick.labelsize': 'medium',
-     'axes.xmargin': 0}
-)
+# plt.rcParams.update(
+#     {'font.sans-serif': ['Arial'],
+#      'font.size': 14,
+#      'legend.fontsize': 'medium',
+#      'figure.figsize': (11.6, 5),
+#      'figure.dpi': 100,
+#      'axes.labelsize': 'medium',
+#      'axes.titlesize': 'medium',
+#      'xtick.labelsize': 'medium',
+#      'ytick.labelsize': 'medium',
+#      'axes.xmargin': 0}
+# )
+
+
+
 
 file_name = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.xlsx'
 
@@ -237,7 +240,7 @@ def plot_phaseEffect(inputdf, corner=False):
     # ax = fig.add_subplot(111)
 
     # plotting
-    fig = plt.figure(figsize=(14, 12))
+    fig = plt.figure(figsize=(17.6, 12))
     fig.suptitle('impact of temporal phase')
     gs = GridSpec(4,4)
     # vertical histogram/kde
@@ -421,7 +424,7 @@ def plot_phaseEffect(inputdf, corner=False):
 
 
 plt.close('all')
-figure = plot_phaseEffect(data_df, corner=True)
+figure = plot_phaseEffect(data_df, corner=False)
 
 save = False
 if save:

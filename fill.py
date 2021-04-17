@@ -992,7 +992,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.annotate("n=15", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.set_xlabel('Relative Time (ms)')
-    ax.annotate("SurroundThenCenter - Center", xy=(1, 1), size='large',
+    ax.annotate("SurroundThenCenter minus Center", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
                 # bbox=dict(fc=(1, 1, 1), ec=(1, 1, 1)))
 

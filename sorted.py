@@ -50,8 +50,8 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
-    titles = {'engy' : r'$\Delta$ Energy',
-              'time50' : r'$\Delta$ Advance',
+    titles = {'engy' : r'$\Delta$ Response',
+              'time50' : r'$\Delta$ Latency',
               'gain50' : 'Amplitude Gain',
               'sect' : 'Sector',
               'spk' : 'Spikes',
