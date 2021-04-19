@@ -325,7 +325,8 @@ def plot_both(gdf=bined_df):
 
 
     # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(8.6, 8))
-    fig = plt.figure(figsize=(8.6, 8))
+    # fig = plt.figure(figsize=(8.6, 8))
+    fig = plt.figure(figsize=(4.3, 8))
     axes = []
     ax = fig.add_subplot(211)
     axes.append(ax)
@@ -346,10 +347,12 @@ def plot_both(gdf=bined_df):
            color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label='Cardinal')
     gdf.pool += gdf.bd
     ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
+           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='2S. Paired')
+    # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
+    #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
     gdf.pool += gdf.gm
 
-    txt = 'Infered Cortical Speed (m/s)'
+    txt = 'Inferred Cortical Speed (m/s)'
     ax.set_xlabel(txt)
     ax.set_ylabel('nb of Cells')
     ax.legend()
@@ -371,16 +374,17 @@ def plot_both(gdf=bined_df):
     ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
            align=align, color=std_colors['green'],
            edgecolor='k', alpha=0.8, label='impulse'.title())
-    txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
+    # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
+    txt = 'Propagation Speed (m/s)'
     ax.set_xlabel(txt)
     ax.set_ylabel('nb of Measures')
     ax.legend()
     # ax.text(1.05, 0, '/ /', ha='center', va='center', backgroundcolor='w')
 
-    txt = 'n = 27 ({:.0f} measures)'.format(gdf.br_long_bar.sum())
+    txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
     ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['dark_blue'],
             va='bottom', ha='left', transform=ax.transAxes)
-    txt = 'n = 37 ({:.0f} measures)'.format(gdf.br_impulse.sum())
+    txt = 'n = {:.0f} (37c.)'.format(gdf.br_impulse.sum())
     ax.text(x=0.7, y= 0.52, s=txt, color=std_colors['dark_green'],
             va='bottom', ha='left', transform=ax.transAxes)
 

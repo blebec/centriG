@@ -223,7 +223,7 @@ def plot_phaseEffect(inputdf, corner=False):
     legends = dict(zip(['cf_para', 'cf_iso', 'cp_para', 'cp_iso'],
                        ['CF-CROSS', 'CF-ISO', 'CP-CROSS', 'CP-ISO']))
     colors = [std_colors['red'], std_colors['yellow'],
-              std_colors['green'],'tab:brown']
+              std_colors['green'], std_colors['brown']]
     # convert (center minus periphery) to (periphery minus center)
     datadf[cols[0]] = datadf[cols[0]] * (-1)
 
@@ -240,20 +240,20 @@ def plot_phaseEffect(inputdf, corner=False):
     # ax = fig.add_subplot(111)
 
     # plotting
-    fig = plt.figure(figsize=(17.6, 12))
+    fig = plt.figure(figsize=(11.6, 8))
     fig.suptitle('impact of temporal phase')
-    gs = GridSpec(4,4)
+    gs = GridSpec(4,5)
     # vertical histogram/kde
-    v0 = fig.add_subplot(gs[0, :3])
+    v0 = fig.add_subplot(gs[0, :4])
     # v0.set_title('v0')
     # scatter plot
-    ax0 = fig.add_subplot(gs[1:, :3], sharex=v0)
+    ax0 = fig.add_subplot(gs[1:, :4], sharex=v0)
     # ax0.set_title('ax0')
     # horizontal histogram
-    h0 = fig.add_subplot(gs[1:, 3], sharey=ax0)
+    h0 = fig.add_subplot(gs[1:, 4], sharey=ax0)
     # h0.set_title('h0')
     if corner:
-        c0 = fig.add_subplot((gs[0,3]), sharex=ax0, sharey=ax0)
+        c0 = fig.add_subplot((gs[0,4]), sharex=ax0, sharey=ax0)
 
     ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.7)
     ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.7)

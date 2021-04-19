@@ -72,7 +72,11 @@ def std_colors():
               'dark_blue': tuple([x/256 for x in [14, 73, 118]]),
               'dark_yellow': tuple([x/256 for x in [163, 133, 16]]),
               'blue_violet': tuple([x/256 for x in [138, 43, 226]]),
-              'k' : (0, 0, 0)}
+              'k' : (0, 0, 0),
+              'brown': tuple([x/256 for x in [127, 51, 51]]),
+              'cyan': tuple([x/256 for x in [23, 190, 207]]),
+              'pink': tuple([x/256 for x in [255, 0, 255]])
+              }
     return colors
 
 def speed_colors():
