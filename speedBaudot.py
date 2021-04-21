@@ -340,53 +340,60 @@ def plot_both(gdf=bined_df):
     # top
     ax = axes[0]
     gdf['pool'] = 0
+    txt = 'Radial n={:.0f}'.format(gdf.cgpop.sum())
     ax.bar(x, gdf.cgpop, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['red'], alpha=0.6, edgecolor='k', label='Radial AM')
+           color=speed_colors['red'], alpha=0.6, edgecolor='k', label=txt)
     gdf.pool += gdf.cgpop
+    txt = 'Cardinal n={:.0f}'.format(gdf.bd.sum())
     ax.bar(x, gdf.bd, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label='Cardinal AM')
+           color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label=txt)
     gdf.pool += gdf.bd
+    txt = '2-stroke n={:.0f}'.format(gdf.gm.sum())
     ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='2 strokes AM')
+           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label=txt)
     # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
     #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
     gdf.pool += gdf.gm
 
-    txt = 'Inferred Cortical Speed (m/s)'
+    txt = 'Inferred Cortical Speed (mm/ms)'
     ax.set_xlabel(txt)
     ax.set_ylabel('Nb of cells')
     ax.legend()
-    txt = 'n = {:.0f}'.format(gdf.cgpop.sum())
-    ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['red'],
-            va='bottom', ha='left', transform=ax.transAxes)
-    txt = 'n = {:.0f}'.format(gdf.bd.sum())
-    ax.text(x=0.7, y= 0.52, s=txt, color=speed_colors['yellow'],
-            va='bottom', ha='left', transform=ax.transAxes)
-    txt = 'n = {:.0f}'.format(gdf.gm.sum())
-    ax.text(x=0.7, y= 0.44, s=txt, color=speed_colors['orange'],
-            va='bottom', ha='left', transform=ax.transAxes)
+    # txt = 'n = {:.0f}'.format(gdf.cgpop.sum())
+    # ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['red'],
+    #         va='bottom', ha='left', transform=ax.transAxes)
+    # txt = 'n = {:.0f}'.format(gdf.bd.sum())
+    # ax.text(x=0.7, y= 0.52, s=txt, color=speed_colors['yellow'],
+    #         va='bottom', ha='left', transform=ax.transAxes)
+    # txt = 'n = {:.0f}'.format(gdf.gm.sum())
+    # ax.text(x=0.7, y= 0.44, s=txt, color=speed_colors['orange'],
+    #         va='bottom', ha='left', transform=ax.transAxes)
 
+# TODO -> add cells in label
     # bottom
     ax = axes[1]
+    # txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
+    txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
     ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
            color=std_colors['blue'], edgecolor='k',
-           label='bar'.title())
+           label=txt)
+    txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
     ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
            align=align, color=std_colors['green'],
-           edgecolor='k', alpha=0.8, label='SN')
+           edgecolor='k', alpha=0.8, label=txt)
     # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
-    txt = 'Propagation Speed (m/s)'
+    txt = 'Propagation Speed (mm/ms)'
     ax.set_xlabel(txt)
     ax.set_ylabel('Nb of measures')
     ax.legend()
     # ax.text(1.05, 0, '/ /', ha='center', va='center', backgroundcolor='w')
 
-    txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
-    ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['dark_blue'],
-            va='bottom', ha='left', transform=ax.transAxes)
-    txt = 'n = {:.0f} (37c.)'.format(gdf.br_impulse.sum())
-    ax.text(x=0.7, y= 0.52, s=txt, color=std_colors['dark_green'],
-            va='bottom', ha='left', transform=ax.transAxes)
+    # txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
+    # ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['dark_blue'],
+    #         va='bottom', ha='left', transform=ax.transAxes)
+    # txt = 'n = {:.0f} (37c.)'.format(gdf.br_impulse.sum())
+    # ax.text(x=0.7, y= 0.52, s=txt, color=std_colors['dark_green'],
+    #         va='bottom', ha='left', transform=ax.transAxes)
 
     for ax in fig.get_axes():
         for spine in ['top', 'right']:
