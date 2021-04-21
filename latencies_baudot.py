@@ -378,10 +378,10 @@ def plot_phaseEffect(inputdf, corner=False):
     ax0.legend(loc='upper left')
 
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax0.set_ylabel('spiking relative latency (msec)')
-    # ax.set_xlabel('Vm onset relative latency (msec)')
+    ax0.set_ylabel('Spiking Latency Advence (msec)')
+    ax0.set_xlabel('FF/Horizontal Input Phase (msec)')
     #ax.set_xlabel('Vm : center - surround')
-    ax0.set_xlabel('Vm relative latency (msec)')
+    # ax0.set_xlabel('Vm relative latency (msec)')
     for spine in ['top', 'right']:
         ax0.spines[spine].set_visible(False)
     for spine in ['left', 'top', 'right']:
@@ -414,11 +414,14 @@ def plot_phaseEffect(inputdf, corner=False):
     ax0.set_xlim(-28, 52)
     
     txt = 'Horizontal Advance'
-    ax0.text(x=ax0.get_xlim()[0]/2, y=ax0.get_ylim()[0] + 1, s=txt, 
-             color='tab:blue', va='bottom', ha='center')
+    ax0.text(x=ax0.get_xlim()[0]/2, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+             color='tab:blue', va='top', ha='center')
+    txt = 'FF'
+    ax0.text(x=0, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+             color='tab:blue', va='top', ha='center', backgroundcolor='w')
     txt = 'Horizontal Lag'
-    ax0.text(x=ax0.get_xlim()[1]/2, y=ax0.get_ylim()[0] + 1, s=txt, 
-             color='tab:blue', va='bottom', ha='center')
+    ax0.text(x=ax0.get_xlim()[1]/2, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+             color='tab:blue', va='top', ha='center')
     
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
