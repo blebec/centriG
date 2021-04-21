@@ -241,7 +241,7 @@ def plot_phaseEffect(inputdf, corner=False):
 
     # plotting
     fig = plt.figure(figsize=(11.6, 8))
-    fig.suptitle('impact of temporal phase')
+    fig.suptitle('Impact of the Phase between FF/Horizontal Inputs')
     gs = GridSpec(4,5)
     # vertical histogram/kde
     v0 = fig.add_subplot(gs[0, :4])
@@ -412,6 +412,14 @@ def plot_phaseEffect(inputdf, corner=False):
     h0.set_xlim(0, h0.get_xlim()[1])
     ax0.set_ylim(-28, 19)
     ax0.set_xlim(-28, 52)
+    
+    txt = 'Horizontal Advance'
+    ax0.text(x=ax0.get_xlim()[0]/2, y=ax0.get_ylim()[0] + 1, s=txt, 
+             color='tab:blue', va='bottom', ha='center')
+    txt = 'Horizontal Lag'
+    ax0.text(x=ax0.get_xlim()[1]/2, y=ax0.get_ylim()[0] + 1, s=txt, 
+             color='tab:blue', va='bottom', ha='center')
+    
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_phaseEffect',

@@ -341,20 +341,20 @@ def plot_both(gdf=bined_df):
     ax = axes[0]
     gdf['pool'] = 0
     ax.bar(x, gdf.cgpop, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['red'], alpha=0.6, edgecolor='k', label='Radial')
+           color=speed_colors['red'], alpha=0.6, edgecolor='k', label='Radial AM')
     gdf.pool += gdf.cgpop
     ax.bar(x, gdf.bd, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label='Cardinal')
+           color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label='Cardinal AM')
     gdf.pool += gdf.bd
     ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
-           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='2S. Paired')
+           color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='2 strokes AM')
     # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
     #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
     gdf.pool += gdf.gm
 
     txt = 'Inferred Cortical Speed (m/s)'
     ax.set_xlabel(txt)
-    ax.set_ylabel('nb of Cells')
+    ax.set_ylabel('Nb of cells')
     ax.legend()
     txt = 'n = {:.0f}'.format(gdf.cgpop.sum())
     ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['red'],
@@ -373,11 +373,11 @@ def plot_both(gdf=bined_df):
            label='bar'.title())
     ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
            align=align, color=std_colors['green'],
-           edgecolor='k', alpha=0.8, label='impulse'.title())
+           edgecolor='k', alpha=0.8, label='SN')
     # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
     txt = 'Propagation Speed (m/s)'
     ax.set_xlabel(txt)
-    ax.set_ylabel('nb of Measures')
+    ax.set_ylabel('Nb of measures')
     ax.legend()
     # ax.text(1.05, 0, '/ /', ha='center', va='center', backgroundcolor='w')
 

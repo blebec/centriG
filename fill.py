@@ -344,6 +344,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # fig.suptitle(os.path.basename(filename))
     # traces
     ax = axes[0]
+    ax.set_title('Single Cell')
     for i, col in enumerate(cols[:2]):
         ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i],
                  label=col)
@@ -390,6 +391,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # axes = axes.flatten()
 
     ax = axes[2]
+    ax.set_title('Population Average')
     cols = popdf.columns[:3]
     linewidths = (1.5, 1.5, 1.5)
     for i, col in enumerate(cols):
@@ -931,7 +933,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.set_ylabel('Normalized Vm')
     ax.annotate("n=12", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
-    ax.annotate("SurroundThenCenter", xy=(1, 1), size='large',
+    ax.annotate("Surround-Then-Center", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
     # spk pop
     ax = axes[1]
@@ -948,7 +950,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.annotate("n=7", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.set_xlabel('Relative Time (ms)')
-    ax.annotate("SurroundThenCenter", xy=(1, 1), size='large',
+    ax.annotate("Surround-Then-Center", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
 
     # surround only
@@ -970,7 +972,7 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.set_ylabel('Normalized Vm')
     ax.annotate("n=12", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
-    ax.annotate("SurroundOnly", xy=(1, 1), size='large',
+    ax.annotate("Surround-Only", xy=(1, 1), size='large',
                  xycoords="axes fraction", ha='right', va='top')
 
     # gen population
@@ -992,9 +994,11 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     ax.annotate("n=15", xy=(0.1, 0.8), size='large',
                  xycoords="axes fraction", ha='center')
     ax.set_xlabel('Relative Time (ms)')
-    ax.annotate("SurroundThenCenter minus Center", xy=(1, 1), size='large',
-                 xycoords="axes fraction", ha='right', va='top')
+    # ax.annotate("SurroundThenCenter minus Center", xy=(1, 1), size='large',
+    #              xycoords="axes fraction", ha='right', va='top')
                 # bbox=dict(fc=(1, 1, 1), ec=(1, 1, 1)))
+    ax.annotate('"Surround-Then-Center" Minus "Center-Only"', xy=(1, 1), size='large',
+                 xycoords="axes fraction", ha='right', va='top')
 
 
     for ax in axes:
