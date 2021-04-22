@@ -1,196 +1,131 @@
-# current
+Figure Comments Yves
 
-- point bleu -> grey
-  
-- [x] sur la plupart de figures
-  
-- - [ ] pointillés qui s'étendent sur les deux graphs
-    - à voir en dessin
-  - [x] 'point bleu' en gris clair
-  - [ ] ? fig2 après la fig3 ?
-  - [x] fig2 avec la troisième colonne 'sig' (et nouveau filtrage pop sig spike)
-    - pb si on rajoute la troisième colonne, les traces de spike doivent référer à la pop spikant significative (et non pas aux spikes de la pop vm significative)
-    - version actuelle ?
-  
-- plot_stat : 
-  - [x] energy -> $\Delta$ energy
-  - [x] time50 -> latency advance
-  - [x] séparer secteur et full
-  - [x] ? 
-    - mettre sorted_cells  sous sorted_responses
-    - pour sect | full (2 figs)
-    - mettre à G sorted et à droite stat
-    - mettre sous stat l'union des pop (cell_contribution)
-    - pop et sig sect  en bas cell contribution secteur 
-  
-- cell_contribution
+ 
 
-  - [x] séparer secteur et full
-  - [x] séparer chaque graph en time | union | engy
-  - [x] à mettre sous 'sorted responses'
-  
-- histogramme  'sorted_response':
-  
-  - [x] ajouter en base : les histo ('cell_contribution')
-  
-    à gauche time50
-  
-    au centre union
-  
-    à droite engy 
-  
-    (pour sect & full)
-    
-    - manque les chiffres de rank
-  
- - pop_traces2X2:
-   
-   - [x] boolean to remove controls
-   
-- figure4
-  - [x] renommer -> speed
-  - [x] ~~nouvelles traces -> filtrage polarisation centre seul~~
-  
-- fig 5 (baudot ... )
-  
-    - [ ]  waiting for Yves
-    
-- fig6 
-  
-  - [x] renommer fig6 -> indfill
-  
-- fig7
-  - [x] renommer fig7 -> popfill
-  - [x] changer les traces
-    - [x] ~~réalignement changé~~ 
-    - [x] ~~ajouter les contrôles (vm et spikes)~~
-  - [x] proposition figure 2x2)
-    - ~~à gauche : panel de droite en dessous du pannel de G (cf fig 6)~~
-    - [x] deux versions:
-      - ~~prédicteur linéaire = surroundTheCenter - centerOnly (ref = surroundOnly)~~
-      - ~~prédicteur linéaire = centerOnly + surroundOnly (ref = surroundThenCenter)~~
-    - ~~à droite : vm toutes les traces (en haut) & spike toutes les traces (en bas)~~
-  
- - figure technique
-    - zones de calcul time50, énergie, type de calcul
-    - base sur l'exemple individuel de la figure 2 ?
-    - 
+## Figure 1: Latency basins + Protocols
 
-****
+Font for Sector and Full should be smaller than A,B, C, D
 
-# suite à discussion avec Yves (7 août)
+The cardinal axis should appear in dotted in Panel C. They are missing.
 
-## changement d'index
+I would suggest to have a symbol representing the preferred orientation of the RF
 
-- [x] $\Delta$Gain -> $\Delta$Energie : FIXED bug in 2B, updated owncloud folder
-  
-  ```python
-  # bug in plot fig2B
-  colors = [color_dic[x] for x in df[signs[i]]]
-  # the reference for the color (sig cells) is before the sorting of the cells
-  ```
-  
-  
-  
+A : two top graphs are the same cell, I suppose. So regroup them in A1
 
-## traces soustraites et non soustraites à la même échelle
+A: The top left figure should be A2
 
-étapes: 
+B: expand on the column width
 
-- [x] reconstruire la nouvelle sous-pop individuellement significative (vm n=15 sector, n=13 Full)
-  ==> TODO path to replace: centrifigs.py ==> plot_figure3 else if age='new' line 497
-  ==> TODO ajouter traces spikantes (sélectionner avec cellules oscillatoire ou non?)
-  'controlFigs'
-- [x] - [x] fig_3 sig non_sig soustraites on non, un panneau et même échelle en y
+ 
 
-  - -> 3_expandSameY
-- [x] en énergie
-- [x] données : /Users/cdesbois/ownCloud/cgFigures/data/index
-  - conditions_order.xlsx, time50energySpk.xlsx, time50energyVm.xlsx, time50gain50Spk.xlsx, time50gain50Vm.xlsx
-    - -> spike données stat cellule oscilatoire changé
-  - Pb sig <-> sup ou inf donc : 
-    - ne prendre que sig > 0 & index > 0 (cpiso)
-  - NB /Users/cdesbois/ownCloud/cgFigures/averageTraces/neuron_props.xlsx
+ 
 
-## réalignement pic à pic
+## Figure 2: Single Cell (A) and Average (B)
 
-- ? intérêt sur les trois pannels
+May be ass labels “Single Cell” and “Population (n=x)”
 
-## fig_4 : élargir pour montrer la construction de la réponse
+White arrows should be superimposed in A with the RF insert (as shown in B) .
 
-- [x] ~~bumps successifs~~
+In B:
 
-- [x] ~~effet vitesse~~
-- [x] ->  updated the code to allow an online update (+ saved examples on )
+The two schematized protocols should be in inset with the right label 
 
-## fig_3 
+Discuss which label to use to avoid the ambiguity (ISO-ORIENTED, CROSS-ORIENTED).
 
-- [x] insert de la réponse avec échelle élargie [-150:30] uniqt pour la random + centOnly
-- [x] sig à gauche
-- [x] update path (cf code)
-- [x] secteur | full
+The color code will be lost for the cross-oriented protocol
 
-# passage de fig2 à fig 3	
+ 
 
-- - [x] ~~scatter plot all cells -> pour Yves time energy~~
+## Figure 3: Centripetal/Centrifugal single cell example
 
-  - DONE -> owns/pythonPreview/cross
+The thickness of the font and traces is too large.
 
-- obj justifier les sous populations (stim)
+Do something more comparable visually with the other figures
 
-  - [ ] figure 2 avec uniquement exemple + pop (~~sig~~)
-  - [ ] supprime fig2B
-3. figure stat -> définition des index + choix sous populations
+Use a color slightly darker for the traces and the histogram borders than the fill color.
 
-  - [x] base = plot_stat
-    - [x] OK updated the code -> rebuilded with energy (check cross.py) 
-  - [x] en haut sect | full (all pop, vm)
-- [x] en bas sect | full (sub pop<u>s</u>) ? indication du nombre de cellules sig (barplot?)
+ 
 
-4. figure plot_sorted_responses_sup1 (vm_engy0.png)
+## Figure 4: no comment
 
-   - [x] -> centrifigs:plot_sorted_responses_sup1
+ 
 
-  5. figure :
+## Figure 5: no comment
 
-     - first tests
-     
-     - plot the raws
+ 
 
-| sect / vm / normAlign  | sect/ vm / raw   | full / vm / normAlign  | full/ vm / raw  |
-| ---------------------- | ---------------- | ---------------------- | --------------- |
-| sect / spk / normAlign | sect / spk / raw | sect / spk / normAlign | full/ spk / raw |
+## Figure 6: no comment
 
- 	1. même chose alignement des pics ?
- 	2. 
+ 
 
- 	1. 
+## Figure 7: Causal relationship between FF/Horizontal Input Phase and the Spiking Latency change
 
-## fig_sup waterfall cf indiSig cfIso
+- [ ] Modify the labels (after discussion)
 
-- [x] voir les bumps successifs
+- [x] Modify speed scale: “m/s” replace by “ms/mm”
 
+  ?  -> mm/ms
 
+- [x] Nb of measures (capitals are at the wrong place)
 
-## stat 
-- [x] plot the number of cells (stat_sig.png) 
-- [x] change the sig extraction
-  - [x] cells sig for time or engy (stats.py L 45)
-- [x] see centrifigs.py/plot_cell_contribution (1831)
-- [x] voir ou sont les fichiers (et les fichiers obsolètes à supprimer )
+- [x] Nb of cells
 
-  - [x] 'time50_engyvm' et time50_engy_spk sur git
-  - [x] basculer les données sur owncloud 
-- [x] fig cf plot_stat
-  - [x] en haut vm sect | vm full
-  - [x] en bas vm sect | vm full (uniqt sous pop sig
-    - [x] NB recalculer sig = sigCenterOnly time + sigCenterOnly engy
-    - [x] \+ marginal cf cell_contribution 
+- [x] Radial AM (OK)
 
-# bugs
+- [x] Cardinal AM (OK)
 
-- [x] ≠ engy fig2B et sup1 -> ok = sup1
+- [x] 2-stroke AM
 
+- [x] 2-stroke
 
+- [x] virer AM et add nb of cells in the label
 
+- [x] Bar (OK)
 
+- [x] SN (rather than impulse)
+
+- [ ] A: Left column panels
+
+- [ ] B : Input Phase Distribution
+
+- [ ] C: Causal relation between Spiking Latency advance (DL ) and Vm Phase between FF/Horizontal Input
+
+- [x] Replace “Impact of temporal phase” by “Impact of the Phase between FF/Horizontal Inputs”
+
+- [x] Replace “Spiking relative latency” by “Spiking Latency Advance (DL )” as used elsewhere in the text
+
+- [x] Replace “Vm relative latency” by “FF/Horizontal Input Phase”
+
+- [x] Add “Horizontal Advance” on the left side, and “Horizonal Lag” on the right side of the bottom abscissa axis.
+
+- [x] x_axis : FF à zero
+
+- [x] reverse + et -
+
+- [ ] ordonnée delta L
+
+## Figure 8:
+
+- [ ] Redo: The fonts of the lower panel have not the same graphic definition as those of the upper panel
+
+  -> drawing
+
+## Figure 9:
+
+- [x] May be add “Single Cell” and “Population Average” labels at the top of the two columns
+
+ 
+
+## Figure 10:
+
+- [x] Surround-Then-Center
+- [x] “Surround-Then-Center” *Minus* “Center-Only”
+- [x] to be checked
+
+ 
+
+ 
+
+ 
+
+ 
