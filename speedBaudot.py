@@ -198,12 +198,12 @@ def plot_optimal_speed(df):
     # prepare data
     height_cg, x = np.histogram(popdf.speed, bins=18, range=(50, 500))
     x = x[:-1]
-    df=pd.DataFrame(index=range(50, 525, 25))
+    df = pd.DataFrame(index=range(50, 525, 25))
     df['popcg'] = pd.Series(data=height_cg, index=x)
     df['bd'] = bddf.set_index('optiMax')
     df = df.fillna(0)
 
-    align='edge' # ie right edge
+    align = 'edge' # ie right edge
     width = (df.index.max() - df.index.min())/(len(df) - 1)
     # plot
     fig = plt.figure(figsize=(11.6, 5))
@@ -237,9 +237,7 @@ def plot_optimal_speed(df):
 
 
 plt.close('all')
-anot=True
-
-
+anot = True
 
 fig = plot_optimal_speed(summary_df)
 save = False
@@ -271,14 +269,14 @@ def plot_optimal_bringuier(df):
     df = df.fillna(0)
 
     #extract & correction for lower limit
-#    x = (df.speed_upper - 0.05).tolist()
+    # x = (df.speed_upper - 0.05).tolist()
     x = (df.speed_lower).tolist()
     x = [round(_, 2) for _ in x]
     height_imp = df.impulse.tolist()
     height_bar = df.long_bar.tolist()
     align = 'edge'
     x[-1] = 1.1     # for continuous range
-    width =  max(x)/(len(x) -1)*.95
+    width =  max(x) / (len(x) -1) * .95
     ax.bar(x, height=height_bar, width=width, align=align, alpha=1,
            color='tab:blue', edgecolor='k', label='bar')
     ax.bar(x, height=height_imp, bottom=height_bar, width=width, align=align,
@@ -304,9 +302,10 @@ def plot_optimal_bringuier(df):
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'speedBaudot.py:plot_optimal_bringuier',
-             ha='right', va='bottom', alpha=0.4)
+                 ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
     return fig
+
 
 plt.close('all')
 fig = plot_optimal_bringuier(brdf)
@@ -323,9 +322,6 @@ if save:
 # def plot_both(df0, df1, df2, df3):
 def plot_both(gdf=bined_df):
 
-
-    # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True, figsize=(8.6, 8))
-    # fig = plt.figure(figsize=(8.6, 8))
     fig = plt.figure(figsize=(4.3, 8))
     axes = []
     ax = fig.add_subplot(211)
@@ -335,7 +331,7 @@ def plot_both(gdf=bined_df):
     # gerenal features
     x = gdf.index
     width = (max(x) - min(x))/(len(x) - 1)*.98
-    align='edge'
+    align = 'edge'
 
     # top
     ax = axes[0]
@@ -351,28 +347,15 @@ def plot_both(gdf=bined_df):
     txt = '2-stroke n={:.0f}'.format(gdf.gm.sum())
     ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
            color=speed_colors['orange'], alpha=0.6, edgecolor='k', label=txt)
-    # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
-    #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label='Paired-neighbor-AM')
     gdf.pool += gdf.gm
 
     txt = 'Inferred Cortical Speed (mm/ms)'
     ax.set_xlabel(txt)
     ax.set_ylabel('Nb of cells')
     ax.legend()
-    # txt = 'n = {:.0f}'.format(gdf.cgpop.sum())
-    # ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['red'],
-    #         va='bottom', ha='left', transform=ax.transAxes)
-    # txt = 'n = {:.0f}'.format(gdf.bd.sum())
-    # ax.text(x=0.7, y= 0.52, s=txt, color=speed_colors['yellow'],
-    #         va='bottom', ha='left', transform=ax.transAxes)
-    # txt = 'n = {:.0f}'.format(gdf.gm.sum())
-    # ax.text(x=0.7, y= 0.44, s=txt, color=speed_colors['orange'],
-    #         va='bottom', ha='left', transform=ax.transAxes)
 
-# TODO -> add cells in label
     # bottom
     ax = axes[1]
-    # txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
     txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
     ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
            color=std_colors['blue'], edgecolor='k',
@@ -386,22 +369,12 @@ def plot_both(gdf=bined_df):
     ax.set_xlabel(txt)
     ax.set_ylabel('Nb of measures')
     ax.legend()
-    # ax.text(1.05, 0, '/ /', ha='center', va='center', backgroundcolor='w')
-
-    # txt = 'n = {:.0f} (27c.)'.format(gdf.br_long_bar.sum())
-    # ax.text(x=0.7, y= 0.6, s=txt, color=std_colors['dark_blue'],
-    #         va='bottom', ha='left', transform=ax.transAxes)
-    # txt = 'n = {:.0f} (37c.)'.format(gdf.br_impulse.sum())
-    # ax.text(x=0.7, y= 0.52, s=txt, color=std_colors['dark_green'],
-    #         va='bottom', ha='left', transform=ax.transAxes)
 
     for ax in fig.get_axes():
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
 
     fig.tight_layout()
-    # ax.set_xlim(0.1, 0.5)
-    # ax.set_ylim(0, 24)
     lims = ax.get_xlim()
     ax.set_xlim(0, lims[1])
     if anot:
@@ -409,7 +382,8 @@ def plot_both(gdf=bined_df):
         fig.text(0.99, 0.01, 'speedBaudot.py:plot_both',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        fig.text(0.5, 0.01, 'cortical speed', ha='center', va='bottom', alpha=0.4)
+        # fig.text(0.5, 0.01, 'cortical speed',
+        #          ha='center', va='bottom', alpha=0.4)
     return fig
 
 

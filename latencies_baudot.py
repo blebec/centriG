@@ -210,7 +210,7 @@ def get_switch(datadf, plot=False):
     return x_miniLoc
 
 
-def plot_phaseEffect(inputdf, corner=False):
+def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     """
     plot the vm -> time onset transfert function
     """
@@ -225,16 +225,16 @@ def plot_phaseEffect(inputdf, corner=False):
     colors = [std_colors['red'], std_colors['yellow'],
               std_colors['green'], std_colors['brown']]
     # convert (center minus periphery) to (periphery minus center)
-    datadf[cols[0]] = datadf[cols[0]] * (-1)
+    # fig = plt.figure(figsize=(8, 6))
 
     #xscales
     xmin = -30
     xmax = 55
     xscales = [xmin, xmax]
     ymin = -30
-    ymax = 20
+    ymax = +20
 
-    # fig = plt.figure(figsize=(8, 6))
+    datadf[cols[0]] = datadf[cols[0]] * (-1)
     # # fig.suptitle('spk Vm onset-time transfert function')
     # fig.suptitle('delta latency effect (msec)')
     # ax = fig.add_subplot(111)
@@ -245,46 +245,52 @@ def plot_phaseEffect(inputdf, corner=False):
     gs = GridSpec(4,5)
     # vertical histogram/kde
     v0 = fig.add_subplot(gs[0, :4])
-    # v0.set_title('v0')
     # scatter plot
     ax0 = fig.add_subplot(gs[1:, :4], sharex=v0)
-    # ax0.set_title('ax0')
     # horizontal histogram
     h0 = fig.add_subplot(gs[1:, 4], sharey=ax0)
-    # h0.set_title('h0')
     if corner:
         c0 = fig.add_subplot((gs[0,4]), sharex=ax0, sharey=ax0)
 
     ax0.axhline(0, color='tab:blue', linewidth=2, alpha=0.7)
     ax0.axvline(0, color='tab:blue', linewidth=2, alpha=0.7)
     # add global fit
-    df = datadf[cols].copy()
+    df = datadf[cols].copy()               # revert the axis
     df.loc[df[cols[0]] < xscales[0]] = np.nan
     df.loc[df[cols[0]] > xscales[1]] = np.nan
     df = df.sort_values(by=df.columns[0]).dropna()
-    # switch
-    switch = get_switch(df)
-    print('bilinear switch is for vm={:.1f}'.format(switch))
-    temp = df[df[df.columns[0]] <=  switch]
+    # revert the axis
+    df = df * (-1)
+    # switch = minimal residual for a bilinear fit
+    switch = get_switch(df, plot=show_residuals)
+    temp = df[df[df.columns[0]] >=  switch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x,y)
     f1 = lambda x : slope1 * x + inter1
 
-    temp = df[df[df.columns[0]] >= switch]
+    temp = df[df[df.columns[0]] <= switch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope2, inter2, r2, p2, _ = stats.linregress(x,y)
     f2 = lambda x : slope2 * x + inter2
 
     x_intersect = (inter2 - inter1) / (slope1 - slope2)
-    ax0.plot([xmin, x_intersect, xmax], [f1(xmin), f1(x_intersect), f2(xmax)],
-            linewidth=10, color='tab:grey', alpha=0.3)
-
+    ax0.plot([xmin * (-1), x_intersect, xmax * (-1)],
+             [f1(xmin * (-1)), f1(x_intersect), f2(xmax * (-1))],
+             linewidth=10, color='tab:grey', alpha=0.3)
+    print('{:=^20}'.format(' fit '))
+    txt = 'min residual loc {}'.format(switch)
+    print(txt)
+    txt = 'slope={:.2f} inter={:.0f}'.format(slope1, inter1)
+    print(txt)
+    txt = 'slope={:.2f} inter={:.0f}'.format(slope2, inter2)
+    print(txt)
     # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
     # colors = colors[]
     # for i, stim in enumerate(stims):
     # plot in revers order
+    print('{:=^20}'.format(' scatter '))
     removed = pd.DataFrame()
     for j, stim in enumerate(stims[::-1]):
         i = len(stims) - j - 1
@@ -305,6 +311,7 @@ def plot_phaseEffect(inputdf, corner=False):
         out['stim'] = stim
         removed = removed.append(out)
         df.loc[df[cols[0]] > xscales[1]] = np.nan
+        df = df * (-1)
         # res
         num = len(df)
         navm = len(df.loc[df[cols[0]].isna()])
@@ -332,6 +339,7 @@ def plot_phaseEffect(inputdf, corner=False):
         kde = stats.gaussian_kde(x)
         # x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
         x_kde = np.arange(xmin, xmax, 1)
+        x_kde *= (-1)
         v0.plot(x_kde, kde(x_kde), color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         v0.fill_between(x_kde, kde(x_kde), 0, color=colors[i],
@@ -343,6 +351,7 @@ def plot_phaseEffect(inputdf, corner=False):
         kde = stats.gaussian_kde(y)
         # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
         y_kde = np.arange(ymin, ymax, 1)
+        y_kde  *= (-1)
         h0.plot(kde(y_kde), y_kde, color=colors[i],
                 alpha=1, linewidth=2, linestyle='-')
         h0.fill_betweenx(y_kde, kde(y_kde), 0, color=colors[i],
@@ -369,8 +378,9 @@ def plot_phaseEffect(inputdf, corner=False):
         # if r2 > 0.01:
         #     ax0.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
         #              linewidth=3, alpha=0.5)
-
+    print('{:=^20}'.format(' removed '))
     print(removed)
+    print('{:=^20}'.format(''))
 
     # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
     # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
@@ -378,7 +388,7 @@ def plot_phaseEffect(inputdf, corner=False):
     ax0.legend(loc='upper left')
 
     # ax.set_ylabel('spikes onset relative latency (msec)')
-    ax0.set_ylabel('Spiking Latency Advence (msec)')
+    ax0.set_ylabel('Spiking Latency Advance (msec)')
     ax0.set_xlabel('FF/Horizontal Input Phase (msec)')
     #ax.set_xlabel('Vm : center - surround')
     # ax0.set_xlabel('Vm relative latency (msec)')
@@ -404,25 +414,22 @@ def plot_phaseEffect(inputdf, corner=False):
                   labelcolor=colors[::-1], frameon=False,
                   markerfirst=False)
 
-    # ax.set_ylim(-30, 30)
-    # ax.set_xlim(xscales)
     ax0.set_xlim(xmin, xmax)
-
     v0.set_ylim(0, v0.get_ylim()[1])
     h0.set_xlim(0, h0.get_xlim()[1])
-    ax0.set_ylim(-28, 19)
-    ax0.set_xlim(-28, 52)
-    
+    ax0.set_ylim(28, -19)
+    ax0.set_xlim(28, -52)
+
     txt = 'Horizontal Advance'
-    ax0.text(x=ax0.get_xlim()[0]/2, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+    ax0.text(x=ax0.get_xlim()[0]/2, y=ax0.get_ylim()[0] - 2.5, s=txt,
              color='tab:blue', va='top', ha='center')
     txt = 'FF'
-    ax0.text(x=0, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+    ax0.text(x=0, y=ax0.get_ylim()[0] - 2.5, s=txt,
              color='tab:blue', va='top', ha='center', backgroundcolor='w')
     txt = 'Horizontal Lag'
-    ax0.text(x=ax0.get_xlim()[1]/2, y=ax0.get_ylim()[0] + 2.5, s=txt, 
+    ax0.text(x=ax0.get_xlim()[1]/2, y=ax0.get_ylim()[0] - 2.5, s=txt,
              color='tab:blue', va='top', ha='center')
-    
+
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'latencies_baudot.py:plot_phaseEffect',
