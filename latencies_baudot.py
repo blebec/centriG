@@ -79,7 +79,7 @@ def load_onsets():
     -------
     df : pandas dataframe
     """
-    filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/Figure latence GABY + histo.xls'
+    filename = '/Users/cdesbois/ownCloud/cgFigures/data/baudot/dataLatenceGABYhisto.xls'
     data_dict = pd.read_excel(filename, None)
     # for k in data_dict:
     #     print(k)
@@ -672,7 +672,8 @@ plt.close('all')
 def plot_diffMean(inputdf, removeOutliers=True, refMean=True):
 # datadf = data_df.copy()
     datadf = inputdf.copy()
-    cols = ['moy_c-p', 'psth_seq-c']
+#    cols = ['moy_c-p', 'psth_seq-c']
+    cols = ['lat_vm_c-p', 'lat_spk_seq-c']
     stims = datadf.stim.unique()
     markers = {'cf' : 'o', 'cp' : 'v'}
     colors = ['tab:brown', std_colors['green'],
