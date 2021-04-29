@@ -1,4 +1,48 @@
-Figure Comments Yves
+ # 210428
+
+fig 1 :
+
+- A1, A2 + plot_both
+- BAR SN
+
+
+
+fig2 = le reste + doubler C (collinéaire et cross version 1)
+
+nomenclature : 
+
+​	'iso' = collinéaire sur toute la ligne (incluant le champs récepteur) base = static
+
+​	'cross' cg gabor = iso + cross (ref = motion axis)
+
+
+
+fig7:
+
+- radial + cardinal  + 2stroke avec phase (fig7)
+
+- \+ pointillé représentant bar + SN
+
+
+
+fig1 trop de répétitions
+
+- zoom ? passer de 5 à 3 gabors ?
+
+
+
+champs récepteurs:
+
+- deux trois exemples
+
+- calculs d'overlap ?
+
+
+
+
+
+
+######################################################
 
  
 
@@ -123,48 +167,3 @@ Use a color slightly darker for the traces and the histogram borders than the fi
 - [x] to be checked
 
  
-
- 
-
- 
-
- # 210428
-
-fig 1 :
-
-- A1, A2 + plot_both
-- BAR SN
-
-
-
-fig2 = le reste + doubler C (collinéaire et cross version 1)
-
-nomenclature : 
-
-​	'iso' = collinéaire sur toute la ligne (incluant le champs récepteur) base = static
-
-​	'cross' cg gabor = iso + cross (ref = motion axis)
-
-
-
-fig7:
-
-- radial + cardinal  + 2stroke avec phase (fig7)
-
-- \+ pointillé représentant bar + SN
-
-
-
-fig1 trop de répétitions
-
-- zoom ? passer de 5 à 3 gabors ?
-
-
-
-champs récepteurs:
-
-- deux trois exemples
-
-- calculs d'overlap ?
-
-  
