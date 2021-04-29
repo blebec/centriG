@@ -14,6 +14,11 @@ import pandas as pd
 
 import config
 
+
+pd.set_option('display.max.columns', None)
+pd.set_option('display.max.rows', None)
+pd.set_option('display.precision', 2)
+
 paths = config.build_paths()
 dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
 files = [st for st in os.listdir(dirname) 
@@ -40,7 +45,10 @@ cols = [_.replace('NOM', '') for _ in cols]
 cols = ['nd' if len(_)<1 else _ for _ in cols]
 cols = [_.strip() for _ in cols]
 cols = [_.lower() for _ in cols]
+cols = ['_'.join(_.split(' ')) for _ in cols]
 df.columns = cols
 df = df.drop(index=range(4))
 
-# drop empty
+# drop empty rows and columns
+df = df.dropna(axis=0, how='all')
+df = df.dropna(axis=1, how='all')
