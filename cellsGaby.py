@@ -7,7 +7,6 @@ Created on Wed Apr 28 13:53:38 2021
 """
 
 import os
-import sys
 
 
 import pandas as pd
@@ -21,7 +20,7 @@ pd.set_option('display.precision', 2)
 
 paths = config.build_paths()
 dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
-files = [st for st in os.listdir(dirname) 
+files = [st for st in os.listdir(dirname)
          if not os.path.isdir(os.path.join(dirname, st))]
 for file in files:
     print(file)
@@ -122,13 +121,15 @@ def load_peggy():
             'vmco': 'vmCor.',
             'vmrest': 'vmRest',
             'w.barre': 'wBar'}
-    
+
+# todo = visuel -> visual, remove _°
+
     for i in range(4):
         df.iloc[i] = df.iloc[i].apply(lambda st: str(st).lower())
         df.iloc[i] = df.iloc[i].apply(lambda st: st.strip())
         df.iloc[i] = df.iloc[i].apply(lambda st: dico.get(st, st))
         df.iloc[i] = df.iloc[i].apply(lambda st: st.replace(' ', ''))
-    
+
 
     # column names
     # nb df.head(3) -> header on three lines
@@ -148,17 +149,39 @@ def load_peggy():
     cols = ['_'.join(_.split(' ')) for _ in cols]
     cols = [_.replace('_nom', '') for _ in cols]
     cols = [_.replace('_(ms)', '(ms)') for _ in cols]
+    cols = [_.replace('_°', '') for _ in cols]
+    cols = [_.replace('visuel', 'visual') for _ in cols]
+    cols = [_.replace('_mv', '(mv)') for _ in cols]
+    cols = [_.replace('._mv', '(mv)') for _ in cols]
+    cols = [_.replace('_(na)', '(na)') for _ in cols]
+    cols = [_.replace('_(microns)', '(microns)') for _ in cols]
+    cols = [_.replace('solut.', 'solut') for _ in cols]
+
     df.columns = cols
     df = df.drop(index=range(5))
 
     # drop gaby added rows
     df = df.drop(index=[193, 194, 201, 208])
-    
+
     # fill names
     df.nom = df.nom.fillna(method='ffill')
-    
+
     return df
 
 data_df = load_peggy()
 #%%
+# NB positions = ['gaby_cr', 'visuel_ac_od', 'visuel_ac_og',
+# 'revcor_cr', 'barfl_cr', 'barmv_cr', 'grat_cr(m1)'
 
+select = ['nom', 'gaby_cr_x', 'gaby_cr_y', 'gaby_cr_l', 'gaby_cr_w', 'gaby_cr_theta'
+        'revcor_cr_x', 'revcor_cr_y', 'revcor_cr_l', 'revcor_cr_w', 'revcor_cr_theta']
+
+select = [st for st in data_df.columns if 'revcor' in st]
+select = [st for st in select if '_cr' in st]
+select = [st for st in select if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
+select.insert(0, 'nom')
+
+df = data_df[select].copy()
+cells = df.dropna(how='any')
+print('{} cells'.format(len(cells.nom.unique())))
+print(cells)
