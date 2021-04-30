@@ -2,8 +2,7 @@
 
 fig 1 :
 
-- A1, A2 + plot_both
-- BAR SN
+- A1, A2 + plot_both [BAR SN]
 
 
 

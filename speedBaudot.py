@@ -202,13 +202,12 @@ def plot_optimal_speed(df):
     df['popcg'] = pd.Series(data=height_cg, index=x)
     df['bd'] = bddf.set_index('optiMax')
     df = df.fillna(0)
-
     align = 'edge' # ie right edge
     width = (df.index.max() - df.index.min())/(len(df) - 1)
+
     # plot
     fig = plt.figure(figsize=(11.6, 5))
     ax = fig.add_subplot(111)
-
     # NB ax.bar, x value = lower
     ax.bar(df.index, height=df.popcg, width=width, align=align,
            color='w', edgecolor='k', alpha=0.6, label='cengrigabor')
@@ -250,7 +249,7 @@ if save:
 #%%
 plt.close('all')
 
-def plot_optimal_bringuier(df):
+def plot_optimal_bringuier(gdf=bined_df):
     """
     plot an histogram of the optimal cortical horizontal speed
     Parameters
@@ -261,44 +260,56 @@ def plot_optimal_bringuier(df):
     fig = matplotlib.pyplot.figure
 
     """
-    fig = plt.figure()
-    fig.suptitle('Bringuier et al.')
-    ax = fig.add_subplot(111)
-
-    # replace nan by O
-    df = df.fillna(0)
-
-    #extract & correction for lower limit
-    # x = (df.speed_upper - 0.05).tolist()
-    x = (df.speed_lower).tolist()
-    x = [round(_, 2) for _ in x]
-    height_imp = df.impulse.tolist()
-    height_bar = df.long_bar.tolist()
+    fig, ax = plt.subplots(figsize=(4.3, 4), nrows=1, ncols=1)
+    # gerenal features
+    x = gdf.index
+    width = (max(x) - min(x))/(len(x) - 1)*.98
     align = 'edge'
-    x[-1] = 1.1     # for continuous range
-    width =  max(x) / (len(x) -1) * .95
-    ax.bar(x, height=height_bar, width=width, align=align, alpha=1,
-           color='tab:blue', edgecolor='k', label='bar')
-    ax.bar(x, height=height_imp, bottom=height_bar, width=width, align=align,
-           color='tab:green', edgecolor='k', alpha=0.8, label='impulse')
-    txt = 'Apparent Horizontal Propagation Speed (AHSP) m/s'
+
+    # # top
+    # ax = axes[0]
+    # gdf['pool'] = 0
+    # txt = 'Radial n={:.0f}'.format(gdf.cgpop.sum())
+    # ax.bar(x, gdf.cgpop, bottom=gdf.pool, width=width, align=align,
+    #        color=speed_colors['red'], alpha=0.6, edgecolor='k', label=txt)
+    # gdf.pool += gdf.cgpop
+    # txt = 'Cardinal n={:.0f}'.format(gdf.bd.sum())
+    # ax.bar(x, gdf.bd, bottom=gdf.pool, width=width, align=align,
+    #        color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label=txt)
+    # gdf.pool += gdf.bd
+    # txt = '2-stroke n={:.0f}'.format(gdf.gm.sum())
+    # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
+    #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label=txt)
+    # gdf.pool += gdf.gm
+
+    # txt = 'Inferred Cortical Speed (mm/ms)'
+    # ax.set_xlabel(txt)
+    # ax.set_ylabel('Nb of cells')
+    # ax.legend()
+
+    # bottom
+    # ax = axes[1]
+    txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
+    ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
+           color=std_colors['blue'], edgecolor='k',
+           label=txt)
+    txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
+    ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
+           align=align, color=std_colors['green'],
+           edgecolor='k', alpha=0.8, label=txt)
+    # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
+    txt = 'Propagation Speed (mm/ms)'
     ax.set_xlabel(txt)
-    # ax.set_xlabel('{} (m/s)'.format('propagation speed'.title()))
-    ax.set_ylabel('nb of Measures')
+    ax.set_ylabel('Nb of measures')
     ax.legend()
-    ax.text(1.05, 0, '/ /', ha='center', va='center', backgroundcolor='w')
 
-    txt = 'n = 27 ({:.0f} measures)'.format(df.long_bar.sum())
-    ax.text(x=0.7, y= 0.6, s=txt, color='tab:blue',
-            va='bottom', ha='left', transform=ax.transAxes)
-    txt = 'n = 37 ({:.0f} measures)'.format(df.impulse.sum())
-    ax.text(x=0.7, y= 0.55, s=txt, color='tab:green',
-            va='bottom', ha='left', transform=ax.transAxes)
-
-    for spine in ['top', 'right']:
-        ax.spines[spine].set_visible(False)
+    for ax in fig.get_axes():
+        for spine in ['top', 'right']:
+            ax.spines[spine].set_visible(False)
 
     fig.tight_layout()
+    lims = ax.get_xlim()
+    ax.set_xlim(0, lims[1])   
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'speedBaudot.py:plot_optimal_bringuier',
@@ -308,7 +319,8 @@ def plot_optimal_bringuier(df):
 
 
 plt.close('all')
-fig = plot_optimal_bringuier(brdf)
+# fig = plot_optimal_bringuier(brdf)
+fig = plot_optimal_bringuier(bined_df)
 
 save = False
 if save:
@@ -316,6 +328,13 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
+    #update current
+    dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'current', 'fig')
+    file = 'o1_optSpeedBringuier'
+    for ext in ['.png', '.pdf', '.svg']:
+        filename = os.path.join(dirname, (file + ext))
+        fig.savefig(filename)
+
 
 
 #%%
