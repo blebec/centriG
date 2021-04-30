@@ -16,6 +16,7 @@ from bisect import bisect
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import scipy.stats as stats
 
 import config
 
@@ -266,29 +267,6 @@ def plot_optimal_bringuier(gdf=bined_df):
     width = (max(x) - min(x))/(len(x) - 1)*.98
     align = 'edge'
 
-    # # top
-    # ax = axes[0]
-    # gdf['pool'] = 0
-    # txt = 'Radial n={:.0f}'.format(gdf.cgpop.sum())
-    # ax.bar(x, gdf.cgpop, bottom=gdf.pool, width=width, align=align,
-    #        color=speed_colors['red'], alpha=0.6, edgecolor='k', label=txt)
-    # gdf.pool += gdf.cgpop
-    # txt = 'Cardinal n={:.0f}'.format(gdf.bd.sum())
-    # ax.bar(x, gdf.bd, bottom=gdf.pool, width=width, align=align,
-    #        color=speed_colors['yellow'], alpha=0.6, edgecolor='k', label=txt)
-    # gdf.pool += gdf.bd
-    # txt = '2-stroke n={:.0f}'.format(gdf.gm.sum())
-    # ax.bar(x, gdf.gm, bottom=gdf.pool, width=width, align=align,
-    #        color=speed_colors['orange'], alpha=0.6, edgecolor='k', label=txt)
-    # gdf.pool += gdf.gm
-
-    # txt = 'Inferred Cortical Speed (mm/ms)'
-    # ax.set_xlabel(txt)
-    # ax.set_ylabel('Nb of cells')
-    # ax.legend()
-
-    # bottom
-    # ax = axes[1]
     txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
     ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
            color=std_colors['blue'], edgecolor='k',
@@ -319,7 +297,6 @@ def plot_optimal_bringuier(gdf=bined_df):
 
 
 plt.close('all')
-# fig = plot_optimal_bringuier(brdf)
 fig = plot_optimal_bringuier(bined_df)
 
 save = False
@@ -335,25 +312,36 @@ if save:
         filename = os.path.join(dirname, (file + ext))
         fig.savefig(filename)
 
-
-
 #%%
 # def plot_both(df0, df1, df2, df3):
 def plot_both(gdf=bined_df):
 
-    fig = plt.figure(figsize=(4.3, 8))
-    axes = []
-    ax = fig.add_subplot(211)
-    axes.append(ax)
-    ax = fig.add_subplot(212, sharex=ax, sharey=ax)
-    axes.append(ax)
+    # fig = plt.figure(figsize=(4.3, 8))
+    # axes = []
+    # ax = fig.add_subplot(211)
+    # axes.append(ax)
+    # ax = fig.add_subplot(212, sharex=ax, sharey=ax)
+    # axes.append(ax)
+    
+    fig, ax = plt.subplots(figsize=(4.3, 8))
     # gerenal features
     x = gdf.index
     width = (max(x) - min(x))/(len(x) - 1)*.98
     align = 'edge'
 
     # top
-    ax = axes[0]
+    # ax = axes[0]
+
+    ax.bar(x, height=gdf.br_impulse + gdf.br_long_bar, width=width, 
+            align=align,  color='w', alpha=0.7, 
+            edgecolor='tab:grey')
+    # ax.bar(x, height=gdf.br_long_bar, width=width, 
+    #        align=align, alpha=0.5,
+    #        color='w', edgecolor='tab:grey')
+    # ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
+    #        align=align, alpha=0.5, 
+    #        color='w', edgecolor='tab:grey')
+
     gdf['pool'] = 0
     txt = 'Radial n={:.0f}'.format(gdf.cgpop.sum())
     ax.bar(x, gdf.cgpop, bottom=gdf.pool, width=width, align=align,
@@ -372,23 +360,22 @@ def plot_both(gdf=bined_df):
     ax.set_xlabel(txt)
     ax.set_ylabel('Nb of cells')
     ax.legend()
-
-    # bottom
-    ax = axes[1]
-    txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
-    ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
-           color=std_colors['blue'], edgecolor='k',
-           label=txt)
-    txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
-    ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
-           align=align, color=std_colors['green'],
-           edgecolor='k', alpha=0.8, label=txt)
-    # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
-    txt = 'Propagation Speed (mm/ms)'
-    ax.set_xlabel(txt)
-    ax.set_ylabel('Nb of measures')
-    ax.legend()
-
+    # # bottom
+    # ax = axes[1]
+    # txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
+    # ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
+    #        color=std_colors['blue'], edgecolor='k',
+    #        label=txt)
+    # txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
+    # ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
+    #        align=align, color=std_colors['green'],
+    #        edgecolor='k', alpha=0.8, label=txt)
+    # # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
+    # txt = 'Propagation Speed (mm/ms)'
+    # ax.set_xlabel(txt)
+    # ax.set_ylabel('Nb of measures')
+    # ax.legend()
+   
     for ax in fig.get_axes():
         for spine in ['top', 'right']:
             ax.spines[spine].set_visible(False)
@@ -628,3 +615,43 @@ if save:
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'baudot')
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
+
+
+
+#%% fir histo
+plt.close('all')
+
+gdf = bined_df.copy()
+fig, ax = plt.subplots(figsize=(7,6))
+axT = ax.twinx()
+txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
+x = gdf.index
+ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
+           color=std_colors['blue'], edgecolor='k',
+           label=txt)
+txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
+ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
+    align=align, color=std_colors['green'],
+    edgecolor='k', alpha=0.8, label=txt)
+    # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
+txt = 'Propagation Speed (mm/ms)'
+ax.set_xlabel(txt)
+ax.set_ylabel('Nb of measures')
+ax.legend()
+# bottom kde
+kde = stats.gaussian_kde(gdf.br_impulse)
+xmin, xmax = ax.get_xlim()
+x_kde = np.arange(xmin, xmax, 0.05)
+axT.plot(x_kde, kde(x_kde), color=std_colors['green'],
+        alpha=1, linewidth=2, linestyle='-')
+
+fitfunc  = lambda p, x: p[0]*np.exp(-0.5*((x-p[1])/p[2])**2)+p[3]
+errfunc  = lambda p, x, y: (y - fitfunc(p, x))
+
+init  = [1.0, 0.5, 0.5, 0.5]
+
+x_data = gdf.index.values
+y_data = gdf.br_impulse
+
+out   = leastsq( errfunc, init, args=(x_data, y_data))
+c = out[0]
