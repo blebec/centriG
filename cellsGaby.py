@@ -208,7 +208,7 @@ def table_loc_key():
     return coord_loc
 
 def select_corrd(key='revcor', printcells=False):
-    select = [st for st in data_df.columns if 'revcor' in st]
+    select = [st for st in data_df.columns if key in st]
     select = [st for st in select if '_cr' in st]
     select = [st for st in select if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
     select.insert(0, 'cell')
@@ -228,8 +228,7 @@ df, cells = select_corrd()
 #     df, _ = select_corrd(key)
 
 #%% look at all cordinates locations
-key = 'revcor'
-_, cells = select_corrd(key)
+
 
 
 # fig, ax = plt.subplots(figsize=(8,8))
@@ -240,37 +239,40 @@ def plot_xy_distri(key='revcor', bins=10):
 
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
     axes = axes.flatten()
-    fig.suptitle(key)
+    txt = key + ' ( {}cells {}records )'.format(
+        len(cells.cell.unique()), len(cells))
+    fig.suptitle(txt)
 
+    item = key + '_cr_'
     # xy
     ax = axes[0]
     ax.set_title('(x y)')
     for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, ['revcor_cr_x']].values
-        y = cells.loc[cells.cell == neur, ['revcor_cr_y']].values
+        x = cells.loc[cells.cell == neur, [item + 'x']].values
+        y = cells.loc[cells.cell == neur, [item +'y']].values
         ax.scatter(x,y, alpha=0.5)
         ax.plot(x,y, alpha=0.5)
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
+    # ax.set_xlabel('x')
+    # ax.set_ylabel('y')
 
     ax = axes[1]
     ax.set_title('length')
     for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, ['revcor_cr_l']].values
+        x = cells.loc[cells.cell == neur, [item + 'l']].values
         ax.plot(x, marker='o', alpha=0.7)
-    ax.set_xlabel('num')
-    ax.set_ylabel('length')
+    # ax.set_xlabel('num')
+    # ax.set_ylabel('length')
 
     ax = axes[2]
     ax.set_title('length')
     meds = []
     for neur in cells.cell.unique():
-        med = cells.loc[cells.cell == neur, ['revcor_cr_l']].median()
+        med = cells.loc[cells.cell == neur, [item + 'l']].median()
         meds.append(med)
     y, x = np.histogram(meds, bins=bins)
     width = round((np.max(meds) - np.min(meds))/bins * .9)
     ax.bar(x=x[:-1], width=width, height=y, align='edge', alpha=0.6)
-    ax.set_xlabel('length')
+    # ax.set_xlabel('length')
     ax.yaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
@@ -278,29 +280,29 @@ def plot_xy_distri(key='revcor', bins=10):
     ax = axes[3]
     ax.set_title('theta')
     for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, ['revcor_cr_theta']].values
+        x = cells.loc[cells.cell == neur, [item + 'theta']].values
         ax.plot(x, marker='o', alpha=0.7)
-    ax.set_xlabel('num')
-    ax.set_ylabel('theta')
+    # ax.set_xlabel('num')
+    # ax.set_ylabel('theta')
 
     ax = axes[4]
     ax.set_title('width')
     for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, ['revcor_cr_w']].values
+        x = cells.loc[cells.cell == neur, [item + 'w']].values
         ax.plot(x, marker='o', alpha=0.7)
-    ax.set_xlabel('num')
-    ax.set_ylabel('width')
+    # ax.set_xlabel('num')
+    # ax.set_ylabel('width')
 
     ax = axes[5]
     ax.set_title('width')
     meds = []
     for neur in cells.cell.unique():
-        med = cells.loc[cells.cell == neur, ['revcor_cr_w']].median()
+        med = cells.loc[cells.cell == neur, [item + 'w']].median()
         meds.append(med)
     y, x = np.histogram(meds, bins=bins)
     width = round((np.max(meds) - np.min(meds))/bins * .9)
     ax.bar(x=x[:-1], width=width, height=y, align='edge', alpha=0.6)
-    ax.set_xlabel('width')
+    # ax.set_xlabel('width')
     ax.yaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
@@ -322,7 +324,21 @@ def plot_xy_distri(key='revcor', bins=10):
     
 plt.close('all')
 anot=True
+key = 'revcor'
+_, cells = select_corrd(key)
 fig = plot_xy_distri()    
+
+save = False
+for key in keys:
+    _, cells = select_corrd(key)
+    fig = plot_xy_distri(key)
+    if save:
+        dirname = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/gaby'
+        file = 'gaby_xy_distri_' + key + '.pdf'
+        fig.savefig(os.path.join(dirname, file))
+
+
+
 
 #%%
 # bug 
