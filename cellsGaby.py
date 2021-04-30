@@ -28,7 +28,7 @@ for file in files:
 file = 'dataGaby2005.xls'
 filename = os.path.join(dirname, file)
 #%%
-def load_peggy():
+def load_gaby():
     df = pd.read_excel(filename, header=None)
     # remove empty columns
     df = df.dropna(axis=0, how='all')
@@ -168,7 +168,8 @@ def load_peggy():
 
     return df
 
-data_df = load_peggy()
+data_df = load_gaby()
+
 #%%
 # NB positions = ['gaby_cr', 'visuel_ac_od', 'visuel_ac_og',
 # 'revcor_cr', 'barfl_cr', 'barmv_cr', 'grat_cr(m1)'
