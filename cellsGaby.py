@@ -290,7 +290,7 @@ def plot_xy_distri(key='revcor', bins=10):
     for neur in cells.cell.unique():
         x = cells.loc[cells.cell == neur, [item + 'w']].values
         ax.plot(x, marker='o', alpha=0.7)
-    # ax.set_xlabel('num')
+ba    # ax.set_xlabel('num')
     # ax.set_ylabel('width')
 
     ax = axes[5]
@@ -337,15 +337,41 @@ for key in keys:
         file = 'gaby_xy_distri_' + key + '.pdf'
         fig.savefig(os.path.join(dirname, file))
 
-
-
-
 #%%
-# bug 
+file = 'baudot_meta.xlsx'
+filename = os.path.join(dirname, file)
 
-y, x = np.histogram(meds)
+df = pd.read_excel(filename)
 
-ax.bar(x=x[:-1], width = 0.8, height=y, align='edge')
-       width=(max(y)- min(y)) / len(y), height=x)
+dico = {'NOM' : 'cell', 
+        'contraste centre bas' : 'ct_center', 
+        'Valeur contraste' : 'ct_patch',
+        'Valeur distance en °' : 'dist' , 
+        'valeur dt patch' : 'dt_patch', 
+        'Valeur dtON' : 'dt_on',
+        'Vitesse apparente °/s': 'speed', 
+        'Longeur CR en °' : 'length', 
+        'Largeur CR en °' : 'width',
+        'RATIO L/W' : 'lw', 
+        'MOYENNE Vm' : 'vm', 
+        'MOYENNE Frequence de décharge Hz' : 'spk'
+        }
+df = df.rename(columns=dico)
+df.loc[df.cell == '3900hg3 (sans spike)', ['cell']] = '3900hg3'
 
-cells.groupby('cell')['revcor_cr_l'].mean()
+#%% check cells
+
+gaby_cells = data_df.cell.dropna().unique()
+baudot_cells = df.cell
+baudot_cells = [_[:-2] for _ in baudot_cells]
+baudot_cells = [_.lower() for _ in baudot_cells]
+gaby_cells = [_.lower() for _ in gaby_cells]
+
+gaby_cells = set(gaby_cells)
+baudot_cells= set(baudot_cells)
+
+if baudot_cells < gaby_cells:
+    print('='*20)
+    print('all the bausdot cells are present in Gaby data')
+else:
+    print('in baudot but absent in gaby {}'.format(baudot_cells - gaby_cells))
