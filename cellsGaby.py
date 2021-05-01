@@ -375,3 +375,13 @@ if baudot_cells < gaby_cells:
     print('all the bausdot cells are present in Gaby data')
 else:
     print('in baudot but absent in gaby {}'.format(baudot_cells - gaby_cells))
+
+
+#%% locate file -> file_old
+
+data_df[['revcor_file_new', 'revcor_file_old']]
+for col in data_df.columns:
+    if data_df[col].eq('0901bg3').any():
+        print(col)
+        
+        
