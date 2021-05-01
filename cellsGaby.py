@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 
 import config
@@ -179,6 +180,10 @@ def load_gaby():
 
     # drop gaby added rows
     df = df.drop(index=[193, 194, 201, 208])
+    
+    # lowercase
+    df.gene_file_old = df.gene_file_old.apply(
+        lambda st: str(st).lower())
 
     # fill names
     df.cell = df.cell.fillna(method='ffill')
@@ -195,7 +200,8 @@ data_df = load_gaby()
 # NB positions = ['gaby_cr', 'visuel_ac_od', 'visuel_ac_og',
 # 'revcor_cr', 'barfl_cr', 'barmv_cr', 'grat_cr(m1)'
 
-def table_loc_key():
+def list_group_keys():
+    """ extract the global 'group' keys of gaby file """
     keys = {_.split('_')[0] for _ in data_df.columns}
     coord_loc = []
     for key in keys:
@@ -221,8 +227,9 @@ def select_corrd(key='revcor', printcells=False):
         print(cells)
     return df, cells
 
-keys = table_loc_key()
-df, cells = select_corrd()
+keys = list_group_keys()
+key = 'revcor'
+df, cells = select_corrd(key)
 
 # for key in keys:
 #     df, _ = select_corrd(key)
@@ -290,7 +297,7 @@ def plot_xy_distri(key='revcor', bins=10):
     for neur in cells.cell.unique():
         x = cells.loc[cells.cell == neur, [item + 'w']].values
         ax.plot(x, marker='o', alpha=0.7)
-ba    # ax.set_xlabel('num')
+    # ax.set_xlabel('num')
     # ax.set_ylabel('width')
 
     ax = axes[5]
@@ -338,50 +345,103 @@ for key in keys:
         fig.savefig(os.path.join(dirname, file))
 
 #%%
-file = 'baudot_meta.xlsx'
-filename = os.path.join(dirname, file)
 
-df = pd.read_excel(filename)
+def load_baudot_meta():
+    """ load baudot meta """
+    file = 'baudot_meta.xlsx'
+    filename = os.path.join(dirname, file)
+    df = pd.read_excel(filename)
+    dico = {'NOM' : 'cell', 
+            'contraste centre bas' : 'ct_center', 
+            'Valeur contraste' : 'ct_patch',
+            'Valeur distance en °' : 'dist' , 
+            'valeur dt patch' : 'dt_patch', 
+            'Valeur dtON' : 'dt_on',
+            'Vitesse apparente °/s': 'speed', 
+            'Longeur CR en °' : 'length', 
+            'Largeur CR en °' : 'width',
+            'RATIO L/W' : 'lw', 
+            'MOYENNE Vm' : 'vm', 
+            'MOYENNE Frequence de décharge Hz' : 'spk'
+            }
+    df = df.rename(columns=dico)
+    df.loc[df.cell == '3900hg3 (sans spike)', ['cell']] = '3900hg3'
+    df.cell.apply(lambda st: st.lower())
+    return df
 
-dico = {'NOM' : 'cell', 
-        'contraste centre bas' : 'ct_center', 
-        'Valeur contraste' : 'ct_patch',
-        'Valeur distance en °' : 'dist' , 
-        'valeur dt patch' : 'dt_patch', 
-        'Valeur dtON' : 'dt_on',
-        'Vitesse apparente °/s': 'speed', 
-        'Longeur CR en °' : 'length', 
-        'Largeur CR en °' : 'width',
-        'RATIO L/W' : 'lw', 
-        'MOYENNE Vm' : 'vm', 
-        'MOYENNE Frequence de décharge Hz' : 'spk'
-        }
-df = df.rename(columns=dico)
-df.loc[df.cell == '3900hg3 (sans spike)', ['cell']] = '3900hg3'
 
-#%% check cells
+def check_in_gaby(df, datadf):
+    """
+    check if the baudot cells (df) are in the gaby file (datadf)
 
-gaby_cells = data_df.cell.dropna().unique()
-baudot_cells = df.cell
-baudot_cells = [_[:-2] for _ in baudot_cells]
-baudot_cells = [_.lower() for _ in baudot_cells]
-gaby_cells = [_.lower() for _ in gaby_cells]
+    """
+    gaby_cells = datadf.cell.dropna().unique()
+    baudot_cells = df.cell
+    baudot_cells = [_[:-2] for _ in baudot_cells]
+    baudot_cells = [_.lower() for _ in baudot_cells]
+    gaby_cells = [_.lower() for _ in gaby_cells]
 
-gaby_cells = set(gaby_cells)
-baudot_cells= set(baudot_cells)
+    gaby_cells = set(gaby_cells)
+    baudot_cells= set(baudot_cells)
 
-if baudot_cells < gaby_cells:
-    print('='*20)
-    print('all the bausdot cells are present in Gaby data')
-else:
-    print('in baudot but absent in gaby {}'.format(baudot_cells - gaby_cells))
+    if baudot_cells < gaby_cells:
+        print('='*20)
+        print('all the bausdot cells are present in Gaby data')
+    else:
+        print('in baudot but absent in gaby {}'.format(baudot_cells - gaby_cells))
+
+
+df = load_baudot_meta()
+check_in_gaby(df, data_df)
 
 
 #%% locate file -> file_old
 
-data_df[['revcor_file_new', 'revcor_file_old']]
-for col in data_df.columns:
-    if data_df[col].eq('0901bg3').any():
-        print(col)
-        
-        
+# bug with 0700kG1
+
+def get_location(df, data_df):
+    """ get the baudot cell location in the gaby file """
+    founded = {}
+    not_founded = []
+    for cell in df.cell:
+        absent = True
+        cell = cell.lower()
+        for col in data_df.columns:
+            if data_df[col].eq(cell).any().any():
+                id = data_df[col].loc[data_df[col].eq(cell)].index[0]
+                loca = (id, col) 
+                # print('{} : {}'.format(cell, loca))
+                founded[cell] = loca
+                absent = False
+        if absent:
+            not_founded.append(cell)
+        # print('{} not founded'.format(cell))
+
+    return founded, not_founded 
+
+founded, not_founded = get_location(df, data_df)
+
+print('='*20)
+print('founded {}'.format(founded))        
+print('='*20)
+print('not founded : {}'.format(not_founded))
+
+
+#%% look at data from baudot to gaby
+
+def test_cr(datadf=data_df, founded=founded):
+    cols = [st for st in datadf.columns if '_cr' in st]
+    cols = [st for st in cols if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
+    keys = list(set([_.split('_')[0] for _ in cols]))
+
+    resdf = pd.DataFrame()
+    for k, v in founded.items():
+       resdf[k] = data_df.loc[v[0], cols]
+
+    resdf = resdf.dropna(how='all')
+    return resdf
+
+resdf = test_cr()
+dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
+file = 'baudotMinusGaby.xls'
+resdf.to_excel(os.path.join(dirname, file))
