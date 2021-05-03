@@ -21,16 +21,21 @@ pd.set_option('display.max.columns', None)
 pd.set_option('display.precision', 2)
 
 paths = config.build_paths()
-dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
-files = [st for st in os.listdir(dirname)
-         if not os.path.isdir(os.path.join(dirname, st))]
-for file in files:
-    print(file)
 
-file = 'dataGaby2005.xls'
-filename = os.path.join(dirname, file)
-#
+def print_files():
+    dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
+    files = [st for st in os.listdir(dirname)
+             if not os.path.isdir(os.path.join(dirname, st))]
+    print('=' * 20)
+    print('for dir = {}'.format(dirname))
+    print('we have')
+    for file in files:
+        print('    {}'.format(file))
+    print()
+
 def load_gaby():
+    file = 'dataGaby2005.xls'
+    filename = os.path.join(dirname, file)
     df = pd.read_excel(filename, header=None)
     # remove empty columns
     df = df.dropna(axis=0, how='all')
@@ -124,8 +129,6 @@ def load_gaby():
             'vmrest': 'vmRest',
             'w.barre': 'wBar'}
 
-# todo = visuel -> visual, remove _°
-
     for i in range(4):
         df.iloc[i] = df.iloc[i].apply(lambda st: str(st).lower())
         df.iloc[i] = df.iloc[i].apply(lambda st: st.strip())
@@ -172,91 +175,96 @@ def load_gaby():
     cols = [_.replace('nom', 'cell') for _ in cols]
     # to be chekced
     cols = [_.replace('(m1)', '') for _ in cols]
-    
-    
-    
     df.columns = cols
     df = df.drop(index=range(5))
-
     # drop gaby added rows
     df = df.drop(index=[193, 194, 201, 208])
-    
     # lowercase
     df.gene_file_old = df.gene_file_old.apply(
         lambda st: str(st).lower())
-
     # fill names
     df.cell = df.cell.fillna(method='ffill')
-
+    print('='*20)
+    print('loaded gaby file')
+    print()
     return df
 
-data_df = load_gaby()
 
-# for col in data_df.columns:
-#     if col.startswith('grat'):
-#         print(col)
-        
+print_files()
+gaby_df = load_gaby()
+
 #%%
 # NB positions = ['gaby_cr', 'visuel_ac_od', 'visuel_ac_og',
 # 'revcor_cr', 'barfl_cr', 'barmv_cr', 'grat_cr(m1)'
 
-def list_group_keys():
+def list_group_keys(df):
     """ extract the global 'group' keys of gaby file """
-    keys = {_.split('_')[0] for _ in data_df.columns}
+    keys = {_.split('_')[0] for _ in df.columns}
     coord_loc = []
     for key in keys:
-        select = [st for st in data_df.columns if key in st]
+        select = [st for st in df.columns if key in st]
         select = [st for st in select if '_cr' in st]
         select = [st for st in select if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
         if len(select) > 0:
             coord_loc.append(key)
+    print('=' * 20)
     print('keys for location are {}'.format(coord_loc))
+    print()
     return coord_loc
 
-def select_corrd(key='revcor', printcells=False):
-    select = [st for st in data_df.columns if key in st]
+def select_corrd(df, key='revcor', printcells=False):
+    select = [st for st in df.columns if key in st]
     select = [st for st in select if '_cr' in st]
     select = [st for st in select if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
     select.insert(0, 'cell')
-    df = data_df[select].copy()
-    df = df.loc[df.cell.notnull()]
-    cells = df.dropna(how='any')
+    adf = df[select].copy()
+    adf = adf.loc[df.cell.notnull()]
+    keydf = adf.dropna(how='any')
+    print('=' * 20)
     print('for key={} we have {} cells ({} records)'.format(
-        key, len(cells.cell.unique()), len(df)))
+        key, len(keydf.cell.unique()), len(adf)))
+    print()
     if printcells:
-        print(cells)
-    return df, cells
+        print(keydf)
+    return keydf
 
-keys = list_group_keys()
+keys = list_group_keys(gaby_df)
 key = 'revcor'
-df, cells = select_corrd(key)
-
-# for key in keys:
-#     df, _ = select_corrd(key)
+key_df = select_corrd(gaby_df, key)
 
 #%% look at all cordinates locations
 
-
-
-# fig, ax = plt.subplots(figsize=(8,8))
-# ax.scatter(cells.revcor_cr_x, cells.cell)
 plt.close('all')
 
-def plot_xy_distri(key='revcor', bins=10):
+def plot_xy_distri(keydf, key='revcor', bins=10):
+    """
+    plot the x,y,l,w,theta data from gaby's file'
+    Parameters
+    ----------
+    keydf : pandas dataframe extracted for a key
+        DESCRIPTION.
+    key :   related str in in ['gaby', 'barfl', 'revcor', 'grat', 'barmv']
+            The default is 'revcor'.
+    bins :  int for nb of histogram class
+            The default is 10.
+    Returns
+    -------
+    fig : matplotlib.pyolot_figure.
 
+    """
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
     axes = axes.flatten()
     txt = key + ' ( {}cells {}records )'.format(
-        len(cells.cell.unique()), len(cells))
+    len(keydf.cell.unique()), len(keydf))
     fig.suptitle(txt)
 
     item = key + '_cr_'
     # xy
     ax = axes[0]
     ax.set_title('(x y)')
-    for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, [item + 'x']].values
-        y = cells.loc[cells.cell == neur, [item +'y']].values
+    for neur in keydf.cell.unique():
+        x = keydf.loc[keydf.cell == neur, [item + 'x']].values
+        y = keydf.loc[keydf.cell == neur, [item +'y']].values
         ax.scatter(x,y, alpha=0.5)
         ax.plot(x,y, alpha=0.5)
     # ax.set_xlabel('x')
@@ -264,8 +272,8 @@ def plot_xy_distri(key='revcor', bins=10):
 
     ax = axes[1]
     ax.set_title('length')
-    for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, [item + 'l']].values
+    for neur in keydf.cell.unique():
+        x = keydf.loc[keydf.cell == neur, [item + 'l']].values
         ax.plot(x, marker='o', alpha=0.7)
     # ax.set_xlabel('num')
     # ax.set_ylabel('length')
@@ -273,8 +281,8 @@ def plot_xy_distri(key='revcor', bins=10):
     ax = axes[2]
     ax.set_title('length')
     meds = []
-    for neur in cells.cell.unique():
-        med = cells.loc[cells.cell == neur, [item + 'l']].median()
+    for neur in keydf.cell.unique():
+        med = keydf.loc[keydf.cell == neur, [item + 'l']].median()
         meds.append(med)
     y, x = np.histogram(meds, bins=bins)
     width = round((np.max(meds) - np.min(meds))/bins * .9)
@@ -286,16 +294,16 @@ def plot_xy_distri(key='revcor', bins=10):
 
     ax = axes[3]
     ax.set_title('theta')
-    for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, [item + 'theta']].values
+    for neur in keydf.cell.unique():
+        x = keydf.loc[keydf.cell == neur, [item + 'theta']].values
         ax.plot(x, marker='o', alpha=0.7)
     # ax.set_xlabel('num')
     # ax.set_ylabel('theta')
 
     ax = axes[4]
     ax.set_title('width')
-    for neur in cells.cell.unique():
-        x = cells.loc[cells.cell == neur, [item + 'w']].values
+    for neur in keydf.cell.unique():
+        x = keydf.loc[keydf.cell == neur, [item + 'w']].values
         ax.plot(x, marker='o', alpha=0.7)
     # ax.set_xlabel('num')
     # ax.set_ylabel('width')
@@ -303,8 +311,8 @@ def plot_xy_distri(key='revcor', bins=10):
     ax = axes[5]
     ax.set_title('width')
     meds = []
-    for neur in cells.cell.unique():
-        med = cells.loc[cells.cell == neur, [item + 'w']].median()
+    for neur in keydf.cell.unique():
+        med = keydf.loc[keydf.cell == neur, [item + 'w']].median()
         meds.append(med)
     y, x = np.histogram(meds, bins=bins)
     width = round((np.max(meds) - np.min(meds))/bins * .9)
@@ -313,7 +321,6 @@ def plot_xy_distri(key='revcor', bins=10):
     ax.yaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
-
 
     for i, ax in enumerate(fig.get_axes()):
         # ax.set_title(i)
@@ -324,21 +331,19 @@ def plot_xy_distri(key='revcor', bins=10):
         fig.text(0.99, 0.01, 'cellsGaby:plot_xy_distri_' + key,
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-
     fig.tight_layout()
-    
     return fig
-    
+
 plt.close('all')
 anot=True
 key = 'revcor'
-_, cells = select_corrd(key)
-fig = plot_xy_distri()    
+key_df = select_corrd(gaby_df, key)
+fig = plot_xy_distri(key_df)
 
 save = False
 for key in keys:
-    _, cells = select_corrd(key)
-    fig = plot_xy_distri(key)
+    key_df = select_corrd(gaby_df, key)
+    fig = plot_xy_distri(key_df, key)
     if save:
         dirname = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/gaby'
         file = 'gaby_xy_distri_' + key + '.pdf'
@@ -351,17 +356,17 @@ def load_baudot_meta():
     file = 'baudot_meta.xlsx'
     filename = os.path.join(dirname, file)
     df = pd.read_excel(filename)
-    dico = {'NOM' : 'cell', 
-            'contraste centre bas' : 'ct_center', 
+    dico = {'NOM' : 'cell',
+            'contraste centre bas' : 'ct_center',
             'Valeur contraste' : 'ct_patch',
-            'Valeur distance en °' : 'dist' , 
-            'valeur dt patch' : 'dt_patch', 
+            'Valeur distance en °' : 'dist' ,
+            'valeur dt patch' : 'dt_patch',
             'Valeur dtON' : 'dt_on',
-            'Vitesse apparente °/s': 'speed', 
-            'Longeur CR en °' : 'length', 
+            'Vitesse apparente °/s': 'speed',
+            'Longeur CR en °' : 'length',
             'Largeur CR en °' : 'width',
-            'RATIO L/W' : 'lw', 
-            'MOYENNE Vm' : 'vm', 
+            'RATIO L/W' : 'lw',
+            'MOYENNE Vm' : 'vm',
             'MOYENNE Frequence de décharge Hz' : 'spk'
             }
     df = df.rename(columns=dico)
@@ -370,13 +375,13 @@ def load_baudot_meta():
     return df
 
 
-def check_in_gaby(df, datadf):
+def check_in_gaby(baudotdf, gabydf):
     """
     check if the baudot cells (df) are in the gaby file (datadf)
 
     """
-    gaby_cells = datadf.cell.dropna().unique()
-    baudot_cells = df.cell
+    gaby_cells = gabydf.cell.dropna().unique()
+    baudot_cells = baudotdf.cell
     baudot_cells = [_[:-2] for _ in baudot_cells]
     baudot_cells = [_.lower() for _ in baudot_cells]
     gaby_cells = [_.lower() for _ in gaby_cells]
@@ -391,57 +396,65 @@ def check_in_gaby(df, datadf):
         print('in baudot but absent in gaby {}'.format(baudot_cells - gaby_cells))
 
 
-df = load_baudot_meta()
-check_in_gaby(df, data_df)
+baudot_df = load_baudot_meta()
+check_in_gaby(baudot_df, gaby_df)
 
 
 #%% locate file -> file_old
 
 # bug with 0700kG1
 
-def get_location(df, data_df):
+def get_location(baudotdf, gabydf):
     """ get the baudot cell location in the gaby file """
-    founded = {}
-    not_founded = []
-    for cell in df.cell:
+    ingaby = {}
+    not_ingaby = []
+    for cell in baudotdf.cell:
         absent = True
         cell = cell.lower()
-        for col in data_df.columns:
-            if data_df[col].eq(cell).any().any():
-                id = data_df[col].loc[data_df[col].eq(cell)].index[0]
-                loca = (id, col) 
+        for col in gabydf.columns:
+            if gabydf[col].eq(cell).any().any():
+                ind = gabydf[col].loc[gabydf[col].eq(cell)].index[0]
+                loca = (ind, col)
                 # print('{} : {}'.format(cell, loca))
-                founded[cell] = loca
+                ingaby[cell] = loca
                 absent = False
         if absent:
-            not_founded.append(cell)
+            not_ingaby.append(cell)
         # print('{} not founded'.format(cell))
 
-    return founded, not_founded 
+    return ingaby, not_ingaby
 
-founded, not_founded = get_location(df, data_df)
+in_gaby, not_in_gaby = get_location(baudot_df, gaby_df)
 
 print('='*20)
-print('founded {}'.format(founded))        
+print('in_both:')
+for _ in in_gaby.items():
+    print(_)
+print()
 print('='*20)
-print('not founded : {}'.format(not_founded))
-
+print('not in gaby : {}'.format(not_in_gaby))
+for _ in not_in_gaby:
+    print(_)
+print()
 
 #%% look at data from baudot to gaby
 
-def test_cr(datadf=data_df, founded=founded):
-    cols = [st for st in datadf.columns if '_cr' in st]
+def test_cr(gabydf, ingaby):
+    cols = [st for st in gabydf.columns if '_cr' in st]
     cols = [st for st in cols if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
     keys = list(set([_.split('_')[0] for _ in cols]))
 
     resdf = pd.DataFrame()
-    for k, v in founded.items():
-       resdf[k] = data_df.loc[v[0], cols]
+    for k, v in ingaby.items():
+        resdf[k] = gabydf.loc[v[0], cols]
 
     resdf = resdf.dropna(how='all')
     return resdf
 
-resdf = test_cr()
-dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
-file = 'baudotMinusGaby.xls'
-resdf.to_excel(os.path.join(dirname, file))
+cr_df = test_cr(gaby_df, in_gaby)
+print(cr_df)
+save=False
+if save:
+    dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
+    file = 'baudotMinusGaby.xls'
+    cr_df.to_excel(os.path.join(dirname, file))
