@@ -272,7 +272,7 @@ def plot_xy_distri(keydf, key='revcor', bins=10, pix=False):
                 keydf[col] = keydf[col].apply(lambda x: lwtodeg(x))
             else:
                 continue
-    
+
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
     axes = axes.flatten()
     txt = key + ' ( {}cells {}records )'.format(
@@ -294,7 +294,7 @@ def plot_xy_distri(keydf, key='revcor', bins=10, pix=False):
     ax.axvspan(q25, q75, color='tab:grey', alpha=0.3)
     q25, q75 = keydf[item + 'y'].quantile([.25, .75])
     ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
-    
+
     ax = axes[1]
     ax.set_title('length')
     for neur in keydf.cell.unique():
@@ -302,7 +302,7 @@ def plot_xy_distri(keydf, key='revcor', bins=10, pix=False):
         ax.plot(x, marker='o', alpha=0.7)
     q25, q75 = keydf[item + 'l'].quantile([.25, .75])
     ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
-    
+
     ax = axes[2]
     ax.set_title('length')
     q25, q75 = keydf[item + 'l'].quantile([.25, .75])
@@ -318,7 +318,7 @@ def plot_xy_distri(keydf, key='revcor', bins=10, pix=False):
     ax.yaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
-    
+
     ax = axes[3]
     ax.set_title('theta')
     for neur in keydf.cell.unique():
@@ -469,7 +469,7 @@ print()
 #%% look at data from baudot to gaby
 
 def test_cr(gabydf, ingaby):
-    """ 
+    """
     extract the founded positions of the baudot cells
     in :
         gabydf = pandas statframe
