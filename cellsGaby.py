@@ -236,7 +236,7 @@ key_df = select_corrd(gaby_df, key)
 
 plt.close('all')
 
-def plot_xy_distri(keydf, key='revcor', bins=10):
+def plot_xy_distri(keydf, key='revcor', bins=10, pix=False):
     """
     plot the x,y,l,w,theta data from gaby's file'
     Parameters
@@ -247,11 +247,32 @@ def plot_xy_distri(keydf, key='revcor', bins=10):
             The default is 'revcor'.
     bins :  int for nb of histogram class
             The default is 10.
+    pix : if False value are trnaformaed to degrees
     Returns
     -------
     fig : matplotlib.pyolot_figure.
 
     """
+    # pixel to deg
+    xtodeg = lambda x: (x - 320) / 640 * 40
+    ytodeg = lambda y: (240 - y) / 640 * 40
+    lwtodeg = lambda lw: lw * 40 / 640
+    keydf = keydf.apply(pd.to_numeric, errors='ignore')
+    if not pix:
+        print('converting to degree')
+        keydf = keydf.copy()
+        for col in keydf.columns:
+            if col == 'cell':
+                continue
+            elif col[-1] == 'x':
+                keydf[col] = keydf[col].apply(lambda x: xtodeg(x))
+            elif col[-1] == 'y':
+                keydf[col] = keydf[col].apply(lambda y: ytodeg(y))
+            elif col[-1] in ['l', 'w']:
+                keydf[col] = keydf[col].apply(lambda x: lwtodeg(x))
+            else:
+                continue
+    
     fig, axes = plt.subplots(nrows=2, ncols=3, figsize=(12, 8))
     axes = axes.flatten()
     txt = key + ' ( {}cells {}records )'.format(
@@ -267,19 +288,25 @@ def plot_xy_distri(keydf, key='revcor', bins=10):
         y = keydf.loc[keydf.cell == neur, [item +'y']].values
         ax.scatter(x,y, alpha=0.5)
         ax.plot(x,y, alpha=0.5)
-    # ax.set_xlabel('x')
-    # ax.set_ylabel('y')
-
+    ax.axhline(0, color='tab:grey', alpha=0.6)
+    ax.axvline(0, color='tab:grey', alpha=0.6)
+    q25, q75 = keydf[item + 'x'].quantile([.25, .75])
+    ax.axvspan(q25, q75, color='tab:grey', alpha=0.3)
+    q25, q75 = keydf[item + 'y'].quantile([.25, .75])
+    ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
+    
     ax = axes[1]
     ax.set_title('length')
     for neur in keydf.cell.unique():
         x = keydf.loc[keydf.cell == neur, [item + 'l']].values
         ax.plot(x, marker='o', alpha=0.7)
-    # ax.set_xlabel('num')
-    # ax.set_ylabel('length')
-
+    q25, q75 = keydf[item + 'l'].quantile([.25, .75])
+    ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
+    
     ax = axes[2]
     ax.set_title('length')
+    q25, q75 = keydf[item + 'l'].quantile([.25, .75])
+    ax.axvspan(q25, q75, color='tab:grey', alpha=0.3)
     meds = []
     for neur in keydf.cell.unique():
         med = keydf.loc[keydf.cell == neur, [item + 'l']].median()
@@ -291,25 +318,27 @@ def plot_xy_distri(keydf, key='revcor', bins=10):
     ax.yaxis.set_visible(False)
     ax.yaxis.set_visible(False)
     ax.spines['left'].set_visible(False)
-
+    
     ax = axes[3]
     ax.set_title('theta')
     for neur in keydf.cell.unique():
         x = keydf.loc[keydf.cell == neur, [item + 'theta']].values
         ax.plot(x, marker='o', alpha=0.7)
-    # ax.set_xlabel('num')
-    # ax.set_ylabel('theta')
+    q25, q75 = keydf[item + 'theta'].quantile([.25, .75])
+    ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
 
     ax = axes[4]
     ax.set_title('width')
     for neur in keydf.cell.unique():
         x = keydf.loc[keydf.cell == neur, [item + 'w']].values
         ax.plot(x, marker='o', alpha=0.7)
-    # ax.set_xlabel('num')
-    # ax.set_ylabel('width')
+    q25, q75 = keydf[item + 'w'].quantile([.25, .75])
+    ax.axhspan(q25, q75, color='tab:grey', alpha=0.3)
 
     ax = axes[5]
     ax.set_title('width')
+    q25, q75 = keydf[item + 'w'].quantile([.25, .75])
+    ax.axvspan(q25, q75, color='tab:grey', alpha=0.3)
     meds = []
     for neur in keydf.cell.unique():
         med = keydf.loc[keydf.cell == neur, [item + 'w']].median()
@@ -440,14 +469,20 @@ print()
 #%% look at data from baudot to gaby
 
 def test_cr(gabydf, ingaby):
+    """ 
+    extract the founded positions of the baudot cells
+    in :
+        gabydf = pandas statframe
+        ingaby = dict of {cellanme : (line, columnname)}
+    return:
+        pandas dataframe
+    """
     cols = [st for st in gabydf.columns if '_cr' in st]
     cols = [st for st in cols if st.endswith(('x', 'y', 'l', 'w', 'theta'))]
-    keys = list(set([_.split('_')[0] for _ in cols]))
-
+    # keys = list({_.split('_')[0] for _ in cols})
     resdf = pd.DataFrame()
     for k, v in ingaby.items():
         resdf[k] = gabydf.loc[v[0], cols]
-
     resdf = resdf.dropna(how='all')
     return resdf
 
