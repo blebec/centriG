@@ -35,6 +35,7 @@ def print_files():
 
 def load_gaby():
     file = 'dataGaby2005.xls'
+    dirname = os.path.join(paths['owncFig'], 'data', 'baudot')
     filename = os.path.join(dirname, file)
     df = pd.read_excel(filename, header=None)
     # remove empty columns
