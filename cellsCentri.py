@@ -6,7 +6,6 @@ Created on Fri May  7 15:12:49 2021
 @author: cdesbois
 """
 
-from math import ceil, floor
 import os
 
 from importlib import reload
@@ -19,9 +18,6 @@ import pandas as pd
 import config
 import general_functions as gfunc
 import load.load_data as ldat
-
-# import itertools
-
 
 # nb description with pandas:
 pd.options.display.max_columns = 30
@@ -38,11 +34,10 @@ paths = config.build_paths()
 os.chdir(paths['pg'])
 
 
-
-
 #%%%
 
 def extract_cg_values():
+    """ basic stat extraction """
     latEngy50_v_df = ldat.load_cell_contributions(rec='vm', amp='engy', age='new')
     latEngy50_s_df = ldat.load_cell_contributions(rec='spk', amp='engy', age='new')
 
@@ -58,7 +53,7 @@ def extract_cg_values():
             cols = [_ for _ in df.columns if mes in _]
             sigs = [_ for _ in cols if '_sig' in _]
             cols = [_ for _ in cols if '_sig' not in _]
-            
+
             # all cells
             temp = df[cols].agg(['mean', 'std', 'min', 'max']).T
             temp = temp.reset_index()
@@ -88,4 +83,11 @@ def extract_cg_values():
     return res_df
 
 res_df = extract_cg_values()
+res_df.round(decimals=2).T.to_clipboard()
 
+save = False
+if save:
+    dirname = os.path.join(paths['owncFig'], 'data')
+    file = 'cgStat.csv'
+    res_df.round(decimals=2).T.to_csv(os.path.join(dirname, file))
+    
