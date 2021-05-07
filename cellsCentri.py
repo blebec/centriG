@@ -41,52 +41,51 @@ os.chdir(paths['pg'])
 
 
 #%%%
-latEngy50_v_df = ldat.load_cell_contributions(rec='vm', amp='engy', age='new')
-latEngy50_s_df = ldat.load_cell_contributions(rec='spk', amp='engy', age='new')
 
+def extract_cg_values():
+    latEngy50_v_df = ldat.load_cell_contributions(rec='vm', amp='engy', age='new')
+    latEngy50_s_df = ldat.load_cell_contributions(rec='spk', amp='engy', age='new')
 
-loop = [{'time' : 't'}, {'engy' : 'e'} ]
+    #build container
+    cols = [_.split('_')[0] for _ in latEngy50_v_df.columns]
+    cols = sorted(set(cols), key=cols.index)
+    res_df = pd.DataFrame(index=cols)
 
-df = latEner50_v_df
-cols = [_ for _ in df.columns if 'time' in _]
-sigs = [_ for _ in cols if '_sig' in _]
-cols = [_ for _ in cols if '_sig' not in _]
+    for i, kind in enumerate(['vm', 'spk']):
+        for mes in ['time', 'engy']:
+            df = [latEngy50_v_df ,latEngy50_s_df][i]
+            # df = latEner50_v_df
+            cols = [_ for _ in df.columns if mes in _]
+            sigs = [_ for _ in cols if '_sig' in _]
+            cols = [_ for _ in cols if '_sig' not in _]
+            
+            # all cells
+            temp = df[cols].agg(['mean', 'std', 'min', 'max']).T
+            temp = temp.reset_index()
+            temp['index'].apply(lambda st: st.split('_')[0])
+            temp.index = temp['index'].apply(lambda st: st.split('_')[0])
+            del temp['index']
+            txt = '{}_{}_'.format(kind, mes[0])
+            temp.columns = [txt + st for st in temp.columns]
+            res_df = res_df.join(temp)
 
-# all cells
-resdf = df[cols].agg(['mean', 'std'])
+            # sigs
+            col = cols[0]
+            sig = sigs[0]
+            means = {}
+            stds = {}
+            minis = {}
+            maxis = {}
+            for col, sig in zip(cols, sigs):
+                means[col.split('_')[0]], stds[col.split('_')[0]], \
+                    minis[col.split('_')[0]], maxis[col.split('_')[0]] = \
+                        df.loc[df[sig]==1, col].agg(['mean', 'std', 'min', 'max']).values
+            txt = 'sig{}_{}_'.format(kind.title(), mes[0])
+            res_df[txt + 'mean'] = pd.Series(means)
+            res_df[txt + 'std'] = pd.Series(stds)
+            res_df[txt + 'min'] = pd.Series(minis)
+            res_df[txt + 'max'] = pd.Series(maxis)
+    return res_df
 
-temp = df[cols].agg(['mean', 'std']).T
-temp = temp.reset_index()
-temp['index'].apply(lambda st: st.split('_')[0])
-temp.index = temp['index'].apply(lambda st: st.split('_')[0])
-del temp['index']
-temp.columns = ['vm_t_' + st for st in temp.columns]
+res_df = extract_cg_values()
 
-# sigs
-col = cols[0]
-sig = sigs[0]
-means = {}
-stds = {}
-for col, sig in zip(cols, sigs):
-    means[col.split('_')[0]], stds[col.split('_')[0]] = \
-                                   df.loc[df[sig]==1, col].agg(['mean', 'std']).values
-temp['sigVm_t_mean'] = pd.Series(means)
-temp['sigVm_t_std'] = pd.Series(stds)
-
-
-
-
-
-
-
-fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(16, 16))
-axes = axes.flatten()
-
-ax = axes[0]
-
-ax.hist(latEngy50_v_df.cfisosect_time50.hist(bins=15))
-
-
-mini, maxi = latEner50_v_df.cpisosect_time50.agg(['min', 'max'])
-mini = 5 * floor(mini/5)
-maxi = 5 * floor(maxi/5)
