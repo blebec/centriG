@@ -1,3 +1,17 @@
+# 210512
+
+gabytoCg
+
+- [ ] change the colors
+  - [ ] red = 229, 51, 51, alpha 0.9
+    - [ ] rgba : e5333303
+  - [ ] yellow = 238, 181, 0, alpha 1
+  - [ ] black : alpha 
+- [ ] dash
+- [ ] linewidth 
+
+
+
  # 210428
 
 fig 1 :
