@@ -115,12 +115,6 @@ for item in polylines:
     ax.plot(item['points'], label=item['class'])
 
 #%%
-file = 'cg_specificity.xlsx'
-file_name = os.path.join(dirname, file)
-data_df = pd.read_excel(file_name)
-cells = list(set([_.split('_')[0] for _ in data_df.columns]))
-
-#%%
 
 def plot_cgGabyVersion(datadf):
     fig, axes = plt.subplots(figsize=(14,8), nrows=1, ncols=2)
@@ -177,6 +171,11 @@ def plot_cgGabyVersion(datadf):
 
 plt.close('all')
 anot=True
+
+file = 'cg_specificity.xlsx'
+file_name = os.path.join(dirname, file)
+data_df = pd.read_excel(file_name)
+cells = list(set([_.split('_')[0] for _ in data_df.columns]))
 
 fig = plot_cgGabyVersion(data_df)
 

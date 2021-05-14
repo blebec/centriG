@@ -3,14 +3,24 @@
 gabytoCg
 
 - [ ] change the colors
-  - [ ] red = 229, 51, 51, alpha 0.9
-    - [ ] rgba : e5333303
+  - [ ] red = 229, 51, 51, alpha 0.8
+    - [ ] rgba  e53333e5
   - [ ] yellow = 238, 181, 0, alpha 1
-  - [ ] black : alpha 
+    - [ ] rgba  eeb300ff
+  - [ ] black : alpha 0.7
+    - [ ] rgba 000000b2
+  
 - [ ] dash
+
 - [ ] linewidth 
 
+- [ ] scales : 
 
+  - [ ] 25 mV <-> 76,592 mm
+
+  - [ ] ?msec <-> 146,136 mm
+
+    
 
  # 210428
 
