@@ -648,7 +648,7 @@ if save:
     # fig.savefig(os.path.join(paths['save'], 'popfill', file))
     #update current
     if dico['spread'] == 'sect':
-        file = 'o8_vmSpkUFill_' + dico['spread']
+        file = 'f8_vmSpkUFill_' + dico['spread']
         folder = os.path.join(paths['owncFig'],
                               'pythonPreview', 'current', 'fig')
         for ext in ['.png', '.pdf']:

@@ -526,7 +526,7 @@ if save:
     filename = os.path.join(folder, (file + ext))
     fig.savefig(filename)
     # to update current
-    file = 'o11_' + file
+    file = 'f11_' + file
     folder = os.path.join(paths['owncFig'],
                           'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:
@@ -1058,7 +1058,7 @@ if save:
     filename = os.path.join(folder, (file + 'png'))
     fig.savefig(filename)
     # update current
-    file = 'o12_' + file
+    file = 'f12_' + file
     folder = os.path.join(paths['owncFig'],
                           'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:

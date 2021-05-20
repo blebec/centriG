@@ -451,7 +451,7 @@ if save:
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
 
-    name = 'o9_phaseEffect'
+    name = 'f9_phaseEffect'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:

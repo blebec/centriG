@@ -51,7 +51,7 @@ os.chdir(paths['pg'])
 #%%
 plt.close('all')
 # @config.profile
-def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
+def plot_cpIsoGain(datadf, colsdict, anot=False, age='new', onlyPos=False):
     """
     figure2 (individual + pop + sig)
     input:
@@ -315,10 +315,10 @@ def plot_figure2(datadf, colsdict, anot=False, age='new', onlyPos=False):
 
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'centrifigs.py:plot_figure2',
+        fig.text(0.99, 0.01, 'centrifigs.py:plot_cpIsoGain',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        fig.text(0.5, 0.01, 'fig2', ha='center', va='bottom', alpha=0.4)
+        #fig.text(0.5, 0.01, 'fig2', ha='center', va='bottom', alpha=0.4)
     return fig
 
 # =============================================================================
@@ -350,11 +350,11 @@ plt.close('all')
 age = ['old', 'new'][1]
 if 'fig2_df' not in globals():
     fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_figure2(datadf=fig2_df, colsdict=fig2_cols,
+fig = plot_cpIsoGain(datadf=fig2_df, colsdict=fig2_cols,
                    anot=anot, age=age, onlyPos=False)
 save = False
 if save:
-    name = 'o6_fig2'
+    name = 'f6_cpIsoGain'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:
@@ -635,7 +635,7 @@ fig = plot_speed()
 
 save = False
 if save:
-    file = 'o10_speed'
+    file = 'f10_speed'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:

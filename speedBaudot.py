@@ -403,7 +403,7 @@ if save:
     fig.savefig(filename)
     #update current
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'current', 'fig')
-    file = 'o9_optSpreedBoth'
+    file = 'f9_optSpreedBoth'
     for ext in ['.png', '.pdf']:
         filename = os.path.join(dirname, (file + ext))
         fig.savefig(filename)

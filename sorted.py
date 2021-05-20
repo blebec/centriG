@@ -30,7 +30,7 @@ os.chdir(paths['pg'])
 
 #%% plot latency (left) and gain (right)
 
-def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
+def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
                                spread='sect',
                                kind='vm', age='new', amp='engy'):
     """
@@ -177,7 +177,7 @@ def plot_all_sorted_responses(overlap=True, sort_all=True, key=0,
         fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'sorted.py:plot_all_sorted_responses',
+        fig.text(0.99, 0.01, 'sorted.py:plot_all_cg_sorted_responses',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
         fig.text(0.5, 0.01, 'sorted', ha='left', va='bottom', alpha=0.4)        
@@ -194,11 +194,11 @@ kind = ['vm', 'spk'][0]
 # fig = plot_all_sorted_responses(overlap=True, sort_all=False,
 #                                  kind=kind, amp='engy', age='new')
 
-fig = plot_all_sorted_responses(overlap=True, sort_all=True,
+fig = plot_all_cg_sorted_responses(overlap=True, sort_all=True,
                                  kind=kind, amp='engy', age='new')
 save = False
 if save:
-    name = 'o7_sorted_vmSect_engy'
+    name = 'f7_all_cg_sorted_responses'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
     for ext in ['.png', '.pdf']:

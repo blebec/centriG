@@ -350,7 +350,7 @@ for mes in ['vm', 'spk']:
 
 #%%
 
-def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
+def plot_cell_selection(df, sigcells, spread='sect', mes='vm', amp='engy'):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
@@ -433,7 +433,7 @@ def plot_separate_1x3(df, sigcells, spread='sect', mes='vm', amp='engy'):
         ax.set_ylim(y, y1)
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution:plot_separate_1x3',
+        fig.text(1, 0.01, 'cellContribution:plot_cell_selection',
                  ha='right', va='bottom', alpha=0.4)
         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
         txt = "select      {} {} ({} cells) ".format(mes, spread, len(data))
@@ -451,7 +451,7 @@ stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 mes = ['vm', 'spk'][0]
 data = ldat.load_cell_contributions(mes, age='new', amp=amp)
 spread = ['sect', 'full'][0]
-fig = plot_separate_1x3(data, sig_cells,
+fig = plot_cell_selection(data, sig_cells,
                         spread=spread, mes=mes, amp=amp)
 if save:
     file = 'contrib_' + mes.title() + spread.title() + '_Box'
@@ -461,7 +461,7 @@ if save:
     fig.savefig(filename)
     # for current
     if mes == 'vm' and amp == 'engy' and spread == 'sect':
-        file = 'o7_' + file
+        file= 'f7_plot_cell_selection_VmSect'
         folder = os.path.join(paths['owncFig'],
                               'pythonPreview', 'current', 'fig')
         for ext in ['.png', '.pdf']:
