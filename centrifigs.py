@@ -357,7 +357,7 @@ if save:
     name = 'f6_cpIsoGain'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         fig.savefig(os.path.join(paths['save'], (name + ext)))
 
 # =============================================================================
@@ -638,7 +638,7 @@ if save:
     file = 'f10_speed'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         filename = os.path.join(paths['save'], (file + ext))
         fig.savefig(filename)    
 

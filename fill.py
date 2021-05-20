@@ -529,7 +529,7 @@ if save:
     file = 'f11_' + file
     folder = os.path.join(paths['owncFig'],
                           'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
 
@@ -1061,6 +1061,6 @@ if save:
     file = 'f12_' + file
     folder = os.path.join(paths['owncFig'],
                           'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)

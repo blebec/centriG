@@ -201,7 +201,7 @@ if save:
     name = 'f7_all_cg_sorted_responses'
     paths['save'] = os.path.join(paths['owncFig'],
                                  'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         fig.savefig(os.path.join(paths['save'], (name + ext)))
 
 # fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,

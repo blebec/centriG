@@ -404,7 +404,7 @@ if save:
     #update current
     dirname = os.path.join(paths['owncFig'], 'pythonPreview', 'current', 'fig')
     file = 'f9_optSpreedBoth'
-    for ext in ['.png', '.pdf']:
+    for ext in ['.png', '.pdf', '.svg']:
         filename = os.path.join(dirname, (file + ext))
         fig.savefig(filename)
 

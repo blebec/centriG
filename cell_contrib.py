@@ -25,7 +25,7 @@ anot = True
 plt.rcParams['axes.xmargin'] = 0.05
 plt.rcParams['axes.ymargin'] = 0.05
 
-#%%%%% cell contribution
+# cell contribution
 
 def extract_values(df, stim='sect', param='time', replaceFull=True):
     """ extract pop and response dico:
@@ -89,6 +89,7 @@ def extract_values(df, stim='sect', param='time', replaceFull=True):
         resp_dico[leg_cond] = [moy, moy + sem, moy - sem]
     return pop_dico, resp_dico
 
+#%%
 
 def autolabel(ax, rects, sup=False):
     """
@@ -464,7 +465,7 @@ if save:
         file= 'f7_plot_cell_selection_VmSect'
         folder = os.path.join(paths['owncFig'],
                               'pythonPreview', 'current', 'fig')
-        for ext in ['.png', '.pdf']:
+        for ext in ['.png', '.pdf', '.svg']:
             filename = os.path.join(folder, (file + ext))
             fig.savefig(filename)
 
