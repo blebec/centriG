@@ -127,6 +127,31 @@ def load_gmercier2():
     df = df.dropna(how='all')
     return df
 
+#TEST mean bins values
+#sum(df.impulse * meanBinValue) / sum(df.impulse)
+
+# impulse = ((speed_lower + 0.025) * impulse)
+# brdf['impulse_contr'] = (brdf.speed_lower + 0.025) * brdf['impulse']
+# brdf['long_bar_contr'] = (brdf.speed_lower + 0.025) * brdf['long_bar']
+# np.average(values=brdf.speed_lower + 0.025, weights=brdf.impulse)
+# np.average(brdf.speed_lower + 0.025, weights=brdf.impulse)
+def weighted_avg_and_std(values, weights):
+    """
+    Return the weighted average and standard deviation.
+
+    values, weights -- Numpy ndarrays with the same shape.
+    """
+    average = np.average(values, weights=weights)
+    # Fast and numerically precise:
+    variance = np.average((values-average)**2, weights=weights)
+    return (average, np.sqrt(variance))
+
+w_mean, w_std = weighted_avg_and_std(brdf.speed_lower + 0.025, brdf.impulse)
+print('weighted mean = {:.3f}, weighted std = {:.3f} for impulse'.format(w_mean, w_std))
+w_mean, w_std = weighted_avg_and_std(brdf.speed_lower + 0.025, brdf.long_bar)
+print('weighted mean = {:.3f}, weighted std = {:.3f} for long_bar'.format(w_mean, w_std))
+
+
 
 # speed and baudot
 bddf, spdf = load_speed_data()
