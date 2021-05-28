@@ -373,7 +373,8 @@ def plot_both(gdf=bined_df):
     # ax = fig.add_subplot(212, sharex=ax, sharey=ax)
     # axes.append(ax)
     
-    fig, ax = plt.subplots(figsize=(4.3, 8))
+    # fig, ax = plt.subplots(figsize=(4.3, 8))
+    fig, ax = plt.subplots(figsize=(4.3, 16))
     # gerenal features
     x = gdf.index
     width = (max(x) - min(x))/(len(x) - 1)*.98
@@ -382,15 +383,18 @@ def plot_both(gdf=bined_df):
     # top
     # ax = axes[0]
 
-    ax.bar(x, height=gdf.br_impulse + gdf.br_long_bar, width=width, 
-            align=align,  color='w', alpha=0.7, 
-            edgecolor='tab:grey')
-    # ax.bar(x, height=gdf.br_long_bar, width=width, 
-    #        align=align, alpha=0.5,
-    #        color='w', edgecolor='tab:grey')
-    # ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
-    #        align=align, alpha=0.5, 
-    #        color='w', edgecolor='tab:grey')
+    # plot grey +
+    # ax.bar(x, height=gdf.br_impulse + gdf.br_long_bar, width=width, 
+    #         align=align,  color='w', alpha=0.7, 
+    #         edgecolor='tab:grey')
+    
+    # plor mirror low
+    ax.bar(x, height=(gdf.br_long_bar * -1), width=width, 
+            align=align, alpha=0.3,
+            color=std_colors['blue'], edgecolor='tab:grey')
+    ax.bar(x, height=(gdf.br_impulse * -1), bottom=(gdf.br_long_bar * -1), width=width,
+            align=align, alpha=0.3, 
+            color=std_colors['green'], edgecolor='tab:grey')
 
     gdf['pool'] = 0
     txt = 'Radial n={:.0f}'.format(gdf.cgpop.sum())
@@ -433,6 +437,8 @@ def plot_both(gdf=bined_df):
     fig.tight_layout()
     lims = ax.get_xlim()
     ax.set_xlim(0, lims[1])
+    ax.set_xlim(0, 0.6)
+    
     if anot:
         date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         fig.text(0.99, 0.01, 'speedBaudot.py:plot_both',
