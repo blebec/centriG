@@ -91,3 +91,30 @@ if save:
     file = 'cgStat.csv'
     res_df.round(decimals=2).T.to_csv(os.path.join(dirname, file))
     
+    
+#%%
+
+def extract_cg_values2():
+
+    latEngy50_v_df = ldat.load_cell_contributions(rec='vm', amp='engy', age='new')
+    latEngy50_s_df = ldat.load_cell_contributions(rec='spk', amp='engy', age='new')
+
+    resdf = pd.DataFrame()
+
+    for kind, df in zip(['vm', 'spk'], [latEngy50_v_df, latEngy50_s_df]):
+        # non sig
+        nsigdf = df[[_ for _ in df.columns if not _.endswith('sig')]]
+        res = nsigdf.aggregate(['count', 'mean', 'std', 'median'])
+        res.columns = [_ + '_' + kind for _ in res.columns]
+        for col in res.columns:
+            resdf[col] = res[col]
+        # sig only
+        names = {'_'.join(_.split('_')[:2]) for _ in df.columns if 'fill' not in _}
+        for col in names:
+            res = df.loc[df[col + '_sig'] > 0, [col]].aggregate(['count', 'mean', 'std', 'median'])
+            name = col + '_' + kind + '_sig'
+            res.columns = [_ + '_' + kind for _ in res.columns]
+            resdf[name] = res
+    return resdf
+
+res_df2 = extract_cg_values2() 
