@@ -17,22 +17,23 @@ import config
 import general_functions as gfunc
 import load.load_data as ldat
 
-#===========================
+# ===========================
 # global setup
 # NB fig size : 8.5, 11.6 or 17.6 cm
 
-anot = True           # to draw the date and name on the bottom of the plot
+anot = True  # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()
 speed_colors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
-os.chdir(paths['pg'])
+os.chdir(paths["pg"])
 
 #%% plot latency (left) and gain (right)
 
-def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
-                               spread='sect',
-                               kind='vm', age='new', amp='engy'):
+
+def plot_all_cg_sorted_responses(
+    overlap=True, sort_all=True, key=0, spread="sect", kind="vm", age="new", amp="engy"
+):
     """
     plot the sorted cell responses
     input = conditions parameters
@@ -41,26 +42,29 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
     key : number to choose the trace to be sorted
     output : matplotlib plot
     """
+
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
-        ticks = list(axis.majorTicks) # a copy
+        ticks = list(axis.majorTicks)  # a copy
         ticks.extend(axis.minorTicks)
         for t in ticks:
             t.tick1line.set_visible(True)
             t.tick2line.set_visible(True)
             t.label1.set_visible(True)
             t.label2.set_visible(True)
-    titles = {'engy' : r'$\Delta$ Response',
-              'time50' : r'$\Delta$ Latency',
-              'gain50' : 'Amplitude Gain',
-              'sect' : 'Sector',
-              'spk' : 'Spikes',
-              'vm' : 'Vm',
-              'full': 'Full'}
+
+    titles = {
+        "engy": r"$\Delta$ Response",
+        "time50": r"$\Delta$ Latency",
+        "gain50": "Amplitude Gain",
+        "sect": "Sector",
+        "spk": "Spikes",
+        "vm": "Vm",
+        "full": "Full",
+    }
 
     # parameter
-    cols = [std_colors[item] \
-              for item in ['red', 'green', 'yellow', 'blue', 'blue']]
+    cols = [std_colors[item] for item in ["red", "green", "yellow", "blue", "blue"]]
     colors = []
     for item in zip(cols, cols):
         colors.extend(item)
@@ -68,51 +72,59 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
     df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
     traces = [item for item in df.columns if spread in item]
-    #remove the 'rdsect'
-    traces = [item for item in traces if 'rdisosect' not in item]
+    # remove the 'rdsect'
+    traces = [item for item in traces if "rdisosect" not in item]
     # append full random
-    if not 'rdisofull' in [item.split('_')[0] for item in traces]:
-        rdfull = [item for item in df.columns if 'rdisofull' in item]
+    if not "rdisofull" in [item.split("_")[0] for item in traces]:
+        rdfull = [item for item in df.columns if "rdisofull" in item]
         traces.extend(rdfull)
     # filter -> only significative cells
-    traces = [item for item in traces if not item.endswith('sig')]
+    traces = [item for item in traces if not item.endswith("sig")]
     # text labels
-    title = '{} {}'.format(titles.get(kind, ''), titles.get(spread, ''))
-    anotx = 'Cell Rank'
-    if age == 'old':
-        anoty = [r'$\Delta$ Phase (ms)', r'$\Delta$ Amplitude']
-             #(fraction of Center-only response)']
+    title = "{} {}".format(titles.get(kind, ""), titles.get(spread, ""))
+    anotx = "Cell Rank"
+    if age == "old":
+        anoty = [r"$\Delta$ Phase (ms)", r"$\Delta$ Amplitude"]
+        # (fraction of Center-only response)']
     else:
-        anoty = [titles['time50'], titles.get(amp, '')]
+        anoty = [titles["time50"], titles.get(amp, "")]
 
     # plot
-    fig, axes = plt.subplots(4, 2, figsize=(11.6, 12), sharex=True,
-                             sharey='col', squeeze=False)#•sharey=True,
+    fig, axes = plt.subplots(
+        4, 2, figsize=(11.6, 12), sharex=True, sharey="col", squeeze=False
+    )  # •sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)
     axes = axes.flatten()
-    x = range(1, len(df)+1)
+    x = range(1, len(df) + 1)
     # use cpisotime for ref
     name = traces[0]
     name = traces[key]
-    sig_name = name + '_sig'
+    sig_name = name + "_sig"
     df = df.sort_values(by=[name, sig_name], ascending=False)
     # plot all traces
     for i, name in enumerate(traces):
-        sig_name = name + '_sig'
+        sig_name = name + "_sig"
         # color : white if non significant, edgecolor otherwise
         edge_color = colors[i]
-        color_dic = {0 : (1, 1, 1), 1 : edge_color}
+        color_dic = {0: (1, 1, 1), 1: edge_color}
         if sort_all:
-            select = df[[name, sig_name]].sort_values(by=[name, sig_name],
-                                                      ascending=False)
+            select = df[[name, sig_name]].sort_values(
+                by=[name, sig_name], ascending=False
+            )
         else:
             select = df[[name, sig_name]]
         bar_colors = [color_dic[x] for x in select[sig_name]]
         ax = axes[i]
         # ax.set_title(str(i))
-        ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
-               alpha=0.8, width=0.8)
+        ax.bar(
+            x,
+            select[name],
+            color=bar_colors,
+            edgecolor=edge_color,
+            alpha=0.8,
+            width=0.8,
+        )
         # test to avoid to much bars width
         # if i % 2 == 0:
         #     ax.bar(x, select[name], color=bar_colors, edgecolor=edge_color,
@@ -130,13 +142,13 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
     right_axes = axes[1::2]
     for axe in [left_axes, right_axes]:
         for i, ax in enumerate(axe):
-            ax.set_facecolor((1,1,1,0))
+            ax.set_facecolor((1, 1, 1, 0))
             # ax.set_title(i)
-            ax.spines['top'].set_visible(False)
+            ax.spines["top"].set_visible(False)
             # ax.ticklabel_format(useOffset=True)
-            ax.spines['bottom'].set_visible(False)
+            ax.spines["bottom"].set_visible(False)
             # zero line
-            ax.axhline(0, alpha=0.3, color='k')
+            ax.axhline(0, alpha=0.3, color="k")
             if i != 3:
                 ax.xaxis.set_visible(False)
             else:
@@ -144,7 +156,7 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
                 ax.xaxis.set_label_coords(0.5, -0.025)
                 ax.set_xticks([1, len(df)])
                 ax.set_xticklabels([1, len(df)])
-                ax.set_xlim(0, len(df)+1)
+                ax.set_xlim(0, len(df) + 1)
     for ax in left_axes:
         custom_ticks = np.linspace(0, 10, 2, dtype=int)
         ax.set_yticks(custom_ticks)
@@ -155,14 +167,14 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
     if no_spines == True:
         for ax in left_axes:
             limx = ax.get_xlim()
-            ax.vlines(limx[0], 0, 10, color='k', linewidth=2)
-            for spine in ['left', 'right']:
+            ax.vlines(limx[0], 0, 10, color="k", linewidth=2)
+            for spine in ["left", "right"]:
                 ax.spines[spine].set_visible(False)
         for ax in right_axes:
             limx = ax.get_xlim()
-            ax.vlines(limx[0], 0, 0.5, color='k', linewidth=2)
+            ax.vlines(limx[0], 0, 0.5, color="k", linewidth=2)
             # ax.axvline(limx[1], 0, -0.5, color='k', linewidth=2)
-            for spine in ['left', 'right']:
+            for spine in ["left", "right"]:
                 ax.spines[spine].set_visible(False)
 
     # align each row yaxis on zero between subplots
@@ -176,59 +188,67 @@ def plot_all_cg_sorted_responses(overlap=True, sort_all=True, key=0,
     else:
         fig.subplots_adjust(hspace=0.05, wspace=0.2)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'sorted.py:plot_all_cg_sorted_responses',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
-        fig.text(0.5, 0.01, 'sorted', ha='left', va='bottom', alpha=0.4)        
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            0.99,
+            0.01,
+            "sorted.py:plot_all_cg_sorted_responses",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+        fig.text(0.5, 0.01, "sorted", ha="left", va="bottom", alpha=0.4)
     return fig
+
 
 # old
 # fig = plot_sorted_responses_sup1(overlap=True)
 # fig = plot_sorted_responses_sup1(overlap=True, sort_all=False)
 #%%
-plt.close('all')
+plt.close("all")
 
-kind = ['vm', 'spk'][0]
+kind = ["vm", "spk"][0]
 
 # fig = plot_all_sorted_responses(overlap=True, sort_all=False,
 #                                  kind=kind, amp='engy', age='new')
 
-fig = plot_all_cg_sorted_responses(overlap=True, sort_all=True,
-                                 kind=kind, amp='engy', age='new')
+fig = plot_all_cg_sorted_responses(
+    overlap=True, sort_all=True, kind=kind, amp="engy", age="new"
+)
 save = False
 if save:
-    name = 'f7_all_cg_sorted_responses'
-    paths['save'] = os.path.join(paths['owncFig'],
-                                 'pythonPreview', 'current', 'fig')
-    for ext in ['.png', '.pdf', '.svg']:
-        fig.savefig(os.path.join(paths['save'], (name + ext)))
+    name = "f7_all_cg_sorted_responses"
+    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        fig.savefig(os.path.join(paths["save"], (name + ext)))
 
 # fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
 #                                  kind=kind, amp='engy', age='new')
 #%%
-plt.close('all')
+plt.close("all")
 save = False
-paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'sorted', 'sorted&contrib')
-amp = 'engy'
-for kind in ['vm', 'spk']:
-    for spread in ['sect', 'full']:
-    # for amp in ['gain', 'engy']:
-        fig = plot_all_sorted_responses(overlap=True, sort_all=True,
-                                        kind=kind, amp=amp, age='new',
-                                        spread=spread)
+paths["save"] = os.path.join(
+    paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib"
+)
+amp = "engy"
+for kind in ["vm", "spk"]:
+    for spread in ["sect", "full"]:
+        # for amp in ['gain', 'engy']:
+        fig = plot_all_sorted_responses(
+            overlap=True, sort_all=True, kind=kind, amp=amp, age="new", spread=spread
+        )
         if save:
-            file = kind + spread.title() + '_' + amp + '.pdf'
-            filename = os.path.join(paths['save'], file)
-            fig.savefig(filename, format='pdf')
+            file = kind + spread.title() + "_" + amp + ".pdf"
+            filename = os.path.join(paths["save"], file)
+            fig.savefig(filename, format="pdf")
             # current implementation
-            if kind == 'vm' and spread == 'sect':
-                    folder = os.path.join(paths['owncFig'],
-                                 'pythonPreview', 'current', 'fig')
-                    filename = os.path.join(folder, file)
-                    fig.savefig(filename, format='pdf')
-
-
+            if kind == "vm" and spread == "sect":
+                folder = os.path.join(
+                    paths["owncFig"], "pythonPreview", "current", "fig"
+                )
+                filename = os.path.join(folder, file)
+                fig.savefig(filename, format="pdf")
 
 
 # =============================================================================

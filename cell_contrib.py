@@ -16,18 +16,19 @@ import config
 from load import load_data as ldat
 
 paths = config.build_paths()
-paths['save'] = os.path.join(paths['owncFig'], 'pythonPreview', 'stat')
+paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "stat")
 std_colors = config.std_colors()
 plt.rcParams.update(config.rc_params())
 
 anot = True
 
-plt.rcParams['axes.xmargin'] = 0.05
-plt.rcParams['axes.ymargin'] = 0.05
+plt.rcParams["axes.xmargin"] = 0.05
+plt.rcParams["axes.ymargin"] = 0.05
 
 # cell contribution
 
-def extract_values(df, stim='sect', param='time', replaceFull=True):
+
+def extract_values(df, stim="sect", param="time", replaceFull=True):
     """ extract pop and response dico:
         input :
             dataframe
@@ -38,42 +39,42 @@ def extract_values(df, stim='sect', param='time', replaceFull=True):
             resp_dico -> per condition [moy, moy+sem, moy-sem]
     """
     adf = df.copy()
-    if 'fill' in param:
-        fills = [item for item in adf.columns if 'fill' in item]
+    if "fill" in param:
+        fills = [item for item in adf.columns if "fill" in item]
         # create zero padded value columns
         while fills:
             fill = fills.pop()
-            col = '_'.join(fill.split('_')[:-1])
+            col = "_".join(fill.split("_")[:-1])
             if col not in adf.columns:
                 adf[col] = data[fill]
                 adf[col] = 0
-    restricted_list = \
-    [st for st in adf.columns if stim in st and param in st]
+    restricted_list = [st for st in adf.columns if stim in st and param in st]
     if replaceFull:
         # replace rdisosect by rdisofull
-        if 'rdisosect' in set(item.split('_')[0] for item in restricted_list):
-            restricted_list = [st for st in restricted_list
-                               if 'rdisosect' not in st.split('_')[0]]
+        if "rdisosect" in set(item.split("_")[0] for item in restricted_list):
+            restricted_list = [
+                st for st in restricted_list if "rdisosect" not in st.split("_")[0]
+            ]
             restricted_list.extend(
-                    [st for st in adf.columns
-                     if 'rdisofull' in st and param in st])
+                [st for st in adf.columns if "rdisofull" in st and param in st]
+            )
     else:
         # append full:
-        if 'rdisosect' in {item.split('_')[0] for item in restricted_list}:
+        if "rdisosect" in {item.split("_")[0] for item in restricted_list}:
             restricted_list.extend(
-            [st for st in adf.columns if 'rdisofull' in st and param in st])
+                [st for st in adf.columns if "rdisofull" in st and param in st]
+            )
 
     adf = adf[restricted_list]
-    #compute values
+    # compute values
     # records = [item for item in restricted_list if 'sig' not in item]
     # to maintain the order
-    records = [item.replace('_sig', '')
-               for item in restricted_list if 'sig' in item]
+    records = [item.replace("_sig", "") for item in restricted_list if "sig" in item]
 
     pop_dico = {}
     resp_dico = {}
     for cond in records:
-        signi = cond + '_sig'
+        signi = cond + "_sig"
         pop_num = len(adf)
         # significant
         extract = adf.loc[adf[signi] > 0, cond].copy()
@@ -81,7 +82,7 @@ def extract_values(df, stim='sect', param='time', replaceFull=True):
         extract = extract[extract >= 0]
         signi_num = len(extract)
         percent = round((signi_num / pop_num) * 100)
-        leg_cond = cond.split('_')[0]
+        leg_cond = cond.split("_")[0]
         pop_dico[leg_cond] = [pop_num, signi_num, percent]
         # descr
         moy = extract.mean()
@@ -89,42 +90,44 @@ def extract_values(df, stim='sect', param='time', replaceFull=True):
         resp_dico[leg_cond] = [moy, moy + sem, moy - sem]
     return pop_dico, resp_dico
 
+
 #%%
+
 
 def autolabel(ax, rects, sup=False):
     """
     attach the text labels to the rectangles
     """
     for rect in rects:
-        x = rect.get_x() + rect.get_width()/2
+        x = rect.get_x() + rect.get_width() / 2
         height = rect.get_height()
         y = height - 1
         if y < 3 or sup:
             y = height + 1
-            ax.text(x, y, '%d' % int(height) + '%',
-                    ha='center', va='bottom')
+            ax.text(x, y, "%d" % int(height) + "%", ha="center", va="bottom")
         else:
-            ax.text(x, y, '%d' % int(height) + '%',
-                    ha='center', va='top')
+            ax.text(x, y, "%d" % int(height) + "%", ha="center", va="top")
 
 
-#@config.profile
-def plot_cell_contribution(df, kind=''):
+# @config.profile
+def plot_cell_contribution(df, kind=""):
     """
     plot the number of significative cells contributing to the response
     kind in [vm, spk]
     """
 
-    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
+    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue"]]
 
-    conds = [(a, b) for a in ['sect', 'full'] for b in ['time', 'engy']]
-    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
-                  engy = r'$\Delta$ Response (% significant cells)',
-                  sect = 'Sector',
-                  full = 'Full',
-                  vm = 'Vm',
-                  spk = 'Spikes')
-    fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8,8))
+    conds = [(a, b) for a in ["sect", "full"] for b in ["time", "engy"]]
+    titles = dict(
+        time=r"$\Delta$ Latency(% significant cells)",
+        engy=r"$\Delta$ Response (% significant cells)",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    fig, axes = plt.subplots(nrows=2, ncols=2, sharey=True, figsize=(8, 8))
     axes = axes.flatten()
     for i, ax in enumerate(axes):
         ax.set_title(str(i))
@@ -133,72 +136,83 @@ def plot_cell_contribution(df, kind=''):
         pop_dico, _ = extract_values(df, stim, mes)
         x = list(pop_dico.keys())
         heights = [pop_dico[item][-1] for item in pop_dico.keys()]
-        bars = ax.bar(x[:4], heights[:4], color=colors, width=0.95, alpha=0.8,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x[:4], heights[:4], color=colors, width=0.95, alpha=0.8, edgecolor=colors
+        )
+        autolabel(ax, bars)  # call
         ax.set_ylabel(titles[stim])
     for ax in axes:
-        for spine in ['left', 'top', 'right']:
+        for spine in ["left", "top", "right"]:
             ax.spines[spine].set_visible(False)
-            ax.tick_params(axis='x', labelrotation=45)
+            ax.tick_params(axis="x", labelrotation=45)
             ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
+            ax.tick_params(axis="y", length=0)
     for ax in axes[:2]:
         ax.xaxis.set_visible(False)
     txt = "{} ({} cells)".format(kind, len(data))
-    fig.text(0.43, 0.90, txt, ha='center', va='top', fontsize=18)
+    fig.text(0.43, 0.90, txt, ha="center", va="top", fontsize=18)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(0.99, 0.01, 'cellContribution:plot_cell_contribution',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            0.99,
+            0.01,
+            "cellContribution:plot_cell_contribution",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
 
     fig.tight_layout()
     return fig
 
-plt.close('all')
+
+plt.close("all")
 
 save = False
-for mes in ['vm', 'spk']:
-    #load_cell_contributions(mes='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
+for mes in ["vm", "spk"]:
+    # load_cell_contributions(mes='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(rec=mes, amp="engy", age="new")
     fig = plot_cell_contribution(data, mes)
     if save:
-        filename = os.path.join(paths['save'], 'pop',
-                                mes + '_cell_contribution.png')
+        filename = os.path.join(paths["save"], "pop", mes + "_cell_contribution.png")
         fig.savefig(filename)
 
 #%% composite cell contribution
 
-def plot_composite_sectFull_2X1(df, sigcells, kind='', amp='engy'):
+
+def plot_composite_sectFull_2X1(df, sigcells, kind="", amp="engy"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     kind in [vm, spk]
     amp in [gain, engy]
     """
 
-    colors = [std_colors[item] for item in
-              ['red', 'green', 'yellow', 'blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue"]]
+    dark_colors = [
+        std_colors[item]
+        for item in ["dark_red", "dark_green", "dark_yellow", "dark_blue"]
+    ]
 
-    stims = ('sect', 'full')
-    params = ('time', amp)
-    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
-                  engy = r'$\Delta$ Response (% significant cells)',
-                  sect = 'Sector',
-                  full = 'Full',
-                  vm = 'Vm',
-                  spk = 'Spikes')
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
+    stims = ("sect", "full")
+    params = ("time", amp)
+    titles = dict(
+        time=r"$\Delta$ Latency(% significant cells)",
+        engy=r"$\Delta$ Response (% significant cells)",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8, 4))
     axes = axes.flatten()
-    titles = ['sector', 'full']
+    titles = ["sector", "full"]
 
     for i, ax in enumerate(axes):
         # ax.set_title(str(i))
         stim = stims[i]
         param = params[0]
-        #for param in params
+        # for param in params
         ax.set_title(titles[i], pad=0)
         heights = []
         for param in params:
@@ -207,85 +221,112 @@ def plot_composite_sectFull_2X1(df, sigcells, kind='', amp='engy'):
             # remove the fifth value ie if sect = rdisofull
             heights.append(height[:4])
         # % sig cells for time and amp
-        height = [round(len(sigcells[kind][st])/len(df)*100)
-                  for st in list(pop_dico.keys())]
+        height = [
+            round(len(sigcells[kind][st]) / len(df) * 100)
+            for st in list(pop_dico.keys())
+        ]
         # remove the fifth value ie if sect = rdisofull
         heights.append(height[:4])
         x = np.arange(len(pop_dico.keys()))[:4]
         width = 0.45
         # time
-        bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.4,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x - width / 2,
+            heights[0],
+            color=colors,
+            width=width,
+            alpha=0.4,
+            edgecolor=colors,
+        )
+        autolabel(ax, bars)  # call
         # amp
-        bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.4,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x + width / 2,
+            heights[1],
+            color=colors,
+            width=width,
+            alpha=0.4,
+            edgecolor=colors,
+        )
+        autolabel(ax, bars)  # call
         # time OR amp
-        bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
-                      edgecolor=dark_colors)
-        autolabel(ax, bars, sup=True) # call
+        bars = ax.bar(
+            x, heights[2], color=colors, width=0.15, alpha=0.8, edgecolor=dark_colors
+        )
+        autolabel(ax, bars, sup=True)  # call
         labels = list(pop_dico.keys())[:4]
         ax.set_xticks(range(len(labels)))
         ax.set_xticklabels(labels)
     for ax in axes:
-        for spine in ['left', 'top', 'right']:
+        for spine in ["left", "top", "right"]:
             ax.spines[spine].set_visible(False)
-            ax.tick_params(axis='x', labelrotation=45)
+            ax.tick_params(axis="x", labelrotation=45)
             ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
+            ax.tick_params(axis="y", length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     txt = "{} ({} cells) [time|U|{}]".format(kind, len(data), amp)
-    fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
+    fig.text(0.5, 0.99, txt, ha="center", va="top", fontsize=14)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContribution.py:plot_composite_sectFull_2X1",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 
-plt.close('all')
+
+plt.close("all")
 save = False
-amp = ['gain', 'engy'][1]
+amp = ["gain", "engy"][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
-for mes in ['vm', 'spk']:
-    #load_cell_contributions(mes='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-    fig = plot_composite_sectFull_2X1(data, sig_cells, kind=mes,
-                                               amp=amp)
+for mes in ["vm", "spk"]:
+    # load_cell_contributions(mes='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+    fig = plot_composite_sectFull_2X1(data, sig_cells, kind=mes, amp=amp)
     if save:
-        filename = os.path.join(paths['save'], mes + amp.title() \
-                                + '_composite_cell_contribution_2X1.png')
+        filename = os.path.join(
+            paths["save"], mes + amp.title() + "_composite_cell_contribution_2X1.png"
+        )
         fig.savefig(filename)
 
 #%%
 
-def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
-                                         spread='sect'):
+
+def plot_composite_1X1(df, sigcells, mes="vm", amp="engy", spread="sect"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
 
-    colors = [std_colors[item]
-              for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+    colors = [
+        std_colors[item] for item in ["red", "green", "yellow", "blue", "dark_blue"]
+    ]
+    dark_colors = [
+        std_colors[item]
+        for item in ["dark_red", "dark_green", "dark_yellow", "dark_blue"]
+    ]
 
-#    stims = ('sect', 'full')
-    params = ('time', amp)
-    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
-                  engy = r'$\Delta$ Response (% significant cells)',
-                  sect = 'Sector',
-                  full = 'Full',
-                  vm = 'Vm',
-                  spk = 'Spikes')
-    fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4,4))
-    title = "{} {} ({} cells)".format(titles[mes], titles[spread],  len(data))
+    #    stims = ('sect', 'full')
+    params = ("time", amp)
+    titles = dict(
+        time=r"$\Delta$ Latency(% significant cells)",
+        engy=r"$\Delta$ Response (% significant cells)",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharey=True, figsize=(4, 4))
+    title = "{} {} ({} cells)".format(titles[mes], titles[spread], len(data))
     fig.suptitle(title)
     # param = params[0]
-    #for param in params
+    # for param in params
     # ax.set_title(titles[i], pad=0)
     heights = []
     for param in params:
@@ -293,128 +334,163 @@ def plot_composite_1X1(df, sigcells, mes='vm', amp='engy',
         height = [pop_dico[key][-1] for key in pop_dico]
         heights.append(height)
     # % sig cells for time and amp
-    height = [round(len(sigcells[mes][st])/len(df)*100)
-              for st in list(pop_dico.keys())]
+    height = [
+        round(len(sigcells[mes][st]) / len(df) * 100) for st in list(pop_dico.keys())
+    ]
     heights.append(height)
     x = np.arange(len(pop_dico.keys()))
     width = 0.45
     # time
-    bars = ax.bar(x - width/2, heights[0], color=colors, width=width, alpha=0.4,
-                  edgecolor=colors)
-    autolabel(ax, bars) # call
+    bars = ax.bar(
+        x - width / 2,
+        heights[0],
+        color=colors,
+        width=width,
+        alpha=0.4,
+        edgecolor=colors,
+    )
+    autolabel(ax, bars)  # call
     # amp
-    bars = ax.bar(x + width/2, heights[1], color=colors, width=width, alpha=0.4,
-                  edgecolor=colors)
-    autolabel(ax, bars) # call
+    bars = ax.bar(
+        x + width / 2,
+        heights[1],
+        color=colors,
+        width=width,
+        alpha=0.4,
+        edgecolor=colors,
+    )
+    autolabel(ax, bars)  # call
     # time OR amp
-    bars = ax.bar(x, heights[2], color=colors, width=0.15, alpha=0.8,
-                  edgecolor=dark_colors)
-    autolabel(ax, bars, sup=True) # call
+    bars = ax.bar(
+        x, heights[2], color=colors, width=0.15, alpha=0.8, edgecolor=dark_colors
+    )
+    autolabel(ax, bars, sup=True)  # call
 
     labels = list(pop_dico.keys())
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels)
-    for spine in ['left', 'top', 'right']:
+    for spine in ["left", "top", "right"]:
         ax.spines[spine].set_visible(False)
-        ax.tick_params(axis='x', labelrotation=45)
+        ax.tick_params(axis="x", labelrotation=45)
         ax.yaxis.set_ticklabels([])
-        ax.tick_params(axis='y', length=0)
+        ax.tick_params(axis="y", length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     txt = "time|U|{}".format(amp)
 
-    fig.text(0.5, 0.8, txt, ha='center', va='top', fontsize=14, alpha = 0.8)
+    fig.text(0.5, 0.8, txt, ha="center", va="top", fontsize=14, alpha=0.8)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContibution:plot_composite_1X1',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContibution:plot_composite_1X1",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 
-plt.close('all')
+
+plt.close("all")
 save = False
-amp = ['gain', 'engy'][1]
+amp = ["gain", "engy"][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
-for mes in ['vm', 'spk']:
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-    for spread in ['sect', 'full']:
-        fig = plot_composite_1X1(data, sig_cells,
-                                  spread=spread, mes=mes, amp=amp)            
+for mes in ["vm", "spk"]:
+    data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+    for spread in ["sect", "full"]:
+        fig = plot_composite_1X1(data, sig_cells, spread=spread, mes=mes, amp=amp)
         if save:
-            file = 'contrib_1x1_' + mes.title() + spread.title() + '.png'
-            folder = os.path.join(paths['owncFig'],
-                                  'pythonPreview', 'sorted', 'sorted&contrib')
+            file = "contrib_1x1_" + mes.title() + spread.title() + ".png"
+            folder = os.path.join(
+                paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib"
+            )
             filename = os.path.join(folder, file)
             fig.savefig(filename)
 
 
 #%%
 
-def plot_cell_selection(df, sigcells, spread='sect', mes='vm', amp='engy'):
+
+def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
-    titles = dict(time = r'$\Delta$ Latency',
-                  engy = r'$\Delta$ Response',
-                  sect = 'Sector',
-                  full = 'Full',
-                  vm = 'Vm',
-                  spk = 'Spikes')
-    colors = [std_colors[item]
-              for item in ['red', 'green', 'yellow', 'blue', 'dark_blue']]
-    relabel = dict(cpisosect = 'CP-ISO',
-                   cfisosect = 'CF-ISO',
-                   cpcxsect = 'CP-CROSS',
-                   rdisosect = 'RND',
-                   cpisofull = 'CP-ISO',
-                   cfisofull = 'CF-ISO',
-                   cpcxfull = 'CP-CROSS',
-                   rdisofull = 'RND'
-                   )
-    #compute values ([time values], [amp values])
-    params = ['time', amp]
+    titles = dict(
+        time=r"$\Delta$ Latency",
+        engy=r"$\Delta$ Response",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    colors = [
+        std_colors[item] for item in ["red", "green", "yellow", "blue", "dark_blue"]
+    ]
+    relabel = dict(
+        cpisosect="CP-ISO",
+        cfisosect="CF-ISO",
+        cpcxsect="CP-CROSS",
+        rdisosect="RND",
+        cpisofull="CP-ISO",
+        cfisofull="CF-ISO",
+        cpcxfull="CP-CROSS",
+        rdisofull="RND",
+    )
+    # compute values ([time values], [amp values])
+    params = ["time", amp]
     heights = []
     for param in params:
         pop_dico, _ = extract_values(df, spread, param)
         height = [pop_dico[key][-1] for key in pop_dico]
         heights.append(height)
     # insert union % sig cells for time and amp
-    height = [round(len(sigcells[mes][st])/len(df)*100)
-                  for st in list(pop_dico.keys())]
+    height = [
+        round(len(sigcells[mes][st]) / len(df) * 100) for st in list(pop_dico.keys())
+    ]
     heights.insert(1, height)
 
     fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6, 2.5))
     axes = axes.flatten()
-    titles_here = [titles['time'], 'Both', titles['engy']]
+    titles_here = [titles["time"], "Both", titles["engy"]]
     labels = [relabel[st] for st in pop_dico]
 
     for i, ax in enumerate(axes):
-        ax.axhline(0, color='k')
-        for spine in ['left', 'top', 'right', 'bottom']:
+        ax.axhline(0, color="k")
+        for spine in ["left", "top", "right", "bottom"]:
             ax.spines[spine].set_visible(False)
             # ax.tick_params(axis='x', labelrotation=45)
             ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
+            ax.tick_params(axis="y", length=0)
         ax.set_title(str(i))
         param = params[0]
-        #for param in params
+        # for param in params
         ax.set_title(titles_here[i], pad=0)
 
         x = np.arange(len(heights[i]))
         width = 0.95
         if i in [0, 2]:
-            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.6,
-                          edgecolor='k')
-                          # edgecolor=colors)
+            bars = ax.bar(
+                x, heights[i], color=colors, width=width, alpha=0.6, edgecolor="k"
+            )
+            # edgecolor=colors)
         else:
-            bars = ax.bar(x, heights[i], color=colors, width=width, alpha=0.9,
-                          edgecolor='k', label=labels)
-        autolabel(ax, bars) # call
+            bars = ax.bar(
+                x,
+                heights[i],
+                color=colors,
+                width=width,
+                alpha=0.9,
+                edgecolor="k",
+                label=labels,
+            )
+        autolabel(ax, bars)  # call
         # labels = list(pop_dico.keys())
         ax.set_xticks([])
         ax.set_xticklabels([])
-    axes[0].set_ylabel(r'% of significant cells')
+    axes[0].set_ylabel(r"% of significant cells")
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     # fig.legend(handles=bars, labels=labels, loc='upper right')
@@ -423,82 +499,96 @@ def plot_cell_selection(df, sigcells, spread='sect', mes='vm', amp='engy'):
     if box:
         ax = axes[1]
         x, x1 = ax.get_xlim()
-        step = (x1 - x) * .4
+        step = (x1 - x) * 0.4
         x1 -= x
         y, y1 = ax.get_ylim()
         y1 -= y
         y = 0 - step
-        rect = Rectangle(xy=(x, y), width=x1, height=y1 + step,
-                         fill=False , alpha=0.6, edgecolor='k', linewidth=6)
+        rect = Rectangle(
+            xy=(x, y),
+            width=x1,
+            height=y1 + step,
+            fill=False,
+            alpha=0.6,
+            edgecolor="k",
+            linewidth=6,
+        )
         ax.add_patch(rect)
         ax.set_ylim(y, y1)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution:plot_cell_selection',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContribution:plot_cell_selection",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         txt = "select      {} {} ({} cells) ".format(mes, spread, len(data))
-        fig.text(0.5, 0.01, txt, ha='center', va='bottom', fontsize=14, 
-                 alpha = 0.4)
- 
+        fig.text(0.5, 0.01, txt, ha="center", va="bottom", fontsize=14, alpha=0.4)
+
     fig.tight_layout(w_pad=4)
     return fig
 
 
-plt.close('all')
+plt.close("all")
 save = False
-amp = ['gain', 'engy'][1]
+amp = ["gain", "engy"][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
-mes = ['vm', 'spk'][0]
-data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-spread = ['sect', 'full'][0]
-fig = plot_cell_selection(data, sig_cells,
-                        spread=spread, mes=mes, amp=amp)
+mes = ["vm", "spk"][0]
+data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+spread = ["sect", "full"][0]
+fig = plot_cell_selection(data, sig_cells, spread=spread, mes=mes, amp=amp)
 if save:
-    file = 'contrib_' + mes.title() + spread.title() + '_Box'
-    folder = os.path.join(paths['owncFig'],
-                          'pythonPreview', 'sorted', 'sorted&contrib')
-    filename = os.path.join(folder, (file + '.png'))
+    file = "contrib_" + mes.title() + spread.title() + "_Box"
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib")
+    filename = os.path.join(folder, (file + ".png"))
     fig.savefig(filename)
     # for current
-    if mes == 'vm' and amp == 'engy' and spread == 'sect':
-        file= 'f7_plot_cell_selection_VmSect'
-        folder = os.path.join(paths['owncFig'],
-                              'pythonPreview', 'current', 'fig')
-        for ext in ['.png', '.pdf', '.svg']:
+    if mes == "vm" and amp == "engy" and spread == "sect":
+        file = "f7_plot_cell_selection_VmSect"
+        folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+        for ext in [".png", ".pdf", ".svg"]:
             filename = os.path.join(folder, (file + ext))
             fig.savefig(filename)
 
 #%% composite with filling in
 
-def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
+
+def plot_composite_sectFull_2X1_fill(df, sigcells, kind="", amp="engy"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     kind in [vm, spk]
     amp in [gain, engy]
     """
 
-    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue"]]
+    dark_colors = [
+        std_colors[item]
+        for item in ["dark_red", "dark_green", "dark_yellow", "dark_blue"]
+    ]
 
-    stims = ('sect', 'full')
-    params = ('time', amp, 'fill')
-    titles = dict(time = r'$\Delta$ Latency(% significant cells)',
-                  engy = r'$\Delta$ Response (% significant cells)',
-                  sect = 'Sector',
-                  full = 'Full',
-                  vm = 'Vm',
-                  spk = 'Spikes')
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8,4))
+    stims = ("sect", "full")
+    params = ("time", amp, "fill")
+    titles = dict(
+        time=r"$\Delta$ Latency(% significant cells)",
+        engy=r"$\Delta$ Response (% significant cells)",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharey=True, figsize=(8, 4))
     axes = axes.flatten()
-    titles = ['sector', 'full']
+    titles = ["sector", "full"]
 
     for i, ax in enumerate(axes):
         # ax.set_title(str(i))
         stim = stims[i]
         param = params[0]
-        #for param in params
+        # for param in params
         ax.set_title(titles[i], pad=0)
         heights = []
         for param in params:
@@ -507,90 +597,115 @@ def plot_composite_sectFull_2X1_fill(df, sigcells, kind='', amp='engy'):
             # remove the fifth value ie if sect = rdisofull
             heights.append(height[:4])
         # % sig cells for time and amp
-        height = [round(len(sigcells[kind][st])/len(df)*100)
-                  for st in list(pop_dico.keys())]
+        height = [
+            round(len(sigcells[kind][st]) / len(df) * 100)
+            for st in list(pop_dico.keys())
+        ]
         # remove the fifth value ie if sect = rdisofull
         heights.append(height[:4])
         x = np.arange(len(pop_dico.keys()))[:4]
         width = 0.3
 
         # union
-        bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2,
-                      edgecolor='k')
-        autolabel(ax, bars, sup=False) # call
+        bars = ax.bar(x, heights[3], color=colors, width=0.9, alpha=0.2, edgecolor="k")
+        autolabel(ax, bars, sup=False)  # call
         # time
-        bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x - width,
+            heights[0],
+            color=colors,
+            width=width,
+            alpha=0.4,
+            edgecolor=colors,
+        )
+        autolabel(ax, bars)  # call
         # amp
-        bars = ax.bar(x , heights[1], color=colors, width=width, alpha=0.4,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x, heights[1], color=colors, width=width, alpha=0.4, edgecolor=colors
+        )
+        autolabel(ax, bars)  # call
         # filling in
-        bars = ax.bar(x + width, heights[2], color=colors, width=width, alpha=0.4,
-                      edgecolor=colors)
-        autolabel(ax, bars) # call
+        bars = ax.bar(
+            x + width,
+            heights[2],
+            color=colors,
+            width=width,
+            alpha=0.4,
+            edgecolor=colors,
+        )
+        autolabel(ax, bars)  # call
 
         labels = list(pop_dico.keys())[:4]
         ax.set_xticks(range(len(labels)))
         ax.set_xticklabels(labels)
     for ax in axes:
-        for spine in ['left', 'top', 'right']:
+        for spine in ["left", "top", "right"]:
             ax.spines[spine].set_visible(False)
-            ax.tick_params(axis='x', labelrotation=45)
+            ax.tick_params(axis="x", labelrotation=45)
             ax.yaxis.set_ticklabels([])
-            ax.tick_params(axis='y', length=0)
+            ax.tick_params(axis="y", length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     txt = "{} ({} cells)  [time|{}|fillIn]".format(kind, len(data), amp)
-    fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
+    fig.text(0.5, 0.99, txt, ha="center", va="top", fontsize=14)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1_fill',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContribution.py:plot_composite_sectFull_2X1_fill",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 
-plt.close('all')
+
+plt.close("all")
 save = False
-amp = ['gain', 'engy'][1]
+amp = ["gain", "engy"][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
-for mes in ['vm', 'spk']:
-    #load_cell_contributions(mes='vm', amp='gain', age='new'):
-    data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-    fig = plot_composite_sectFull_2X1_fill(data, sig_cells, kind=mes,
-                                               amp=amp)
+for mes in ["vm", "spk"]:
+    # load_cell_contributions(mes='vm', amp='gain', age='new'):
+    data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+    fig = plot_composite_sectFull_2X1_fill(data, sig_cells, kind=mes, amp=amp)
     if save:
-        dirname = os.path.join(paths['owncFig'],
-                                   'pythonPreview', 'sorted', 'sorted&contrib')
-        file = 'contrib_2x1_fill_' + mes + spread.title() + '.png'
+        dirname = os.path.join(
+            paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib"
+        )
+        file = "contrib_2x1_fill_" + mes + spread.title() + ".png"
         fig.savefig(os.path.join(dirname, file))
 
 #%%
-plt.close('all')
+plt.close("all")
 
 
-def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
+def plot_composite_1X1_fill(df, sigcells, spread="sect", mes="vm", amp="engy"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     kind in [vm, spk]
     amp in [gain, engy]
     """
 
-    colors = [std_colors[item] for item in ['red', 'green', 'yellow', 'blue']]
-    dark_colors = [std_colors[item] for item in \
-                   ['dark_red', 'dark_green', 'dark_yellow', 'dark_blue']]
+    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue"]]
+    dark_colors = [
+        std_colors[item]
+        for item in ["dark_red", "dark_green", "dark_yellow", "dark_blue"]
+    ]
 
-    stims = ('sect', 'full')
-    params = ('time', amp, 'fill')
-    titles = dict(time = r'$\Delta Latency(% significant cells)',
-                  engy = r'$\Delta$ Response (% significant cells)',
-                  sect = 'Sector',
-                  full = 'Full')
-    fig = plt.figure(figsize=(4,4))
+    stims = ("sect", "full")
+    params = ("time", amp, "fill")
+    titles = dict(
+        time=r"$\Delta Latency(% significant cells)",
+        engy=r"$\Delta$ Response (% significant cells)",
+        sect="Sector",
+        full="Full",
+    )
+    fig = plt.figure(figsize=(4, 4))
     ax = fig.add_subplot(111)
-    title = ''
+    title = ""
 
     # ax.set_title(str(i))
     heights = []
@@ -600,68 +715,76 @@ def plot_composite_1X1_fill(df, sigcells, spread='sect', mes='vm', amp='engy'):
         # remove the fifth value ie if sect = rdisofull
         heights.append(height[:4])
     # % sig cells for time and amp
-    height = [round(len(sigcells[mes][st])/len(df)*100)
-              for st in list(pop_dico.keys())]
+    height = [
+        round(len(sigcells[mes][st]) / len(df) * 100) for st in list(pop_dico.keys())
+    ]
     # remove the fifth value ie if sect = rdisofull
     heights.append(height[:4])
     x = np.arange(len(pop_dico.keys()))[:4]
     width = 0.3
 
     # union
-    bars = ax.bar(x, heights[3], color=colors, width=0.95, alpha=0.2,
-                  edgecolor='k')
-    autolabel(ax, bars, sup=False) # call
+    bars = ax.bar(x, heights[3], color=colors, width=0.95, alpha=0.2, edgecolor="k")
+    autolabel(ax, bars, sup=False)  # call
     # time
-    bars = ax.bar(x - width, heights[0], color=colors, width=width, alpha=0.4,
-                  edgecolor=colors)
-    autolabel(ax, bars) # call
+    bars = ax.bar(
+        x - width, heights[0], color=colors, width=width, alpha=0.4, edgecolor=colors
+    )
+    autolabel(ax, bars)  # call
     # amp
-    bars = ax.bar(x , heights[1], color=colors, width=width, alpha=0.4,
-                  edgecolor=colors)
-    autolabel(ax, bars) # call
+    bars = ax.bar(x, heights[1], color=colors, width=width, alpha=0.4, edgecolor=colors)
+    autolabel(ax, bars)  # call
     # filling in
-    bars = ax.bar(x + width, heights[2], color=colors, width=width, alpha=0.4,
-                  edgecolor=colors)
-    autolabel(ax, bars) # call
+    bars = ax.bar(
+        x + width, heights[2], color=colors, width=width, alpha=0.4, edgecolor=colors
+    )
+    autolabel(ax, bars)  # call
 
     labels = list(pop_dico.keys())[:4]
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels)
 
-    for spine in ['left', 'top', 'right']:
+    for spine in ["left", "top", "right"]:
         ax.spines[spine].set_visible(False)
-        ax.tick_params(axis='x', labelrotation=45)
+        ax.tick_params(axis="x", labelrotation=45)
         ax.yaxis.set_ticklabels([])
-        ax.tick_params(axis='y', length=0)
+        ax.tick_params(axis="y", length=0)
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     txt = "{} ({} cells)  [time|{}|fillIn]".format(mes, len(data), amp)
-    fig.text(0.5, 0.99, txt, ha='center', va='top', fontsize=14)
+    fig.text(0.5, 0.99, txt, ha="center", va="top", fontsize=14)
     if anot:
-        date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        fig.text(1, 0.01, 'cellContribution.py:plot_composite_sectFull_2X1_fill',
-                 ha='right', va='bottom', alpha=0.4)
-        fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContribution.py:plot_composite_sectFull_2X1_fill",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
     fig.tight_layout()
     return fig
 
-plt.close('all')
+
+plt.close("all")
 save = False
-amp = ['gain', 'engy'][1]
+amp = ["gain", "engy"][1]
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp, with_fill=True)
-for spread in ['sect', 'full']:
-    for mes in ['vm', 'spk']:
-        data = ldat.load_cell_contributions(mes, age='new', amp=amp)
-        fig1 = plot_composite_1X1_fill(df=data, sigcells=sig_cells, 
-                                       spread=spread, mes=mes, amp=amp)
+for spread in ["sect", "full"]:
+    for mes in ["vm", "spk"]:
+        data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+        fig1 = plot_composite_1X1_fill(
+            df=data, sigcells=sig_cells, spread=spread, mes=mes, amp=amp
+        )
 
         if save:
-            dirname = os.path.join(paths['owncFig'],
-                                   'pythonPreview', 'sorted', 'sorted&contrib')
-            file = 'contrib_1x1_fill_' + mes + spread.title() + '.png'
+            dirname = os.path.join(
+                paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib"
+            )
+            file = "contrib_1x1_fill_" + mes + spread.title() + ".png"
             fig1.savefig(os.path.join(dirname, file))
-
-
 
 
 # amp = ['gain', 'engy'][1]

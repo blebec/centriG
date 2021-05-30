@@ -5,119 +5,129 @@ Created on Mon Jun 29 10:10:52 2020
 
 @author: cdesbois
 """
-#import platform
+# import platform
 import os
 
 import numpy as np
-#import getpass
+
+# import getpass
 import pandas as pd
 
 import config
 import general_functions as gfunc
 
-#import centriG.config as config
-#import centriG.general_functions as gfunc
+# import centriG.config as config
+# import centriG.general_functions as gfunc
 
 
 paths = config.build_paths()
 
 
-def load2(age='new'):
+def load2(age="new"):
     """
     import the datafile
     return a pandasDataframe and a dictionary of contents
     """
-    #____data
-    if age == 'old':
-        filename = os.path.join(paths['pg'],
-                                'data', 'old', 'fig2traces.xlsx')
-        print('beware : old file')
+    # ____data
+    if age == "old":
+        filename = os.path.join(paths["pg"], "data", "old", "fig2traces.xlsx")
+        print("beware : old file")
     else:
-        filename = os.path.join(paths['pg'],
-                                'data', 'data_to_use', 'fig2_2traces.xlsx')
-        print('fig2 : new file')
+        filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
+        print("fig2 : new file")
         # print('file fig2traces as to be updated')
         # return None, None
     # df = pd.read_excel(filename) # bug with xlsx
-    df = pd.read_excel(filename, engine='openpyxl')
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
+    df = pd.read_excel(filename, engine="openpyxl")
+    # centering
+    middle = (df.index.max() - df.index.min()) / 2
+    df.index = (df.index - middle) / 10
     df = df.loc[-200:150]
     # nb dico : key + [values] or key + [values, (stdUp, stdDown)]
     colsdict = dict(
-        indVm = ['indiVmctr', 'indiVmscpIsoStc'],
-        indSpk =  ['indiSpkCtr', 'indiSpkscpIsoStc'],
-        popVm = ['popVmCtr', 'popVmscpIsoStc'],
-        popSpk = ['popSpkCtr', 'popSpkscpIsoStc'],
-        popVmSig = ['popVmCtrSig', 'popVmscpIsoStcSig',
-                    ('popVmCtrSeUpSig', 'popVmCtrSeDwSig'),
-                    ('popVmscpIsoStcSeUpSig', 'popVmscpIsoStcSeDwSig')],
-        popSpkSig = ['popSpkCtrSig', 'popSpkscpIsoStcSig',
-                     ('popSpkCtrSeUpSig', 'popSpkCtrSeDwSig'),
-                     ('popSpkscpIsoStcSeUpSig', 'popSpkscpIsoStcSeDwSig')],
-        popVmNsig = ['popVmCtrNSig', 'popVmscpIsoStcNSig',
-                     ('popVmCtrSeUpNSig', 'popVmCtrSeDwNSig'),
-                     ('popVmscpIsoStcSeUpNSig', 'popVmscpIsoStcSeDwNSig')],
-        popSpkNsig = ['popSpkCtrNSig', 'popSpkscpIsoStcNSig',
-                      ('popSpkCtrSeUpNSig', 'popSpkCtrSeDwNSig'),
-                      ('popSpkscpIsoStcSeUpNSig', 'popSpkscpIsoStcSeDwNSig')],
-        sort = ['popVmscpIsolatg', 'popVmscpIsoAmpg',
-                'lagIndiSig', 'ampIndiSig']
-        )
+        indVm=["indiVmctr", "indiVmscpIsoStc"],
+        indSpk=["indiSpkCtr", "indiSpkscpIsoStc"],
+        popVm=["popVmCtr", "popVmscpIsoStc"],
+        popSpk=["popSpkCtr", "popSpkscpIsoStc"],
+        popVmSig=[
+            "popVmCtrSig",
+            "popVmscpIsoStcSig",
+            ("popVmCtrSeUpSig", "popVmCtrSeDwSig"),
+            ("popVmscpIsoStcSeUpSig", "popVmscpIsoStcSeDwSig"),
+        ],
+        popSpkSig=[
+            "popSpkCtrSig",
+            "popSpkscpIsoStcSig",
+            ("popSpkCtrSeUpSig", "popSpkCtrSeDwSig"),
+            ("popSpkscpIsoStcSeUpSig", "popSpkscpIsoStcSeDwSig"),
+        ],
+        popVmNsig=[
+            "popVmCtrNSig",
+            "popVmscpIsoStcNSig",
+            ("popVmCtrSeUpNSig", "popVmCtrSeDwNSig"),
+            ("popVmscpIsoStcSeUpNSig", "popVmscpIsoStcSeDwNSig"),
+        ],
+        popSpkNsig=[
+            "popSpkCtrNSig",
+            "popSpkscpIsoStcNSig",
+            ("popSpkCtrSeUpNSig", "popSpkCtrSeDwNSig"),
+            ("popSpkscpIsoStcSeUpNSig", "popSpkscpIsoStcSeDwNSig"),
+        ],
+        sort=["popVmscpIsolatg", "popVmscpIsoAmpg", "lagIndiSig", "ampIndiSig"],
+    )
     return df, colsdict
 
 
-def load_cell_contributions(rec='vm', amp='engy', age='new'):
+def load_cell_contributions(rec="vm", amp="engy", age="new"):
     """
     load the corresponding xcel file
     rec in ['vm' or 'spk']
     amp in ['gain', 'engy']
     age in ['old', 'new'] (old <-> time50, gain50, old way)
     """
-    if age == 'old':
+    if age == "old":
         names_dico = dict(
-            vm=os.path.join(paths['pg'], 'data', 'old', 'figSup34Vm.xlsx'),
-            spk=os.path.join(paths['pg'], 'data', 'old', 'figSup34Spk.xlsx')
-            )
+            vm=os.path.join(paths["pg"], "data", "old", "figSup34Vm.xlsx"),
+            spk=os.path.join(paths["pg"], "data", "old", "figSup34Spk.xlsx"),
+        )
         filename = names_dico.get(rec)
-    elif age == 'new':
+    elif age == "new":
         # dirname = os.path.join(paths['pg'], 'data', 'data_to_use')
-        dirname = os.path.join(paths['owncFig'], 'data', 'index')
-        if rec == 'vm' and amp == 'gain':
-            filename = os.path.join(dirname, 'time50gain50Vm.xlsx')
-        elif rec == 'spk' and amp == 'gain':
-            filename = os.path.join(dirname, 'time50gain50Spk.xlsx')
-        elif rec == 'vm' and amp == 'engy':
-            filename = os.path.join(dirname, 'time50engyVm.xlsx')
-        elif rec == 'spk' and amp == 'engy':
-            filename = os.path.join(dirname, 'time50engySpk.xlsx')
+        dirname = os.path.join(paths["owncFig"], "data", "index")
+        if rec == "vm" and amp == "gain":
+            filename = os.path.join(dirname, "time50gain50Vm.xlsx")
+        elif rec == "spk" and amp == "gain":
+            filename = os.path.join(dirname, "time50gain50Spk.xlsx")
+        elif rec == "vm" and amp == "engy":
+            filename = os.path.join(dirname, "time50engyVm.xlsx")
+        elif rec == "spk" and amp == "engy":
+            filename = os.path.join(dirname, "time50engySpk.xlsx")
         else:
-            print('rec or amp not appropriate')
-            print('check the conditions')
+            print("rec or amp not appropriate")
+            print("check the conditions")
             return
     else:
-        print('files should be updated')
+        print("files should be updated")
         return None
-    df = pd.read_excel(filename, engine='openpyxl')
-    df.set_index('Neuron', inplace=True)
-    #rename using snake_case
+    df = pd.read_excel(filename, engine="openpyxl")
+    df.set_index("Neuron", inplace=True)
+    # rename using snake_case
     cols = gfunc.new_columns_names(df.columns)
     # correction for fill names
-    cols = [item.replace('fill', '__fill') for item in cols]
-    cols = [item.replace('___fill', '__fill') for item in cols]
-    cols = [item.replace('fillsig', 'fill_sig') for item in cols]
+    cols = [item.replace("fill", "__fill") for item in cols]
+    cols = [item.replace("___fill", "__fill") for item in cols]
+    cols = [item.replace("fillsig", "fill_sig") for item in cols]
     df.columns = cols
-    #groupNames
+    # groupNames
     cols = []
     for item in df.columns:
-        sp = item.split('_')
-        new_name = sp[2] + sp[3] + sp[1] + '_' + sp[5]
+        sp = item.split("_")
+        new_name = sp[2] + sp[3] + sp[1] + "_" + sp[5]
         if len(sp) > 6:
-            new_name += ('_sig')
+            new_name += "_sig"
         cols.append(new_name)
     if len(cols) != len(set(cols)):
-        print('beware, there are dumplicated names')
+        print("beware, there are dumplicated names")
     df.columns = cols
     return df
 
@@ -195,7 +205,8 @@ def load_cell_contributions(rec='vm', amp='engy', age='new'):
 #     return df
 # =============================================================================
 
-def build_sigpop_statdf(amp='engy', with_fill=False):
+
+def build_sigpop_statdf(amp="engy", with_fill=False):
     """
     load the indices and extract descriptive statistics per condition
     NB sig cell = individual sig for latency OR energy
@@ -208,15 +219,15 @@ def build_sigpop_statdf(amp='engy', with_fill=False):
     """
     df = pd.DataFrame()
     sigcells = {}
-    for mes in ['vm', 'spk']:
-        data = load_cell_contributions(rec=mes, amp=amp, age='new')
+    for mes in ["vm", "spk"]:
+        data = load_cell_contributions(rec=mes, amp=amp, age="new")
         # include fill_sig + add fill empty columns
-        fills = [item for item in data.columns if 'fill' in item]
+        fills = [item for item in data.columns if "fill" in item]
         if with_fill:
             # create zero padded value columns
             while fills:
                 fill = fills.pop()
-                col = '_'.join(fill.split('_')[:-1])
+                col = "_".join(fill.split("_")[:-1])
                 data[col] = data[fill]
                 data[col] = 0
         else:
@@ -224,14 +235,14 @@ def build_sigpop_statdf(amp='engy', with_fill=False):
             while fills:
                 fill = fills.pop()
                 del data[fill]
-        cols = [item for item in data.columns if not item.endswith('_sig')]
+        cols = [item for item in data.columns if not item.endswith("_sig")]
         # conditions and parameter lists
         conds = []
-        for item in [st.split('_')[0] for st in cols]:
+        for item in [st.split("_")[0] for st in cols]:
             if item not in conds:
                 conds.append(item)
         params = []
-        for item in [st.split('_')[1] for st in cols]:
+        for item in [st.split("_")[1] for st in cols]:
             if item not in params:
                 params.append(item)
         # build dico[cond]list of sig cells
@@ -240,26 +251,26 @@ def build_sigpop_statdf(amp='engy', with_fill=False):
             # select cell signicant for at least one of the param
             sig_cells = set()
             for param in params:
-                col = cond + '_' + param
+                col = cond + "_" + param
                 # measure for sig > 0
-                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
+                sig_df = data.loc[data[col + "_sig"] > 0, [col]]
                 # cells for measure > 0 (beware fill measure is actually 0)
                 cells = sig_df.loc[sig_df[col] >= 0].index
                 # append to the set
                 sig_cells = sig_cells.union(cells)
             cells_dict[cond] = list(sig_cells)
         # extract descriptive stats
-        stats= []
+        stats = []
         for col in cols:
-            cells = cells_dict[col.split('_')[0]]
-            ser = data.loc[cells[:], col]# col = cols[0]
+            cells = cells_dict[col.split("_")[0]]
+            ser = data.loc[cells[:], col]  # col = cols[0]
             dico = {}
-            dico[mes + '_count'] = ser.count()
-            dico[mes + '_mean'] = ser.mean()
-            dico[mes + '_std'] = ser.std()
-            dico[mes + '_sem'] = ser.sem()
-            dico[mes + '_med'] = ser.median()
-            dico[mes + '_mad'] = ser.mad()
+            dico[mes + "_count"] = ser.count()
+            dico[mes + "_mean"] = ser.mean()
+            dico[mes + "_std"] = ser.std()
+            dico[mes + "_sem"] = ser.sem()
+            dico[mes + "_med"] = ser.median()
+            dico[mes + "_mad"] = ser.mad()
             stats.append(pd.Series(dico, name=col))
         df = pd.concat([df, pd.DataFrame(stats)], axis=1)
         df = df.fillna(0)
@@ -272,7 +283,8 @@ def build_sigpop_statdf(amp='engy', with_fill=False):
 
 # check error bars
 
-def build_pop_statdf(sig=False, amp='engy'):
+
+def build_pop_statdf(sig=False, amp="engy"):
     """
     extract a statistical description
     in this approach sig cells refers for individually sig for the given
@@ -280,42 +292,42 @@ def build_pop_statdf(sig=False, amp='engy'):
 
     """
     df = pd.DataFrame()
-    for mes in ['vm', 'spk']:
+    for mes in ["vm", "spk"]:
         # mes = 'spk'
-        data = load_cell_contributions(rec=mes, amp=amp, age='new')
-        cols = [item for item in data.columns if not item.endswith('_sig')]
-        #only sig cells, independtly for each condition and each measure
+        data = load_cell_contributions(rec=mes, amp=amp, age="new")
+        cols = [item for item in data.columns if not item.endswith("_sig")]
+        # only sig cells, independtly for each condition and each measure
         if sig:
-            stats= []
+            stats = []
             for col in cols:
                 # col = cols[0]
-                sig_df = data.loc[data[col+'_sig'] > 0, [col]]
-                #only positive values
+                sig_df = data.loc[data[col + "_sig"] > 0, [col]]
+                # only positive values
                 sig_df = sig_df.loc[sig_df[col] > 0]
                 dico = {}
-                dico[mes + '_count'] = sig_df[col].count()
-                dico[mes + '_mean'] = sig_df[col].mean()
-                dico[mes + '_std'] = sig_df[col].std()
-                dico[mes + '_sem'] = sig_df[col].sem()
-                dico[mes + '_med'] = sig_df[col].median()
-                dico[mes + '_mad'] = sig_df[col].mad()
+                dico[mes + "_count"] = sig_df[col].count()
+                dico[mes + "_mean"] = sig_df[col].mean()
+                dico[mes + "_std"] = sig_df[col].std()
+                dico[mes + "_sem"] = sig_df[col].sem()
+                dico[mes + "_med"] = sig_df[col].median()
+                dico[mes + "_mad"] = sig_df[col].mad()
                 stats.append(pd.Series(dico, name=col))
             df = pd.concat([df, pd.DataFrame(stats)], axis=1)
         # all cells
         else:
-            df[mes + '_count'] = data[cols].count()
-            df[mes + '_mean'] = data[cols].mean()
-            df[mes + '_std'] = data[cols].std()
-            df[mes + '_sem'] = data[cols].sem()
-            df[mes + '_med'] = data[cols].median()
-            df[mes + '_mad'] = data[cols].mad()
+            df[mes + "_count"] = data[cols].count()
+            df[mes + "_mean"] = data[cols].mean()
+            df[mes + "_std"] = data[cols].std()
+            df[mes + "_sem"] = data[cols].sem()
+            df[mes + "_med"] = data[cols].median()
+            df[mes + "_mad"] = data[cols].mad()
     # replace nan by 0
-    #(no sig cell or only one sig cell -> nan for all params or std)
+    # (no sig cell or only one sig cell -> nan for all params or std)
     df = df.fillna(0)
     return df
 
 
-def load_filldata(key='pop'):
+def load_filldata(key="pop"):
     """
     load the filling in population
     input:
@@ -323,15 +335,16 @@ def load_filldata(key='pop'):
     output:
         pandas dataframe
     """
-    data_location = dict(pop = 'data/data_to_use/popfill.xlsx',
-                         indi = 'data/data_to_use/indifill.xlsx')
+    data_location = dict(
+        pop="data/data_to_use/popfill.xlsx", indi="data/data_to_use/indifill.xlsx"
+    )
 
     filename = data_location[key]
-    df = pd.read_excel(filename, engine='openpyxl')
-    #centering
-    middle = (df.index.max() - df.index.min())/2
-    df.index = (df.index - middle)/10
-    #limit the date time range
+    df = pd.read_excel(filename, engine="openpyxl")
+    # centering
+    middle = (df.index.max() - df.index.min()) / 2
+    df.index = (df.index - middle) / 10
+    # limit the date time range
     df = df.loc[-200:200]
 
     # cols = gfunc.new_columns_names(df.columns)
@@ -344,13 +357,13 @@ def load_filldata(key='pop'):
 #%%
 if __name__ == "__main__":
     paths = config.build_paths()
-    fig2_df, fig2_cols = load2('new')
-    #energy_df = load_energy_gain_index(paths, sig=True)
-    latGain50_v_df = load_cell_contributions(rec='vm', age='old')
-    latGain50_s_df = load_cell_contributions(rec='spk', age='old')
+    fig2_df, fig2_cols = load2("new")
+    # energy_df = load_energy_gain_index(paths, sig=True)
+    latGain50_v_df = load_cell_contributions(rec="vm", age="old")
+    latGain50_s_df = load_cell_contributions(rec="spk", age="old")
 
-    latGain50_v_df = load_cell_contributions(rec='vm', amp='gain', age='new')
-    latGain50_s_df = load_cell_contributions(rec='spk', amp='gain', age='new')
+    latGain50_v_df = load_cell_contributions(rec="vm", amp="gain", age="new")
+    latGain50_s_df = load_cell_contributions(rec="spk", amp="gain", age="new")
 
-    latEner50_v_df = load_cell_contributions(rec='vm', amp='engy', age='new')
-    latEner50_s_df = load_cell_contributions(rec='spk', amp='engy', age='new')
+    latEner50_v_df = load_cell_contributions(rec="vm", amp="engy", age="new")
+    latEner50_s_df = load_cell_contributions(rec="spk", amp="engy", age="new")

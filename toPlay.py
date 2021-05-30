@@ -14,14 +14,15 @@ import matplotlib.pyplot as plt
 
 import config
 import load.load_data as ldat
+
 std_colors = config.std_colors()
 anot = True
 
-plt.rcParams['axes.xmargin'] = 0.05     
-plt.rcParams['axes.ymargin'] = 0.05   
+plt.rcParams["axes.xmargin"] = 0.05
+plt.rcParams["axes.ymargin"] = 0.05
 
 #%% a test fig and no more
-plt.close('all')
+plt.close("all")
 
 fig = plt.figure()
 axes = []
@@ -44,55 +45,56 @@ for ax in axes[1::2]:
 
 #%% explore peaks and gain
 
+
 def load_peakdata(name):
-    'load the excel file'
+    "load the excel file"
     # name = 'data/cg_peakValueTime_spk.xlsx'
     df = pd.read_excel(name)
     # replace 'sec' by 'sect' for homogeneity
     new_list = []
     for item in df.columns:
-        new_list.append(item.replace('sec', 'sect'))
+        new_list.append(item.replace("sec", "sect"))
     df.columns = new_list
     # adapt column names
     new_list = []
     for item in df.iloc[0].tolist():
-        if 'value' in str(item):
-            new_list.append('_gainP')
-        elif 'time' in str(item):
-            new_list.append('_timeP')
+        if "value" in str(item):
+            new_list.append("_gainP")
+        elif "time" in str(item):
+            new_list.append("_timeP")
         else:
-            new_list.append('')
-    cols = [item.split('.')[0] for item in df.columns]
+            new_list.append("")
+    cols = [item.split(".")[0] for item in df.columns]
     cols = [a + b for a, b in zip(cols, new_list)]
     df.columns = cols
     # remove first line
     df = df.drop(df.index[0])
     # remove empty column
-    df = df.drop('Unnamed: 10', axis=1)
-    df = df.set_index('Neuron')
-    df = df.astype('float')
-    #rename
+    df = df.drop("Unnamed: 10", axis=1)
+    df = df.set_index("Neuron")
+    df = df.astype("float")
+    # rename
     cols = df.columns
-    cols = [item.replace('ctr', 'centeronly') for item in cols]
-    cols = [item.replace('rnd', 'rd') for item in cols]
-    cols = [item.replace('rdfull', 'rdisofull') for item in cols]
-    cols = [item.replace('rdsec', 'rdisosec') for item in cols]
-    cols = [item.replace('cross', 'crx') for item in cols]
-    cols = [item.replace('isosfull', 'isofull') for item in cols]
+    cols = [item.replace("ctr", "centeronly") for item in cols]
+    cols = [item.replace("rnd", "rd") for item in cols]
+    cols = [item.replace("rdfull", "rdisofull") for item in cols]
+    cols = [item.replace("rdsec", "rdisosec") for item in cols]
+    cols = [item.replace("cross", "crx") for item in cols]
+    cols = [item.replace("isosfull", "isofull") for item in cols]
     df.columns = cols
     return df
 
 
-def normalize_peakdata_and_select(df, spread='sect', param='gain'):
+def normalize_peakdata_and_select(df, spread="sect", param="gain"):
     """
     return the normalized and selected df parts for plotting
     spread in ['sect', 'full'],
     param in ['time', 'gain']
     """
-    if spread not in ['sect', 'full']:
+    if spread not in ["sect", "full"]:
         print("'spread' should be in ['sect', 'full']")
         return
-    if param not in ['time', 'gain']:
+    if param not in ["time", "gain"]:
         print("'param' should be in ['time', 'gain']")
         return
     # select by param (first value = control)
@@ -110,13 +112,13 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 
 # =============================================================================
 # moved to cross.py
-#---------------------
+# ---------------------
 # def plot_sorted_responses(df_left, df_right, mes='', overlap=True,
 #                           left_sig=True, right_sig=True):
 #     """
 #     plot the sorted cell responses
 #     input = dataframes, overlap=boolean
-# 
+#
 #     """
 #     def set_ticks_both(axis):
 #         """ set ticks and ticks labels on both sides """
@@ -127,12 +129,12 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #             t.tick2line.set_visible(True)
 #             t.label1.set_visible(True)
 #             t.label2.set_visible(True)
-# 
+#
 #     colors = [std_colors['red'], std_colors['green'],
 #               std_colors['yellow'], std_colors['blue']]
 #     dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
 #                    std_colors['dark_yellow'], std_colors['dark_blue']]
-# 
+#
 #     # text labels
 #     if 'sect' in right.columns[0].split('_')[0]:
 #         spread = 'sect'
@@ -185,7 +187,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #             #       alpha=0.8, width=0.8)
 #             # # with significance
 #             select = df_left[name].sort_values(ascending=False)
-# 
+#
 #             ax.bar(x, select, color=bar_colors, edgecolor=edge_color,
 #                    alpha=0.8, width=0.8)
 #             if i == 0:
@@ -231,7 +233,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #                    alpha=0.5, width=0.8)
 #             if i == 0:
 #                 ax.set_title(anot_right)
-# 
+#
 #     # alternate the y_axis position
 #     axes = fig.get_axes()
 #     left_axes = axes[:4]
@@ -287,7 +289,7 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #             for spine in ['left', 'right']:
 #                 ax.spines[spine].set_visible(False)
 #                 ax.set_xlim(0, len(df_right)+1)
-# 
+#
 #     # for ax in left_axes:
 #     #     custom_ticks = np.linspace(-10, 10, 3, dtype=int)
 #     #     ax.set_yticks(custom_ticks)
@@ -295,13 +297,13 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #     #     ax.set_ylim(-0.5, 0.5)
 #     #     custom_ticks = np.linspace(-0.5, 0.5, 3)
 #     #     ax.set_yticks(custom_ticks)
-# 
+#
 #     # align each row yaxis on zero between subplots
 #     # align_yaxis(left_axes[0], 0, right_axes[0], 0)
 #     # keep data range whithout distortion, preserve 0 alignment
 #     # change_plot_trace_amplitude(axes[1], 0.80)
 #     # remove the space between plots
-# 
+#
 #     fig.tight_layout()
 #     if overlap:
 #         fig.subplots_adjust(hspace=-0.5, wspace=0.2)
@@ -313,19 +315,20 @@ def normalize_peakdata_and_select(df, spread='sect', param='gain'):
 #                  ha='right', va='bottom', alpha=0.4)
 #         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 #     return fig
-# 
+#
 # =============================================================================
 
-def select_50(df, spread='sect', param='engy', noSig=True):
+
+def select_50(df, spread="sect", param="engy", noSig=True):
     """
     return the selected df parts for plotting
     spread in ['sect', 'full'],
     param in ['time', 'gain', 'engy']
     """
-    if spread not in ['sect', 'full']:
+    if spread not in ["sect", "full"]:
         print("'spread' should be in ['sect', 'full']")
         return
-    if param not in ['time', 'gain', 'engy']:
+    if param not in ["time", "gain", "engy"]:
         print("'param' should be in ['time', 'gain', 'engy']")
         return
     # select by param (first value = control)
@@ -334,15 +337,15 @@ def select_50(df, spread='sect', param='engy', noSig=True):
     col_list = [item for item in col_list if spread in item]
     if noSig:
         # remove sig
-        col_list = [item for item in col_list if 'sig' not in item]
+        col_list = [item for item in col_list if "sig" not in item]
     return df[col_list].copy()
 
 
 # =============================================================================
 # moved to cross
-#--------------__
+# --------------__
 # def horizontal_dot_plot(df_left, df_right, mes=''):
-# 
+#
 #     colors = [std_colors['red'], std_colors['green'],
 #               std_colors['yellow'], std_colors['blue']]
 #     dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
@@ -389,8 +392,8 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #         yl = df.index.to_list()
 #         xl = df[col].tolist()
 #         for x, y, e, f in zip(xl, yl, z1, z2):
-#             ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
-#                     alpha=alpha, markeredgewidth=1.5, markersize=6)      
+#             ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f,
+#                     alpha=alpha, markeredgewidth=1.5, markersize=6)
 #   # right
 #     ax = fig.add_subplot(122)
 #     df = df_right.reindex(sorted_cells)
@@ -419,8 +422,8 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #         yl = df.index.to_list()
 #         xl = df[col].tolist()
 #         for x, y, e, f in zip(xl, yl, z1, z2):
-#             ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f, 
-#                     alpha=alpha, markeredgewidth=1.5, markersize=6)      
+#             ax.plot(x, y, 'o', markeredgecolor=e, markerfacecolor=f,
+#                     alpha=alpha, markeredgewidth=1.5, markersize=6)
 #     for i, ax in enumerate(fig.get_axes()):
 #         ax.set_xlabel(anotx[i])
 #         for spine in ['top', 'right']:
@@ -435,7 +438,7 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #                  ha='right', va='bottom', alpha=0.4)
 #         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 #     return fig
-# 
+#
 # def scatter_lat_gain(df_left, df_right, mes=''):
 #     colors = [std_colors['red'], std_colors['green'],
 #               std_colors['yellow'], std_colors['blue']]
@@ -482,12 +485,12 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #                  ha='right', va='bottom', alpha=0.4)
 #         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 #     return fig
-# 
+#
 
 
 # =============================================================================
 # moved to cross.py
-#__________
+# __________
 # def histo_lat_gain(df_left, df_right, mes=''):
 #     """
 #     histogramme des données
@@ -496,7 +499,7 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #               std_colors['yellow'], std_colors['blue']]
 #     dark_colors = [std_colors['dark_red'], std_colors['dark_green'],
 #                    std_colors['dark_yellow'], std_colors['dark_blue']]
-# 
+#
 #     # text labels
 #     if 'sect' in right.columns[0].split('_')[0]:
 #         spread = 'sect'
@@ -504,7 +507,7 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #         spread = 'full'
 #     title = 'responses' + ' (' + mes + ' ' + spread + ')'
 #     anotx = 'Cell rank'
-#     anoty = [df_left.columns[0].split('_')[1], 
+#     anoty = [df_left.columns[0].split('_')[1],
 #              df_right.columns[0].split('_')[1]]
 #     # anoty = ['Relative peak advance(ms)', 'Relative peak amplitude']
 #     #          #(fraction of Center-only response)']
@@ -574,7 +577,7 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #         tx = 'med=' + str(round(med, 2))
 #         ax.text(0.65, 0.8, tx, horizontalalignment='left',
 #                 transform=ax.transAxes, alpha=0.5)
-# 
+#
 #     for ax in fig.get_axes():
 #         ax.set_facecolor('None')
 #         ax.yaxis.set_visible(False)
@@ -589,7 +592,8 @@ def select_50(df, spread='sect', param='engy', noSig=True):
 #     return fig
 # =============================================================================
 
-def plot_glob_varia(left, right, mes=''):
+
+def plot_glob_varia(left, right, mes=""):
     pass
 
 
@@ -597,139 +601,120 @@ def extract_stat(onlySig=False):
     # output
     desc_df = pd.DataFrame()
     # vm
-    mes = 'vm'
-    filename = 'data/cg_peakValueTime_vm.xlsx'
-#    data50 = ldat.load_50vals(mes)
-#    data50 = ldat.load_cell_contributions(rec=mes)
+    mes = "vm"
+    filename = "data/cg_peakValueTime_vm.xlsx"
+    #    data50 = ldat.load_50vals(mes)
+    #    data50 = ldat.load_cell_contributions(rec=mes)
     # amp in ['gain', 'engy']
-    amp = 'gain'
+    amp = "gain"
     data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
-    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
+    print("{} cells ({}, {})".format(len(data50), mes, amp))
     # remove the significance
-    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    data50 = data50[[item for item in data50.columns if "_sig" not in item]]
     sigCells = data50.index.to_list()
     # vm_time50
-    times = [item for item in data50.columns if 'time' in item]
-    times = [item for item in times if 'sect_' in item] \
-            + [item for item in times if 'full_' in item]
+    times = [item for item in data50.columns if "time" in item]
+    times = [item for item in times if "sect_" in item] + [
+        item for item in times if "full_" in item
+    ]
     advance_df = data50[times].copy()
-    advance_df.columns = [item.split('_')[0] for item in advance_df.columns]
-    desc_df['time50_vm_mean'] = advance_df.mean()
-    desc_df['time50_vm_std'] = advance_df.std()
-    desc_df['time50_vm_med'] = advance_df.median()
-    desc_df['time50_vm_mad'] = advance_df.mad()
+    advance_df.columns = [item.split("_")[0] for item in advance_df.columns]
+    desc_df["time50_vm_mean"] = advance_df.mean()
+    desc_df["time50_vm_std"] = advance_df.std()
+    desc_df["time50_vm_med"] = advance_df.median()
+    desc_df["time50_vm_mad"] = advance_df.mad()
     # vm_gain50
-    gains = [item for item in data50.columns if 'gain' in item]
-    gains = [item for item in gains if 'sect_' in item] \
-            + [item for item in gains if 'full_' in item]
+    gains = [item for item in data50.columns if "gain" in item]
+    gains = [item for item in gains if "sect_" in item] + [
+        item for item in gains if "full_" in item
+    ]
     gain_df = data50[gains].copy()
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gain50_vm_mean'] = gain_df.mean()
-    desc_df['gain50_vm_std'] = gain_df.std()
-    desc_df['gain50_vm_med'] = gain_df.median()
-    desc_df['gain50_vm_mad'] = gain_df.mad()
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["gain50_vm_mean"] = gain_df.mean()
+    desc_df["gain50_vm_std"] = gain_df.std()
+    desc_df["gain50_vm_med"] = gain_df.median()
+    desc_df["gain50_vm_mad"] = gain_df.mad()
     # spike
-    mes = 'spk'
-    filename = 'data/cg_peakValueTime_spk.xlsx'
+    mes = "spk"
+    filename = "data/cg_peakValueTime_spk.xlsx"
     data50 = ldat.load_cell_contributions(rec=mes)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
     # remove the significance
-    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    data50 = data50[[item for item in data50.columns if "_sig" not in item]]
     # spk_time50
-    times = [item for item in data50.columns if 'time' in item]
-    times = [item for item in times if 'sect_' in item] \
-            + [item for item in times if 'full_' in item]
+    times = [item for item in data50.columns if "time" in item]
+    times = [item for item in times if "sect_" in item] + [
+        item for item in times if "full_" in item
+    ]
     time_df = data50[times].copy()
-    time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    desc_df['time50_spk_mean'] = time_df.mean()
-    desc_df['time50_spk_std'] = time_df.std()
-    desc_df['time50_spk_med'] = time_df.median()
-    desc_df['time50_spk_mad'] = time_df.mad()
+    time_df.columns = [item.split("_")[0] for item in time_df.columns]
+    desc_df["time50_spk_mean"] = time_df.mean()
+    desc_df["time50_spk_std"] = time_df.std()
+    desc_df["time50_spk_med"] = time_df.median()
+    desc_df["time50_spk_mad"] = time_df.mad()
     # spk_gain50
-    gains = [item for item in data50.columns if 'gain' in item]
-    gains = [item for item in gains if 'sect_' in item] \
-            + [item for item in gains if 'full_' in item]
+    gains = [item for item in data50.columns if "gain" in item]
+    gains = [item for item in gains if "sect_" in item] + [
+        item for item in gains if "full_" in item
+    ]
     gain_df = data50[gains].copy()
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gain50_spk_mean'] = gain_df.mean()
-    desc_df['gain50_spk_std'] = gain_df.std()
-    desc_df['gain50_spk_med'] = gain_df.median()
-    desc_df['gain50_spk_mad'] = gain_df.mad()
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["gain50_spk_mean"] = gain_df.mean()
+    desc_df["gain50_spk_std"] = gain_df.std()
+    desc_df["gain50_spk_med"] = gain_df.median()
+    desc_df["gain50_spk_mad"] = gain_df.mad()
     # engy vm
-    mes = 'vm'
-    amp = 'engy'
+    mes = "vm"
+    amp = "engy"
     data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
-    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
+    print("{} cells ({}, {})".format(len(data50), mes, amp))
     # remove the significance
-    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    data50 = data50[[item for item in data50.columns if "_sig" not in item]]
     sigCells = data50.index.to_list()
     # vm_gain50
-    engy = [item for item in data50.columns if 'engy' in item]
-    engy = [item for item in engy if 'sect_' in item] \
-            + [item for item in engy if 'full_' in item]
+    engy = [item for item in data50.columns if "engy" in item]
+    engy = [item for item in engy if "sect_" in item] + [
+        item for item in engy if "full_" in item
+    ]
     gain_df = data50[engy].copy()
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['energy_vm_mean'] = gain_df.mean()
-    desc_df['energy_vm_std'] = gain_df.std()
-    desc_df['energy_vm_med'] = gain_df.median()
-    desc_df['energy_vm_mad'] = gain_df.mad()
-    #engy spk
-    mes = 'spk'
-    amp = 'engy'
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["energy_vm_mean"] = gain_df.mean()
+    desc_df["energy_vm_std"] = gain_df.std()
+    desc_df["energy_vm_med"] = gain_df.median()
+    desc_df["energy_vm_mad"] = gain_df.mad()
+    # engy spk
+    mes = "spk"
+    amp = "engy"
     data50 = ldat.load_cell_contributions(rec=mes, amp=amp)
     if onlySig:
         data50 = data50.loc[data50.cpisosect_time50_sig > 0]
-    print ('{} cells ({}, {})'.format(len(data50), mes, amp ))
+    print("{} cells ({}, {})".format(len(data50), mes, amp))
     # remove the significance
-    data50 = data50[[item for item in data50.columns if '_sig' not in item]]
+    data50 = data50[[item for item in data50.columns if "_sig" not in item]]
     sigCells = data50.index.to_list()
     # vm_gain50
-    engy = [item for item in data50.columns if 'engy' in item]
-    engy = [item for item in engy if 'sect_' in item] \
-            + [item for item in engy if 'full_' in item]
+    engy = [item for item in data50.columns if "engy" in item]
+    engy = [item for item in engy if "sect_" in item] + [
+        item for item in engy if "full_" in item
+    ]
     gain_df = data50[engy].copy()
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['energy_spk_mean'] = gain_df.mean()
-    desc_df['energy_spk_std'] = gain_df.std()
-    desc_df['energy_spk_med'] = gain_df.median()
-    desc_df['energy_spk_mad'] = gain_df.mad()
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["energy_spk_mean"] = gain_df.mean()
+    desc_df["energy_spk_std"] = gain_df.std()
+    desc_df["energy_spk_med"] = gain_df.median()
+    desc_df["energy_spk_mad"] = gain_df.mad()
 
     # peak (non normalized data)
     # vm
-    filename = 'data/cg_peakValueTime_vm.xlsx'
+    filename = "data/cg_peakValueTime_vm.xlsx"
     data = load_peakdata(filename)
-    gains = [item for item in data.columns if 'gain' in item]
-    times = [item for item in data.columns if 'time' in item]
-    # normalise
-    for item in gains[1:]:
-        data[item] = data[item] / data[gains[0]]
-    # select
-    gain_df = data[gains[1:]].copy()
-    time_df = data[times[1:]].copy()
-    #stat
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gainP_vm_mean'] = gain_df.mean()
-    desc_df['gainP_vm_std'] = gain_df.std()
-    desc_df['gainP_vm_med'] = gain_df.median()
-    desc_df['gainP_vm_mad'] = gain_df.mad()
-
-    time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    # time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
-    #                         'rndfull':'rndisofull'}, inplace=True)
-    desc_df['timeP_vm_mean'] = time_df.mean()
-    desc_df['timeP_vm_std'] = time_df.std()
-    desc_df['timeP_vm_med'] = time_df.median()
-    desc_df['timeP_vm_mad'] = time_df.mad()
-    # spk_time
-    filename = 'data/cg_peakValueTime_spk.xlsx'
-    data = load_peakdata(filename)
-    gains = [item for item in data.columns if 'gain' in item]
-    times = [item for item in data.columns if 'time' in item]
+    gains = [item for item in data.columns if "gain" in item]
+    times = [item for item in data.columns if "time" in item]
     # normalise
     for item in gains[1:]:
         data[item] = data[item] / data[gains[0]]
@@ -737,26 +722,51 @@ def extract_stat(onlySig=False):
     gain_df = data[gains[1:]].copy()
     time_df = data[times[1:]].copy()
     # stat
-    gain_df.columns = [item.split('_')[0] for item in gain_df.columns]
-    desc_df['gainP_spk_mean'] = gain_df.mean()
-    desc_df['gainP_spk_std'] = gain_df.std()
-    desc_df['gainP_spk_med'] = gain_df.median()
-    desc_df['gainP_spk_mad'] = gain_df.mad()
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["gainP_vm_mean"] = gain_df.mean()
+    desc_df["gainP_vm_std"] = gain_df.std()
+    desc_df["gainP_vm_med"] = gain_df.median()
+    desc_df["gainP_vm_mad"] = gain_df.mad()
 
-    time_df.columns = [item.split('_')[0] for item in time_df.columns]
-    desc_df['timeP_spk_mean'] = time_df.mean()
-    desc_df['timeP_spk_std'] = time_df.std()
-    desc_df['timeP_spk_med'] = time_df.median()
-    desc_df['timeP_spk_mad'] = time_df.mad()
+    time_df.columns = [item.split("_")[0] for item in time_df.columns]
+    # time_df.rename(columns={'rndsect':'rndisosect', 'cpisosfull':'cpisofull',
+    #                         'rndfull':'rndisofull'}, inplace=True)
+    desc_df["timeP_vm_mean"] = time_df.mean()
+    desc_df["timeP_vm_std"] = time_df.std()
+    desc_df["timeP_vm_med"] = time_df.median()
+    desc_df["timeP_vm_mad"] = time_df.mad()
+    # spk_time
+    filename = "data/cg_peakValueTime_spk.xlsx"
+    data = load_peakdata(filename)
+    gains = [item for item in data.columns if "gain" in item]
+    times = [item for item in data.columns if "time" in item]
+    # normalise
+    for item in gains[1:]:
+        data[item] = data[item] / data[gains[0]]
+    # select
+    gain_df = data[gains[1:]].copy()
+    time_df = data[times[1:]].copy()
+    # stat
+    gain_df.columns = [item.split("_")[0] for item in gain_df.columns]
+    desc_df["gainP_spk_mean"] = gain_df.mean()
+    desc_df["gainP_spk_std"] = gain_df.std()
+    desc_df["gainP_spk_med"] = gain_df.median()
+    desc_df["gainP_spk_mad"] = gain_df.mad()
+
+    time_df.columns = [item.split("_")[0] for item in time_df.columns]
+    desc_df["timeP_spk_mean"] = time_df.mean()
+    desc_df["timeP_spk_std"] = time_df.std()
+    desc_df["timeP_spk_med"] = time_df.median()
+    desc_df["timeP_spk_mad"] = time_df.mad()
 
     return desc_df
 
 
-plt.close('all')
+plt.close("all")
 
 # =============================================================================
 # moved to cross
-#_________
+# _________
 # def plot_stat(stat_df, kind='mean', loc='50'):
 #     """
 #     plot the stats
@@ -775,11 +785,11 @@ plt.close('all')
 #     elif loc == 'peak':
 #         mes = ['timeP', 'gainP']
 #     elif loc == 'energy':
-#         mes = ['time50', 'energy']        
+#         mes = ['time50', 'energy']
 #     else:
 #         print('non valid loc argument')
 #         return
-# 
+#
 #     colors = [std_colors['red'], std_colors['green'],
 #               std_colors['yellow'], std_colors['blue']]
 #     fig = plt.figure(figsize=(8, 8))
@@ -805,7 +815,7 @@ plt.close('all')
 #          and (stat[0] in item or stat[1] in item)]
 #     yvals = [item for item in vals if mes[1] in item \
 #          and (stat[0] in item or stat[1] in item)]
-# 
+#
 #     x = df[xvals[0]]
 #     y = df[yvals[0]]
 #     xerr = df[xvals[1]]
@@ -822,7 +832,7 @@ plt.close('all')
 #              and (stat[0] in item or stat[1] in item)]
 #     yvals = [item for item in vals if mes[1] in item \
 #              and (stat[0] in item or stat[1] in item)]
-# 
+#
 #     x = df[xvals[0]]
 #     y = df[yvals[0]]
 #     xerr = df[xvals[1]]
@@ -841,7 +851,7 @@ plt.close('all')
 #              and (stat[0] in item or stat[1] in item)]
 #     yvals = [item for item in vals if mes[1] in item \
 #              and (stat[0] in item or stat[1] in item)]
-# 
+#
 #     x = df[xvals[0]]
 #     y = df[yvals[0]]
 #     xerr = df[xvals[1]]
@@ -865,7 +875,7 @@ plt.close('all')
 #     for xi, yi, xe, ye, ci  in zip(x, y, xerr, yerr, colors):
 #         ax.errorbar(xi, yi, xerr=xe, yerr=ye,
 #                     fmt='s', color=ci)
-# 
+#
 #     for i, ax in enumerate(axes):
 #         # lims = ax.get_ylim()
 #         # ax.vlines(0, lims[0], lims[1], linestyle=':', alpha=0.3)
@@ -887,7 +897,7 @@ plt.close('all')
 #     # custom_ticks = np.linspace(-2, 2, 3, dtype=int)/10
 #     # ax.set_yticks(custom_ticks)
 #     # ax.set_yticklabels(custom_ticks)
-# 
+#
 #     fig.tight_layout()
 #     fig.subplots_adjust(hspace=0.02)
 #     fig.subplots_adjust(wspace=0.02)
@@ -897,22 +907,22 @@ plt.close('all')
 #                  ha='right', va='bottom', alpha=0.4)
 #         fig.text(0.01, 0.01, date, ha='left', va='bottom', alpha=0.4)
 #     return fig
-# 
+#
 # =============================================================================
 # to have sig and non sig:
 def sigNonSig_stat_plot():
     """ stats for sig and non sig cells """
     stat_df = extract_stat(onlySig=False)
-    fig0 = plot_stat(stat_df, 'med', '50')
+    fig0 = plot_stat(stat_df, "med", "50")
     stat_df = extract_stat(onlySig=True)
-    fig1 = plot_stat(stat_df, 'med', '50')
+    fig1 = plot_stat(stat_df, "med", "50")
     axes0 = fig0.get_axes()
     axes1 = fig1.get_axes()
     ax0 = axes0[0]
     ax1 = axes1[0]
-    leg = '37 cells'
+    leg = "37 cells"
     ax0.text(0.8, 0.8, leg, transform=ax0.transAxes)
-    leg = '10 cells'
+    leg = "10 cells"
     ax1.text(0.8, 0.8, leg, transform=ax1.transAxes)
     for ax in [ax0, ax1]:
         ax.set_ylim(-0.15, 0.5)
@@ -937,9 +947,9 @@ def sigNonSig_stat_plot():
 
 stat_df = extract_stat(onlySig=False)
 # mind : significant cells are only base on cpisosect_time50 !
-plot_stat(stat_df, 'med', 'peak')
-plot_stat(stat_df, 'med', '50')
-plot_stat(stat_df, 'med', 'energy')
+plot_stat(stat_df, "med", "peak")
+plot_stat(stat_df, "med", "50")
+plot_stat(stat_df, "med", "energy")
 
 # savePath = '/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/enerPeakOrGain'
 # for measure in ['peak', '50', 'energy']:
@@ -948,28 +958,26 @@ plot_stat(stat_df, 'med', 'energy')
 
 
 #%% time energy scatter
-spread = 'sect'
-mes = 'vm'
-data = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
-left = select_50(data, spread=spread, param='time', noSig=False)
-right = select_50(data, spread=spread, param='engy', noSig=False)
-
-
+spread = "sect"
+mes = "vm"
+data = ldat.load_cell_contributions(rec=mes, amp="engy", age="new")
+left = select_50(data, spread=spread, param="time", noSig=False)
+right = select_50(data, spread=spread, param="engy", noSig=False)
 
 
 #%% vm
 
 
 #%% spk
-for spread in ['sect', 'full']:
-    mes = 'spk'
+for spread in ["sect", "full"]:
+    mes = "spk"
     data50 = ldat.load_cell_contributions(rec=mes)
-    advance_df = select_50(data50, spread=spread, param='time', noSig=False)
+    advance_df = select_50(data50, spread=spread, param="time", noSig=False)
     left = advance_df
 
-    filename = 'data/cg_peakValueTime_spk.xlsx'
+    filename = "data/cg_peakValueTime_spk.xlsx"
     data = load_peakdata(filename)
-    right = normalize_peakdata_and_select(data.copy(), spread=spread, param='gain')
+    right = normalize_peakdata_and_select(data.copy(), spread=spread, param="gain")
 
     # test for same cells
     diff = (left.index ^ right.index).tolist()
@@ -982,46 +990,49 @@ for spread in ['sect', 'full']:
         elif item in right.index:
             right = right.drop(item)
 
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
-                                left_sig=True, right_sig=False)
+    fig = plot_sorted_responses(
+        left, right, mes=mes, overlap=True, left_sig=True, right_sig=False
+    )
     fig2 = horizontal_dot_plot(left, right, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 
 #%% energy
-plt.close('all')
-for spread in ['sect', 'full']:
-    mes = 'vm'
-    data50 = ldat.load_cell_contributions(rec=mes, amp='gain', age='new')
-    left = select_50(data50, spread=spread, param='gain', noSig=False)
+plt.close("all")
+for spread in ["sect", "full"]:
+    mes = "vm"
+    data50 = ldat.load_cell_contributions(rec=mes, amp="gain", age="new")
+    left = select_50(data50, spread=spread, param="gain", noSig=False)
 
-    data50 = ldat.load_cell_contributions(rec=mes, amp='engy', age='new')
-    right = select_50(data50, spread=spread, param='engy', noSig=False)
+    data50 = ldat.load_cell_contributions(rec=mes, amp="engy", age="new")
+    right = select_50(data50, spread=spread, param="engy", noSig=False)
 
-    fig = plot_sorted_responses(left, right, mes=mes, overlap=True,
-                                left_sig=True, right_sig=True)
+    fig = plot_sorted_responses(
+        left, right, mes=mes, overlap=True, left_sig=True, right_sig=True
+    )
     fig2 = horizontal_dot_plot(right, left, mes=mes)
     fig3 = scatter_lat_gain(left, right, mes=mes)
     fig4 = histo_lat_gain(left, right, mes=mes)
 #%% plot energy vm
-def adapt_energy_to_plot(energy_df, spread='sect'):
+def adapt_energy_to_plot(energy_df, spread="sect"):
     df = energy_df.copy()
-    #remove stats
-#    cols = [col for col in df.columns if '_p' not in col]
-    #select sector
-    ctr = df['centeronly_energy'].copy()
+    # remove stats
+    #    cols = [col for col in df.columns if '_p' not in col]
+    # select sector
+    ctr = df["centeronly_energy"].copy()
     cols = [col for col in df.columns if spread[:3] in col]
     df = df[cols].copy()
-    #normalize
-    traces = [col for col in cols if '_sig' not in col]
+    # normalize
+    traces = [col for col in cols if "_sig" not in col]
     for col in traces:
         df[col] = (df[col] - ctr) / ctr
     return df
 
-spread = 'sect'
-mes = 'vm'
+
+spread = "sect"
+mes = "vm"
 data50 = ldat.load_cell_contributions(rec=mes)
-gain_df = select_50(data50, spread=spread, param='gain', noSig=False)
+gain_df = select_50(data50, spread=spread, param="gain", noSig=False)
 left = gain_df
 
 paths = config.build_paths()
@@ -1031,31 +1042,31 @@ fig = plot_sorted_responses(left, right, mes=mes, overlap=True)
 
 
 #%% test to rebuild sup1 using horizontal dot  plot
-plt.close('all')
+plt.close("all")
 
-for mes in ['vm', 'spk']:
-    for spread in ['sect', 'full']:
+for mes in ["vm", "spk"]:
+    for spread in ["sect", "full"]:
         # nb builded on data/figSup34Vm.xlsx
         data_df = ldat.load_cell_contributions(rec=mes)
         traces = [item for item in data_df.columns if spread in item]
         # remove random sector
-        traces = [item for item in traces if 'rdisosect' not in item]
+        traces = [item for item in traces if "rdisosect" not in item]
         # append rdiso
-        traces += [item for item in data_df.columns if 'rdisofull' in item]
-        #remove duplicate 
+        traces += [item for item in data_df.columns if "rdisofull" in item]
+        # remove duplicate
         traces = list(dict.fromkeys(traces))
         # filter -> only significative cells
-        #traces = [item for item in traces if 'sig' not in item]
-        left = data_df[[item for item in traces if 'time50' in item]]
-        right = data_df[[item for item in traces if 'gain50' in item]]
+        # traces = [item for item in traces if 'sig' not in item]
+        left = data_df[[item for item in traces if "time50" in item]]
+        right = data_df[[item for item in traces if "gain50" in item]]
 
         fig = horizontal_dot_plot(left, right, mes=mes)
-        fig.suptitle(mes + '  ' +  spread)
+        fig.suptitle(mes + "  " + spread)
         axes = fig.get_axes()
         ax = axes[0]
-        ax.set_ylabel('', rotation=0)
+        ax.set_ylabel("", rotation=0)
 
-        #to label cells
+        # to label cells
         # cells = left.sort_values(left.columns[0], ascending=True).index.tolist()
         # names = [item.split('_')[0] for item in cells]
         # ax.set_yticks(np.arange(len(cells)))
@@ -1064,11 +1075,11 @@ for mes in ['vm', 'spk']:
         # from math import ceil
         # ax.set_xlim(ceil(lims[1]), ceil(lims[0]))
         # ax.set_xlim(15, -30)
-    
+
         # ax = axes[1]
         # ax.set_yticks(np.arange(len(cells)) + 1)
         # ax.set_yticklabels('', fontsize=8)
-        
+
         fig.tight_layout()
 
-#TODO : implement the siginicativity & add the spikes
+# TODO : implement the siginicativity & add the spikes
