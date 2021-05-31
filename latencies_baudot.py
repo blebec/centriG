@@ -215,6 +215,8 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     plot the vm -> time onset transfert function
     """
     datadf = inputdf.copy()
+    # to remove cf_para
+#    datadf = inputdf[inputdf.stim != 'cf_para']
     cols = ["lat_vm_c-p", "lat_spk_seq-c"]
     # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()[::-1]
