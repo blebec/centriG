@@ -38,21 +38,21 @@ plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths["pg"])
 
-paths["data"] = os.path.join(paths["owncFig"], "data")
+paths["data"] = os.path.join(paths.get("owncFig"), "data")
 
 # NB all limits are lower ones!
 
 
 def load_speed_data():
     file = "baudot.csv"
-    filename = os.path.join(paths["data"], file)
+    filename = os.path.join(paths.get("data"), file)
     bddf = pd.read_csv(filename)
     bddf.columns = [_.strip() for _ in bddf.columns]
     # to have the lower interval limit
     bddf.optiMax = bddf.optiMax - 25
 
     file = "neuron_props_speed.xlsx"
-    filename = os.path.join(paths["data"], "averageTraces", file)
+    filename = os.path.join(paths.get("data"), "averageTraces", file)
     cgdf = pd.read_excel(filename)
     cols = [st.strip() for st in cgdf.columns]
     cols = [st.lower() for st in cols]
@@ -98,14 +98,14 @@ def load_cgpopdf():
     """
     file = "centrigabor_pop_db.xlsx"
 
-    filename = os.path.join(paths["data"], "averageTraces", file)
+    filename = os.path.join(paths.get("data"), "averageTraces", file)
     df = pd.read_excel(filename)
     df.columns = [col.lower().strip() for col in df.columns]
     return df
 
 
 def load_bringuier():
-    filename = os.path.join(paths["data"], "bringuier.csv")
+    filename = os.path.join(paths.get("data"), "bringuier.csv")
     brdf = pd.read_csv(filename, sep="\t", decimal=",")
     brdf.speed_upper = brdf.speed_upper  ## * 1000  # 1mm / visual°
     # unstack
@@ -119,7 +119,7 @@ def load_bringuier():
 
 def load_gmercier():
     file = "gmercier.csv"
-    filename = os.path.join(paths["data"], file)
+    filename = os.path.join(paths.get("data"), file)
     df = pd.read_csv(filename, sep="\t")
     del df["speed_high"]
     return df
@@ -127,7 +127,7 @@ def load_gmercier():
 
 def load_gmercier2():
     file = "gmercier2.csv"
-    filename = os.path.join(paths["data"], file)
+    filename = os.path.join(paths.get("data"), file)
     df = pd.read_csv(filename, sep="\t", decimal=",")
     df = df.set_index("cell")
     # remove empty lines
@@ -336,7 +336,7 @@ fig = plot_optimal_speed(summary_df)
 save = False
 if save:
     file = "optSpeed.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
@@ -417,11 +417,11 @@ fig = plot_optimal_bringuier(bined_df)
 save = False
 if save:
     file = "optSpreedBringuier.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
     # update current
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
     file = "o1_optSpeedBringuier"
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(dirname, (file + ext))
@@ -519,6 +519,9 @@ def plot_both(gdf=bined_df):
     ax.set_xlabel(txt)
     ax.set_ylabel("Nb of cells")
     ax.legend()
+    # set the number off (all) cells in positive
+    ax.set_yticklabels([str(int(abs(_))) for _ in ax.get_yticks()])
+   
     # # bottom
     # ax = axes[1]
     # txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
@@ -560,11 +563,11 @@ fig = plot_both(bined_df)
 save = False
 if save:
     file = "optSpreedBoth.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
     # update current
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
     file = "f9_optSpreedBoth"
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(dirname, (file + ext))
@@ -811,11 +814,11 @@ fig2 = hist_summary(brdf, summary_df, spdf, popdf, gmdf, maxx=0.5)
 save = False
 if save:
     file = "hist_summary.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig1.savefig(filename)
     file = "hist_summary05.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig2.savefig(filename)
 
@@ -856,7 +859,8 @@ def dotPlotLatency(df):
         ax.plot(
             x,
             y,
-            "o",
+            marker='o',
+            ls='',
             markeredgecolor="w",
             markerfacecolor=colors[i],
             alpha=0.6,
@@ -894,19 +898,24 @@ fig = dotPlotLatency(bined_df)
 save = False
 if save:
     file = "dotplotLatency.pdf"
-    dirname = os.path.join(paths["owncFig"], "pythonPreview", "baudot")
+    dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     filename = os.path.join(dirname, file)
     fig.savefig(filename)
 
 
 #%% fir histo
 plt.close("all")
+from scipy.optimize import leastsq
+
 
 gdf = bined_df.copy()
 fig, ax = plt.subplots(figsize=(7, 6))
 axT = ax.twinx()
 txt = "Bar n={:.0f}".format(gdf.br_long_bar.sum())
 x = gdf.index
+width = (max(x) - min(x)) / (len(x) - 1) * 0.98
+align="edge"
+
 ax.bar(
     x,
     height=gdf.br_long_bar,
