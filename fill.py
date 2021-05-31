@@ -436,9 +436,10 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     dico = dict(zip(idf.columns, cols))
     idf.rename(columns=dico, inplace=True)
     # color parameters
-    colors = [stdcolors[st] for st in ["k", "red", "dark_green", "dark_green"]]
+    colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
     #    alphas = [0.5, 0.5, 0.8, 0.8]
     alphas = [0.8, 1, 1, 1]  # changed for homogeneity
+    lines=['-', '-', '--', '--']
 
     # plotting canvas
     fig = plt.figure(figsize=(11.6, 8))
@@ -457,13 +458,15 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
 
     # fig.suptitle(os.path.basename(filename))
     # traces
+    # ax0 ===============================
     ax = axes[0]
     ax.set_title("Single Cell")
     for i, col in enumerate(cols[:2]):
         ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], label=col)
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
-
+    
+    # ax1 ===============================
     ax = axes[1]
     for i, col in enumerate(cols):
         if i == 3:  # dashed
@@ -472,12 +475,13 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
                 color=colors[i],
                 alpha=alphas[i],
                 label=col,
-                linestyle="--",
+                linestyle=lines[i],
                 linewidth=1.5,
             )
         else:
             ax.plot(
-                idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], label=col
+                idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], 
+                label=col, linestyle=lines[i]
             )
     ax.set_xlabel("Time (ms)")
 
@@ -506,8 +510,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # colors = [stdcolors[st] for st in
     #           ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
     #            'blue_violet', 'red', 'red', 'blue_violet']]
-    colors = [stdcolors[st] for st in ["k", "red", "dark_green", "blue_violet"]]
-
+    colors = [stdcolors[st] for st in ["k", "red", "red", "blue_violet"]]
     alphas = [0.5, 0.5, 0.8, 0.5, 0.6, 0.5, 0.2, 0.2, 0.7]
     alphas = [0.8, 1, 1, 0.8]
 
@@ -516,6 +519,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     #                          sharey=sharesY[lp], figsize=(8.5, 8))
     # axes = axes.flatten()
 
+    # ax2 ===============================
     ax = axes[2]
     ax.set_title("Population Average")
     cols = popdf.columns[:3]
@@ -526,6 +530,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             color=colors[i],
             alpha=alphas[i],
             linewidth=linewidths[i],
+            linestyle=lines[i],
             label=col,
         )
     # response point
@@ -538,13 +543,15 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     ax.set_ylim(lims.get(lp))
     ax.set_xlim(-200, 200)
 
+    # ax3 ===============================
     # predictive magnification
     ax = axes[3]
-    colors = [stdcolors[st] for st in ["k", "red", "dark_green", "blue_violet"]]
+    colors = [stdcolors[st] for st in ["k", "red", "red", 'k', "blue_violet"]]
     linewidths = (1.5, 1.5, 1.5)
     # (first, second, stdup, stddown)
     lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
     cols = [popdf.columns[i] for i in lp_cols[lp]]
+    lines = ['--', ]
     for i, col in enumerate(cols[:2]):
         ax.plot(
             popdf[col],
@@ -552,6 +559,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             alpha=alphas[i + 2],
             label=col,
             linewidth=linewidths[i],
+            linestyle='--'
         )
     ax.fill_between(
         popdf.index, popdf[cols[2]], popdf[cols[3]], color=colors[2], alpha=0.2
@@ -607,6 +615,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     fig.subplots_adjust(left=0.045)
 
     # stimulation boxes
+    lines = ['dashed', 'solid']
     vlocs = np.linspace(4.1, 3.1, 4)
     ax = axes[1]
     for key in box_dico.keys():
@@ -618,15 +627,17 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             annotation_clip=False,
             fontsize="small",
         )
-        # stim1
+        # stim1 (no-center)
+    # for key in box_dico.keys():
         rect = Rectangle(
             xy=(box_dico[key], vlocs[3]),
             width=step,
             height=0.3,
             fill=True,
-            alpha=1,
+            alpha=0.6,
             edgecolor="w",
             facecolor=colors[2],
+            linestyle=lines[0]
         )
         if key == "D0":
             rect = Rectangle(
@@ -635,6 +646,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
                 height=0.26,
                 fill=True,
                 alpha=1,
+                linestyle=lines[0],
                 edgecolor=colors[2],
                 facecolor="w",
             )
@@ -645,7 +657,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             width=step,
             height=0.3,
             fill=True,
-            alpha=0.6,
+            alpha=0.7,
             edgecolor="w",
             facecolor=colors[1],
         )
