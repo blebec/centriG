@@ -678,7 +678,8 @@ def plot_speed(substract=False):
     #    text.set_color(line.get_color())
     txt = "CP-ISO \nn=12"
     ax.text(
-        0.1, 0.8, txt, ha="center", va="center", transform=ax.transAxes, size="large"
+        0.1, 0.8, txt, ha="center", va="center", 
+        transform=ax.transAxes, size="large"
     )
 
     # ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
@@ -703,7 +704,8 @@ def plot_speed(substract=False):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "centrifigs.py:plot_speed", ha="right", va="bottom", alpha=0.4
+            0.99, 0.01, "centrifigs.py:plot_speed", 
+            ha="right", va="bottom", alpha=0.4
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         fig.text(0.5, 0.01, "speed", ha="center", va="bottom", alpha=0.4)
@@ -715,7 +717,8 @@ fig = plot_speed()
 save = False
 if save:
     file = "f10_speed"
-    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    paths["save"] = os.path.join(paths["owncFig"], 
+                                 "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(paths["save"], (file + ext))
         fig.savefig(filename)
@@ -755,8 +758,11 @@ def plot_highLowSpeed():
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    #    filenames = ['data/figSup7a.xlsx', 'data/figSup5bis.xlsx']#'data/figSup7b.xlsx']
-    filenames = ["data/data_to_use/highspeed.xlsx", "data/data_to_use/lowspeed.xlsx"]
+    #    filenames = ['data/figSup7a.xlsx', 
+    # 'data/figSup5bis.xlsx']
+    #'data/figSup7b.xlsx']
+    filenames = ["data/data_to_use/highspeed.xlsx", 
+                 "data/data_to_use/lowspeed.xlsx"]
     titles = ["High speed", "Low speed"]
 
     filename = filenames[0]

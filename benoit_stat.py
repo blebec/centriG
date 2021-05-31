@@ -33,7 +33,7 @@ import config
 # paths = build_paths()
 
 paths = config.build_paths()
-paths["save"] = os.path.join(paths["pg"], "dataCorr", "hd_files")
+paths["save"] = os.path.join(paths.get("pg"), "dataCorr", "hd_files")
 
 #%%
 def load_from_txt_files(dir_path=""):
@@ -153,8 +153,8 @@ def plot_histo(df, num=8, kind="x"):
         ax.legend()
     # remove the frames
     for ax in axs:
-        for loca in ["top", "right", "left"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "right", "left"]:
+            ax.spines[spine].set_visible(False)
             ax.yaxis.set_visible(False)
     return fig
 
@@ -217,8 +217,8 @@ def plot_sectorfull(df):
                 )
         ax.legend()
     for ax in axes:
-        for loca in ["top", "right"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
     axes[0].set_xlabel("latency advance (ms)")
     axes[0].set_ylabel("amplitude gain (% center test peak)")
 
@@ -283,8 +283,8 @@ def plot_rank(df, num=8, kind="_x"):
         ax.hlines(0, lims[0], lims[1])
         ax.hlines(sortedDf[col].median(), lims[0], lims[1], color=color, alpha=0.5)
         ax.legend()
-        for loca in ["top", "left", "right", "bottom"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "left", "right", "bottom"]:
+            ax.spines[spine].set_visible(False)
         ax.yaxis.set_visible(False)
         ax.xaxis.set_visible(False)
     return fig
@@ -392,8 +392,8 @@ def plot_full_vs_sector(df, key="s-f"):
         ax.bar(x, y, color=["g", "gold", "r", "b"], alpha=0.5, width=1)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1])
-        for loca in ["top", "right"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
     #        if i==1:
     #            ax.spines['left'].set_visible(False)
     #            ax.tick_params('y', width=0)
@@ -423,8 +423,8 @@ def plot_full_vs_sector_ratio(df, key="s-f/f"):
         ax.bar(x, y, color=["g", "gold", "r", "b"], alpha=0.5, width=1)
         lims = ax.get_xlim()
         ax.hlines(0, lims[0], lims[1])
-        for loca in ["top", "right"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
         if i == 1:
             ax.spines["left"].set_visible(False)
             ax.tick_params("y", width=0)
@@ -543,8 +543,8 @@ def plot_scatter(df, stat_df=None, num=8, shareAxes=True):
             ax.hlines(0, lims[0], lims[1], alpha=0.3)
 
     for ax in axs:
-        for loca in ["top", "right"]:
-            ax.spines[loca].set_visible(False)
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
     #            ax.yaxis.set_visible(False)
     return fig
 

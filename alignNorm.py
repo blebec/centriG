@@ -15,7 +15,7 @@ std_colors = config.std_colors()
 speedColors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
-os.chdir(paths["pg"])
+os.chdir(paths.get("pg"))
 
 #%%
 paths["data"] = os.path.expanduser("~/pg/chrisPg/centriG/data/data_to_use")
@@ -77,8 +77,9 @@ def plot_align_normalize(label, data, substract=False):
     # colors = ['k', std_colors['red'], std_colors['green'],
     #           std_colors['yellow'], std_colors['blue'],
     #           std_colors['blue']]
-    colors = [std_colors[color] for color in "red green yellow blue blue".split()]
-    colors.insert(0, (0, 0, 0))
+    colors = [std_colors[color] for color in 
+              "red green yellow blue blue".split()]
+    colors.insert(0, (0, 0, 0))  # black as first color
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
     cell_pop = list(set([item.split("_")[1] for item in data.columns]))
@@ -157,7 +158,9 @@ def plot_align_normalize(label, data, substract=False):
     return fig
 
 
-savepath = "/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/alignNorm"
+# savepath = "/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/alignNorm"
+savepath = os.path.join(paths.get('owncFig'), 
+                        'pythonPreview', 'old', 'proposal', '4_alignNorm')
 save = False
 #%%
 plt.close("all")

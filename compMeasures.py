@@ -108,7 +108,7 @@ plt.close("all")
 
 save = False
 savePath = os.path.join(
-    paths["owncFig"], "pythonPreview", "proposal", "5_enerPeakOrGain"
+    paths.get("owncFig"), "pythonPreview", "proposal", "5_enerPeakOrGain"
 )
 
 for spread in ["sect", "full"]:
@@ -154,8 +154,9 @@ def do_lmplot_plot(df, kind="vm", spread="sect"):
         print("spread should be in [sect, full]")
         return
     # colors
-    colors = [std_colors[item] for item in ["blue", "yellow", "green", "red"]]
-    hue_order = ["rdiso", "cpcrx", "cfiso", "cpiso"]
+    colors = [std_colors.get(item) for item in 
+              "blue yellow green red".split()]
+    hue_order = "rdiso cpcrx cfiso cpiso".split()
     sns.set_palette(sns.color_palette(colors))
 
     nb_stims = len(df.stim.unique())
@@ -176,7 +177,8 @@ def do_lmplot_plot(df, kind="vm", spread="sect"):
 
 
 save = False
-savePath = os.path.join(paths["owncFig"], "pythonPreview", "proposal", "enerPeakOrGain")
+savePath = os.path.join(paths.get("owncFig"), 
+                        "pythonPreview", "proposal", "enerPeakOrGain")
 mes = ["Gain", "Engy"]
 for spread in ["sect", "full"]:
     for kind in ["vm", "spk"]:
