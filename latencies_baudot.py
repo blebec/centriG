@@ -366,27 +366,28 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
         # kde
         kde = stats.gaussian_kde(x)
         # x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
-        x_kde = np.arange(xmin, xmax, 1)
-        x_kde *= -1
-        v0.plot(x_kde, kde(x_kde), color=colors[i], alpha=1, linewidth=2, linestyle="-")
-        v0.fill_between(
-            x_kde, kde(x_kde), 0, color=colors[i], alpha=0.2, linewidth=2, linestyle="-"
-        )
-        qx = np.quantile(x, q=[0.25, 0.5, 0.75])
-        v0.axvline(qx[1], color=colors[i], alpha=1)
-        # v0.axvspan(qx[0], qx[-1], ymin=i*.3, ymax=(i+1)*.3,
-        # color=colors[i], alpha=0.3)
-        kde = stats.gaussian_kde(y)
-        # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
-        y_kde = np.arange(ymin, ymax, 1)
-        y_kde *= -1
-        h0.plot(kde(y_kde), y_kde, color=colors[i], alpha=1, linewidth=2, linestyle="-")
-        h0.fill_betweenx(y_kde, kde(y_kde), 0, color=colors[i], alpha=0.3)
+        if stim != 'cf_para':
+            x_kde = np.arange(xmin, xmax, 1)
+            x_kde *= -1
+            v0.plot(x_kde, kde(x_kde), color=colors[i], alpha=1, linewidth=2, linestyle="-")
+            v0.fill_between(
+                x_kde, kde(x_kde), 0, color=colors[i], alpha=0.2, linewidth=2, linestyle="-"
+            )
+            qx = np.quantile(x, q=[0.25, 0.5, 0.75])
+            v0.axvline(qx[1], color=colors[i], alpha=1)
+            # v0.axvspan(qx[0], qx[-1], ymin=i*.3, ymax=(i+1)*.3,
+            # color=colors[i], alpha=0.3)
+            kde = stats.gaussian_kde(y)
+            # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
+            y_kde = np.arange(ymin, ymax, 1)
+            y_kde *= -1
+            h0.plot(kde(y_kde), y_kde, color=colors[i], alpha=1, linewidth=2, linestyle="-")
+            h0.fill_betweenx(y_kde, kde(y_kde), 0, color=colors[i], alpha=0.3)
         # h0.fill_between(kde(y_kde), y_kde, 0, color=colors[i],
         #         alpha=0.3)
 
-        qy = np.quantile(y, q=[0.25, 0.5, 0.75])
-        h0.axhline(qy[1], color=colors[i], alpha=1)
+            qy = np.quantile(y, q=[0.25, 0.5, 0.75])
+            h0.axhline(qy[1], color=colors[i], alpha=1)
         # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
         if corner:
             txt = "{}c{}r".format(len(df.name.unique()), len(df))
