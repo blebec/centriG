@@ -114,7 +114,8 @@ for item in polylines:
 
 
 def plot_cgGabyVersion(datadf):
-    fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2)
+    fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
+                             sharex=True, sharey=True)
     axes = axes.flatten()
 
     df = datadf.copy()
@@ -133,7 +134,9 @@ def plot_cgGabyVersion(datadf):
     style = ["-", ":", "-", ":", "-"]
     linewidth = [2, 3, 2, 3, 2]
     alpha = [0.8, 0.8, 1, 1, 0.7]
-    for i, cell in enumerate(cells):
+    for i, cell in enumerate(cells[::-1]):
+        if i == 0:
+            continue
         ax = axes[i]
         # cell = cells[0]
         cols = [_ for _ in df.columns if cell in _]
@@ -154,15 +157,19 @@ def plot_cgGabyVersion(datadf):
             )
             # ax.plot(df[cols], label=labels)
             ax.set_title(cell)
-
-    for ax in fig.get_axes():
-        ax.legend()
+    # to adapt to gaby
+    ax.set_xlim(-42.5, 206)
+    ax.set_ylim(-5, 15)
+    for i, ax in enumerate(fig.get_axes()):
         ax.axhline(y=0, alpha=0.5, color="k")
         ax.axvline(x=0, alpha=0.5, color="k")
-        ax.set_ylabel("mV")
-        ax.set_xlabel("time (mSec)")
+        ax.set_xlabel("Time (ms)")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
+        if i > 0:
+            ax.legend()
+        else:
+            ax.set_ylabel("Membrane Potential (mV)")
 
     fig.tight_layout()
 

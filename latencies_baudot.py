@@ -216,8 +216,9 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     """
     datadf = inputdf.copy()
     # to remove cf_para
-#    datadf = inputdf[inputdf.stim != 'cf_para']
+    # datadf = inputdf[inputdf.stim != 'cf_para']
     cols = ["lat_vm_c-p", "lat_spk_seq-c"]
+    #only sig cells
     # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()[::-1]
     markers = {"cf": "o", "cp": "v"}
@@ -388,20 +389,20 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
 
             qy = np.quantile(y, q=[0.25, 0.5, 0.75])
             h0.axhline(qy[1], color=colors[i], alpha=1)
-        # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
-        if corner:
-            txt = "{}c{}r".format(len(df.name.unique()), len(df))
-            c0.plot(
-                [qx[1], qx[1]],
-                [qy[0], qy[-1]],
-                linewidth=3,
-                color=colors[i],
-                alpha=0.7,
-                label=txt,
-            )
-            c0.plot(
-                [qy[0], qx[-1]], [qy[1], qy[1]], linewidth=3, color=colors[i], alpha=0.7
-            )
+            # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
+            if corner:
+                txt = "{}c{}r".format(len(df.name.unique()), len(df))
+                c0.plot(
+                    [qx[1], qx[1]],
+                    [qy[0], qy[-1]],
+                    linewidth=3,
+                    color=colors[i],
+                    alpha=0.7,
+                    label=txt,
+                )
+                c0.plot(
+                    [qy[0], qx[-1]], [qy[1], qy[1]], linewidth=3, color=colors[i], alpha=0.7
+                )
 
         # regress:
         # x = x.reshape(len(x), 1)

@@ -3,8 +3,8 @@
 gabytoCg
 
 - [ ] change the colors
-  - [ ] red = 229, 51, 51, alpha 0.8
-    - [ ] rgba  e53333e5
+  - [ ] red = 229, 51, 51, alpha 0.8 (python)
+    - [ ] rgba  e53333e5 (inks)
   - [ ] yellow = 238, 181, 0, alpha 1
     - [ ] rgba  eeb300ff
   - [ ] black : alpha 0.7
@@ -17,7 +17,7 @@ gabytoCg
 - [ ] scales : 
 
   - [ ] 25 mV <-> 76,592 mm
-- [ ] 249.21 msec <-> 146,136 mm
+  - [ ] 249.21 msec <-> 146,136 mm
 
  # 210428
 
