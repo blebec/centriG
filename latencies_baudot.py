@@ -268,28 +268,35 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     ax0.axhline(0, color="tab:blue", linewidth=2, alpha=0.7)
     ax0.axvline(0, color="tab:blue", linewidth=2, alpha=0.7)
 
-    # # add global fit
-    # df = datadf[cols].copy()  # revert the axis
-    # df.loc[df[cols[0]] < xscales[0]] = np.nan
-    # df.loc[df[cols[0]] > xscales[1]] = np.nan
-    # df = df.sort_values(by=df.columns[0]).dropna()
-    # # revert the axis
-    # # df = df * (-1)
-    # # switch = minimal residual for a bilinear fit
-    # switch = get_switch(df, plot=show_residuals)
-    # temp = df[df[df.columns[0]] >= switch]
-    # x = temp[cols[0]]
-    # y = temp[cols[1]]
-    # slope1, inter1, r1, p1, _ = stats.linregress(x, y)
-    # f1 = lambda x: slope1 * x + inter1
+    # add global fit
+    df = datadf[cols].copy()  # revert the axis
+    df.loc[df[cols[0]] < xscales[0]] = np.nan
+    df.loc[df[cols[0]] > xscales[1]] = np.nan
+    df = df.sort_values(by=df.columns[0]).dropna()
+    # revert the axis
+    # df = df * (-1)
+    # switch = minimal residual for a bilinear fit
+    switch = get_switch(df, plot=show_residuals)
+    temp = df[df[df.columns[0]] <= switch]
+    x = temp[cols[0]]
+    y = temp[cols[1]]
+    slope1, inter1, r1, p1, _ = stats.linregress(x, y)
+    f1 = lambda x: slope1 * x + inter1
 
-    # temp = df[df[df.columns[0]] <= switch]
-    # x = temp[cols[0]]
-    # y = temp[cols[1]]
-    # slope2, inter2, r2, p2, _ = stats.linregress(x, y)
-    # f2 = lambda x: slope2 * x + inter2
+    temp = df[df[df.columns[0]] >= switch]
+    x = temp[cols[0]]
+    y = temp[cols[1]]
+    slope2, inter2, r2, p2, _ = stats.linregress(x, y)
+    f2 = lambda x: slope2 * x + inter2
 
-    # x_intersect = (inter2 - inter1) / (slope1 - slope2)
+    x_intersect = (inter2 - inter1) / (slope1 - slope2)
+    ax0.plot(
+        [xmin , x_intersect, xmax ],
+        [f1(xmin), f1(x_intersect), f2(xmax)],
+        linewidth=10,
+        color="tab:grey",
+        alpha=0.3,
+    )
     # ax0.plot(
     #     [xmin * (-1), x_intersect, xmax * (-1)],
     #     [f1(xmin * (-1)), f1(x_intersect), f2(xmax * (-1))],
@@ -297,18 +304,18 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     #     color="tab:grey",
     #     alpha=0.3,
     # )
-    # print("{:=^20}".format(" fit "))
-    # txt = "min residual loc {}".format(switch)
-    # print(txt)
-    # txt = "slope={:.2f} inter={:.0f}".format(slope1, inter1)
-    # print(txt)
-    # txt = "slope={:.2f} inter={:.0f}".format(slope2, inter2)
-    # print(txt)
-    # # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
-    # # colors = colors[]
-    # # for i, stim in enumerate(stims):
-    # # plot in revers order
-    # print("{:=^20}".format(" scatter "))
+    print("{:=^20}".format(" fit "))
+    txt = "min residual loc {}".format(switch)
+    print(txt)
+    txt = "slope={:.2f} inter={:.0f}".format(slope1, inter1)
+    print(txt)
+    txt = "slope={:.2f} inter={:.0f}".format(slope2, inter2)
+    print(txt)
+    # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
+    # colors = colors[]
+    # for i, stim in enumerate(stims):
+    # plot in revers order
+    print("{:=^20}".format(" scatter "))
 
     removed = pd.DataFrame()
     for j, stim in enumerate(stims[::-1]):
