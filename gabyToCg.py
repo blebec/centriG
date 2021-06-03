@@ -12,6 +12,7 @@ import xml.etree.ElementTree as ET
 
 # from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import pandas as pd
 
 import config
@@ -115,61 +116,28 @@ for item in polylines:
 
 def plot_cgGabyVersion(datadf):
     
-    ncols = 2
-    nrows = 1
-
-    inset_hfrac = .3
-    inset_vfrac = .3
-
-    inset_hfrac_offset = .6
-    inset_vfrac_offset = .6
-
-    top_pad = .1
-    bottom_pad = .1
-    left_pad = .1
-    right_pad = .1
     
-    hspace = .1
-    vspace = .1
-
-    ax_width = (1 - left_pad - right_pad - (ncols - 1) * hspace) / ncols
-    ax_height = (1 - top_pad - bottom_pad - (nrows - 1) * vspace) / nrows
-
-    fig = plt.figure(figsize=(14, 8))
-
-    ax_lst = []
-    for j in range(ncols):
-        for k in range(nrows):
-            a_bottom = bottom_pad + k * ( ax_height + vspace)
-            a_left = left_pad + j * (ax_width + hspace)
-        
-            inset_bottom = a_bottom + inset_vfrac_offset * ax_height
-            inset_left = a_left + inset_hfrac_offset * ax_width
-
-            ax = fig.add_axes([a_left, a_bottom, ax_width, ax_height])
-            ax_in = fig.add_axes([inset_left, inset_bottom, ax_width * inset_hfrac, ax_height *  inset_vfrac])
-            ax_lst.append((ax,ax_in))
-
-
+    fig, axes = plt.subplots(figsize=(11.6, 5), nrows=1, ncols=2, 
+                              sharex=True, sharey=True)
+    axes = axes.flatten()
+    ins = []
+    for ax in axes.flat:
+        ins.append(ax.inset_axes([0.6,0.6,0.4,0.4]))
+ 
+    # # rect = x, y, w, h
+    # zoom
+    zoom_xlims = (30, 60)           #todo bloc at 50
+    zoom_ylims = (-2, 6)
+    rec = Rectangle(zoom_xlims, *zoom_ylims, fill=False, 
+                    edgecolor='tab:grey', lw=2)
     
-    # fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
-    #                          sharex=True, sharey=True)
-    # axes = axes.flatten()
-
-    # # rect = l, b, w, h
-    # anchor = [0.3, 0.6] 
-    # size = [0.4, 0.2]
-    # fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
-    # anchor[0] += 0.5
-    # fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
-    
-    # axes = ax_lst
-
     df = datadf.copy()
     middle = (df.index.max() - df.index.min()) / 2
     df.index = (df.index - middle) / 10
     # limit the date time range
-    df = df.loc[-200:200]
+    # df = df.loc[-200:200]
+    df = df.loc[-42.5:206]
+    
     std_colors = config.std_colors()
     colors = [
         std_colors["red"],
@@ -181,20 +149,43 @@ def plot_cgGabyVersion(datadf):
     style = ["-", ":", "-", ":", "-"]
     linewidth = [2, 3, 2, 3, 2]
     alpha = [0.8, 0.8, 1, 1, 0.7]
-    # left right
-    for i, cell in enumerate(cells[::-1]):
-        # if i == 0:
-        #     continue
+    # left & right
+    for i, cell in enumerate(cells):
+        ax = axes[i]
+        # inset location on main
+        print('{}'.format(zoom_xlims))
+        print('{}'.format(zoom_ylims))
+        xy = zoom_xlims[0], zoom_ylims[0]
+        w = zoom_xlims[1] - zoom_xlims[0]
+        h = zoom_ylims[1] - zoom_ylims[0]
+        ax.add_patch(Rectangle(xy, w, h, fill=False, 
+                    edgecolor='tab:grey', lw=2, ls=':'))
+        # on right cell
+        if i == 0:
+            continue
         # main plot
-        ax = ax_lst[i][0]
-        # cell = cells[0]
         cols = [_ for _ in df.columns if cell in _]
         labels = [_.split("_")[2:] for _ in cols]
         labels = [[st.title() for st in _] for _ in labels]
         labels = ["".join(st) for st in labels]
-        labels = [_.replace("CtrCtr", "") for _ in labels]
+        labels = [_.replace("CtrCtr", "") for _ in labels]        
+        for j, col in enumerate(cols):
+            ax.plot(
+                df[col],
+                linestyle=style[j],
+                linewidth=linewidth[j],
+                color=colors[j],
+                alpha=alpha[j],
+                label=labels[j]
+            )
 
+        ax.set_title(cell)
+        # insert plotting
+        ax = ins[i]
         for j, col in enumerate(cols):
+            if '_so' in col:
+                # don't plot 'no center'
+                continue
             ax.plot(
                 df[col],
                 linestyle=style[j],
@@ -203,28 +194,33 @@ def plot_cgGabyVersion(datadf):
                 alpha=alpha[j],
                 label=labels[j],
             )
-            # ax.plot(df[cols], label=labels)
-            ax.set_title(cell)
-        #insert 
-        ax = ax_lst[i][1]
-        for j, col in enumerate(cols):
-            ax.plot(
-                df[col],
-                linestyle=style[j],
-                linewidth=linewidth[j],
-                color=colors[j],
-                alpha=alpha[j],
-                label=labels[j],
-            )
+        # stims pb not enough place (time scale)
+        # boxes gaby 16.6 ms, cg 34 ms   ?
+        y = -1
+        xs = [0]
+        w = [16.6, 34]   # msec
+        h = .2
+        for i, x in enumerate(xs):
+            xy = (xs[i], y)
+            # ax.add_patch(Rectangle(xy, w, h, fill=False, 
+                                   # edgecolor='tab:grey', lw=2, ls=':'))
+                    
     # to adapt to gaby
-    for axs in ax_lst:
-        ax = axs[0]
+    for ax in axes:
         ax.set_xlim(-42.5, 206)
         ax.set_ylim(-5, 15)
         ax.set_yticks(range(0, 14, 2))
-        ax = axs[1]
-        ax.set_xlim(-42.5, 206)
-        ax.set_ylim(-5, 15)
+    for ax in ins:
+        # ax.set_xlim(30, 60)
+        # ax.set_ylim(-2, 6)
+        ax.set_xlim(zoom_xlims)
+        ax.set_ylim(zoom_ylims)
+        ax.axhline(y=0, alpha=0.5, color="k")
+        ticks = ax.get_yticks()
+        ax.set_yticks(ticks[1:-1])
+        ticks = ax.get_xticks()
+        ax.set_xticks(ticks[1:])
+        # ax.set_yticklabels(ax.get_yticklabels()[1:])
     
     for i, ax in enumerate(fig.get_axes()):
         ax.axhline(y=0, alpha=0.5, color="k")
@@ -232,8 +228,8 @@ def plot_cgGabyVersion(datadf):
         ax.set_xlabel("Time (ms)")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
-        if not i%2: # only main
-            ax.legend()
+        # if not i%2: # only main
+        #     ax.legend()
         if i == 0:
             ax.set_ylabel("Membrane Potential (mV)")
 
@@ -264,29 +260,12 @@ cells = list(set([_.split("_")[0] for _ in data_df.columns]))
 
 fig = plot_cgGabyVersion(data_df)
 
-
 save = False
 if save:
     dirname = os.path.join(paths["owncFig"], "pythonPreview", "gabyToCg")
-    file_name = os.path.join(dirname, "cgGabyVersion.png")
-    fig.savefig(file_name)
+    for ext in ['.svg', '.png', '.pdf']:
+        file_name = os.path.join(dirname, "cgGabyVersion" + ext)
+        fig.savefig(file_name)
 
 
 #%%
-plt.close('all')
-
-fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
-                             sharex=True, sharey=True)
-axes = axes.flatten()
-yx = lambda x: 20/(206 + 42.5)
-# rect = l, b, w, h
-anchor = [0.25, 0.5] 
-size = [0.2, 0.3]
-fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
-anchor[0] += 0.5
-fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
-#ax.set_aspect(0.8)
-
-#%%
-plt.close('all')
-
