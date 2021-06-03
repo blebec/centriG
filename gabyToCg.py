@@ -114,9 +114,56 @@ for item in polylines:
 
 
 def plot_cgGabyVersion(datadf):
-    fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
-                             sharex=True, sharey=True)
-    axes = axes.flatten()
+    
+    ncols = 2
+    nrows = 1
+
+    inset_hfrac = .3
+    inset_vfrac = .3
+
+    inset_hfrac_offset = .6
+    inset_vfrac_offset = .6
+
+    top_pad = .1
+    bottom_pad = .1
+    left_pad = .1
+    right_pad = .1
+    
+    hspace = .1
+    vspace = .1
+
+    ax_width = (1 - left_pad - right_pad - (ncols - 1) * hspace) / ncols
+    ax_height = (1 - top_pad - bottom_pad - (nrows - 1) * vspace) / nrows
+
+    fig = plt.figure(figsize=(14, 8))
+
+    ax_lst = []
+    for j in range(ncols):
+        for k in range(nrows):
+            a_bottom = bottom_pad + k * ( ax_height + vspace)
+            a_left = left_pad + j * (ax_width + hspace)
+        
+            inset_bottom = a_bottom + inset_vfrac_offset * ax_height
+            inset_left = a_left + inset_hfrac_offset * ax_width
+
+            ax = fig.add_axes([a_left, a_bottom, ax_width, ax_height])
+            ax_in = fig.add_axes([inset_left, inset_bottom, ax_width * inset_hfrac, ax_height *  inset_vfrac])
+            ax_lst.append((ax,ax_in))
+
+
+    
+    # fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
+    #                          sharex=True, sharey=True)
+    # axes = axes.flatten()
+
+    # # rect = l, b, w, h
+    # anchor = [0.3, 0.6] 
+    # size = [0.4, 0.2]
+    # fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
+    # anchor[0] += 0.5
+    # fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
+    
+    # axes = ax_lst
 
     df = datadf.copy()
     middle = (df.index.max() - df.index.min()) / 2
@@ -134,41 +181,60 @@ def plot_cgGabyVersion(datadf):
     style = ["-", ":", "-", ":", "-"]
     linewidth = [2, 3, 2, 3, 2]
     alpha = [0.8, 0.8, 1, 1, 0.7]
+    # left right
     for i, cell in enumerate(cells[::-1]):
-        if i == 0:
-            continue
-        ax = axes[i]
+        # if i == 0:
+        #     continue
+        # main plot
+        ax = ax_lst[i][0]
         # cell = cells[0]
         cols = [_ for _ in df.columns if cell in _]
         labels = [_.split("_")[2:] for _ in cols]
-
         labels = [[st.title() for st in _] for _ in labels]
         labels = ["".join(st) for st in labels]
         labels = [_.replace("CtrCtr", "") for _ in labels]
 
-        for i, col in enumerate(cols):
+        for j, col in enumerate(cols):
             ax.plot(
                 df[col],
-                linestyle=style[i],
-                linewidth=linewidth[i],
-                color=colors[i],
-                alpha=alpha[i],
-                label=labels[i],
+                linestyle=style[j],
+                linewidth=linewidth[j],
+                color=colors[j],
+                alpha=alpha[j],
+                label=labels[j],
             )
             # ax.plot(df[cols], label=labels)
             ax.set_title(cell)
+        #insert 
+        ax = ax_lst[i][1]
+        for j, col in enumerate(cols):
+            ax.plot(
+                df[col],
+                linestyle=style[j],
+                linewidth=linewidth[j],
+                color=colors[j],
+                alpha=alpha[j],
+                label=labels[j],
+            )
     # to adapt to gaby
-    ax.set_xlim(-42.5, 206)
-    ax.set_ylim(-5, 15)
+    for axs in ax_lst:
+        ax = axs[0]
+        ax.set_xlim(-42.5, 206)
+        ax.set_ylim(-5, 15)
+        ax.set_yticks(range(0, 14, 2))
+        ax = axs[1]
+        ax.set_xlim(-42.5, 206)
+        ax.set_ylim(-5, 15)
+    
     for i, ax in enumerate(fig.get_axes()):
         ax.axhline(y=0, alpha=0.5, color="k")
         ax.axvline(x=0, alpha=0.5, color="k")
         ax.set_xlabel("Time (ms)")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
-        if i > 0:
+        if not i%2: # only main
             ax.legend()
-        else:
+        if i == 0:
             ax.set_ylabel("Membrane Potential (mV)")
 
     fig.tight_layout()
@@ -198,8 +264,29 @@ cells = list(set([_.split("_")[0] for _ in data_df.columns]))
 
 fig = plot_cgGabyVersion(data_df)
 
+
 save = False
 if save:
     dirname = os.path.join(paths["owncFig"], "pythonPreview", "gabyToCg")
     file_name = os.path.join(dirname, "cgGabyVersion.png")
     fig.savefig(file_name)
+
+
+#%%
+plt.close('all')
+
+fig, axes = plt.subplots(figsize=(14, 8), nrows=1, ncols=2, 
+                             sharex=True, sharey=True)
+axes = axes.flatten()
+yx = lambda x: 20/(206 + 42.5)
+# rect = l, b, w, h
+anchor = [0.25, 0.5] 
+size = [0.2, 0.3]
+fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
+anchor[0] += 0.5
+fig.add_axes(anchor + size, facecolor='y', alpha=0.3)
+#ax.set_aspect(0.8)
+
+#%%
+plt.close('all')
+
