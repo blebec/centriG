@@ -227,12 +227,8 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
             ["CF-CROSS", "CF-ISO", "CP-CROSS", "CP-ISO"],
         )
     )
-    colors = [
-        std_colors["red"],
-        std_colors["yellow"],
-        std_colors["green"],
-        std_colors["brown"],
-    ]
+    colors = [std_colors[_] for _ in 'red yellow green brown'.split()]
+
     # convert (center minus periphery) to (periphery minus center)
     # fig = plt.figure(figsize=(8, 6))
 
@@ -316,7 +312,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     # for i, stim in enumerate(stims):
     # plot in revers order
     print("{:=^20}".format(" scatter "))
-
+    statdf = pd.DataFrame()
     removed = pd.DataFrame()
     for j, stim in enumerate(stims[::-1]):
         i = len(stims) - j - 1
@@ -375,6 +371,12 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
             label=label,
             edgecolor="w",
         )
+        # export data
+        stat = df[cols].agg(
+            ['count', 'mean', 'std', 'median', 'mad', 'min', 'max'])
+        stat.columns = [stim + '_' + _.split('_')[1] for _ in stat.columns]
+        for col in stat:
+            statdf[col] = stat[col]
         # ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
         #            s=100, alpha=0.8, label=label, edgecolor='w')
         # kde
@@ -515,11 +517,18 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
         txt = "phase effect     only {} range".format(xscales)
         fig.text(0.5, 0.01, txt, ha="right", va="bottom", alpha=0.4)
     fig.tight_layout()
-    return fig
+    statdf = statdf.T
+    statdf['count'] = statdf['count'].astype('int')
+    def kf(ser):
+        return ser.apply(lambda st: st.split('_')[-1])
+    statdf = statdf.reset_index().sort_values(by='index', key=kf)
+    statdf = statdf.set_index('index')
+    return fig, statdf
 
 
 plt.close("all")
-figure = plot_phaseEffect(data_df, corner=False)
+figure, stat_df = plot_phaseEffect(data_df, corner=False)
+print(stat_df.round(1))
 
 save = False
 if save:
