@@ -52,7 +52,7 @@ os.chdir(paths["pg"])
 #%%
 plt.close("all")
 # @config.profile
-def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
+def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors):
     """
     figure2 (individual + pop + sig)
     input:
@@ -63,7 +63,34 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
         onlyPos = boolean to display only positive values for spike
     output: pyplot figure
     """
-    colors = ("k", std_colors["red"])
+    # remove sig 'only pop value (old sig = whithout fill+)
+    cols = [_ for _ in datadf.columns if _.endswith("Sig")]
+    # sigdf = datadf[cols].copy()
+    datadf.drop(labels=cols, axis=1, inplace=True)
+    # left column = example
+    cols = [_ for _ in datadf.columns if _.startswith("indi")]
+    indidf = datadf[cols].copy()
+    # middle column = pop
+    cols = [_ for _ in datadf.columns if _.startswith("pop")]
+    popdf = datadf[cols].copy()
+    # right column (sigpop )
+    filename = os.path.join(
+        paths["owncFig"],
+        "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
+    )
+    sigdf = pd.read_excel(filename, engine="openpyxl")
+    cols = gfunc.new_columns_names(sigdf.columns)
+    cols = [item.replace("sig_", "") for item in cols]
+    cols = [item.replace("_stc", "") for item in cols]
+    cols = [st.replace("_iso", "") for st in cols]
+    cols = [st.replace("__", "_") for st in cols]
+    cols = [st.replace("_.1", "") for st in cols]
+    sigdf.columns = cols
+    # adjust time scale
+    middle = (sigdf.index.max() - sigdf.index.min()) / 2
+    sigdf.index = (sigdf.index - middle) / 10
+
+    colors = [stdcolors[_] for _ in "k red".split()]
     alphas = (0.8, 0.8)
     vspread = 0.06  # vertical spread for realign location
 
@@ -81,10 +108,11 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     spkaxes = axes[3:]  # spikes axes = bottom row
 
     # ___ individual vm
-    cols = colsdict["indVm"]
+    # cols = colsdict["indVm"]
+    cols = [_ for _ in indidf.columns if _.startswith("indiVm")]
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(datadf[col], color=colors[i], alpha=alphas[i], label=col)
+        ax.plot(indidf[col], color=colors[i], alpha=alphas[i], label=col)
     # response point
     x_pos = dict(old=41.5, new=43.5)
     x = x_pos[age]
@@ -95,14 +123,11 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ individual spike
-    cols = colsdict["indSpk"]
+    cols = [_ for _ in indidf.columns if _.startswith("indiSpk")]
     ax = spkaxes[0]
     rev_cols = cols[::-1]
     rev_colors = colors[::-1]
-    df = datadf[rev_cols].copy()
-    if onlyPos:
-        for col in df.columns:
-            df.loc[df[col] < 0, [col]] = 0
+    df = indidf[rev_cols].copy()
     for i, col in enumerate(rev_cols):
         ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1)
         ax.fill_between(df.index, df[col], color=rev_colors[i], alpha=0.5, label=col)
@@ -114,8 +139,8 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ pop vm
-    df = datadf.loc[-30:35]  # limit xscale
-    cols = colsdict["popVm"]
+    df = popdf.loc[-30:35]  # limit xscale
+    cols = [_ for _ in popdf.columns if "Vm" in _]
     ax = vmaxes[1]
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
@@ -129,42 +154,12 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
-    # popVmSig
-    cols = colsdict["popVmSig"]
-    ax = vmaxes[2]
-    # traces
-    for i, col in enumerate(cols[:2]):
-        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
-        # errors : iterate on tuples
-        for i, col in enumerate(cols[2:]):
-            ax.fill_between(
-                df.index, df[col[0]], df[col[1]], color=colors[i], alpha=0.2
-            )  # alphas[i]/2)
-    # advance
-    x0 = 0
-    y = df.loc[x0][cols[0]]
-    adf = df.loc[-20:0, [cols[1]]]
-    i1 = (adf - y).abs().values.flatten().argsort()[0]
-    x1 = adf.index[i1]
-    # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    # ax.plot(x1, y, marker=markers.CARETLEFT, color='tab:gray',
-    #         ms=10, alpha=0.8)
-    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
-    ax.axvline(y, color="tab:blue", linestyle=":", linewidth=2)
-    # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
-    ax.annotate(
-        "n=15", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
-    )
-    # adv = str(x0 - x1)
-    # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
-    # xycoords="axes fraction", ha='center')
-
     # ___ pop spike
-    cols = colsdict["popSpk"]
+    cols = [_ for _ in popdf.columns if "Spk" in _]
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
-        # ax.fill_between(df.index, df[col],
+        # ax.fill_between(popdf.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate(
         "n=22", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
@@ -176,33 +171,122 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
-    # popSpkSig
-    cols = colsdict["popSpkSig"]
-    ax = spkaxes[2]
-    # traces
-    for i, col in enumerate(cols[:2][::-1]):
-        ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
-    # errors : iterate on tuples
-    for i, col in enumerate(cols[2:]):
-        ax.fill_between(
-            df.index, df[col[0]], df[col[1]], color=colors[i], alpha=alphas[::-1][i] / 2
-        )  # label=col, linewidth=0.5)
-    # advance
-    x0 = 0
-    y = df.loc[x0][cols[0]]
-    adf = df.loc[-20:0, [cols[1]]]
-    i1 = (adf - y).abs().values.flatten().argsort()[0]
-    x1 = adf.index[i1]
-    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
-    # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
-    # ax.plot(x0, y, 'o', color=std_colors['blue'])
-    # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
-    #         ms=10, alpha=0.8)
-    ax.axvline(y, color="tab:blue", linestyle=":", linewidth=2)
-    ax.annotate(
-        "n=6", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
-    )
-    # #advance
+    ######## SIG #######
+    colors = [stdcolors[color] for color in "k red green yellow blue blue".split()]
+    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+
+    nbcells = dict(sect=[20, 10], full=[15, 7])  # [vm, spk]
+
+    axes = [vmaxes[-1], spkaxes[-1]]
+    records = ["vm"] + ["spk"]
+    leg_dic = dict(vm="Vm", spk="Spikes")
+    cols = [st for st in sigdf.columns if "sect" in st]
+    # plot
+    for i, ax in enumerate(axes):
+        # rec = recs[i]
+        # ax_title = f"{rec} {spread}"
+        # ax.set_title(ax_title)
+        record = records[i]
+        # txt = leg_dic[record]
+        # ax.text(
+        #     0.7, 0.9, txt, ha="left", va="center", transform=ax.transAxes, size="large"
+        # )
+        txt = "n={}".format(nbcells["sect"][i])
+        ax.annotate(
+            txt, xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+        )
+        traces = [st for st in cols if record in st]
+        # replace rd sector by full sector
+        traces = [st.replace("sect_rd", "full_rd") for st in traces]
+
+        df = sigdf.loc[-30:35][traces].copy()
+        substract = False
+        if substract:
+            # subtract the centerOnly response (ref = df['CENTER-ONLY'])
+            ref = df[df.columns[0]]
+            df = df.subtract(ref, axis=0)
+        # build labels
+        labels = traces[:]
+        labels = [item.split("_")[0] + "_" + item.split("_")[-1] for item in labels]
+        labels = [item.replace("rd", "frd") for item in labels]
+        # plot
+        for i, col in enumerate(traces):
+            ax.plot(
+                df[col],
+                color=colors[i],
+                alpha=alphas[i],
+                label=labels[i],
+                linewidth=1.5,
+            )
+        # bluePoint
+        x = 0
+        y = df.loc[0][df.columns[0]]
+        vspread = 0.06  # vertical spread for realign location
+        # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.5)
+        ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
+        ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
+
+    # =============================================================================
+    #     # popVmSig
+    #     cols = colsdict["popVmSig"]
+    #     ax = vmaxes[2]
+    #     # traces
+    #     for i, col in enumerate(cols[:2]):
+    #         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
+    #         # errors : iterate on tuples
+    #         for i, col in enumerate(cols[2:]):
+    #             ax.fill_between(
+    #                 df.index, df[col[0]], df[col[1]], color=colors[i], alpha=0.2
+    #             )  # alphas[i]/2)
+    #     # advance
+    #     x0 = 0
+    #     y = df.loc[x0][cols[0]]
+    #     adf = df.loc[-20:0, [cols[1]]]
+    #     i1 = (adf - y).abs().values.flatten().argsort()[0]
+    #     x1 = adf.index[i1]
+    #     # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    #     # ax.plot(x1, y, marker=markers.CARETLEFT, color='tab:gray',
+    #     #         ms=10, alpha=0.8)
+    #     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
+    #     ax.axvline(y, color="tab:blue", linestyle=":", linewidth=2)
+    #     # ax.hlines(y, x0, x1, color=std_colors['blue'], linestyle=':', linewidth=2)
+    #     ax.annotate(
+    #         "n=15", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+    #     )
+    #     # adv = str(x0 - x1)
+    #     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
+    #     # xycoords="axes fraction", ha='center')
+    # =============================================================================
+
+    # =============================================================================
+    #     # popSpkSig
+    #     cols = colsdict["popSpkSig"]
+    #     ax = spkaxes[2]
+    #     # traces
+    #     for i, col in enumerate(cols[:2][::-1]):
+    #         ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
+    #     # errors : iterate on tuples
+    #     for i, col in enumerate(cols[2:]):
+    #         ax.fill_between(
+    #             df.index, df[col[0]], df[col[1]], color=colors[i], alpha=alphas[::-1][i] / 2
+    #         )  # label=col, linewidth=0.5)
+    #     # advance
+    #     x0 = 0
+    #     y = df.loc[x0][cols[0]]
+    #     adf = df.loc[-20:0, [cols[1]]]
+    #     i1 = (adf - y).abs().values.flatten().argsort()[0]
+    #     x1 = adf.index[i1]
+    #     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
+    #     # ax.plot(x0, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    #     # ax.plot(x0, y, 'o', color=std_colors['blue'])
+    #     # ax.plot(x1, y, marker=markers.CARETLEFT, color=std_colors['blue'],
+    #     #         ms=10, alpha=0.8)
+    #     ax.axvline(y, color="tab:blue", linestyle=":", linewidth=2)
+    #     ax.annotate(
+    #         "n=6", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+    #     )
+    #     # #advance
+    # =============================================================================
     # adv = str(x0 - x1)
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
     # xycoords="axes fraction", ha='center')
@@ -211,6 +295,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
 
     ylabels_spk = ["Firing Rate (Spk/s)", "Normalized Spk/s", ""]
     ylabels = ylabels_vm + ylabels_spk
+    axes = fig.get_axes()
     for i, ax in enumerate(axes):
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
@@ -224,10 +309,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
     axes[4].set_xlabel("Relative Time (ms)")
     ax = axes[5]
     ax.set_xlabel("Relative Time (ms)")
-    if age == "old":
-        ax.set_ylim(-0.10, 1.3)
-    else:
-        ax.set_ylim(-0.10, 1.1)
+    ax.set_ylim(-0.10, 1.1)
 
     # stimulations
     step = 28
@@ -239,76 +321,42 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", onlyPos=False):
         for dloc in xlocs:
             ax.axvline(dloc, linestyle=":", alpha=0.4, color="k")
     # fit individual example
-    if age == "old":
-        vmaxes[0].set_ylim(-3.5, 12)
-        spkaxes[0].set_ylim(-5.5, 18)
-        # stim location
-        ax = spkaxes[0]
-        for key in dico.keys():
-            ax.annotate(
-                key,
-                xy=(dico[key] + step / 2, -3),
-                alpha=0.6,
-                ha="center",
-                fontsize="x-small",
-            )
-            # stim
-            rect = Rectangle(
-                xy=(dico[key], -4),
-                width=step,
-                height=1,
-                fill=True,
-                alpha=0.6,
-                edgecolor="w",
-                facecolor=std_colors["red"],
-            )
-            ax.add_patch(rect)
-        # center
-        rect = Rectangle(
-            xy=(0, -5),
-            width=step,
-            height=1,
-            fill=True,
+
+
+    vmaxes[0].set_ylim(-3.5, 12)
+    spkaxes[0].set_ylim(-10, 35)
+    # stim location
+    ax = spkaxes[0]
+    for key in dico.keys():
+        ax.annotate(
+            key,
+            xy=(dico[key] + step / 2, -5),
             alpha=0.6,
-            edgecolor="w",
-            facecolor="k",
+            ha="center",
+            fontsize="x-small",
         )
-        ax.add_patch(rect)
-    else:
-        vmaxes[0].set_ylim(-3.5, 12)
-        spkaxes[0].set_ylim(-10, 35)
-        # stim location
-        ax = spkaxes[0]
-        for key in dico.keys():
-            ax.annotate(
-                key,
-                xy=(dico[key] + step / 2, -5),
-                alpha=0.6,
-                ha="center",
-                fontsize="x-small",
-            )
-            # stim
-            rect = Rectangle(
-                xy=(dico[key], -9),
-                width=step,
-                height=2,
-                fill=True,
-                alpha=0.6,
-                edgecolor="w",
-                facecolor=std_colors["red"],
-            )
-            ax.add_patch(rect)
-        # center
+        # stim
         rect = Rectangle(
-            xy=(0, -7),
+            xy=(dico[key], -9),
             width=step,
             height=2,
             fill=True,
             alpha=0.6,
             edgecolor="w",
-            facecolor="k",
+            facecolor=std_colors["red"],
         )
         ax.add_patch(rect)
+    # center
+    rect = Rectangle(
+        xy=(0, -7),
+        width=step,
+        height=2,
+        fill=True,
+        alpha=0.6,
+        edgecolor="w",
+        facecolor="k",
+    )
+    ax.add_patch(rect)
 
     # align zero between plots  NB ref = first plot
     gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
@@ -391,12 +439,10 @@ plt.close("all")
 age = ["old", "new"][1]
 if "fig2_df" not in globals():
     fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_cpIsoGain(
-    datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age, onlyPos=False
-)
+fig = plot_cpIsoGain(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
 save = False
 if save:
-    name = "f6_cpIsoGain"
+    name = "f9_cpIsoGain_alt"
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         fig.savefig(os.path.join(paths["save"], (name + ext)))
@@ -678,8 +724,7 @@ def plot_speed(substract=False):
     #    text.set_color(line.get_color())
     txt = "CP-ISO \nn=12"
     ax.text(
-        0.1, 0.8, txt, ha="center", va="center", 
-        transform=ax.transAxes, size="large"
+        0.1, 0.8, txt, ha="center", va="center", transform=ax.transAxes, size="large"
     )
 
     # ax.annotate("n=12", xy=(0.1, 0.8), xycoords="axes fraction", ha='center')
@@ -704,8 +749,7 @@ def plot_speed(substract=False):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "centrifigs.py:plot_speed", 
-            ha="right", va="bottom", alpha=0.4
+            0.99, 0.01, "centrifigs.py:plot_speed", ha="right", va="bottom", alpha=0.4
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         fig.text(0.5, 0.01, "speed", ha="center", va="bottom", alpha=0.4)
@@ -717,8 +761,7 @@ fig = plot_speed()
 save = False
 if save:
     file = "f10_speed"
-    paths["save"] = os.path.join(paths["owncFig"], 
-                                 "pythonPreview", "current", "fig")
+    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(paths["save"], (file + ext))
         fig.savefig(filename)
@@ -758,11 +801,10 @@ def plot_highLowSpeed():
     input : kind in ['pop': whole population, 'sig': individually significants
     cells, 'nonsig': non significant cells]
     """
-    #    filenames = ['data/figSup7a.xlsx', 
+    #    filenames = ['data/figSup7a.xlsx',
     # 'data/figSup5bis.xlsx']
     #'data/figSup7b.xlsx']
-    filenames = ["data/data_to_use/highspeed.xlsx", 
-                 "data/data_to_use/lowspeed.xlsx"]
+    filenames = ["data/data_to_use/highspeed.xlsx", "data/data_to_use/lowspeed.xlsx"]
     titles = ["High speed", "Low speed"]
 
     filename = filenames[0]
