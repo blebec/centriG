@@ -13,7 +13,9 @@ import xml.etree.ElementTree as ET
 # from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
+import numpy as np
 import pandas as pd
+from scipy.interpolate import interp1d
 
 import config
 
@@ -27,93 +29,29 @@ file_name = os.path.join(dirname, "4100gg3_vm_cp_cx_max.svg")
 
 file_name = os.path.join(dirname, "test.svg")
 
-#%%
-# with open(file_name, 'r') as f:
-#     data = f.read()
+#%% load data gaby extracted from svg
 
-# Bs_data = BeautifulSoup(data, 'xml')
+dirname = os.path.join(paths['owncFig'], 'data', 'gabyToCg', 'numGaby')
+os.chdir(dirname)
+files = [_ for _ in os.listdir() if os.path.isfile(_)]
+files = [_ for _ in files if _.endswith('csv')]
+x = np.arange(-40, 200, .1)
+datadf = pd.DataFrame(index=x)
 
-# # b_unique = Bs_data.find_all()
-# # print(b_unique)
-
-
-# -> a metadata
-
-# nb properties in [tag, attributes, text string, tail string, child element]
-
-
-def extract_data(filename):
-
-    tree = ET.parse(filename)
-    roots = tree.getroot()
-    print(roots)
-
-    for root in roots:
-        print(list(root))
-
-    labels = set()
-
-    gs = []
-    lines = []
-    polylines = []
-
-    root = roots[1]
-    for item in list(root):
-        # check if no child
-        if not list(item):
-            print("no elements for {}".format(item.tag))
-            continue
-        # list child
-        for ob in list(item):
-            # print('='*20)
-            # print(ob)
-            label = ob.tag.split("}")[-1]
-            labels.add(label)
-            if label == "g":
-                gs.append(ob.attrib)
-            elif label == "line":
-                lines.append(ob.attrib)
-            elif label == "polyline":
-                polylines.append(ob.attrib)
-            else:
-                print("{} is not a referenced label".format(label))
-            # print('label = {}'.format(label))
-            # print('contains for {}'.format(ob.tag))
-            # #  print('attrib= {}'.format(ob.attrib))
-            # print('txt= {}'.format(ob.text))
-            # print('list= {}'.format(list(ob)))
-            # print('-'*20)
-    print("=" * 20)
-    print("founded {} labels".format(labels))
-    for label, val in zip(sorted(list(labels)), [gs, lines, polylines]):
-        print("{} {}".format(len(val), label))
-    return gs, lines, polylines
-
-
-gs, lines, polylines = extract_data(file_name)
-
-
-#%%
-item = polylines[0]
-pt = item["points"]
-temp = [_ for _ in pt.strip().split(" ")]
-temp = [_.split(",") for _ in temp]
-temp = [(float(a), float(b)) for a, b in temp]
-temp = list(set(temp))
-
-#%%
-
-plt.close("all")
+# file = files[0]
+for file in files:
+    name = name = file.split('.')[0]
+    df = pd.read_csv(file, sep=';', decimal=',', dtype='float', names=['x', 'y'])
+    df = df.sort_values(by='x')
+    f = interp1d(df.x, df.y, kind='linear')
+    datadf[name] = f(x)
 
 fig = plt.figure()
 ax = fig.add_subplot(111)
-
-for item in polylines:
-    ax.plot(item["points"], label=item["class"])
+for col in datadf.columns:
+    ax.plot(datadf[col])
 
 #%%
-
-
 def plot_cgGabyVersion(datadf):
     
     
@@ -269,3 +207,4 @@ if save:
 
 
 #%%
+
