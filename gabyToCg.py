@@ -43,7 +43,7 @@ def load_gaby_data():
         df = pd.read_csv(file, sep=';', decimal=',', dtype='float', names=['x', 'y'])
         df = df.sort_values(by='x')
         f = interp1d(df.x, df.y, kind='linear')
-        datadf[name] = f(x)
+        datadf[name] = f(x)        
     return datadf
 
 def test_plot(df):
@@ -153,8 +153,8 @@ def plot_cgGabyVersion(gabydf, datadf):
         ax.axhline(y=0, alpha=0.5, color="k")
         ticks = ax.get_yticks()
         ax.set_yticks(ticks[1:-1])
-        # ticks = ax.get_xticks()
-        # ax.set_xticks(ticks[1:])
+        ticks = ax.get_xticks()
+        ax.set_xticks(ticks[1:])
         # ax.set_yticklabels(ax.get_yticklabels()[1:])
     
     for i, ax in enumerate(fig.get_axes()):
@@ -201,7 +201,18 @@ if save:
     for ext in ['.svg', '.png', '.pdf']:
         file_name = os.path.join(dirname, "cgGabyVersion" + ext)
         fig.savefig(file_name)
+    name = "f5_transition_bottom"
+    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        fig.savefig(os.path.join(paths["save"], (name + ext)))
+
+
 
 
 #%%
-
+save = False
+if save:
+    name = "f9_cpIsoGain_alt"
+    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        fig.savefig(os.path.join(paths["save"], (name + ext)))
