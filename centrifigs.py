@@ -102,8 +102,9 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     axes.append(ax1)
     axes.append(fig.add_subplot(233, sharex=ax1, sharey=ax1))
     axes.append(fig.add_subplot(234, sharex=ax0))
-    axes.append(fig.add_subplot(235, sharex=ax1, sharey=ax1))
-    axes.append(fig.add_subplot(236, sharex=ax1, sharey=ax1))
+    ax2 = fig.add_subplot(235, sharex=ax1)
+    axes.append(ax2)
+    axes.append(fig.add_subplot(236, sharex=ax1, sharey=ax2))
     vmaxes = axes[:3]  # vm axes = top row
     spkaxes = axes[3:]  # spikes axes = bottom row
 
@@ -140,6 +141,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
 
     # ___ pop vm
     df = popdf.loc[-30:35]  # limit xscale
+    df = popdf.loc[-20:60]  # limit xscale
     cols = [_ for _ in popdf.columns if "Vm" in _]
     ax = vmaxes[1]
     for i, col in enumerate(cols):
@@ -200,6 +202,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
         traces = [st.replace("sect_rd", "full_rd") for st in traces]
 
         df = sigdf.loc[-30:35][traces].copy()
+        df = sigdf.loc[-20:60][traces].copy()
         substract = False
         if substract:
             # subtract the centerOnly response (ref = df['CENTER-ONLY'])
@@ -309,7 +312,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     axes[4].set_xlabel("Relative Time (ms)")
     ax = axes[5]
     ax.set_xlabel("Relative Time (ms)")
-    ax.set_ylim(-0.10, 1.1)
+    ax.set_ylim(-0.10, 0.9)
 
     # stimulations
     step = 28
@@ -386,7 +389,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
         custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
     for ax in spkaxes[1:]:
-        custom_ticks = np.linspace(0, 1, 6)
+        custom_ticks = np.linspace(0, 0.8, 5)
         ax.set_yticks(custom_ticks)
 
     fig.tight_layout()
