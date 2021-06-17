@@ -60,7 +60,7 @@ gaby_df = load_gaby_data()
 test_plot(gaby_df)
 
 #%%
-def plot_cgGabyVersion(datadf):
+def plot_cgGabyVersion(gabydf, datadf):
     
     
     fig, axes = plt.subplots(figsize=(11.6, 5), nrows=1, ncols=2, 
@@ -68,104 +68,93 @@ def plot_cgGabyVersion(datadf):
     axes = axes.flatten()
     ins = []
     for ax in axes.flat:
-        ins.append(ax.inset_axes([0.6,0.6,0.4,0.4]))
- 
+        ins.append(ax.inset_axes([0.7,0.5,0.3,0.5]))
     # # rect = x, y, w, h
     # zoom
-    zoom_xlims = (30, 60)           #todo bloc at 50
-    zoom_ylims = (-2, 6)
-    rec = Rectangle(zoom_xlims, *zoom_ylims, fill=False, 
-                    edgecolor='tab:grey', lw=2)
-    
-    df = datadf.copy()
-    middle = (df.index.max() - df.index.min()) / 2
-    df.index = (df.index - middle) / 10
+    zoom_xlims = [(40, 70), (30, 60)]
+    zoom_ylims = [(-2, 6)] * 2
+    for i, ax in enumerate(axes):
+        xy = zoom_xlims[i][0], zoom_ylims[i][0]
+        w = zoom_xlims[i][1] - zoom_xlims[i][0]
+        h = zoom_ylims[i][1] - zoom_ylims[i][0]
+        ax.add_patch(Rectangle(xy, w, h, fill=False, 
+                               edgecolor='tab:grey', lw=2, ls=':'))
+                         
+    df0 = gabydf.copy()
+    df1 = datadf.copy()
+    middle = (df1.index.max() - df1.index.min()) / 2
+    df1.index = (df1.index - middle) / 10
     # limit the date time range
     # df = df.loc[-200:200]
-    df = df.loc[-42.5:206]
+    df1 = df1.loc[-42.5:206]
     
-    std_colors = config.std_colors()
-    colors = [
-        std_colors["red"],
-        std_colors["red"],
-        std_colors["yellow"],
-        std_colors["yellow"],
-        "k",
-    ]
+    dfs = [df0, df1]
+
+    colors = [config.std_colors()[_] for _ in 
+              'red red yellow yellow k'.split()]
     style = ["-", ":", "-", ":", "-"]
     linewidth = [2, 3, 2, 3, 2]
     alpha = [0.8, 0.8, 1, 1, 0.7]
-    # left & right
-    for i, cell in enumerate(cells):
-        ax = axes[i]
+    
+    # left
+    for i, ax in enumerate(axes):
+    # ax = axes[0]
+        insert = ins[i]
+        df = dfs[i]
         # inset location on main
-        print('{}'.format(zoom_xlims))
-        print('{}'.format(zoom_ylims))
-        xy = zoom_xlims[0], zoom_ylims[0]
-        w = zoom_xlims[1] - zoom_xlims[0]
-        h = zoom_ylims[1] - zoom_ylims[0]
-        ax.add_patch(Rectangle(xy, w, h, fill=False, 
-                    edgecolor='tab:grey', lw=2, ls=':'))
-        # on right cell
-        if i == 0:
-            continue
-        # main plot
-        cols = [_ for _ in df.columns if cell in _]
-        labels = [_.split("_")[2:] for _ in cols]
-        labels = [[st.title() for st in _] for _ in labels]
-        labels = ["".join(st) for st in labels]
-        labels = [_.replace("CtrCtr", "") for _ in labels]        
-        for j, col in enumerate(cols):
-            ax.plot(
-                df[col],
-                linestyle=style[j],
-                linewidth=linewidth[j],
-                color=colors[j],
-                alpha=alpha[j],
-                label=labels[j]
-            )
+        # print('{}'.format(zoom_xlims))
+        # print('{}'.format(zoom_ylims))
+        # xy = zoom_xlims[0], zoom_ylims[0]
+        # w = zoom_xlims[1] - zoom_xlims[0]
+        # h = zoom_ylims[1] - zoom_ylims[0]
+        # ax.add_patch(Rectangle(xy, w, h, fill=False, 
+                    # edgecolor='tab:grey', lw=2, ls=':'))
+        if i ==0:    
+            cols = ['4100gg3_sc', '4100gg3_s0',
+                '4100gg3_x_sc', '4100gg3_x_s0', 
+                '4100gg3_0c']
+            cell = cols[0].split('_')[0]
+        else:
+            cell = cells[1]
+            cols = [_ for _ in df1.columns if cell in _]
 
         ax.set_title(cell)
-        # insert plotting
-        ax = ins[i]
         for j, col in enumerate(cols):
-            if '_so' in col:
+            ax.plot(
+                    df[col],
+                    linestyle=style[j],
+                    linewidth=linewidth[j],
+                    color=colors[j],
+                    alpha=alpha[j],
+                    # label=labels[j]
+                    )
+            # insert plotting    ax = ins[0]
+            if col.endswith('0') or '_so' in col:
                 # don't plot 'no center'
                 continue
-            ax.plot(
-                df[col],
-                linestyle=style[j],
-                linewidth=linewidth[j],
-                color=colors[j],
-                alpha=alpha[j],
-                label=labels[j],
-            )
-        # stims pb not enough place (time scale)
-        # boxes gaby 16.6 ms, cg 34 ms   ?
-        y = -1
-        xs = [0]
-        w = [16.6, 34]   # msec
-        h = .2
-        for i, x in enumerate(xs):
-            xy = (xs[i], y)
-            # ax.add_patch(Rectangle(xy, w, h, fill=False, 
-                                   # edgecolor='tab:grey', lw=2, ls=':'))
-                    
+            insert.plot(
+                    df[col],
+                    linestyle=style[j],
+                    linewidth=linewidth[j],
+                    color=colors[j],
+                    alpha=alpha[j],
+                    # label=labels[j],
+                    )                          
     # to adapt to gaby
     for ax in axes:
-        ax.set_xlim(-42.5, 206)
+        ax.set_xlim(-40, 200)
         ax.set_ylim(-5, 15)
         ax.set_yticks(range(0, 14, 2))
-    for ax in ins:
+    for i, ax in enumerate(ins):
         # ax.set_xlim(30, 60)
         # ax.set_ylim(-2, 6)
-        ax.set_xlim(zoom_xlims)
-        ax.set_ylim(zoom_ylims)
+        ax.set_xlim(zoom_xlims[i])
+        ax.set_ylim(zoom_ylims[i])
         ax.axhline(y=0, alpha=0.5, color="k")
         ticks = ax.get_yticks()
         ax.set_yticks(ticks[1:-1])
-        ticks = ax.get_xticks()
-        ax.set_xticks(ticks[1:])
+        # ticks = ax.get_xticks()
+        # ax.set_xticks(ticks[1:])
         # ax.set_yticklabels(ax.get_yticklabels()[1:])
     
     for i, ax in enumerate(fig.get_axes()):
@@ -204,7 +193,7 @@ file_name = os.path.join(dirname, 'sources', file)
 data_df = pd.read_excel(file_name)
 cells = list(set([_.split("_")[0] for _ in data_df.columns]))
 
-fig = plot_cgGabyVersion(data_df)
+fig = plot_cgGabyVersion(gaby_df, data_df)
 
 save = False
 if save:
