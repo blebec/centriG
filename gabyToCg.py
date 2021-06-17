@@ -68,10 +68,10 @@ def plot_cgGabyVersion(gabydf, datadf):
     axes = axes.flatten()
     ins = []
     for ax in axes.flat:
-        ins.append(ax.inset_axes([0.7,0.5,0.3,0.5]))
+        ins.append(ax.inset_axes([0.75,0.5,0.25,0.5]))
     # # rect = x, y, w, h
     # zoom
-    zoom_xlims = [(40, 70), (30, 60)]
+    zoom_xlims = [(40, 70), (20, 50)]
     zoom_ylims = [(-2, 6)] * 2
     for i, ax in enumerate(axes):
         xy = zoom_xlims[i][0], zoom_ylims[i][0]
@@ -101,21 +101,13 @@ def plot_cgGabyVersion(gabydf, datadf):
     # ax = axes[0]
         insert = ins[i]
         df = dfs[i]
-        # inset location on main
-        # print('{}'.format(zoom_xlims))
-        # print('{}'.format(zoom_ylims))
-        # xy = zoom_xlims[0], zoom_ylims[0]
-        # w = zoom_xlims[1] - zoom_xlims[0]
-        # h = zoom_ylims[1] - zoom_ylims[0]
-        # ax.add_patch(Rectangle(xy, w, h, fill=False, 
-                    # edgecolor='tab:grey', lw=2, ls=':'))
         if i ==0:    
             cols = ['4100gg3_sc', '4100gg3_s0',
                 '4100gg3_x_sc', '4100gg3_x_s0', 
                 '4100gg3_0c']
             cell = cols[0].split('_')[0]
         else:
-            cell = cells[1]
+            cell = cells[0]
             cols = [_ for _ in df1.columns if cell in _]
 
         ax.set_title(cell)
@@ -153,8 +145,8 @@ def plot_cgGabyVersion(gabydf, datadf):
         ax.axhline(y=0, alpha=0.5, color="k")
         ticks = ax.get_yticks()
         ax.set_yticks(ticks[1:-1])
-        ticks = ax.get_xticks()
-        ax.set_xticks(ticks[1:])
+        # ticks = ax.get_xticks()
+        # ax.set_xticks(ticks[1:])
         # ax.set_yticklabels(ax.get_yticklabels()[1:])
     
     for i, ax in enumerate(fig.get_axes()):
