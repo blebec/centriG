@@ -22,7 +22,7 @@ import config
 paths = config.build_paths()
 
 
-dirname = os.path.join(paths["owncFig"], "data", "gabyToCg", "sources")
+dirname = os.path.join(paths["owncFig"], "data", "gabyToCg")
 
 file_name = os.path.join(dirname, "4100gg3_vm_cp_cx_max.svg")
 # filename = os.path.expanduser('~/4100gg3_vm_cp_cx_max.svg')
@@ -31,25 +31,33 @@ file_name = os.path.join(dirname, "test.svg")
 
 #%% load data gaby extracted from svg
 
-dirname = os.path.join(paths['owncFig'], 'data', 'gabyToCg', 'numGaby')
-os.chdir(dirname)
-files = [_ for _ in os.listdir() if os.path.isfile(_)]
-files = [_ for _ in files if _.endswith('csv')]
-x = np.arange(-40, 200, .1)
-datadf = pd.DataFrame(index=x)
+def load_gaby_data():
+    dirname = os.path.join(paths['owncFig'], 'data', 'gabyToCg')
+    os.chdir(os.path.join(dirname, 'numGaby'))
+    files = [_ for _ in os.listdir() if os.path.isfile(_)]
+    files = [_ for _ in files if _.endswith('csv')]
+    x = np.arange(-40, 200, .1)
+    datadf = pd.DataFrame(index=x)
+    for file in files:
+        name = name = file.split('.')[0]
+        df = pd.read_csv(file, sep=';', decimal=',', dtype='float', names=['x', 'y'])
+        df = df.sort_values(by='x')
+        f = interp1d(df.x, df.y, kind='linear')
+        datadf[name] = f(x)
+    return datadf
 
-# file = files[0]
-for file in files:
-    name = name = file.split('.')[0]
-    df = pd.read_csv(file, sep=';', decimal=',', dtype='float', names=['x', 'y'])
-    df = df.sort_values(by='x')
-    f = interp1d(df.x, df.y, kind='linear')
-    datadf[name] = f(x)
+def test_plot(df):
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    for col in df.columns:
+        ax.plot(df[col], label=col)
+    ax.set_xlim(-40, 200)
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    ax.legend()
 
-fig = plt.figure()
-ax = fig.add_subplot(111)
-for col in datadf.columns:
-    ax.plot(datadf[col])
+gaby_df = load_gaby_data()
+test_plot(gaby_df)
 
 #%%
 def plot_cgGabyVersion(datadf):
@@ -192,7 +200,7 @@ plt.close("all")
 anot = True
 
 file = "cg_specificity.xlsx"
-file_name = os.path.join(dirname, file)
+file_name = os.path.join(dirname, 'sources', file)
 data_df = pd.read_excel(file_name)
 cells = list(set([_.split("_")[0] for _ in data_df.columns]))
 
