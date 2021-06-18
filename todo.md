@@ -1,6 +1,15 @@
+
+
+# 210618
+
+- [x] move f7 mechanistic analysis between f9 (cpIsoGain) and F10 (phase effect)
+- [x] rebuild the inserts of the transition figure (f5 gabyToCg)
+
 # 210512
 
 gabytoCg
+
+? done by Marc
 
 - [ ] change the colors
   - [ ] red = 229, 51, 51, alpha 0.8 (python)

@@ -1354,7 +1354,7 @@ if save:
     filename = os.path.join(folder, (file + "png"))
     fig.savefig(filename)
     # update current
-    file = "f12_" + file
+    file = "f9_" + file
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))

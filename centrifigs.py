@@ -442,7 +442,7 @@ if "fig2_df" not in globals():
 fig = plot_cpIsoGain(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
 save = False
 if save:
-    name = "f9_cpIsoGain_alt"
+    name = "f8_cpIsoGain_alt"
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         fig.savefig(os.path.join(paths["save"], (name + ext)))
