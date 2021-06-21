@@ -38,7 +38,7 @@ file_name = os.path.join(dirname, "test.svg")
 def load_gaby_data(extract=False, save=False):
     """ load the data extracter from the gaby plots """
     dirname = os.path.join(paths["owncFig"], "data", "gabyToCg")
-    filename = os.path.join(dirname, 'gabydf.csv')
+    filename = os.path.join(dirname, "gabydf.csv")
     if extract:
         os.chdir(os.path.join(dirname, "numGaby"))
         files = [_ for _ in os.listdir() if os.path.isfile(_)]
@@ -47,16 +47,20 @@ def load_gaby_data(extract=False, save=False):
         datadf = pd.DataFrame(index=x)
         for file in files:
             name = name = file.split(".")[0]
-            df = pd.read_csv(file, sep=";", decimal=",", dtype="float", names=["x", "y"])
+            df = pd.read_csv(
+                file, sep=";", decimal=",", dtype="float", names=["x", "y"]
+            )
             df = df.sort_values(by="x")
             f = interp1d(df.x, df.y, kind="linear")
             datadf[name] = f(x)
-            datadf[name] = datadf[name].rolling(11, win_type="triang", center=True).mean()
+            datadf[name] = (
+                datadf[name].rolling(11, win_type="triang", center=True).mean()
+            )
         if save:
             datadf.to_csv(filename)
-            print('saved {}'.format(filename))
+            print("saved {}".format(filename))
     else:
-        datadf = pd.read_csv(filename)      
+        datadf = pd.read_csv(filename)
         datadf = datadf.set_index(datadf.columns[0])
     return datadf
 
@@ -88,19 +92,11 @@ def plot_cgGabyVersion(gabydf, datadf):
     # inserts
     ins = []
     for ax in axes.flat:
-<<<<<<< HEAD
-        ins.append(ax.inset_axes([0.75,0.5,0.25,0.5]))
-    # # rect = x, y, w, h
-    # zoom
-    zoom_xlims = [(40, 70), (20, 50)]
-    zoom_ylims = [(-2, 6)] * 2
-=======
         ins.append(ax.inset_axes([0.7, 0.5, 0.3, 0.5]))
     # # rect = x, y, w, h
     # zoom locations
     zoom_xlims = [(40, 70), (20, 50)]
     zoom_ylims = [(-2, 7)] * 2
->>>>>>> work
     for i, ax in enumerate(axes):
         xy = zoom_xlims[i][0], zoom_ylims[i][0]
         w = zoom_xlims[i][1] - zoom_xlims[i][0]
@@ -195,8 +191,8 @@ def plot_cgGabyVersion(gabydf, datadf):
             alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
-        txt = '{}   |   {}'.format(used_cells[0], used_cells[1])
-        fig.text(0.5, 0.01, txt, ha="center", va="bottom", alpha=0.4)        
+        txt = "{}   |   {}".format(used_cells[0], used_cells[1])
+        fig.text(0.5, 0.01, txt, ha="center", va="bottom", alpha=0.4)
     return fig
 
 
