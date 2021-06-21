@@ -35,21 +35,29 @@ file_name = os.path.join(dirname, "test.svg")
 #%% load data gaby extracted from svg
 
 
-def load_gaby_data():
+def load_gaby_data(extract=False, save=False):
     """ load the data extracter from the gaby plots """
     dirname = os.path.join(paths["owncFig"], "data", "gabyToCg")
-    os.chdir(os.path.join(dirname, "numGaby"))
-    files = [_ for _ in os.listdir() if os.path.isfile(_)]
-    files = [_ for _ in files if _.endswith("csv")]
-    x = np.arange(-40, 200, 0.1)
-    datadf = pd.DataFrame(index=x)
-    for file in files:
-        name = name = file.split(".")[0]
-        df = pd.read_csv(file, sep=";", decimal=",", dtype="float", names=["x", "y"])
-        df = df.sort_values(by="x")
-        f = interp1d(df.x, df.y, kind="linear")
-        datadf[name] = f(x)
-        datadf[name] = datadf[name].rolling(11, win_type="triang", center=True).mean()
+    filename = os.path.join(dirname, 'gabydf.csv')
+    if extract:
+        os.chdir(os.path.join(dirname, "numGaby"))
+        files = [_ for _ in os.listdir() if os.path.isfile(_)]
+        files = [_ for _ in files if _.endswith("csv")]
+        x = np.arange(-40, 200, 0.1)
+        datadf = pd.DataFrame(index=x)
+        for file in files:
+            name = name = file.split(".")[0]
+            df = pd.read_csv(file, sep=";", decimal=",", dtype="float", names=["x", "y"])
+            df = df.sort_values(by="x")
+            f = interp1d(df.x, df.y, kind="linear")
+            datadf[name] = f(x)
+            datadf[name] = datadf[name].rolling(11, win_type="triang", center=True).mean()
+        if save:
+            datadf.to_csv(filename)
+            print('saved {}'.format(filename))
+    else:
+        datadf = pd.read_csv(filename)      
+        datadf = datadf.set_index(datadf.columns[0])
     return datadf
 
 
@@ -66,7 +74,7 @@ def test_plot(df):
     return ax
 
 
-gaby_df = load_gaby_data()
+gaby_df = load_gaby_data(extract=False, save=False)
 ax = test_plot(gaby_df)
 
 #%%
@@ -76,6 +84,7 @@ def plot_cgGabyVersion(gabydf, datadf):
         figsize=(11.6, 5), nrows=1, ncols=2, sharex=True, sharey=True
     )
     axes = axes.flatten()
+    used_cells = []
     # inserts
     ins = []
     for ax in axes.flat:
@@ -124,8 +133,9 @@ def plot_cgGabyVersion(gabydf, datadf):
             cell = cells[0]
             cell = "1516gcxg2"
             cols = [_ for _ in df1.columns if cell in _]
-        if anot:
-            ax.set_title(cell, color="tab:grey")
+        # if anot:
+        #     ax.set_title(cell, color="tab:grey")
+        used_cells.append(cell)
         for j, col in enumerate(cols):
             ax.plot(
                 df[col],
@@ -177,6 +187,8 @@ def plot_cgGabyVersion(gabydf, datadf):
             alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+        txt = '{}   |   {}'.format(used_cells[0], used_cells[1])
+        fig.text(0.5, 0.01, txt, ha="center", va="bottom", alpha=0.4)        
     return fig
 
 
