@@ -84,15 +84,25 @@ ax = test_plot(gaby_df)
 #%%
 def plot_cgGabyVersion(gabydf, datadf):
 
-    fig, axes = plt.subplots(
-        figsize=(11.6, 5), nrows=1, ncols=2, sharex=True, sharey=True
-    )
-    axes = axes.flatten()
-    used_cells = []
-    # inserts
+    # fig, axes = plt.subplots(
+    #     figsize=(11.6, 5), nrows=1, ncols=2, sharex=True, sharey=True
+    # )
+    # axes = axes.flatten()
+    fig = plt.figure(figsize=(11.6, 10))
+    axes = []
     ins = []
-    for ax in axes.flat:
-        ins.append(ax.inset_axes([0.7, 0.5, 0.3, 0.5]))
+    ax = fig.add_subplot(221)
+    axes.append(ax)
+    axes.append(fig.add_subplot(222, sharex=ax, sharey=ax))
+    ax = fig.add_subplot(223)
+    ins.append(ax)
+    ins.append(fig.add_subplot(224, sharey=ax))
+
+    used_cells = []
+    # # inserts
+    # ins = []
+    # for ax in axes.flat:
+    #     ins.append(ax.inset_axes([0.7, 0.5, 0.3, 0.5]))
     # # rect = x, y, w, h
     # zoom locations
     zoom_xlims = [(40, 70), (20, 50)]
@@ -171,13 +181,13 @@ def plot_cgGabyVersion(gabydf, datadf):
         ax.set_ylim(zoom_ylims[i])
         ax.axhline(y=0, alpha=0.5, color="k")
         ax.set_yticks([0, 3, 6])
+        ax.set_xlabel("Time (ms)")
     for i, ax in enumerate(fig.get_axes()):
         ax.axhline(y=0, alpha=0.5, color="k")
         ax.axvline(x=0, alpha=0.5, color="k")
-        ax.set_xlabel("Time (ms)")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
-        if i == 0:
+        if i in [0, 2]:
             ax.set_ylabel("Membrane Potential (mV)")
     fig.tight_layout()
     if anot:
