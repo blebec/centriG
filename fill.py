@@ -442,7 +442,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     lines=['-', '-', '--', '--']
 
     # plotting canvas
-    fig = plt.figure(figsize=(11.6, 8))
+    fig = plt.figure(figsize=(180, 10))
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)

@@ -91,7 +91,7 @@ def plot_all_cg_sorted_responses(
 
     # plot
     fig, axes = plt.subplots(
-        4, 2, figsize=(11.6, 12), sharex=True, sharey="col", squeeze=False
+        4, 2, figsize=(12.5, 18), sharex=True, sharey="col", squeeze=False
     )  # •sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)

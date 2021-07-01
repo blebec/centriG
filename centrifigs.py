@@ -94,7 +94,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     alphas = (0.8, 0.8)
     vspread = 0.06  # vertical spread for realign location
 
-    fig = plt.figure(figsize=(17.6, 12))
+    fig = plt.figure(figsize=(18, 12))
     axes = []
     ax0 = fig.add_subplot(231)
     ax1 = fig.add_subplot(232)

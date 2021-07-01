@@ -91,8 +91,6 @@ def extract_values(df, stim="sect", param="time", replaceFull=True):
     return pop_dico, resp_dico
 
 
-#%%
-
 
 def autolabel(ax, rects, sup=False):
     """
@@ -108,8 +106,8 @@ def autolabel(ax, rects, sup=False):
         else:
             ax.text(x, y, "%d" % int(height) + "%", ha="center", va="top")
 
-
-# @config.profile
+#%%
+# config.profile
 def plot_cell_contribution(df, kind=""):
     """
     plot the number of significative cells contributing to the response
@@ -452,7 +450,7 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
     ]
     heights.insert(1, height)
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(11.6, 2.5))
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(18, 3.75))
     axes = axes.flatten()
     titles_here = [titles["time"], "Both", titles["engy"]]
     labels = [relabel[st] for st in pop_dico]
