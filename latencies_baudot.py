@@ -227,7 +227,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
             ["CF-CROSS", "CF-ISO", "CP-CROSS", "CP-ISO"],
         )
     )
-    colors = [std_colors[_] for _ in 'red yellow green brown'.split()]
+    colors = [std_colors[_] for _ in "red yellow green brown".split()]
 
     # convert (center minus periphery) to (periphery minus center)
     # fig = plt.figure(figsize=(8, 6))
@@ -247,7 +247,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     # to get advance <-> positive value
     # datadf[cols[0]] = datadf[cols[0]] * (-1)
     datadf[cols[1]] = datadf[cols[1]] * (-1)
-    
+
     # plotting
     fig = plt.figure(figsize=(11.6, 8))
     fig.suptitle("Impact of the Phase between FF/Horizontal Inputs")
@@ -260,7 +260,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     h0 = fig.add_subplot(gs[1:, 4], sharey=ax0)
     if corner:
         c0 = fig.add_subplot((gs[0, 4]), sharex=ax0, sharey=ax0)
-    
+
     ax0.axhline(0, color="tab:blue", linewidth=2, alpha=0.7)
     ax0.axvline(0, color="tab:blue", linewidth=2, alpha=0.7)
 
@@ -287,7 +287,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
 
     x_intersect = (inter2 - inter1) / (slope1 - slope2)
     ax0.plot(
-        [xmin , x_intersect, xmax ],
+        [xmin, x_intersect, xmax],
         [f1(xmin), f1(x_intersect), f2(xmax)],
         linewidth=10,
         color="tab:grey",
@@ -366,15 +366,16 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
             y,
             color=colors[i],
             marker=markers[stim],
-            s=150,
+            # s=150,
+            s=100,
             alpha=0.8,
             label=label,
-            edgecolor="w",
+            # edgecolor="w",
+            edgecolor=colors[i],
         )
         # export data
-        stat = df[cols].agg(
-            ['count', 'mean', 'std', 'median', 'mad', 'min', 'max'])
-        stat.columns = [stim + '_' + _.split('_')[1] for _ in stat.columns]
+        stat = df[cols].agg(["count", "mean", "std", "median", "mad", "min", "max"])
+        stat.columns = [stim + "_" + _.split("_")[1] for _ in stat.columns]
         for col in stat:
             statdf[col] = stat[col]
         # ax0.scatter(x, y, color=colors[i], marker=markers[stim.split('_')[0]],
@@ -382,12 +383,20 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
         # kde
         kde = stats.gaussian_kde(x)
         # x_kde = np.arange(floor(min(x)), ceil(max(x)), 1)
-        if stim != 'cf_para':
+        if stim != "cf_para":
             x_kde = np.arange(xmin, xmax, 1)
-           # x_kde *= -1
-            v0.plot(x_kde, kde(x_kde), color=colors[i], alpha=1, linewidth=2, linestyle="-")
+            # x_kde *= -1
+            v0.plot(
+                x_kde, kde(x_kde), color=colors[i], alpha=1, linewidth=2, linestyle="-"
+            )
             v0.fill_between(
-                x_kde, kde(x_kde), 0, color=colors[i], alpha=0.2, linewidth=2, linestyle="-"
+                x_kde,
+                kde(x_kde),
+                0,
+                color=colors[i],
+                alpha=0.2,
+                linewidth=2,
+                linestyle="-",
             )
             qx = np.quantile(x, q=[0.25, 0.5, 0.75])
             v0.axvline(qx[1], color=colors[i], alpha=1)
@@ -396,11 +405,13 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
             kde = stats.gaussian_kde(y)
             # y_kde = np.arange(floor(min(y)), ceil(max(y)), 1)
             y_kde = np.arange(ymin, ymax, 1)
-            #y_kde *= -1
-            h0.plot(kde(y_kde), y_kde, color=colors[i], alpha=1, linewidth=2, linestyle="-")
+            # y_kde *= -1
+            h0.plot(
+                kde(y_kde), y_kde, color=colors[i], alpha=1, linewidth=2, linestyle="-"
+            )
             h0.fill_betweenx(y_kde, kde(y_kde), 0, color=colors[i], alpha=0.3)
-        # h0.fill_between(kde(y_kde), y_kde, 0, color=colors[i],
-        #         alpha=0.3)
+            # h0.fill_between(kde(y_kde), y_kde, 0, color=colors[i],
+            #         alpha=0.3)
 
             qy = np.quantile(y, q=[0.25, 0.5, 0.75])
             h0.axhline(qy[1], color=colors[i], alpha=1)
@@ -416,7 +427,11 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
                     label=txt,
                 )
                 c0.plot(
-                    [qy[0], qx[-1]], [qy[1], qy[1]], linewidth=3, color=colors[i], alpha=0.7
+                    [qy[0], qx[-1]],
+                    [qy[1], qy[1]],
+                    linewidth=3,
+                    color=colors[i],
+                    alpha=0.7,
                 )
 
         # regress:
@@ -518,11 +533,13 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
         fig.text(0.5, 0.01, txt, ha="right", va="bottom", alpha=0.4)
     fig.tight_layout()
     statdf = statdf.T
-    statdf['count'] = statdf['count'].astype('int')
+    statdf["count"] = statdf["count"].astype("int")
+
     def kf(ser):
-        return ser.apply(lambda st: st.split('_')[-1])
-    statdf = statdf.reset_index().sort_values(by='index', key=kf)
-    statdf = statdf.set_index('index')
+        return ser.apply(lambda st: st.split("_")[-1])
+
+    statdf = statdf.reset_index().sort_values(by="index", key=kf)
+    statdf = statdf.set_index("index")
     return fig, statdf
 
 

@@ -5,7 +5,6 @@ Created on Thu 12 nov 2020 15:07:38 CET
 @author: cdesbois
 """
 
-
 import os
 from datetime import datetime
 
@@ -439,7 +438,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
     #    alphas = [0.5, 0.5, 0.8, 0.8]
     alphas = [0.8, 1, 1, 1]  # changed for homogeneity
-    lines=['-', '-', '--', '--']
+    lines = ["-", "-", "--", "--"]
 
     # plotting canvas
     fig = plt.figure(figsize=(180, 10))
@@ -465,7 +464,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
         ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], label=col)
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
-    
+
     # ax1 ===============================
     ax = axes[1]
     for i, col in enumerate(cols):
@@ -480,8 +479,11 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             )
         else:
             ax.plot(
-                idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], 
-                label=col, linestyle=lines[i]
+                idf.loc[-120:200, [col]],
+                color=colors[i],
+                alpha=alphas[i],
+                label=col,
+                linestyle=lines[i],
             )
     ax.set_xlabel("Time (ms)")
 
@@ -546,12 +548,14 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # ax3 ===============================
     # predictive magnification
     ax = axes[3]
-    colors = [stdcolors[st] for st in ["k", "red", "red", 'k', "blue_violet"]]
+    colors = [stdcolors[st] for st in ["k", "red", "red", "k", "blue_violet"]]
     linewidths = (1.5, 1.5, 1.5)
     # (first, second, stdup, stddown)
     lp_cols = dict(minus=[2, 5, 3, 4], plus=[1, 6, 7, 8])
     cols = [popdf.columns[i] for i in lp_cols[lp]]
-    lines = ['--', ]
+    lines = [
+        "--",
+    ]
     for i, col in enumerate(cols[:2]):
         ax.plot(
             popdf[col],
@@ -559,7 +563,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             alpha=alphas[i + 2],
             label=col,
             linewidth=linewidths[i],
-            linestyle='--'
+            linestyle="--",
         )
     ax.fill_between(
         popdf.index, popdf[cols[2]], popdf[cols[3]], color=colors[2], alpha=0.2
@@ -615,7 +619,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     fig.subplots_adjust(left=0.045)
 
     # stimulation boxes
-    lines = ['dashed', 'solid']
+    lines = ["dashed", "solid"]
     vlocs = np.linspace(4.1, 3.1, 4)
     ax = axes[1]
     for key in box_dico.keys():
@@ -628,7 +632,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             fontsize="small",
         )
         # stim1 (no-center)
-    # for key in box_dico.keys():
+        # for key in box_dico.keys():
         rect = Rectangle(
             xy=(box_dico[key], vlocs[3]),
             width=step,
@@ -637,7 +641,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             alpha=0.6,
             edgecolor="w",
             facecolor=colors[2],
-            linestyle=lines[0]
+            linestyle=lines[0],
         )
         if key == "D0":
             rect = Rectangle(

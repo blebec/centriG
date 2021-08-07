@@ -259,7 +259,7 @@ def plot_composite_stat(
                     yi,
                     xerr=xe,
                     yerr=ye,
-                    fmt="s",
+                    # fmt="s",
                     color=ci,
                     label=lbi,
                     marker="s",
@@ -311,7 +311,7 @@ plt.close("all")
 shared = False
 mes = ["vm", "spk"][0]
 amp = ["gain", "engy"][1]
-kind = ["mean", "med"][0]
+kind = ["mean", "med"][1]
 stat_df = ldat.build_pop_statdf(amp=amp)  # append gain to load
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)  # append gain to load
 fig1 = plot_composite_stat(
@@ -322,7 +322,7 @@ fig1 = plot_composite_stat(
     amp=amp,
     mes=mes,
     shared=shared,
-    digit=False,
+    digit=True,
 )
 
 save = False
@@ -451,7 +451,7 @@ def plot_composite_stat_1x2(
                     yi,
                     xerr=xe,
                     yerr=ye,
-                    fmt="s",
+                    # fmt="s",
                     color=ci,
                     label=lbi,
                     marker="s",
@@ -504,7 +504,7 @@ def plot_composite_stat_1x2(
 
 plt.close("all")
 save = False
-kind = ["mean", "med"][0]
+kind = ["mean", "med"][1]
 amp = ["gain", "engy"][1]
 stat_df = ldat.build_pop_statdf(amp=amp)  # append gain to load
 stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)  # append gain to load
