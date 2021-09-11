@@ -84,9 +84,9 @@ ax = test_plot(gaby_df)
 #%%
 def plot_cgGabyVersion(gabydf, datadf):
     """
-    two cells examples to explain the change in protocols    
+    two cells examples to explain the change in protocols
     """
-        
+
     fig, axes = plt.subplots(
         figsize=(8.6, 4), nrows=1, ncols=2, sharex=True, sharey=True
     )
@@ -202,9 +202,7 @@ def plot_cgGabyVersion(gabydf, datadf):
 plt.close("all")
 anot = True
 
-try: 
-    data_df
-except:
+if not "data_df" in dir():
     file = "cg_specificity.xlsx"
     file_name = os.path.join(dirname, "sources", file)
     data_df = pd.read_excel(file_name)

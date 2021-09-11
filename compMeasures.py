@@ -154,8 +154,7 @@ def do_lmplot_plot(df, kind="vm", spread="sect"):
         print("spread should be in [sect, full]")
         return
     # colors
-    colors = [std_colors.get(item) for item in 
-              "blue yellow green red".split()]
+    colors = [std_colors.get(item) for item in "blue yellow green red".split()]
     hue_order = "rdiso cpcrx cfiso cpiso".split()
     sns.set_palette(sns.color_palette(colors))
 
@@ -177,8 +176,9 @@ def do_lmplot_plot(df, kind="vm", spread="sect"):
 
 
 save = False
-savePath = os.path.join(paths.get("owncFig"), 
-                        "pythonPreview", "proposal", "enerPeakOrGain")
+savePath = os.path.join(
+    paths.get("owncFig"), "pythonPreview", "proposal", "enerPeakOrGain"
+)
 mes = ["Gain", "Engy"]
 for spread in ["sect", "full"]:
     for kind in ["vm", "spk"]:

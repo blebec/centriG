@@ -91,7 +91,6 @@ def extract_values(df, stim="sect", param="time", replaceFull=True):
     return pop_dico, resp_dico
 
 
-
 def autolabel(ax, rects, sup=False):
     """
     attach the text labels to the rectangles
@@ -105,6 +104,7 @@ def autolabel(ax, rects, sup=False):
             ax.text(x, y, "%d" % int(height) + "%", ha="center", va="bottom")
         else:
             ax.text(x, y, "%d" % int(height) + "%", ha="center", va="top")
+
 
 #%%
 # config.profile

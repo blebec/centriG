@@ -77,8 +77,7 @@ def plot_align_normalize(label, data, substract=False):
     # colors = ['k', std_colors['red'], std_colors['green'],
     #           std_colors['yellow'], std_colors['blue'],
     #           std_colors['blue']]
-    colors = [std_colors[color] for color in 
-              "red green yellow blue blue".split()]
+    colors = [std_colors[color] for color in "red green yellow blue blue".split()]
     colors.insert(0, (0, 0, 0))  # black as first color
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
@@ -159,8 +158,9 @@ def plot_align_normalize(label, data, substract=False):
 
 
 # savepath = "/Users/cdesbois/ownCloud/cgFigures/pythonPreview/proposal/alignNorm"
-savepath = os.path.join(paths.get('owncFig'), 
-                        'pythonPreview', 'old', 'proposal', '4_alignNorm')
+savepath = os.path.join(
+    paths.get("owncFig"), "pythonPreview", "old", "proposal", "4_alignNorm"
+)
 save = False
 #%%
 plt.close("all")

@@ -235,7 +235,7 @@ amp = "engy"
 for kind in ["vm", "spk"]:
     for spread in ["sect", "full"]:
         # for amp in ['gain', 'engy']:
-        fig = plot_all_sorted_responses(
+        fig = plot_all_cg_sorted_responses(
             overlap=True, sort_all=True, kind=kind, amp=amp, age="new", spread=spread
         )
         if save:

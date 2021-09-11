@@ -133,12 +133,12 @@ res_df2 = extract_cg_values2()
 
 #%%
 df = extract_cg_values2()
-cols = [_ for _ in df.columns if 'vm' in _]
-cols = [_ for _ in cols if 'sect' in _ or 'rdisofull' in _]
+cols = [_ for _ in df.columns if "vm" in _]
+cols = [_ for _ in cols if "sect" in _ or "rdisofull" in _]
 cols = sorted(cols)
 
 df = df[cols].T
-df['count'] = df['count'].astype('int').astype('str')
-df['mean'] = df['mean'].apply(lambda x: '{:.1f}'.format(x))
-df['std'] = df['std'].apply(lambda x: '{:.1f}'.format(x))
-df['res'] = df['count'] + ' (' + df['mean'] + '±' + df['std'] + ')'
+df["count"] = df["count"].astype("int").astype("str")
+df["mean"] = df["mean"].apply(lambda x: "{:.1f}".format(x))
+df["std"] = df["std"].apply(lambda x: "{:.1f}".format(x))
+df["res"] = df["count"] + " (" + df["mean"] + "±" + df["std"] + ")"

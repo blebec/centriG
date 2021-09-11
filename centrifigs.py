@@ -325,7 +325,6 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
             ax.axvline(dloc, linestyle=":", alpha=0.4, color="k")
     # fit individual example
 
-
     vmaxes[0].set_ylim(-3.5, 12)
     spkaxes[0].set_ylim(-10, 35)
     # stim location

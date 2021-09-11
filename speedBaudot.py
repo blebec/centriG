@@ -521,7 +521,7 @@ def plot_both(gdf=bined_df):
     ax.legend()
     # set the number off (all) cells in positive
     ax.set_yticklabels([str(int(abs(_))) for _ in ax.get_yticks()])
-   
+
     # # bottom
     # ax = axes[1]
     # txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
@@ -859,8 +859,8 @@ def dotPlotLatency(df):
         ax.plot(
             x,
             y,
-            marker='o',
-            ls='',
+            marker="o",
+            ls="",
             markeredgecolor="w",
             markerfacecolor=colors[i],
             alpha=0.6,
@@ -914,7 +914,7 @@ axT = ax.twinx()
 txt = "Bar n={:.0f}".format(gdf.br_long_bar.sum())
 x = gdf.index
 width = (max(x) - min(x)) / (len(x) - 1) * 0.98
-align="edge"
+align = "edge"
 
 ax.bar(
     x,
