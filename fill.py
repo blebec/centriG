@@ -36,6 +36,70 @@ paths["save"] = os.path.join(
 indi_df = ldat.load_filldata("indi")
 pop_df = ldat.load_filldata("pop")
 
+#%% save the data
+def print_content():
+    """ print the content of the loaded data"""
+    indi_content = ['_'.join(_.split('Iso')) for _ in indi_df.columns]
+    print('individual content = {}'.format(indi_content))
+
+    cols = [_.split('Vm')[1] for _ in pop_df.columns if 'Spk' not in _]
+    for re in ['Iso', 'Cross', 'rnd', 'cp', 'Se', 'cf']:
+        cols = [_.replace(re, '_' + re + '_') for _ in cols]
+    cols = [_.replace('__', '_') for _ in cols]
+    cols = [_.replace('__', '_') for _ in cols]
+    
+    print('pop content (spk and vm=')
+    for col in cols: 
+        print(col)
+
+print_content()
+
+
+def saveData(indidf, popdf, do_save=False):
+    """save the data used to build the figure to an hdf file"""
+    
+    # individual
+    df0 = indidf.copy()
+    cols = []
+    for i, col in enumerate(df0):
+        if col.startswith('s'):
+            col = 'sect_' + col[1:]
+        cols.append(col)
+    for key, nkey in zip(['cpIso', 'Stc', 'So', 'Slp'], 
+                         ['cpIso_', 'surroundThenCenter', 'surroundOnly', 
+                          'surroundLinearPredictor']):
+        cols = [_.replace(key, nkey) for _ in cols]
+    df0.columns = cols 
+    # pop
+    df1 = popdf.drop(columns=[_ for _ in pop_df if 'Spk' in _])
+    cols = [_.split('Vm')[1] for _ in df1.columns]
+    for re in ['Iso', 'Cross', 'rnd', 'cp', 'Se', 'cf']:
+        cols = [_.replace(re, '_' + re + '_') for _ in cols]
+    cols = [_.replace('s_', 'sect_') for _ in cols]
+    cols = [_.replace('Crossect_', 'cross_') for _ in cols]
+    for key, nkey in zip(['s_', 'f_', 'cp_', 'cf_', 'rnd_', '_Stc', '_So', 'lp'], 
+                         ['sect_', '_full_', '_centripetal_', '_centrifugal', '_random_', 
+                          '_surroundThenCenter_', '_surroundOnly_', '_linearPredictor_']):
+        cols = [_.replace(key, nkey) for _ in cols]
+    cols = [_.replace('crossect_', 'cross_') for _ in cols]    
+    cols = [_.replace('__', '_') for _ in cols]
+    cols = [_.replace('Iso', 'iso') for _ in cols]
+    cols = [_.replace('Ctr', 'centerOnly') for _ in cols]
+    cols = [_.replace('sect_c_full_iso', 'sect_centripetal_full_iso') for _ in cols]
+    cols = [_.strip('_') for _ in cols]
+    df1.columns = cols
+       
+    data_savename = os.path.join(paths['figdata'], 'fig6.hdf')
+    if do_save:
+        for key, df in zip(['ind', 'pop'], [df0, df1]):
+            df.to_hdf(data_savename, key)
+    # pdframes = {}
+    # for key in ['ind', 'pop']:
+    #     pdframes[key] = pd.read_hdf(data_savename, key=key)
+
+save = True
+saveData(indi_df, pop_df, save)
+
 #%%
 def plot_indFill(data, stdcolors=std_colors, anot=True):
     """
@@ -424,7 +488,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     # stdcolors=std_colors
     # anot=True
     # ##
-
+    legend = False
     idf = inddata.copy()
     cols = [
         "Center-Only",
@@ -499,7 +563,8 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     cols = [
         "centerOnly",
         "surroundThenCenter",
-        "surroundOnly" "sosdUp",
+        "surroundOnly",
+        "sosdUp",
         "sosdDown",
         "solinearPrediction",
         "stcsdUp",
@@ -689,6 +754,10 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             )
         ax.add_patch(rect)
 
+    if legend:
+        for ax in fig.get_axes():
+            ax.legend()
+
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
@@ -832,6 +901,8 @@ if save:
     )
     file = os.path.join(dirname, "pop_fill.png")
     fig.savefig(os.path.join(dirname, file))
+    
+    
 
 #%%
 
