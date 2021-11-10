@@ -18,10 +18,7 @@ import sys
 
 
 def build_paths():
-    """
-    nb present also i, the load_data.py
-
-    """
+    """the basic configuration for paths"""
     paths = {}
     osname = platform.system()
     username = getpass.getuser()
@@ -39,6 +36,8 @@ def build_paths():
     elif osname == "Darwin" and username == "cdesbois":
         paths["pg"] = os.path.expanduser("~/pg/chrisPg/centriG")
         paths["owncFig"] = os.path.expanduser("~/ownCloud/cgFigures")
+    paths['figdata'] = os.path.join(paths['owncFig'],
+                                    'pythonPreview', 'current', 'fig_data')
     return paths
 
 

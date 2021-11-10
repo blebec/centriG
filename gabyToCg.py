@@ -35,18 +35,18 @@ file_name = os.path.join(dirname, "test.svg")
 #%% load data gaby extracted from svg
 
 
-def load_gaby_data(extract=False, save=False):
+def load_gaby_data(extract=False, do_save=False):
     """ load the data extracter from the gaby plots """
-    dirname = os.path.join(paths["owncFig"], "data", "gabyToCg")
-    filename = os.path.join(dirname, "gabydf.csv")
+    directory = os.path.join(paths["owncFig"], "data", "gabyToCg")
+    filename = os.path.join(directory, "gabydf.csv")
     if extract:
-        os.chdir(os.path.join(dirname, "numGaby"))
+        os.chdir(os.path.join(directory, "numGaby"))
         files = [_ for _ in os.listdir() if os.path.isfile(_)]
         files = [_ for _ in files if _.endswith("csv")]
         x = np.arange(-40, 200, 0.1)
         datadf = pd.DataFrame(index=x)
         for file in files:
-            name = name = file.split(".")[0]
+            name = file.split(".")[0]
             df = pd.read_csv(
                 file, sep=";", decimal=",", dtype="float", names=["x", "y"]
             )
@@ -56,11 +56,12 @@ def load_gaby_data(extract=False, save=False):
             datadf[name] = (
                 datadf[name].rolling(11, win_type="triang", center=True).mean()
             )
-        if save:
+        if do_save:
             datadf.to_csv(filename)
             print("saved {}".format(filename))
     else:
         datadf = pd.read_csv(filename)
+        datadf = pd.DataFrame(datadf)
         datadf = datadf.set_index(datadf.columns[0])
     return datadf
 
@@ -78,8 +79,8 @@ def test_plot(df):
     return ax
 
 
-gaby_df = load_gaby_data(extract=False, save=False)
-ax = test_plot(gaby_df)
+gaby_example_df = load_gaby_data(extract=False, do_save=False)
+ax = test_plot(gaby_example_df)
 
 #%%
 def plot_cgGabyVersion(gabydf, datadf):
@@ -112,7 +113,8 @@ def plot_cgGabyVersion(gabydf, datadf):
     df1 = datadf.copy()
     middle = (df1.index.max() - df1.index.min()) / 2
     df1.index = (df1.index - middle) / 10
-    cells = list(set([_.split("_")[0] for _ in df1.columns]))
+    # cells = list(set([_.split("_")[0] for _ in df1.columns]))
+    cells = list({_.split("_")[0] for _ in df1.columns})
     # limit the date time range
     # df = df.loc[-200:200]
     df1 = df1.loc[-42.5:206]
@@ -202,12 +204,13 @@ def plot_cgGabyVersion(gabydf, datadf):
 plt.close("all")
 anot = True
 
-if not "data_df" in dir():
+if not "cg_example_df" in dir():
+    # centrigabor (cardinal) example data
     file = "cg_specificity.xlsx"
     file_name = os.path.join(dirname, "sources", file)
-    data_df = pd.read_excel(file_name)
+    cg_example_df = pd.read_excel(file_name)
 
-fig = plot_cgGabyVersion(gaby_df, data_df)
+fig = plot_cgGabyVersion(gaby_example_df, cg_example_df)
 
 save = False
 if save:
@@ -219,3 +222,30 @@ if save:
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         fig.savefig(os.path.join(paths["save"], (name + ext)))
+
+#%% save data
+
+def saveData(gabyexampledf, cgexampledf, do_save):
+    """save the data used to build the figure to an hdf file"""
+    df0 = gabyexampledf.copy()
+    df1 = cgexampledf.copy()
+
+    middle = (df1.index.max() - df1.index.min()) / 2
+    df1.index = (df1.index - middle) / 10
+    # cells = list(set([_.split("_")[0] for _ in df1.columns]))
+    # cells = list({_.split("_")[0] for _ in df1.columns})
+    # limit the date time range
+    # df = df.loc[-200:200]
+    df1 = df1.loc[-42.5:206]
+    dfs = [df0, df1]
+
+    data_savename = os.path.join(paths['figdata'], 'fig5.hdf')
+    if do_save:
+        for key, df in zip(['card', 'rad'], dfs):
+            df.to_hdf(data_savename, key)
+    # pdframes = {}
+    # for key in ['card', 'rad']:
+    #     pdframes[key] = pd.read_hdf(data_savename, key=key)
+
+save = False
+saveData(gaby_example_df, cg_example_df, save)
