@@ -136,6 +136,7 @@ def std_names():
     conds = [
         ("_pop", "_pop_"),
         ("_fill", "_fill_"),
+        ("_Speed", "_speed_"),
         ("_Vm", "_Vm_"),
         ("_Spk", "_Spk_"),
         ("_s", "_s_"),

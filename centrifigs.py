@@ -859,6 +859,37 @@ if save:
         filename = os.path.join(paths["save"], (file + ext))
         fig.savefig(filename)
 
+
+def save_fig11_data(do_save=False):
+
+    conds, key_dico = config.std_names()
+
+    filename = "data/data_to_use/fig4.xlsx"
+    df = pd.read_excel(filename, engine="openpyxl")
+    # centering
+    middle = (df.index.max() - df.index.min()) / 2
+    df.index = df.index - middle
+    df.index = df.index / 10
+
+    cols = df.columns
+    cols = ["_" + _ + "_" for _ in cols]
+    for k, v in conds:
+        cols = [_.replace(k, v) for _ in cols]
+    for k, v in key_dico.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = [_.strip("_") for _ in cols]
+    df.columns = cols
+
+    data_savename = os.path.join(paths["figdata"], "fig11.hdf")
+    if do_save:
+        df.to_hdf(data_savename, "speed")
+        print("=" * 20, "{}({})".format(os.path.basename(data_savename), "speed"))
+        for item in cols:
+            print(item)
+        print()
+
+
+save_fig11_data(True)
 #%% test to change the x scale
 
 
