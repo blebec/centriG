@@ -28,6 +28,19 @@ plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
 os.chdir(paths["pg"])
 
+#%% save data for fig7a
+def save7a(do_save=False):
+    df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
+    cols = df.columns
+
+    data_savename = os.path.join(paths["figdata"], "fig7.hdf")
+    if do_save:
+        df.to_hdf(data_savename, key="sort")
+
+
+save7a(True)
+
+
 #%% plot latency (left) and gain (right)
 
 
@@ -64,10 +77,8 @@ def plot_all_cg_sorted_responses(
     }
 
     # parameter
-    cols = [std_colors[item] for item in ["red", "green", "yellow", "blue", "blue"]]
-    colors = []
-    for item in zip(cols, cols):
-        colors.extend(item)
+    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue", "blue"]]
+    colors = [color for color in colors for _ in range(2)]
     # data (call)
     df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
