@@ -108,12 +108,17 @@ def saveData(indidf, popdf, do_save=False):
     if do_save:
         for key, df in zip(["ind", "pop"], [df0, df1]):
             df.to_hdf(data_savename, key)
+            print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+            for item in cols:
+                print(item)
+            print()
+
     # pdframes = {}
     # for key in ['ind', 'pop']:
     #     pdframes[key] = pd.read_hdf(data_savename, key=key)
 
 
-save = False
+save = True
 saveData(indi_df, pop_df, save)
 
 #%%

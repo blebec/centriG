@@ -225,6 +225,7 @@ if save:
 
 #%% save data
 
+
 def saveData(gabyexampledf, cgexampledf, do_save):
     """save the data used to build the figure to an hdf file"""
     df0 = gabyexampledf.copy()
@@ -239,13 +240,19 @@ def saveData(gabyexampledf, cgexampledf, do_save):
     df1 = df1.loc[-42.5:206]
     dfs = [df0, df1]
 
-    data_savename = os.path.join(paths['figdata'], 'fig5.hdf')
+    data_savename = os.path.join(paths["figdata"], "fig5.hdf")
     if do_save:
-        for key, df in zip(['card', 'rad'], dfs):
+        for key, df in zip(["card", "rad"], dfs):
             df.to_hdf(data_savename, key)
+            print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+            for item in df.columns:
+                print(item)
+            print()
+
     # pdframes = {}
     # for key in ['card', 'rad']:
     #     pdframes[key] = pd.read_hdf(data_savename, key=key)
 
-save = False
+
+save = True
 saveData(gaby_example_df, cg_example_df, save)
