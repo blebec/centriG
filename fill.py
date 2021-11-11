@@ -1449,3 +1449,44 @@ if save:
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
+
+#%% save the data for figure 9
+
+
+def save_fig9_data(do_save=False):
+    # pop_df  and data_df
+    conds, key_dico = config.std_names()
+
+    select = dict(age="new", rec="vm", kind="sig")
+    data_df, file = ltra.load_intra_mean_traces(paths, **select)
+
+    data_savename = os.path.join(paths["figdata"], "fig9.hdf")
+    do_save = False
+    if do_save:
+        data_df.to_hdf(data_savename, "popSig")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popFill"))
+    for item in data_df.columns:
+        print(item)
+    print()
+
+    pop_df = ldat.load_filldata("pop")
+    df1 = pop_df.copy()
+    cols = df1.columns
+    cols = ["_" + _ + "_" for _ in cols]
+    for k, v in conds:
+        cols = [_.replace(k, v) for _ in cols]
+    for k, v in key_dico.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = [_.strip("_") for _ in cols]
+    df1.columns = cols
+
+    data_savename = os.path.join(paths["figdata"], "fig9.hdf")
+    if do_save:
+        df1.to_hdf(data_savename, "popFill")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popFill"))
+    for item in cols:
+        print(item)
+    print()
+
+
+save_fig9_data(False)

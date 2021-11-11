@@ -134,6 +134,10 @@ def std_names():
         keydico = dico to name the conditions
         """
     conds = [
+        ("_pop", "_pop_"),
+        ("_fill", "_fill_"),
+        ("_Vm", "_Vm_"),
+        ("_Spk", "_Spk_"),
         ("_s", "_s_"),
         ("_f", "_f_"),
         ("_cp", "_cp_"),
@@ -144,7 +148,9 @@ def std_names():
         ("_So", "_So_"),
         ("_Stc", "_Stc_"),
         ("__", "_"),
+        ("f_ill", "fill"),
     ]
+
     keydico = {
         "_s_": "_sect_",
         "_f_": "_full_",
