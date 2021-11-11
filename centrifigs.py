@@ -9,8 +9,8 @@ import os
 from datetime import datetime
 from importlib import reload
 
-import matplotlib.gridspec as gridspec
-import matplotlib.patches as patches
+from matplotlib import gridspec
+from matplotlib import patches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -329,17 +329,13 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     spkaxes[0].set_ylim(-10, 35)
     # stim location
     ax = spkaxes[0]
-    for key in dico.keys():
+    for key, val in dico.items():
         ax.annotate(
-            key,
-            xy=(dico[key] + step / 2, -5),
-            alpha=0.6,
-            ha="center",
-            fontsize="x-small",
+            key, xy=(val + step / 2, -5), alpha=0.6, ha="center", fontsize="x-small",
         )
         # stim
         rect = Rectangle(
-            xy=(dico[key], -9),
+            xy=(val, -9),
             width=step,
             height=2,
             fill=True,
@@ -441,7 +437,7 @@ plt.close("all")
 age = ["old", "new"][1]
 if "fig2_df" not in globals():
     fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_cpIsoGain(datadf=fig2_df, colsdict=fig2_cols, anot=anot, age=age)
+fig = plot_cpIsoGain(datadf=fig2_df.copy(), colsdict=fig2_cols, anot=anot, age=age)
 save = False
 if save:
     name = "f8_cpIsoGain_alt"
@@ -574,6 +570,101 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age="new"):
 
 fig1 = plot_figure2B(std_colors, anot=anot, age="new")
 fig2 = figp.plot_2B_bis(std_colors, anot=anot, age="new")
+
+#%% save data
+
+
+def save_fig8_data(fig2df, do_save=False):
+    """ export the data to an hdf file"""
+    conds, key_dico = config.std_names()
+
+    cols = fig2df.columns
+    cols = ["_" + _ + "_" for _ in cols]
+    cols = [_.replace("_indi", "_indi_") for _ in cols]
+    cols = [_.replace("_pop", "_pop_") for _ in cols]
+    cols = [_.replace("_Vm", "_vm_") for _ in cols]
+    cols = [_.replace("_Spk", "_spk_") for _ in cols]
+    cols = [_.replace("_Ctr", "_Ctr_") for _ in cols]
+    cols = [_.replace("_ctr", "_Ctr_") for _ in cols]
+    cols = [_.replace("_scp", "_s_cp_") for _ in cols]
+    cols = [_.replace("_Iso", "_iso_") for _ in cols]
+    cols = [_.replace("_Stc", "_Stc_") for _ in cols]
+    cols = [_.replace("_SeUp", "_SeUp_") for _ in cols]
+    cols = [_.replace("_SeDw", "_SeDw_") for _ in cols]
+    for k, v in key_dico.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = [_.strip("_") for _ in cols]
+    datadf = fig2df.copy()
+    datadf.columns = cols
+
+    # do_save = False
+    data_savename = os.path.join(paths["figdata"], "fig8.hdf")
+
+    # individual example:
+    cols = datadf.columns
+    cols = [_ for _ in cols if _.startswith("indi")]
+    if do_save:
+        datadf[cols].to_hdf(data_savename, "example")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "example"))
+    for item in cols:
+        print(item)
+    print()
+
+    # pop
+    cols = datadf.columns
+    cols = [_ for _ in cols if not _.startswith("indi")]
+    cols = [_ for _ in cols if not "Sig" in _]
+    if do_save:
+        datadf[cols].to_hdf(data_savename, "pop")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "pop"))
+    for item in cols:
+        print(item)
+    print()
+
+    # # pop sig
+    # cols = datadf.columns
+    # cols = [_ for _ in cols if not _.startswith("indi")]
+    # cols = [_ for _ in cols if "_Sig" in _]
+    # if do_save:
+    #     datadf[cols].to_hdf(data_savename, "popSig")
+    # print('='*20, '{}({})'.format(os.path.basename(data_savename), 'popSig'))
+    # for item in cols:
+    #     print(item)
+    # print()
+
+    # # pop nSig
+    # cols = datadf.columns
+    # cols = [_ for _ in cols if not _.startswith("indi")]
+    # cols = [_ for _ in cols if "_NSig" in _]
+    # if do_save:
+    #     datadf[cols].to_hdf(data_savename, "popNsig")
+    # print('='*20, '{}({})'.format(os.path.basename(data_savename), 'popNsig'))
+    # for item in cols:
+    #     print(item)
+    # print()
+
+    # sig pop
+    filename = os.path.join(
+        paths["owncFig"],
+        "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
+    )
+    sigdf = pd.read_excel(filename, engine="openpyxl")
+    cols = gfunc.new_columns_names(sigdf.columns)
+    if do_save:
+        sigdf.to_hdf(data_savename, "popSig")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popSig"))
+    for item in cols:
+        print(item)
+    print()
+
+
+try:
+    fig2_df
+except NameError:
+    fig2_df, fig2_cols = ldat.load2("new")
+
+
+save_fig8_data(fig2_df, False)
 
 #%%
 plt.close("all")
@@ -1284,7 +1375,7 @@ fig = plot_figSup4("minus", overlap=True)
 plt.close("all")
 
 
-def plot_figSup3B(kind, stimmode, age="new"):
+def plot_fig_sup3B(kind, stimmode, age="new"):
     """
     plot supplementary figure 5: All conditions spiking responses of Sector and Full stimulations
     input : kind in ['pop': whole population, 'sig': individually significants
@@ -1368,7 +1459,7 @@ def plot_figSup3B(kind, stimmode, age="new"):
         fig.text(
             0.99,
             0.01,
-            "centrifigs.py:plot_figSup3B",
+            "centrifigs.py:plot_fig_sup3B",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -1378,8 +1469,8 @@ def plot_figSup3B(kind, stimmode, age="new"):
     return fig
 
 
-# fig = plot_figSup3B('pop', 'sec',  age='old')
-fig = plot_figSup3B("pop", "ful", age="old")
+# fig = plot_fig_sup3B('pop', 'sec',  age='old')
+fig = plot_fig_sup3B("pop", "ful", age="old")
 
 #%%
 plt.close("all")
@@ -1705,7 +1796,7 @@ fig = plot_speed_multigraph(df, speed_colors)
 #%% test to analyse with x(t) = x(t) - x(t-1)
 
 
-def plotSpeeddiff():
+def plot_speeddiff():
     """ speed diff """
     colors = [speed_colors[item] for item in "k red dark_orange orange yellow".split()]
     alphas = [0.5, 1, 0.8, 0.8, 1]
@@ -1749,7 +1840,7 @@ def plotSpeeddiff():
         fig.text(
             0.99,
             0.01,
-            "centrifigs.py:plotSpeeddiff",
+            "centrifigs.py:plot_speeddiff",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -1758,4 +1849,4 @@ def plotSpeeddiff():
     return fig
 
 
-fig = plotSpeeddiff()
+fig = plot_speeddiff()

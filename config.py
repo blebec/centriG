@@ -152,7 +152,8 @@ def std_names():
         "_cf_": "_centrifugal_",
         "_rnd_": "_rnd_",
         "_Stc_": "_SthenCenter_",
-        "_So_": "_Sonly_",
+        "_So_": "_SurroundOnly_",
+        "_Ctr_": "_CenterOnly_",
         "_Slp_": "_SlinearPredictor_",
     }
     return conds, keydico
