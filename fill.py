@@ -39,65 +39,81 @@ pop_df = ldat.load_filldata("pop")
 #%% save the data
 def print_content():
     """ print the content of the loaded data"""
-    indi_content = ['_'.join(_.split('Iso')) for _ in indi_df.columns]
-    print('individual content = {}'.format(indi_content))
+    indi_content = ["_".join(_.split("Iso")) for _ in indi_df.columns]
+    print("individual content = {}".format(indi_content))
 
-    cols = [_.split('Vm')[1] for _ in pop_df.columns if 'Spk' not in _]
-    for re in ['Iso', 'Cross', 'rnd', 'cp', 'Se', 'cf']:
-        cols = [_.replace(re, '_' + re + '_') for _ in cols]
-    cols = [_.replace('__', '_') for _ in cols]
-    cols = [_.replace('__', '_') for _ in cols]
-    
-    print('pop content (spk and vm=')
-    for col in cols: 
+    cols = [_.split("Vm")[1] for _ in pop_df.columns if "Spk" not in _]
+    for re in ["Iso", "Cross", "rnd", "cp", "Se", "cf"]:
+        cols = [_.replace(re, "_" + re + "_") for _ in cols]
+    cols = [_.replace("__", "_") for _ in cols]
+    cols = [_.replace("__", "_") for _ in cols]
+
+    print("pop content (spk and vm=")
+    for col in cols:
         print(col)
+
 
 print_content()
 
 
 def saveData(indidf, popdf, do_save=False):
     """save the data used to build the figure to an hdf file"""
-    
+    conds, key_dico = config.std_names()
+    # key_dico = {
+    #     "_s_": "_sect_",
+    #     "_f_": "_full_",
+    #     "_cp_": "_centripetal_",
+    #     "_cf_": "_centrifugal_",
+    #     "_rnd_": "_rnd_",
+    #     "_Stc_": "_SthenCenter_",
+    #     "_So_": "_Sonly_",
+    #     "_Slp_": "_SlinearPredictor_",
+    # }
     # individual
     df0 = indidf.copy()
-    cols = []
-    for i, col in enumerate(df0):
-        if col.startswith('s'):
-            col = 'sect_' + col[1:]
-        cols.append(col)
-    for key, nkey in zip(['cpIso', 'Stc', 'So', 'Slp'], 
-                         ['cpIso_', 'surroundThenCenter', 'surroundOnly', 
-                          'surroundLinearPredictor']):
-        cols = [_.replace(key, nkey) for _ in cols]
-    df0.columns = cols 
+    cols = df0.columns
+    cols = ["_" + _ + "_" for _ in cols]
+    # conds = [
+    #     ("_s", "_s_"),
+    #     ("_f", "_f_"),
+    #     ("_cp", "_cp_"),
+    #     ("_cf", "_cf_"),
+    #     ("rnd", "_rnd_"),
+    #     ("_Iso", "_iso_"),
+    #     ("_Cross", "_cross_"),
+    #     ("_So", "_So_"),
+    #     ("_Stc", "_Stc_"),
+    #     ("__", "_"),
+    # ]
+    for k, v in conds:
+        cols = [_.replace(k, v) for _ in cols]
+    for k, v in key_dico.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = [_.strip("_") for _ in cols]
+    df0.columns = cols
+
     # pop
-    df1 = popdf.drop(columns=[_ for _ in pop_df if 'Spk' in _])
-    cols = [_.split('Vm')[1] for _ in df1.columns]
-    for re in ['Iso', 'Cross', 'rnd', 'cp', 'Se', 'cf']:
-        cols = [_.replace(re, '_' + re + '_') for _ in cols]
-    cols = [_.replace('s_', 'sect_') for _ in cols]
-    cols = [_.replace('Crossect_', 'cross_') for _ in cols]
-    for key, nkey in zip(['s_', 'f_', 'cp_', 'cf_', 'rnd_', '_Stc', '_So', 'lp'], 
-                         ['sect_', '_full_', '_centripetal_', '_centrifugal', '_random_', 
-                          '_surroundThenCenter_', '_surroundOnly_', '_linearPredictor_']):
-        cols = [_.replace(key, nkey) for _ in cols]
-    cols = [_.replace('crossect_', 'cross_') for _ in cols]    
-    cols = [_.replace('__', '_') for _ in cols]
-    cols = [_.replace('Iso', 'iso') for _ in cols]
-    cols = [_.replace('Ctr', 'centerOnly') for _ in cols]
-    cols = [_.replace('sect_c_full_iso', 'sect_centripetal_full_iso') for _ in cols]
-    cols = [_.strip('_') for _ in cols]
+    df1 = popdf.drop(columns=[_ for _ in pop_df if "Spk" in _])
+    cols = df1.columns
+    cols = [_.split("Vm")[1] for _ in cols]
+    cols = ["_" + _ + "_" for _ in cols]
+    for k, v in conds:
+        cols = [_.replace(k, v) for _ in cols]
+    for k, v in key_dico.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = [_.strip("_") for _ in cols]
     df1.columns = cols
-       
-    data_savename = os.path.join(paths['figdata'], 'fig6.hdf')
+
+    data_savename = os.path.join(paths["figdata"], "fig6.hdf")
     if do_save:
-        for key, df in zip(['ind', 'pop'], [df0, df1]):
+        for key, df in zip(["ind", "pop"], [df0, df1]):
             df.to_hdf(data_savename, key)
     # pdframes = {}
     # for key in ['ind', 'pop']:
     #     pdframes[key] = pd.read_hdf(data_savename, key=key)
 
-save = True
+
+save = False
 saveData(indi_df, pop_df, save)
 
 #%%
@@ -901,8 +917,7 @@ if save:
     )
     file = os.path.join(dirname, "pop_fill.png")
     fig.savefig(os.path.join(dirname, file))
-    
-    
+
 
 #%%
 

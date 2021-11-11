@@ -36,8 +36,9 @@ def build_paths():
     elif osname == "Darwin" and username == "cdesbois":
         paths["pg"] = os.path.expanduser("~/pg/chrisPg/centriG")
         paths["owncFig"] = os.path.expanduser("~/ownCloud/cgFigures")
-    paths['figdata'] = os.path.join(paths['owncFig'],
-                                    'pythonPreview', 'current', 'fig_data')
+    paths["figdata"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "fig_data"
+    )
     return paths
 
 
@@ -124,3 +125,34 @@ def std_legends():
         cx="cross",
     )
     return dico
+
+
+def std_names():
+    """define standard decoding names to save data
+    returns:
+        conds = list of tuples to separate conditions
+        keydico = dico to name the conditions
+        """
+    conds = [
+        ("_s", "_s_"),
+        ("_f", "_f_"),
+        ("_cp", "_cp_"),
+        ("_cf", "_cf_"),
+        ("rnd", "_rnd_"),
+        ("_Iso", "_iso_"),
+        ("_Cross", "_cross_"),
+        ("_So", "_So_"),
+        ("_Stc", "_Stc_"),
+        ("__", "_"),
+    ]
+    keydico = {
+        "_s_": "_sect_",
+        "_f_": "_full_",
+        "_cp_": "_centripetal_",
+        "_cf_": "_centrifugal_",
+        "_rnd_": "_rnd_",
+        "_Stc_": "_SthenCenter_",
+        "_So_": "_Sonly_",
+        "_Slp_": "_SlinearPredictor_",
+    }
+    return conds, keydico
