@@ -560,6 +560,25 @@ if save:
         figure.savefig(os.path.join(paths["save"], (name + ext)))
 
 
+def save_fig10_data_scatter(do_save=False):
+    """ save the data used to build the figure """
+
+    data_savename = os.path.join(paths["figdata"], "fig10.hdf")
+    # histogram
+    key = "scatter"
+    df = data_df.copy()
+
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+    for item in df.columns:
+        print(item)
+    print()
+    if do_save:
+        df.to_hdf(data_savename, key)
+
+
+save_fig10_data_scatter(do_save=False)
+
+
 #%%
 def plot_onsetTransfertFunc(inputdf):
     """

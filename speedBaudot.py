@@ -558,6 +558,28 @@ def plot_both(gdf=bined_df):
     return fig
 
 
+def save_fig10_data_histo(do_save=False):
+    """ save the data used to build the figure """
+
+    data_savename = os.path.join(paths["figdata"], "fig10.hdf")
+    # histogram
+    key = "histo"
+    df = bined_df.copy()
+    df = df.drop(axis=1, columns=["cgspeed", "pool"])
+    cols = df.columns
+    cols = [_.replace("cgpop", "radial") for _ in cols]
+    cols = [_.replace("bd", "cardinal") for _ in cols]
+    cols = [_.replace("gm", "twoStrokes") for _ in cols]
+    cols = [_.replace("br", "bringuier") for _ in cols]
+    df.columns = cols
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+    for item in cols:
+        print(item)
+    print()
+    if do_save:
+        df.to_hdf(data_savename, "histo")
+
+
 plt.close("all")
 fig = plot_both(bined_df)
 save = False
@@ -573,6 +595,7 @@ if save:
         filename = os.path.join(dirname, (file + ext))
         fig.savefig(filename)
 
+save_fig10_data_histo(False)
 
 #%%
 # targetbins = list(np.linspace(0, 1, 21))
