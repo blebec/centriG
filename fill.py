@@ -59,32 +59,9 @@ print_content()
 def saveData(indidf, popdf, do_save=False):
     """save the data used to build the figure to an hdf file"""
     conds, key_dico = config.std_names()
-    # key_dico = {
-    #     "_s_": "_sect_",
-    #     "_f_": "_full_",
-    #     "_cp_": "_centripetal_",
-    #     "_cf_": "_centrifugal_",
-    #     "_rnd_": "_rnd_",
-    #     "_Stc_": "_SthenCenter_",
-    #     "_So_": "_Sonly_",
-    #     "_Slp_": "_SlinearPredictor_",
-    # }
-    # individual
     df0 = indidf.copy()
     cols = df0.columns
     cols = ["_" + _ + "_" for _ in cols]
-    # conds = [
-    #     ("_s", "_s_"),
-    #     ("_f", "_f_"),
-    #     ("_cp", "_cp_"),
-    #     ("_cf", "_cf_"),
-    #     ("rnd", "_rnd_"),
-    #     ("_Iso", "_iso_"),
-    #     ("_Cross", "_cross_"),
-    #     ("_So", "_So_"),
-    #     ("_Stc", "_Stc_"),
-    #     ("__", "_"),
-    # ]
     for k, v in conds:
         cols = [_.replace(k, v) for _ in cols]
     for k, v in key_dico.items():
@@ -105,20 +82,20 @@ def saveData(indidf, popdf, do_save=False):
     df1.columns = cols
 
     data_savename = os.path.join(paths["figdata"], "fig6.hdf")
-    if do_save:
-        for key, df in zip(["ind", "pop"], [df0, df1]):
+    for key, df in zip(["ind", "pop"], [df0, df1]):
+        print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+        for item in cols:
+            print(item)
+        print()
+        if do_save:
             df.to_hdf(data_savename, key)
-            print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
-            for item in cols:
-                print(item)
-            print()
 
     # pdframes = {}
     # for key in ['ind', 'pop']:
     #     pdframes[key] = pd.read_hdf(data_savename, key=key)
 
 
-save = True
+save = False
 saveData(indi_df, pop_df, save)
 
 #%%
@@ -1466,13 +1443,12 @@ def save_fig9_data(do_save=False):
     data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
     data_savename = os.path.join(paths["figdata"], "fig9.hdf")
-    do_save = False
-    if do_save:
-        data_df.to_hdf(data_savename, "popSig")
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popFill"))
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popSig"))
     for item in data_df.columns:
         print(item)
     print()
+    if do_save:
+        data_df.to_hdf(data_savename, "popSig")
 
     pop_df = ldat.load_filldata("pop")
     df1 = pop_df.copy()
@@ -1486,12 +1462,12 @@ def save_fig9_data(do_save=False):
     df1.columns = cols
 
     data_savename = os.path.join(paths["figdata"], "fig9.hdf")
-    if do_save:
-        df1.to_hdf(data_savename, "popFill")
     print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popFill"))
     for item in cols:
         print(item)
     print()
+    if do_save:
+        df1.to_hdf(data_savename, "popFill")
 
 
 save_fig9_data(False)

@@ -34,16 +34,15 @@ def save7a(do_save=False):
     cols = df.columns
 
     data_savename = os.path.join(paths["figdata"], "fig7.hdf")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "sort"))
+    for item in cols:
+        print(item)
+    print()
     if do_save:
         df.to_hdf(data_savename, key="sort")
-        print("=" * 20, "{}({})".format(os.path.basename(data_savename), "sort"))
-        for item in cols:
-            print(item)
-        print()
 
 
 save7a(False)
-
 
 #%% plot latency (left) and gain (right)
 
