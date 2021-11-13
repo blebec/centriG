@@ -246,9 +246,8 @@ def stats_brdf(brdf):
                 expansion.extend(temp)
         expansion = pd.Series(expansion)
         res = expansion.aggregate(["mean", "std", "median", "mad"])
-        print("-" * 20)
-        print(col)
-        print(res)
+        print("{:-^20}".format(col))
+        print(res, "\n")
 
 
 stats_brdf(brdf)

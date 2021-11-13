@@ -130,6 +130,9 @@ def load_onsets():
             df[col] = df[col].astype(float)
         except:
             cols.append(col)
+    # limit only to required
+    cols = ["stim", "name", "lat_vm_c-p", "lat_spk_seq-c"]
+    df = df[cols]
     return df
 
 
@@ -567,7 +570,7 @@ def save_fig10_data_scatter(do_save=False):
     # histogram
     key = "scatter"
     df = data_df.copy()
-
+    print()
     print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
     for item in df.columns:
         print(item)
