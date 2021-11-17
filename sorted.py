@@ -273,3 +273,155 @@ for kind in ["vm", "spk"]:
 #     fig.savefig(filename, format='png')
 
 # =============================================================================
+
+#%% test boxplot
+# df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
+
+# conds = list(dict.fromkeys([_.split("_")[0] for _ in df.columns if mes in _]))
+
+plt.close("all")
+
+
+def load_pop():
+    popdf = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
+    # significative cells
+    conds = list(dict.fromkeys([_.split("_")[0] for _ in popdf.columns]))
+    # nb sig cells <-> sig for any of conditions
+    sigcells = {}
+    for cond in conds:
+        sigcells[cond] = popdf[
+            popdf[[_ for _ in popdf.columns if cond in _ if "_sig" in _]].sum(axis=1)
+            > 0
+        ].index.to_list()
+    cols = popdf.columns
+    # pop
+    cols = [_ for _ in popdf.columns if "_sig" not in _]
+    popdf = popdf[cols]
+    return popdf, sigcells
+
+
+def boxPlot(popdf, sigcells, pop=False):
+
+    titles = {
+        "engy": r"$\Delta$ Response",
+        "time50": r"$\Delta$ Latency",
+        "gain50": "Amplitude Gain",
+        "sect": "Sector",
+        "spk": "Spikes",
+        "vm": "Vm",
+        "full": "Full",
+    }
+    df = popdf.copy()
+    scells = sigcells.copy()
+    if pop:
+        for k in scells:
+            scells[k] = popdf.index.to_list()
+
+    # fig, axes = plt.subplots(nrows=2, ncols=2)
+    # axes = axes.flatten('F')
+
+    fig = plt.figure()
+    axes = []
+    ax0 = fig.add_subplot(221)
+    axes.append(ax0)
+    axes.append(fig.add_subplot(223, sharey=ax0))
+    ax1 = fig.add_subplot(222)
+    axes.append(ax1)
+    axes.append(fig.add_subplot(224, sharey=ax1))
+
+    # select data
+    colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue"]]
+    measures = ["time50", "engy"]
+    spreads = ["sect", "full"]
+    keys = [(a, b) for a in measures for b in spreads]
+
+    for i, (mes, spread) in enumerate(keys):
+        cols = [_ for _ in df.columns if mes in _ if spread in _ if "_sig" not in _]
+        toPlot = pd.DataFrame()
+        for col in cols:
+            cells = scells[col.split("_")[0]]
+            ser = pd.Series(name=col, data=df.loc[cells][col].values)
+            toPlot = pd.concat([toPlot, ser], ignore_index=True, axis=1)
+        toPlot.columns = cols
+        # drop nan
+        data = toPlot.values
+        mask = ~np.isnan(data)
+        filtered_data = [d[m] for d, m in zip(data.T, mask.T)]
+
+        ax = axes[i]
+        if i < 2:
+            bp = ax.boxplot(
+                filtered_data,
+                notch=True,
+                vert=False,
+                # meanline=True,
+                # showmeans=True,
+                patch_artist=True,
+                showcaps=False,
+            )
+        else:
+            bp = ax.boxplot(
+                filtered_data,
+                notch=True,
+                vert=True,
+                # meanline=True,
+                # showmeans=True,
+                patch_artist=True,
+                showcaps=False,
+            )
+
+        for j, patch in enumerate(bp["boxes"]):
+            patch.set(facecolor=colors[j], alpha=0.3)
+        #    ax.set_xticklabels(toPlot.columns.to_list(), rotation=45, ha="right")
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+
+    axes[0].set_title(titles[measures[0]])
+    axes[0].set_ylabel(titles[spreads[0]])
+    axes[1].set_ylabel(titles[spreads[1]])
+    axes[2].set_title(titles[measures[1]])
+
+    conds = [_.split("_")[0][:-4] for _ in cols]
+    axes[0].set_yticklabels(conds * 2)
+    axes[-1].set_xticklabels(conds)
+    axes[0].set_xlim(axes[0].get_xlim()[0], 20)
+    axes[1].set_xlim(axes[0].get_xlim()[0], 20)
+
+    axes[0].set_xticklabels([])
+    axes[2].set_xticklabels([])
+    for ax in axes[:2]:
+        ax.axvline(0, alpha=0.3, color="k")
+    for ax in axes[2:]:
+        ax.axhline(0, alpha=0.3, color="k")
+
+    if anot:
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            0.99, 0.01, "sorted.py:boxPlot", ha="right", va="bottom", alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+        if pop:
+            fig.text(0.5, 0.01, "pop", ha="left", va="bottom", alpha=0.4)
+        else:
+            fig.text(0.5, 0.01, "sigPop", ha="left", va="bottom", alpha=0.4)
+
+    fig.tight_layout()
+    return fig
+
+
+if not "pop_df" in dir():
+    pop_df, sig_cells = load_pop()
+
+
+save = False
+for pop in [True, False]:
+    fig = boxPlot(pop_df, sig_cells, pop=pop)
+    if save:
+        if pop:
+            file = "boxplot_pop.pdf"
+        else:
+            file = "boxplot_sigPop.pdf"
+        dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
+        fig.savefig(os.path.join(dirname, file))
+
+#%% replace nonsig by nan values
