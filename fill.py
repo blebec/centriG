@@ -81,18 +81,18 @@ def saveData(indidf, popdf, do_save=False):
     cols = [_.strip("_") for _ in cols]
     df1.columns = cols
 
-    data_savename = os.path.join(paths["figdata"], "fig6.hdf")
+    datasavename = os.path.join(paths["figdata"], "fig6.hdf")
     for key, df in zip(["ind", "pop"], [df0, df1]):
-        print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+        print("=" * 20, "{}({})".format(os.path.basename(datasavename), key))
         for item in df.columns:
             print(item)
         print()
         if do_save:
-            df.to_hdf(data_savename, key)
+            df.to_hdf(datasavename, key)
 
     # pdframes = {}
     # for key in ['ind', 'pop']:
-    #     pdframes[key] = pd.read_hdf(data_savename, key=key)
+    #     pdframes[key] = pd.read_hdf(datasavename, key=key)
 
 
 save = False
@@ -359,7 +359,8 @@ def plot_pop_predict(data, lp="minus", stdcolors=std_colors):
     cols = [
         "centerOnly",
         "surroundThenCenter",
-        "surroundOnly" "sosdUp",
+        "surroundOnly",
+        "sosdUp",
         "sosdDown",
         "solinearPrediction",
         "stcsdUp",
@@ -1217,6 +1218,8 @@ plt.close("all")
 
 def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
 
+    add_std = True
+
     colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
@@ -1273,6 +1276,16 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
             linewidth=1.5,
             label=df.columns[i],
         )
+        if add_std:
+            if col == "popfillVmscpIsoStc":
+                ax.fill_between(
+                    df.index,
+                    df.popfillVmscpIsoStcSeup,
+                    df.popfillVmscpIsoStcSedw,
+                    color=colors[i],
+                    alpha=0.3,
+                )
+
     ax.set_xlim(-20, 50)
     # response point
     x = 0
@@ -1302,6 +1315,8 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
             linewidth=1.5,
             label=df.columns[i],
         )
+        if add_std:
+            pass
     x = 0
     y = df[spks[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
@@ -1331,6 +1346,15 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
         ax.plot(
             df[col], color=colors[i + 1], alpha=alphas[i + 1], linewidth=1.5, label=col
         )
+        if add_std:
+            if col == "popfillVmscpIsoSo":
+                ax.fill_between(
+                    df.index,
+                    df.popfillVmscpIsoSoSeup,
+                    df.popfillVmscpIsoSoSedw,
+                    color=colors[i + 1],
+                    alpha=0.3,
+                )
     # response point
     x = 0
     y = df[df.columns[0]].loc[0]
@@ -1458,22 +1482,23 @@ if save:
 
 
 def save_fig9_data(do_save=False):
+    """export the data in an hdf file"""
     # pop_df  and data_df
     conds, key_dico = config.std_names()
 
     select = dict(age="new", rec="vm", kind="sig")
-    data_df, file = ltra.load_intra_mean_traces(paths, **select)
+    datadf, file = ltra.load_intra_mean_traces(paths, **select)
 
-    data_savename = os.path.join(paths["figdata"], "fig9.hdf")
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popSig"))
-    for item in data_df.columns:
+    datasavename = os.path.join(paths["figdata"], "fig9.hdf")
+    print("=" * 20, "{}({})".format(os.path.basename(datasavename), "popSig"))
+    for item in datadf.columns:
         print(item)
     print()
     if do_save:
-        data_df.to_hdf(data_savename, "popSig")
+        datadf.to_hdf(datasavename, "popSig")
 
-    pop_df = ldat.load_filldata("pop")
-    df1 = pop_df.copy()
+    popdf = ldat.load_filldata("pop")
+    df1 = popdf.copy()
     cols = df1.columns
     cols = ["_" + _ + "_" for _ in cols]
     for k, v in conds:
@@ -1483,13 +1508,13 @@ def save_fig9_data(do_save=False):
     cols = [_.strip("_") for _ in cols]
     df1.columns = cols
 
-    data_savename = os.path.join(paths["figdata"], "fig9.hdf")
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popFill"))
+    datasavename = os.path.join(paths["figdata"], "fig9.hdf")
+    print("=" * 20, "{}({})".format(os.path.basename(datasavename), "popFill"))
     for item in cols:
         print(item)
     print()
     if do_save:
-        df1.to_hdf(data_savename, "popFill")
+        df1.to_hdf(datasavename, "popFill")
 
 
 save_fig9_data(False)
