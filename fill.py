@@ -84,7 +84,7 @@ def saveData(indidf, popdf, do_save=False):
     data_savename = os.path.join(paths["figdata"], "fig6.hdf")
     for key, df in zip(["ind", "pop"], [df0, df1]):
         print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
-        for item in cols:
+        for item in df.columns:
             print(item)
         print()
         if do_save:
@@ -479,7 +479,9 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     """
     filling in example + pop
     """
-
+    # boolean to add std
+    indi_std = False  # not used at the moment (no data available)
+    pop_std = True
     # ## to build
     # inddata = indi_df
     # popdata = pop_df
@@ -519,7 +521,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
 
     # fig.suptitle(os.path.basename(filename))
     # traces
-    # ax0 ===============================
+    # ax0 =============================== indi
     ax = axes[0]
     ax.set_title("Single Cell")
     for i, col in enumerate(cols[:2]):
@@ -527,7 +529,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
 
-    # ax1 ===============================
+    # ax1 =============================== indi
     ax = axes[1]
     for i, col in enumerate(cols):
         if i == 3:  # dashed
@@ -569,6 +571,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
         "stcsdDown",
         "stcLinearPreediction",
     ]
+    popdf.drop(columns=[_ for _ in popdf.columns if "Spk" in _], inplace=True)
     dico = dict(zip(popdf.columns, cols))
     popdf.rename(columns=dico, inplace=True)
     cols = popdf.columns
@@ -598,6 +601,24 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             linestyle=lines[i],
             label=col,
         )
+        # std for pop
+        if pop_std:
+            if i == 1:  # surround then center
+                ax.fill_between(
+                    popdf.index,
+                    popdf["stcsdUp"],
+                    popdf["stcsdDown"],
+                    color=colors[1],
+                    alpha=0.3,
+                )
+            if i == 2:  # surround only
+                ax.fill_between(
+                    popdf.index,
+                    popdf["sosdUp"],
+                    popdf["sosdDown"],
+                    color=colors[2],
+                    alpha=0.2,
+                )
     # response point
     x = 0
     y = popdf[popdf.columns[0]].loc[0]
@@ -620,6 +641,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
         "--",
     ]
     for i, col in enumerate(cols[:2]):
+        print(i, col)
         ax.plot(
             popdf[col],
             color=colors[i + 2],
@@ -629,7 +651,7 @@ def plot_indFill_popPredict(inddata, popdata, stdcolors=std_colors, anot=True):
             linestyle="--",
         )
     ax.fill_between(
-        popdf.index, popdf[cols[2]], popdf[cols[3]], color=colors[2], alpha=0.2
+        popdf.index, popdf["sosdUp"], popdf["sosdDown"], color=colors[2], alpha=0.2
     )
 
     for i, ax in enumerate(axes):
