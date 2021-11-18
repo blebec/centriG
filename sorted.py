@@ -358,6 +358,7 @@ def boxPlot(popdf, sigcells, pop=False):
                 # showmeans=True,
                 patch_artist=True,
                 showcaps=False,
+                widths=0.7,
             )
         else:
             bp = ax.boxplot(

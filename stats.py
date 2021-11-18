@@ -18,6 +18,8 @@ paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "stat")
 std_colors = config.std_colors()
 anot = True
 
+plt.rcParams.update(config.rc_params())
+
 plt.rcParams["axes.xmargin"] = 0.05
 plt.rcParams["axes.ymargin"] = 0.05
 
@@ -34,6 +36,7 @@ def plot_stat(statdf, kind="mean", legend=False, digit=False):
         digit : bool (use nb of cell as a marker)
     output : matplotlib figure
     """
+    titles = config.std_titles()
     stats = dict(mean=["_mean", "_sem"], med=["_med", "_mad"])
     stat = stats.get(kind, "")
     if not stat:
@@ -50,12 +53,12 @@ def plot_stat(statdf, kind="mean", legend=False, digit=False):
     title = "{}    ({} ± {}) ".format(ref, stat[0][1:], stat[1][1:])
     fig.suptitle(title)
     # plots
-    conds = conds = [(a, b) for a in ["vm", "spk"] for b in ["sec", "full"]]
+    conds = [(a, b) for a in ["vm", "spk"] for b in ["sec", "full"]]
     for i, cond in enumerate(conds):
         ax = axes[i]
         rec = cond[0]
         spread = cond[1]
-        ax.set_title("{} {}".format(rec, spread))
+        ax.set_title("{} {}".format(titles[rec], titles[spread]))
         # select spread (sect, full)
         rows = [st for st in statdf.index.tolist() if spread in st]
         # append random full
@@ -67,7 +70,7 @@ def plot_stat(statdf, kind="mean", legend=False, digit=False):
         cols = [col for col in statdf.columns if col.startswith(rec)]
         cols = [st for st in cols if stat[0] in st or stat[1] in st]
         # build labels
-        labels = [st.split("_")[0] for st in y_rows]
+        labels = [st.split("_")[0][:-4] for st in y_rows]
         # values (for x an y)
         x = statdf.loc[time_rows, cols][rec + stat[0]].values
         xerr = statdf.loc[time_rows, cols][rec + stat[1]].values
@@ -117,12 +120,12 @@ def plot_stat(statdf, kind="mean", legend=False, digit=False):
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel(r"$\Delta$ energy")
+                ax.set_ylabel(r"$\Delta$ Response")
             else:
                 ax.spines["left"].set_visible(False)
                 ax.yaxis.set_visible(False)
             if i > 1:
-                ax.set_xlabel("latency advance (ms)")
+                ax.set_xlabel(r"$\Delta$ Latency")
             else:
                 ax.spines["bottom"].set_visible(False)
                 ax.xaxis.set_visible(False)
@@ -169,7 +172,7 @@ def plot_composite_stat(
     amp="engy",
     mes="vm",
     legend=False,
-    shared=True,
+    share=True,
     digit=False,
 ):
     """
@@ -178,25 +181,15 @@ def plot_composite_stat(
     output : matplotlib figure
     here combined top = full pop, bottom : significative pop
     """
-    if kind == "mean":
-        stat = ["_mean", "_sem"]
-    elif kind == "med":
-        stat = ["_med", "_mad"]
-    else:
+    kinds = {"mean": ["_mean", "_sem"], "med": ["_med", "_mad"]}
+    stat = kinds.get(kind, None)
+    if stat is None:
         print("non valid kind argument")
         return
+    titles = config.std_titles()
+    colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue", "dark_blue"]]
 
-    ylabels = dict(engy=r"$\Delta\ energy$", gain=r"$\Delta\ gain$")
-
-    colors = [
-        std_colors["red"],
-        std_colors["green"],
-        std_colors["yellow"],
-        std_colors["blue"],
-        std_colors["dark_blue"],
-    ]
-
-    if shared:
+    if share:
         # share scales high and low
         fig, axes = plt.subplots(
             nrows=2, ncols=2, figsize=(8, 8), sharex=True, sharey=True
@@ -289,13 +282,13 @@ def plot_composite_stat(
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
             if i % 2 == 0:
-                ax.set_ylabel(ylabels.get(amp, "not defined"))
+                ax.set_ylabel(titles.get(amp, "not defined"))
             #                ax.set_ylabel('energy')
             else:
                 ax.spines["left"].set_visible(False)
                 ax.yaxis.set_visible(False)
             if i > 1:
-                ax.set_xlabel("latency advance (ms)")
+                ax.set_xlabel(titles["time50"])
             else:
                 pass
                 # ax.spines['bottom'].set_visible(False)
@@ -312,18 +305,18 @@ def plot_composite_stat(
 
 plt.close("all")
 shared = False
-mes = ["vm", "spk"][0]
-amp = ["gain", "engy"][1]
-kind = ["mean", "med"][1]
-stat_df = ldat.build_pop_statdf(amp=amp)  # append gain to load
-stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)  # append gain to load
+measure = ["vm", "spk"][1]
+amplitude = ["gain", "engy"][1]
+kind_display = ["mean", "med"][0]
+stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
 fig1 = plot_composite_stat(
     stat_df,
     stat_df_sig,
     sig_cells,
-    kind=kind,
-    amp=amp,
-    mes=mes,
+    kind=kind_display,
+    amp=amplitude,
+    mes=measure,
     shared=shared,
     digit=True,
 )
@@ -332,24 +325,25 @@ save = False
 if save:
     if shared:
         filename = os.path.join(
-            paths["save"], mes + amp.title() + "_composite_meanSem.png"
+            paths["save"], measure + amplitude.title() + "_composite_meanSem.png"
         )
     else:
         filename = os.path.join(
-            paths["save"], "nshared_" + mes + amp.title() + "_composite_meanSem.png"
+            paths["save"],
+            "nshared_" + measure + amplitude.title() + "_composite_meanSem.png",
         )
     fig1.savefig(filename)
 
 # for shared in [True, False]:
 #     for mes in ['vm', 'spk']:
 #         for amp in ['gain', 'engy']:
-#             kind = ['mean', 'med'][0]
+#             kind_display = ['mean', 'med'][0]
 
 
 #             stat_df = ldat.build_pop_statdf(amp=amp)                        # append gain to load
 #             stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)   # append gain to load
 #             fig1 = plot_composite_stat(stat_df, stat_df_sig, sig_cells,
-#                            kind=kind, amp=amp, mes=mes,
+#                            kind=kind_display, amp=amp, mes=mes,
 #                            shared=shared, digit=False)
 
 #%%
@@ -362,7 +356,7 @@ def plot_composite_stat_1x2(
     amp="engy",
     mes="vm",
     legend=False,
-    shared=True,
+    share=True,
     digit=False,
 ):
     """
@@ -378,24 +372,12 @@ def plot_composite_stat_1x2(
     else:
         print("non valid kind argument")
         return
-
-    ylabels = dict(engy=r"$\Delta\ energy$", gain=r"$\Delta\ gain$")
-
-    titles = dict(
-        time=r"Latency Advance (% significant cells)",
-        engy=r"$\Delta$ Energy (% significant cells)",
-        sect="Sector",
-        full="Full",
-        vm="Vm",
-        spk="Spikes",
-    )
-    colors = [
-        std_colors[color] for color in ["red", "green", "yellow", "blue", "dark_blue"]
-    ]
+    titles = config.std_titles()
+    colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue", "dark_blue"]]
 
     data = [statdf, statdfsig]
     pops = ["population", "sig_pops"]
-    if shared:
+    if share:
         fig, axes = plt.subplots(
             nrows=1, ncols=2, figsize=(8, 4), sharex=True, sharey=True
         )
@@ -416,18 +398,18 @@ def plot_composite_stat_1x2(
         ax_title = "{}".format(pop)
         ax.set_title(ax_title)
         # select spread (sect, full)
-        rows = [st for st in df.index.tolist() if spread in st]
+        rows = [_ for _ in df.index.tolist() if spread in _]
         # append random full if sector
         if spread == "sect":
-            rows.extend([st for st in stat_df.index if st.startswith("rdisofull")])
+            rows.extend([_ for _ in stat_df.index if _.startswith("rdisofull")])
         # df indexes (for x and y)
-        time_rows = [st for st in rows if "time50" in st]
-        y_rows = [st for st in rows if amp in st]
+        time_rows = [_ for _ in rows if "time50" in _]
+        y_rows = [_ for _ in rows if amp in _]
         # y_rows = [st for st in rows if 'engy' in st]
-        cols = [col for col in df.columns if col.startswith(rec)]
-        cols = [st for st in cols if stat[0] in st or stat[1] in st]
+        cols = [_ for _ in df.columns if _.startswith(rec)]
+        cols = [_ for _ in cols if stat[0] in _ or stat[1] in _]
         # labels
-        labels = [st.split("_")[0] for st in y_rows]
+        labels = [_.split("_")[0] for _ in y_rows]
         # values (for x an y)
         x = df.loc[time_rows, cols][rec + stat[0]].values
         xerr = df.loc[time_rows, cols][rec + stat[1]].values
@@ -480,12 +462,12 @@ def plot_composite_stat_1x2(
         ax.axhline(0, linestyle="-", alpha=0.4, color="k")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
-            ax.set_xlabel("latency advance (ms)")
+            ax.set_xlabel(titles["time50"])
             if i > 0:
                 ax.spines["left"].set_visible(False)
 
             else:
-                ax.set_ylabel(ylabels.get(amp, "not defined"))
+                ax.set_ylabel(titles.get(amp, "not defined"))
                 # ax.spines['bottom'].set_visible(False)
                 # ax.xaxis.set_visible(False)
     fig.tight_layout()
@@ -507,18 +489,18 @@ def plot_composite_stat_1x2(
 
 plt.close("all")
 save = False
-kind = ["mean", "med"][1]
-amp = ["gain", "engy"][1]
-stat_df = ldat.build_pop_statdf(amp=amp)  # append gain to load
-stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)  # append gain to load
+kind_display = ["mean", "med"][1]
+amplitude = ["gain", "engy"][1]
+stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
 fig1 = plot_composite_stat_1x2(
     stat_df,
     stat_df_sig,
     sig_cells,
-    kind=kind,
-    amp=amp,
+    kind=kind_display,
+    amp=amplitude,
     mes="vm",
-    shared=True,
+    share=True,
     spread="sect",
     digit=True,
 )
@@ -529,17 +511,17 @@ if save:
     fig1.savefig(os.path.join(dirname, file))
 #%%
 for shared in [True, False]:
-    for mes in ["vm", "spk"]:
-        for spread in ["sect", "full"]:
+    for measure in ["vm", "spk"]:
+        for spread_space in ["sect", "full"]:
             fig1 = plot_composite_stat_1x2(
                 stat_df,
                 stat_df_sig,
                 sig_cells,
-                kind=kind,
-                amp=amp,
-                mes=mes,
-                shared=shared,
-                spread=spread,
+                kind=kind_display,
+                amp=amplitude,
+                mes=measure,
+                share=shared,
+                spread=spread_space,
                 digit=False,
             )
             if save:
@@ -547,12 +529,15 @@ for shared in [True, False]:
                     filename = os.path.join(
                         paths["save"],
                         "composite1x2",
-                        "composite_stat_1x2_" + mes + spread.title() + ".png",
+                        "composite_stat_1x2_" + measure + spread_space.title() + ".png",
                     )
                 else:
                     filename = os.path.join(
                         paths["save"],
                         "composite1x2",
-                        "ns_composite_stat_1x2_" + mes + spread.title() + ".png",
+                        "ns_composite_stat_1x2_"
+                        + measure
+                        + spread_space.title()
+                        + ".png",
                     )
                 fig1.savefig(filename)

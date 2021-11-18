@@ -164,3 +164,22 @@ def std_names():
         "_Slp_": "_SlinearPredictor_",
     }
     return conds, keydico
+
+
+def std_titles():
+    """define a standard name for titles
+    returns:
+        a dico of names
+        """
+    std_titles = {
+        "engy": r"$\Delta$ Response",
+        "time50": r"$\Delta$ Latency",
+        "gain50": "Amplitude Gain",
+        "gain": "Amplitude Gain",
+        "sect": "Sector",
+        "sec": "Sector",
+        "spk": "Spikes",
+        "vm": "Vm",
+        "full": "Full",
+    }
+    return std_titles
