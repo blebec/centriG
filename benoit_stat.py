@@ -112,7 +112,15 @@ plt.close("all")
 
 def plot_histo(df, num=8, kind="x"):
     """ display histogramme of advance or latency for all kind of stimulations """
-    colors = {"rndiso": "b", "cpcross": "gold", "cpiso": "r", "cfiso": "g"}
+    # colors = {"rndiso": "b", "cpcross": "gold", "cpiso": "r", "cfiso": "g"}
+    stdcolors = config.std_colors()
+    colors = {
+        "rndiso": stdcolors["blue"],
+        "cpcross": stdcolors["yellow"],
+        "cpiso": stdcolors["red"],
+        "cfiso": stdcolors["green"],
+    }
+
     fig, axs = plt.subplots(
         2, num // 2, sharex=True, sharey=True, tight_layout=True, figsize=(14, 8)
     )
@@ -125,13 +133,13 @@ def plot_histo(df, num=8, kind="x"):
         title = ""
     fig.suptitle(title)
     # select data
-    cols = [item for item in df.columns if item[-1] == kind]
+    cols = [_ for _ in df.columns if _[-1] == kind]
     #    cols = []
     #    for col in df.columns:
     #        if kind in col:
     #            cols.append(col)
-    sect = sorted([item for item in cols if "Sector" in item])
-    full = sorted([item for item in cols if "Full" in item])
+    sect = sorted([_ for _ in cols if "Sector" in _])
+    full = sorted([_ for _ in cols if "Full" in _])
     cols = sect + full
     # plot
     for i, col in enumerate(cols):
@@ -179,7 +187,13 @@ def plot_sectorfull(df):
             kinds.append(kind)
         kinds = sorted(kinds)
     # prepare
-    colors = {"rndiso": "b", "cpcross": "gold", "cpiso": "r", "cfiso": "g"}
+    stdcolors = config.std_colors()
+    colors = {
+        "rndiso": stdcolors["blue"],
+        "cpcross": stdcolors["yellow"],
+        "cpiso": stdcolors["red"],
+        "cfiso": stdcolors["green"],
+    }
     # plot
     fig = plt.figure(figsize=(12, 6))
     axes = [fig.add_subplot(1, 2, i + 1) for i in range(2)]
@@ -235,7 +249,13 @@ def plot_rank(df, num=8, kind="_x"):
     input : dataframe, num=number of plots, kind in ['_x', '_y']
     output : matplotlib figure
     """
-    colors = {"rndiso": "b", "cpcross": "gold", "cpiso": "r", "cfiso": "g"}
+    stdcolors = config.std_colors()
+    colors = {
+        "rndiso": stdcolors["blue"],
+        "cpcross": stdcolors["yellow"],
+        "cpiso": stdcolors["red"],
+        "cfiso": stdcolors["green"],
+    }
     fig, axs = plt.subplots(
         2, num // 2, sharex=False, sharey=True, tight_layout=True, figsize=(14, 8)
     )
