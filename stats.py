@@ -220,18 +220,18 @@ def plot_composite_stat(
         ax_title = "{} ({} {})".format(pop, rec, spread)
         ax.set_title(ax_title)
         # select spread (sect, full)
-        rows = [st for st in df.index.tolist() if spread in st]
+        rows = [_ for _ in df.index.tolist() if spread in _]
         # append random full if sector
         if spread == "sect":
-            rows.extend([st for st in stat_df.index if st.startswith("rdisofull")])
+            rows.extend([_ for _ in stat_df.index if _.startswith("rdisofull")])
         # df indexes (for x and y)
-        time_rows = [st for st in rows if "time50" in st]
-        y_rows = [st for st in rows if amp in st]
+        time_rows = [_ for _ in rows if "time50" in _]
+        y_rows = [_ for _ in rows if amp in _]
         # y_rows = [st for st in rows if 'engy' in st]
-        cols = [col for col in df.columns if col.startswith(rec)]
-        cols = [st for st in cols if stat[0] in st or stat[1] in st]
+        cols = [_ for _ in df.columns if _.startswith(rec)]
+        cols = [_ for _ in cols if stat[0] in _ or stat[1] in _]
         # labels
-        labels = [st.split("_")[0] for st in y_rows]
+        labels = [_.split("_")[0] for _ in y_rows]
         # values (for x an y)
         x = df.loc[time_rows, cols][rec + stat[0]].values
         xerr = df.loc[time_rows, cols][rec + stat[1]].values
@@ -317,7 +317,7 @@ fig1 = plot_composite_stat(
     kind=kind_display,
     amp=amplitude,
     mes=measure,
-    shared=shared,
+    share=shared,
     digit=True,
 )
 
