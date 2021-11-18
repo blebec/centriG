@@ -18,10 +18,11 @@ paths = config.build_paths()
 os.chdir(paths.get("pg"))
 
 #%%
-paths["data"] = os.path.expanduser("~/pg/chrisPg/centriG/data/data_to_use")
+# paths["data"] = os.path.expanduser("~/pg/chrisPg/centriG/data/data_to_use")
+paths["data"] = os.path.join(paths["pg"], "data", "data_to_use")
 
 
-def load_traces(paths, kind="vm", spread="sect", num=2):
+def load_traces(pathsdico, kind="vm", spread="sect", num=2):
     if kind == "vm" and spread == "sect":
         files = ["vmSectRaw.xlsx", "vmSectNorm.xlsx", "vmSectNormAlig.xlsx"]
     elif kind == "vm" and spread == "full":
@@ -33,7 +34,7 @@ def load_traces(paths, kind="vm", spread="sect", num=2):
     else:
         print("load_traces: kind should be updated")
     file = files[num]
-    filename = os.path.join(paths["data"], file)
+    filename = os.path.join(pathsdico["data"], file)
     df = pd.read_excel(filename)
     # time
     middle = (df.index.max() - df.index.min()) / 2
@@ -164,11 +165,11 @@ savepath = os.path.join(
 save = False
 #%%
 plt.close("all")
-kind = ["vm", "spk"][0]
-spread = ["sect", "full"][1]
+kind_record = ["vm", "spk"][0]
+spread_space = ["sect", "full"][1]
 num = [0, 1, 2][0]
 
-label, data = load_traces(paths, kind=kind, spread=spread, num=num)
+label, data = load_traces(paths, kind=kind_record, spread=spread_space, num=num)
 fig1 = plot_align_normalize(label, data, substract=False)
 fig2 = plot_align_normalize(label, data, substract=True)
 
