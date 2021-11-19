@@ -788,7 +788,7 @@ if not "fig2_df" in dir():
 if "sig3_df" not in dir():
     sig3_df = get_sig3_df()
 
-save_fig8_data(fig2_df, sig3_df, True)
+save_fig8_data(fig2_df, sig3_df, False)
 
 #%%
 plt.close("all")
