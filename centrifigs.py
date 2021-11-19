@@ -49,10 +49,40 @@ os.chdir(paths["pg"])
 # latGain50_s_df = ldat.load_cell_contributions(rec='spk')
 
 
+def get_sig3_df(key="sector"):
+    """ get sig amp U time U fill data """
+
+    if key != "sector":
+        print("{} should be implemented".format(key))
+        return
+    filename = os.path.join(
+        paths["owncFig"],
+        "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
+    )
+    sig3df = pd.read_excel(filename, engine="openpyxl")
+    cols = gfunc.new_columns_names(sig3df.columns)
+    cols = [item.replace("sig_", "") for item in cols]
+    cols = [item.replace("_stc", "") for item in cols]
+    cols = [st.replace("_iso", "") for st in cols]
+    cols = [st.replace("__", "_") for st in cols]
+    cols = [st.replace("_.1", "") for st in cols]
+    sig3df.columns = cols
+    # adjust time scale
+    middle = (sig3df.index.max() - sig3df.index.min()) / 2
+    sig3df.index = (sig3df.index - middle) / 10
+    return sig3df
+
+
+sig3_df = get_sig3_df()
+
+
 #%%
 plt.close("all")
-# @config.profile
-def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors):
+
+
+def plot_cpIsoGain(
+    datadf, sig3df, colsdict, anot=False, age="new", stdcolors=std_colors
+):
     """
     figure2 (individual + pop + sig)
     input:
@@ -63,57 +93,48 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
         onlyPos = boolean to display only positive values for spike
     output: pyplot figure
     """
-    # remove sig 'only pop value (old sig = whithout fill+)
-    cols = [_ for _ in datadf.columns if _.endswith("Sig")]
-    # sigdf = datadf[cols].copy()
-    datadf.drop(labels=cols, axis=1, inplace=True)
-    # left column = example
-    cols = [_ for _ in datadf.columns if _.startswith("indi")]
-    indidf = datadf[cols].copy()
-    # middle column = pop
-    cols = [_ for _ in datadf.columns if _.startswith("pop")]
-    popdf = datadf[cols].copy()
-    # right column (sigpop )
-    filename = os.path.join(
-        paths["owncFig"],
-        "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
-    )
-    sigdf = pd.read_excel(filename, engine="openpyxl")
-    cols = gfunc.new_columns_names(sigdf.columns)
-    cols = [item.replace("sig_", "") for item in cols]
-    cols = [item.replace("_stc", "") for item in cols]
-    cols = [st.replace("_iso", "") for st in cols]
-    cols = [st.replace("__", "_") for st in cols]
-    cols = [st.replace("_.1", "") for st in cols]
-    sigdf.columns = cols
-    # adjust time scale
-    middle = (sigdf.index.max() - sigdf.index.min()) / 2
-    sigdf.index = (sigdf.index - middle) / 10
+    # # remove sig 'only pop value (old sig = whithout fill+)
+    # cols = [_ for _ in datadf.columns if _.endswith("Sig")]
+    # # sigdf = datadf[cols].copy()
+    # datadf.drop(labels=cols, axis=1, inplace=True)
+    # # left column = example
+    # cols = [_ for _ in datadf.columns if _.startswith("indi")]
+    # indidf = datadf[cols].copy()
+    # # middle column = pop
+    # cols = [_ for _ in datadf.columns if _.startswith("pop")]
+    # popdf = datadf[cols].copy()
+    popdf = datadf.copy()
+    # data for the figure right column = sigDf
+    # NB (sigpop= sigTime u sigAmpl u sigFill)
 
     colors = [stdcolors[_] for _ in "k red".split()]
     alphas = (0.8, 0.8)
     vspread = 0.06  # vertical spread for realign location
 
-    fig = plt.figure(figsize=(18, 12))
+    fig = plt.figure(figsize=(18, 16))
     axes = []
-    ax0 = fig.add_subplot(231)
-    ax1 = fig.add_subplot(232)
+    ax0 = fig.add_subplot(241)
+    ax1 = fig.add_subplot(242)
     axes.append(ax0)
     axes.append(ax1)
-    axes.append(fig.add_subplot(233, sharex=ax1, sharey=ax1))
-    axes.append(fig.add_subplot(234, sharex=ax0))
-    ax2 = fig.add_subplot(235, sharex=ax1)
+    axes.append(fig.add_subplot(243, sharex=ax1, sharey=ax1))
+    axes.append(fig.add_subplot(244, sharex=ax1, sharey=ax1))
+
+    axes.append(fig.add_subplot(245, sharex=ax0))
+    ax2 = fig.add_subplot(246, sharex=ax1)
     axes.append(ax2)
-    axes.append(fig.add_subplot(236, sharex=ax1, sharey=ax2))
-    vmaxes = axes[:3]  # vm axes = top row
-    spkaxes = axes[3:]  # spikes axes = bottom row
+    axes.append(fig.add_subplot(247, sharex=ax1, sharey=ax2))
+    axes.append(fig.add_subplot(248, sharex=ax1, sharey=ax2))
+    vmaxes = axes[:4]  # vm axes = top row
+    spkaxes = axes[4:]  # spikes axes = bottom row
 
     # ___ individual vm
     # cols = colsdict["indVm"]
-    cols = [_ for _ in indidf.columns if _.startswith("indiVm")]
+    cols = popdf.columns
+    cols = [_ for _ in cols if _.startswith("indi") and "Vm" in _]
     ax = vmaxes[0]
     for i, col in enumerate(cols):
-        ax.plot(indidf[col], color=colors[i], alpha=alphas[i], label=col)
+        ax.plot(popdf[col], color=colors[i], alpha=alphas[i], label=col)
     # response point
     x_pos = dict(old=41.5, new=43.5)
     x = x_pos[age]
@@ -124,11 +145,12 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ individual spike
-    cols = [_ for _ in indidf.columns if _.startswith("indiSpk")]
+    cols = popdf.columns
+    cols = [_ for _ in cols if _.startswith("indi") and "Spk" in _]
     ax = spkaxes[0]
     rev_cols = cols[::-1]
     rev_colors = colors[::-1]
-    df = indidf[rev_cols].copy()
+    df = popdf[rev_cols].copy()
     for i, col in enumerate(rev_cols):
         ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1)
         ax.fill_between(df.index, df[col], color=rev_colors[i], alpha=0.5, label=col)
@@ -140,9 +162,10 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ pop vm
-    df = popdf.loc[-30:35]  # limit xscale
     df = popdf.loc[-20:60]  # limit xscale
-    cols = [_ for _ in popdf.columns if "Vm" in _]
+    cols = df.columns
+    cols = [_ for _ in cols if _.startswith("pop") and "Vm" in _]
+    cols = [_ for _ in cols if "Sig" not in _]
     ax = vmaxes[1]
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
@@ -157,7 +180,9 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ pop spike
-    cols = [_ for _ in popdf.columns if "Spk" in _]
+    cols = df.columns
+    cols = [_ for _ in cols if _.startswith("pop") and "Spk" in _]
+    cols = [_ for _ in cols if "Sig" not in _]
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
         ax.plot(df[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
@@ -173,6 +198,62 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
+    # popVmSig
+    cols = colsdict["popVmSig"]
+    ax = vmaxes[2]
+    # traces
+    for i, col in enumerate(cols[:2]):
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col)
+        # errors : iterate on tuples
+        for i, col in enumerate(cols[2:]):
+            if fill:
+                ax.fill_between(
+                    df.index, df[col[0]], df[col[1]], color=colors[i], alpha=0.2
+                )  # alphas[i]/2)
+            else:
+                for i, col in enumerate(cols[2:]):
+                    for j in [0, 1]:
+                        ax.plot(
+                            df[col[j]],
+                            color=colors[i],
+                            alpha=alphas[i],
+                            label=col,
+                            linewidth=0.5,
+                        )
+    # response point
+    x = 0
+    y = df[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
+    ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
+    ax.annotate("n=10", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
+
+    # popSpkSig
+    cols = colsdict["popSpkSig"]
+    ax = spkaxes[2]
+    # traces
+    for i, col in enumerate(cols[:2][::-1]):
+        # ax.fill_between(df.index, df[col], color=inv_colors[i],
+        #                 alpha=inv_alphas[i]/2)
+        ax.plot(
+            df[col], color=inv_colors[i], alpha=inv_alphas[i], label=col, linewidth=2
+        )
+    # errors : iterate on tuples
+    for i, col in enumerate(cols[2:]):
+        ax.fill_between(
+            df.index, df[col[0]], df[col[1]], color=colors[i], alpha=inv_alphas[i] / 2
+        )  # label=col, linewidth=0.5)
+        # for j in [0, 1]:
+        #     ax.plot(df[col[j]], color=colors[i],
+        #             alpha=1, label=col, linewidth=0.5)
+    # response point
+    x = 0
+    y = df[cols[0]].loc[x]
+    # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
+    ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
+    ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
+    ax.annotate("n=5", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
+
     ######## SIG #######
     colors = [stdcolors[color] for color in "k red green yellow blue blue".split()]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
@@ -182,7 +263,7 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     axes = [vmaxes[-1], spkaxes[-1]]
     records = ["vm"] + ["spk"]
     leg_dic = dict(vm="Vm", spk="Spikes")
-    cols = [st for st in sigdf.columns if "sect" in st]
+    cols = [_ for _ in sig3df.columns if "sect" in _]
     # plot
     for i, ax in enumerate(axes):
         # rec = recs[i]
@@ -197,12 +278,11 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
         ax.annotate(
             txt, xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
         )
-        traces = [st for st in cols if record in st]
+        traces = [_ for _ in cols if record in _]
         # replace rd sector by full sector
-        traces = [st.replace("sect_rd", "full_rd") for st in traces]
+        traces = [_.replace("sect_rd", "full_rd") for _ in traces]
 
-        df = sigdf.loc[-30:35][traces].copy()
-        df = sigdf.loc[-20:60][traces].copy()
+        df = sig3df.loc[-20:60][traces].copy()
         substract = False
         if substract:
             # subtract the centerOnly response (ref = df['CENTER-ONLY'])
@@ -294,25 +374,25 @@ def plot_cpIsoGain(datadf, colsdict, anot=False, age="new", stdcolors=std_colors
     # ax.annotate(r"$\Delta$=" +  adv, xy= (0.2, 0.73),
     # xycoords="axes fraction", ha='center')
     # labels
-    ylabels_vm = ["Membrane Potential (mV)", "Normalized Vm", ""]
+    ylabels_vm = ["Membrane Potential (mV)", "Normalized Vm", "", ""]
 
-    ylabels_spk = ["Firing Rate (Spk/s)", "Normalized Spk/s", ""]
+    ylabels_spk = ["Firing Rate (Spk/s)", "Normalized Spk/s", "", ""]
     ylabels = ylabels_vm + ylabels_spk
     axes = fig.get_axes()
     for i, ax in enumerate(axes):
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
             ax.set_ylabel(ylabels[i])
-        if i < 3:
+        if i < 4:
             ax.axes.get_xaxis().set_visible(False)
             ax.spines["bottom"].set_visible(False)
         else:
             ax.set_xlabel("Time (ms)")
     axes[1].set_ylim(-0.10, 1.1)
-    axes[4].set_xlabel("Relative Time (ms)")
-    ax = axes[5]
-    ax.set_xlabel("Relative Time (ms)")
-    ax.set_ylim(-0.10, 0.9)
+    for ax in axes[5:]:
+        ax.set_xlabel("Relative Time (ms)")
+        ax.set_xlabel("Relative Time (ms)")
+        ax.set_ylim(-0.10, 0.9)
 
     # stimulations
     step = 28
@@ -437,7 +517,13 @@ plt.close("all")
 age = ["old", "new"][1]
 if "fig2_df" not in globals():
     fig2_df, fig2_cols = ldat.load2(age)
-fig = plot_cpIsoGain(datadf=fig2_df.copy(), colsdict=fig2_cols, anot=anot, age=age)
+
+if "sig3_df" not in dir():
+    sig3_df = get_sig3_df()
+
+fig = plot_cpIsoGain(
+    datadf=fig2_df.copy(), sig3df=sig3_df, colsdict=fig2_cols, anot=anot, age=age
+)
 save = False
 if save:
     name = "f8_cpIsoGain_alt"
@@ -445,15 +531,13 @@ if save:
     for ext in [".png", ".pdf", ".svg"]:
         fig.savefig(os.path.join(paths["save"], (name + ext)))
 
-# =============================================================================
-## other views
-# #plot all
+# # other views
+# # plot all
 # fig = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
-# #plot ind + pop
+# # plot ind + pop
 # fig = ofig.plot_2_indMoy(fig2_df, fig2_cols, std_colors, anot)
-# #sig Nsig
+# # sig Nsig
 # fig = ofig.plot_2_sigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
-# =============================================================================
 
 #%% NB the length of the sorted data are not the same compared to the other traces
 # filename = 'fig2cells.xlsx'
@@ -1873,6 +1957,14 @@ def plot_speeddiff():
             0.01,
             "centrifigs.py:plot_speeddiff",
             ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+    return fig
+
+
+fig = plot_speeddiff()
             va="bottom",
             alpha=0.4,
         )
