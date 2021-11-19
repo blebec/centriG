@@ -112,7 +112,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdcolors, fill=True, anot=False):
     x1 = adf.index[i1]
     ax.plot(x0, y, "o", color=stdcolors["blue"], ms=10, alpha=0.8)
     ax.plot(x1, y, "|", color=stdcolors["blue"], ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=stdcolors["blue"], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdcolors["blue"], alpha=0.8)
     ax.annotate("n=10", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
     # popVmNsig
     cols = colsdict["popVmNsig"]
@@ -173,7 +173,7 @@ def plot_2_indMoySigNsig(data, colsdict, stdcolors, fill=True, anot=False):
     x1 = adf.index[i1]
     ax.plot(x0, y, "o", color=stdcolors["blue"], ms=10, alpha=0.8)
     ax.plot(x1, y, "|", color=stdcolors["blue"], ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=stdcolors["blue"], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdcolors["blue"], alpha=0.8)
     ax.annotate("n=5", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
     # popSpkNsig
     cols = colsdict["popSpkNsig"]
@@ -496,7 +496,7 @@ def plot_2_sigNsig(data, colsdict, stdcolors, fill=True, anot=False):
     x1 = adf.index[i1]
     ax.plot(x0, y, "o", color=stdcolors["blue"], ms=10, alpha=0.8)
     ax.plot(x1, y, "|", color=stdcolors["blue"], ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=stdcolors["blue"], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdcolors["blue"], alpha=0.8)
     ax.annotate("n=10", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
     # popVmNsig
     cols = colsdict["popVmNsig"]
@@ -554,7 +554,7 @@ def plot_2_sigNsig(data, colsdict, stdcolors, fill=True, anot=False):
     x1 = adf.index[i1]
     ax.plot(x0, y, "o", color=stdcolors["blue"], ms=10, alpha=0.8)
     ax.plot(x1, y, "|", color=stdcolors["blue"], ms=10, alpha=0.8)
-    ax.hlines(y, x1, x0, color=stdcolors["blue"], ms=10, alpha=0.8)
+    ax.hlines(y, x1, x0, color=stdcolors["blue"], alpha=0.8)
     ax.annotate("n=5", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
     # popSpkNsig
     cols = colsdict["popSpkNsig"]
