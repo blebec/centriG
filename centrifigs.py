@@ -9,15 +9,12 @@ import os
 from datetime import datetime
 from importlib import reload
 
+import matplotlib.pyplot as plt
 from matplotlib import gridspec
 from matplotlib import patches
-import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
-
-# from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from matplotlib import markers
-from matplotlib.patches import Rectangle
 from pandas.plotting import table
 
 import config
@@ -106,7 +103,7 @@ def plot_cpIsoGain(
     popdf = datadf.copy()
     # data for the figure right column = sigDf
     # NB (sigpop= sigTime u sigAmpl u sigFill)
-
+    fill = True
     colors = [stdcolors[_] for _ in "k red".split()]
     alphas = (0.8, 0.8)
     vspread = 0.06  # vertical spread for realign location
@@ -170,7 +167,12 @@ def plot_cpIsoGain(
     for i, col in enumerate(cols):
         ax.plot(df[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
     ax.annotate(
-        "n=37", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+        "n=37",
+        xy=(0.9, 0.9),
+        size="large",
+        xycoords="axes fraction",
+        ha="right",
+        va="top",
     )
     # response point
     x = 0
@@ -189,7 +191,12 @@ def plot_cpIsoGain(
         # ax.fill_between(popdf.index, df[col],
         #                 color=colors[::-1][i], alpha=0.5, label=col)
     ax.annotate(
-        "n=22", xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+        "n=22",
+        xy=(0.9, 0.9),
+        size="large",
+        xycoords="axes fraction",
+        ha="center",
+        va="top",
     )
     # response point
     x = 0
@@ -226,7 +233,14 @@ def plot_cpIsoGain(
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
-    ax.annotate("n=10", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
+    ax.annotate(
+        "n=10",
+        xy=(0.9, 0.9),
+        size="large",
+        xycoords="axes fraction",
+        ha="right",
+        va="top",
+    )
 
     # popSpkSig
     cols = colsdict["popSpkSig"]
@@ -236,12 +250,16 @@ def plot_cpIsoGain(
         # ax.fill_between(df.index, df[col], color=inv_colors[i],
         #                 alpha=inv_alphas[i]/2)
         ax.plot(
-            df[col], color=inv_colors[i], alpha=inv_alphas[i], label=col, linewidth=2
+            df[col],
+            color=colors[::-1][i],
+            alpha=alphas[::-1][i],
+            label=col,
+            linewidth=2,
         )
     # errors : iterate on tuples
     for i, col in enumerate(cols[2:]):
         ax.fill_between(
-            df.index, df[col[0]], df[col[1]], color=colors[i], alpha=inv_alphas[i] / 2
+            df.index, df[col[0]], df[col[1]], color=colors[i], alpha=alphas[::-1][i] / 2
         )  # label=col, linewidth=0.5)
         # for j in [0, 1]:
         #     ax.plot(df[col[j]], color=colors[i],
@@ -252,7 +270,14 @@ def plot_cpIsoGain(
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
-    ax.annotate("n=5", xy=(0.2, 0.8), xycoords="axes fraction", ha="center")
+    ax.annotate(
+        "n=5",
+        xy=(0.9, 0.9),
+        size="large",
+        xycoords="axes fraction",
+        ha="right",
+        va="top",
+    )
 
     ######## SIG #######
     colors = [stdcolors[color] for color in "k red green yellow blue blue".split()]
@@ -262,7 +287,7 @@ def plot_cpIsoGain(
 
     axes = [vmaxes[-1], spkaxes[-1]]
     records = ["vm"] + ["spk"]
-    leg_dic = dict(vm="Vm", spk="Spikes")
+    # leg_dic = dict(vm="Vm", spk="Spikes")
     cols = [_ for _ in sig3df.columns if "sect" in _]
     # plot
     for i, ax in enumerate(axes):
@@ -276,7 +301,12 @@ def plot_cpIsoGain(
         # )
         txt = "n={}".format(nbcells["sect"][i])
         ax.annotate(
-            txt, xy=(0.2, 0.8), size="large", xycoords="axes fraction", ha="center"
+            txt,
+            xy=(0.9, 0.9),
+            size="large",
+            xycoords="axes fraction",
+            ha="right",
+            va="top",
         )
         traces = [_ for _ in cols if record in _]
         # replace rd sector by full sector
@@ -391,8 +421,7 @@ def plot_cpIsoGain(
     axes[1].set_ylim(-0.10, 1.1)
     for ax in axes[5:]:
         ax.set_xlabel("Relative Time (ms)")
-        ax.set_xlabel("Relative Time (ms)")
-        ax.set_ylim(-0.10, 0.9)
+        ax.set_ylim(-0.10, 1)
 
     # stimulations
     step = 28
@@ -439,7 +468,8 @@ def plot_cpIsoGain(
     # align zero between plots  NB ref = first plot
     gfunc.align_yaxis(vmaxes[0], 0, vmaxes[1], 0)
     gfunc.align_yaxis(spkaxes[0], 0, spkaxes[1], 0)
-    gfunc.change_plot_trace_amplitude(vmaxes[1], 0.9)
+    gfunc.change_plot_trace_amplitude(vmaxes[1], 0.85)
+    gfunc.change_plot_trace_amplitude(spkaxes[1], 0.8)
 
     # zero line
     for ax in axes:
@@ -464,7 +494,7 @@ def plot_cpIsoGain(
         custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
     for ax in spkaxes[1:]:
-        custom_ticks = np.linspace(0, 0.8, 5)
+        custom_ticks = np.linspace(0, 1, 6)
         ax.set_yticks(custom_ticks)
 
     fig.tight_layout()
@@ -658,7 +688,7 @@ fig2 = figp.plot_2B_bis(std_colors, anot=anot, age="new")
 #%% save data
 
 
-def save_fig8_data(fig2df, do_save=False):
+def save_fig8_data(fig2df, sig3df, do_save=False):
     """ export the data to an hdf file"""
     conds, key_dico = config.std_names()
 
@@ -688,8 +718,8 @@ def save_fig8_data(fig2df, do_save=False):
     cols = datadf.columns
     cols = [_ for _ in cols if _.startswith("indi")]
     if do_save:
-        datadf[cols].to_hdf(data_savename, "example")
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "example"))
+        datadf[cols].to_hdf(data_savename, "indi")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "indi"))
     for item in cols:
         print(item)
     print()
@@ -705,16 +735,20 @@ def save_fig8_data(fig2df, do_save=False):
         print(item)
     print()
 
-    # # pop sig
-    # cols = datadf.columns
-    # cols = [_ for _ in cols if not _.startswith("indi")]
-    # cols = [_ for _ in cols if "_Sig" in _]
-    # if do_save:
-    #     datadf[cols].to_hdf(data_savename, "popSig")
-    # print('='*20, '{}({})'.format(os.path.basename(data_savename), 'popSig'))
-    # for item in cols:
-    #     print(item)
-    # print()
+    # pop 2sig (time U amp)
+    cols = datadf.columns
+    cols = [_ for _ in cols if not _.startswith("indi")]
+    cols = [_ for _ in cols if "_Sig" in _]
+    df = datadf[cols].copy()
+    cols = [_.replace("pop_", "pop2sig_") for _ in cols]
+    cols = [_.replace("_Sig", "") for _ in cols]
+    df.columns = cols
+    if do_save:
+        df.to_hdf(data_savename, "pop2sig")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "pop2sig"))
+    for item in cols:
+        print(item)
+    print()
 
     # # pop nSig
     # cols = datadf.columns
@@ -727,28 +761,34 @@ def save_fig8_data(fig2df, do_save=False):
     #     print(item)
     # print()
 
-    # sig pop
-    filename = os.path.join(
-        paths["owncFig"],
-        "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
-    )
-    sigdf = pd.read_excel(filename, engine="openpyxl")
-    cols = gfunc.new_columns_names(sigdf.columns)
+    # pop 3sig (time U amp U fill)
+    keys = {
+        "_cf": "_centrifugal",
+        "_cp": "_centripetal",
+        "_ctr": "_centerOnly",
+        "_cx": "_cross",
+        "_rd": "_rnd",
+    }
+    cols = sig3df.columns
+    for k, v in keys.items():
+        cols = [_.replace(k, v) for _ in cols]
+    cols = ["pop3sig_" + _ for _ in cols]
+    df = sig3df.copy()
+    df.columns = cols
     if do_save:
-        sigdf.to_hdf(data_savename, "popSig")
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "popSig"))
+        df.to_hdf(data_savename, "popsig3")
+    print("=" * 20, "{}({})".format(os.path.basename(data_savename), "pop3sig"))
     for item in cols:
         print(item)
     print()
 
 
-try:
-    fig2_df
-except NameError:
+if not "fig2_df" in dir():
     fig2_df, fig2_cols = ldat.load2("new")
+if "sig3_df" not in dir():
+    sig3_df = get_sig3_df()
 
-
-save_fig8_data(fig2_df, False)
+save_fig8_data(fig2_df, sig3_df, True)
 
 #%%
 plt.close("all")
@@ -783,17 +823,16 @@ def sort_stat(age="new"):
         cols = [col.replace("cpisosect_", "") for col in data.columns]
         data.columns = cols
 
-    vals = [item for item in data.columns if "_sig" not in item]
-    sigs = [item for item in data.columns if "_sig" in item]
+    data_col = [_ for _ in data.columns if "_sig" not in _]
 
-    res = pd.DataFrame(index=vals)
-    res["cells"] = [len(data)] * len(vals)  # nb of cells
-    res["mean_all"] = data[vals].mean().tolist()
-    res["std_all"] = data[vals].std().tolist()
-    res["sem_all"] = data[vals].sem().tolist()
+    res = pd.DataFrame(index=data_col)
+    res["cells"] = [len(data)] * len(data_col)  # nb of cells
+    res["mean_all"] = data[data_col].mean().tolist()
+    res["std_all"] = data[data_col].std().tolist()
+    res["sem_all"] = data[data_col].sem().tolist()
 
     ares = {"sig_cells": [], "mean_sig": [], "std_sig": [], "sem_sig": []}
-    for col in vals:
+    for col in data_col:
         ares["sig_cells"].append(len(data.loc[data[col + "_sig"] == 1, [col]]))
         ares["mean_sig"].append(data.loc[data[col + "_sig"] == 1, [col]].mean()[0])
         ares["std_sig"].append(data.loc[data[col + "_sig"] == 1, [col]].std()[0])
@@ -940,8 +979,8 @@ if save:
     file = "f10_speed"
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
-        filename = os.path.join(paths["save"], (file + ext))
-        fig.savefig(filename)
+        file_name = os.path.join(paths["save"], (file + ext))
+        fig.savefig(file_name)
 
 
 def save_fig11_data(do_save=False):
@@ -1957,14 +1996,6 @@ def plot_speeddiff():
             0.01,
             "centrifigs.py:plot_speeddiff",
             ha="right",
-            va="bottom",
-            alpha=0.4,
-        )
-        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
-    return fig
-
-
-fig = plot_speeddiff()
             va="bottom",
             alpha=0.4,
         )
