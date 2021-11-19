@@ -222,13 +222,13 @@ def plot_all_cg_sorted_responses(
 #%%
 plt.close("all")
 
-kind = ["vm", "spk"][0]
+kind_measure = ["vm", "spk"][0]
 
 # fig = plot_all_sorted_responses(overlap=True, sort_all=False,
 #                                  kind=kind, amp='engy', age='new')
 
 fig = plot_all_cg_sorted_responses(
-    overlap=True, sort_all=True, kind=kind, amp="engy", age="new"
+    overlap=True, sort_all=True, kind=kind_measure, amp="engy", age="new"
 )
 save = False
 if save:
@@ -247,17 +247,22 @@ paths["save"] = os.path.join(
 )
 amp = "engy"
 for kind in ["vm", "spk"]:
-    for spread in ["sect", "full"]:
+    for spread_space in ["sect", "full"]:
         # for amp in ['gain', 'engy']:
         fig = plot_all_cg_sorted_responses(
-            overlap=True, sort_all=True, kind=kind, amp=amp, age="new", spread=spread
+            overlap=True,
+            sort_all=True,
+            kind=kind,
+            amp=amp,
+            age="new",
+            spread=spread_space,
         )
         if save:
-            file = kind + spread.title() + "_" + amp + ".pdf"
+            file = kind + spread_space.title() + "_" + amp + ".pdf"
             filename = os.path.join(paths["save"], file)
             fig.savefig(filename, format="pdf")
             # current implementation
-            if kind == "vm" and spread == "sect":
+            if kind == "vm" and spread_space == "sect":
                 folder = os.path.join(
                     paths["owncFig"], "pythonPreview", "current", "fig"
                 )
