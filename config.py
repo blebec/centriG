@@ -66,20 +66,20 @@ def rc_params(font_size="medium"):  # large, medium
 def std_colors():
     """ colors choosed for centrigabor figures"""
     colors = {
-        "red": tuple([x / 256 for x in [229, 51, 51]]),
-        "green": tuple([x / 256 for x in [127, 204, 56]]),
-        "blue": tuple([x / 256 for x in [0, 125, 218]]),
-        "yellow": tuple([x / 256 for x in [238, 181, 0]]),
-        "violet": tuple([x / 256 for x in [255, 0, 255]]),
-        "dark_red": tuple([x / 256 for x in [115, 0, 34]]),
-        "dark_green": tuple([x / 256 for x in [10, 146, 13]]),
-        "dark_blue": tuple([x / 256 for x in [14, 73, 118]]),
-        "dark_yellow": tuple([x / 256 for x in [163, 133, 16]]),
-        "blue_violet": tuple([x / 256 for x in [138, 43, 226]]),
+        "red": tuple([_ / 256 for _ in [229, 51, 51]]),
+        "green": tuple([_ / 256 for _ in [127, 204, 56]]),
+        "blue": tuple([_ / 256 for _ in [0, 125, 218]]),
+        "yellow": tuple([_ / 256 for _ in [238, 181, 0]]),
+        "violet": tuple([_ / 256 for _ in [255, 0, 255]]),
+        "dark_red": tuple([_ / 256 for _ in [115, 0, 34]]),
+        "dark_green": tuple([_ / 256 for _ in [10, 146, 13]]),
+        "dark_blue": tuple([_ / 256 for _ in [14, 73, 118]]),
+        "dark_yellow": tuple([_ / 256 for _ in [163, 133, 16]]),
+        "blue_violet": tuple([_ / 256 for _ in [138, 43, 226]]),
         "k": (0, 0, 0),
-        "brown": tuple([x / 256 for x in [127, 51, 51]]),
-        "cyan": tuple([x / 256 for x in [23, 190, 207]]),
-        "pink": tuple([x / 256 for x in [255, 0, 255]]),
+        "brown": tuple([_ / 256 for _ in [127, 51, 51]]),
+        "cyan": tuple([_ / 256 for _ in [23, 190, 207]]),
+        "pink": tuple([_ / 256 for _ in [255, 0, 255]]),
     }
     return colors
 
@@ -87,10 +87,10 @@ def std_colors():
 def speed_colors():
     """ just for speed coding """
     colors = {
-        "yellow": [x / 256 for x in [253, 174, 74]],
-        "orange": [x / 256 for x in [245, 124, 67]],
-        "dark_orange": [x / 256 for x in [237, 73, 59]],
-        "red": [x / 256 for x in [229, 51, 51]],
+        "yellow": [_ / 256 for _ in [253, 174, 74]],
+        "orange": [_ / 256 for _ in [245, 124, 67]],
+        "dark_orange": [_ / 256 for _ in [237, 73, 59]],
+        "red": [_ / 256 for _ in [229, 51, 51]],
         "k": [0, 0, 0],
     }
     return colors
@@ -171,7 +171,7 @@ def std_titles():
     returns:
         a dico of names
         """
-    std_titles = {
+    stdtitles = {
         "engy": r"$\Delta$ Response",
         "time50": r"$\Delta$ Latency",
         "gain50": "Amplitude Gain",
@@ -182,4 +182,4 @@ def std_titles():
         "vm": "Vm",
         "full": "Full",
     }
-    return std_titles
+    return stdtitles

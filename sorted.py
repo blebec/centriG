@@ -48,17 +48,36 @@ save7a(False)
 #%% plot latency (left) and gain (right)
 
 
-def plot_all_cg_sorted_responses(
-    overlap=True, sort_all=True, key=0, spread="sect", kind="vm", age="new", amp="engy"
-):
+# def plot_all_cg_sorted_responses(
+#     overlap=True, sort_all=True, key=0, spread="sect", rec="vm", age="new", amp="engy"
+# ):
+def plot_all_cg_sorted_responses(**kwargs):
+    #     overlap=True, sort_all=True, key=0, spread="sect", rec="vm", age="new", amp="engy"
+    # ):
+    """plot the sorted cell responses
+    input : conditions parameters
+        key : number to choose the trace to be sorted
+        overlap = (True) boolean, overlap the different rows to superpose the plots
+        sort_all = (True) if false, only the 'key' trace is sorted
+        key = (0) integer, trace to be sorted
+        spread = space_spread in [(sect), full]
+        rec = record_kind in [('vm'), 'spk']
+        age = record age in [(new), old] (old <-> time50, gain50, old way)
+        amp = amplitude in [(engy), gain]
+    output :
+        matplotlib.pyplot
     """
-    plot the sorted cell responses
-    input = conditions parameters
-    overlap : boolean, overlap the different rows to superpose the plots
-    sort_all : if false, only the 'key' trace is sorted
-    key : number to choose the trace to be sorted
-    output : matplotlib plot
-    """
+
+    overlap = kwargs.get("overlap", True)
+    sort_all = kwargs.get("sort_all", True)
+    key = kwargs.get("key", 0)
+    spread = kwargs.get("spread", "sect")
+    rec = kwargs.get("rec", "vm")
+    age = kwargs.get("age", "new")
+    amp = kwargs.get("amp", "engy")
+
+    titles = config.std_titles()
+    stdcolors = config.std_colors()
 
     def set_ticks_both(axis):
         """ set ticks and ticks labels on both sides """
@@ -70,21 +89,11 @@ def plot_all_cg_sorted_responses(
             t.label1.set_visible(True)
             t.label2.set_visible(True)
 
-    titles = {
-        "engy": r"$\Delta$ Response",
-        "time50": r"$\Delta$ Latency",
-        "gain50": "Amplitude Gain",
-        "sect": "Sector",
-        "spk": "Spikes",
-        "vm": "Vm",
-        "full": "Full",
-    }
-
     # parameter
-    colors = [std_colors[item] for item in ["red", "green", "yellow", "blue", "blue"]]
+    colors = [stdcolors[item] for item in ["red", "green", "yellow", "blue", "blue"]]
     colors = [color for color in colors for _ in range(2)]
     # data (call)
-    df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
+    df = ldat.load_cell_contributions(rec=rec, amp=amp, age=age)
     # extract list of traces : sector vs full
     traces = [_ for _ in df.columns if spread in _]
     # remove the 'rdsect'
@@ -96,7 +105,7 @@ def plot_all_cg_sorted_responses(
     # filter -> only significative cells
     traces = [_ for _ in traces if not _.endswith("sig")]
     # text labels
-    title = "{} {}".format(titles.get(kind, ""), titles.get(spread, ""))
+    title = "{} {}".format(titles.get(rec, ""), titles.get(spread, ""))
     anotx = "Cell Rank"
     if age == "old":
         anoty = [r"$\Delta$ Phase (ms)", r"$\Delta$ Amplitude"]
@@ -113,27 +122,27 @@ def plot_all_cg_sorted_responses(
     axes = axes.flatten()
     x = range(1, len(df) + 1)
     # use cpisotime for ref
-    name = traces[key]
-    sig_name = name + "_sig"
-    df = df.sort_values(by=[name, sig_name], ascending=False)
+    trace = traces[key]
+    sig_trace = trace + "_sig"
+    df = df.sort_values(by=[trace, sig_trace], ascending=False)
     # plot all traces
-    for i, name in enumerate(traces):
-        sig_name = name + "_sig"
+    for i, trace in enumerate(traces):
+        sig_trace = trace + "_sig"
         # color : white if non significant, edgecolor otherwise
         edge_color = colors[i]
         color_dic = {0: (1, 1, 1), 1: edge_color}
         if sort_all:
-            select = df[[name, sig_name]].sort_values(
-                by=[name, sig_name], ascending=False
+            select = df[[trace, sig_trace]].sort_values(
+                by=[trace, sig_trace], ascending=False
             )
         else:
-            select = df[[name, sig_name]]
-        bar_colors = [color_dic[x] for x in select[sig_name]]
+            select = df[[trace, sig_trace]]
+        bar_colors = [color_dic[x] for x in select[sig_trace]]
         ax = axes[i]
         # ax.set_title(str(i))
         ax.bar(
             x,
-            select[name],
+            select[trace],
             color=bar_colors,
             edgecolor=edge_color,
             alpha=0.8,
@@ -222,60 +231,60 @@ def plot_all_cg_sorted_responses(
 #%%
 plt.close("all")
 
-kind_measure = ["vm", "spk"][0]
+record = ["vm", "spk"][0]
 
-# fig = plot_all_sorted_responses(overlap=True, sort_all=False,
-#                                  kind=kind, amp='engy', age='new')
+# figure = plot_all_sorted_responses(overlap=True, sort_all=False,
+#                                  rec=record, amp='engy', age='new')
 
-fig = plot_all_cg_sorted_responses(
-    overlap=True, sort_all=True, kind=kind_measure, amp="engy", age="new"
+figure = plot_all_cg_sorted_responses(
+    overlap=True, sort_all=True, rec=record, amp="engy", age="new"
 )
 save = False
 if save:
     name = "f7_all_cg_sorted_responses"
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
-        fig.savefig(os.path.join(paths["save"], (name + ext)))
+        figure.savefig(os.path.join(paths["save"], (name + ext)))
 
-# fig = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
-#                                  kind=kind, amp='engy', age='new')
+# figure = plot_all_sorted_responses(overlap=True, sort_all=False, key=1,
+#                                  rec=record, amp='engy', age='new')
 #%%
 plt.close("all")
 save = False
 paths["save"] = os.path.join(
     paths["owncFig"], "pythonPreview", "sorted", "sorted&contrib"
 )
-amp = "engy"
-for kind in ["vm", "spk"]:
+amplitude = "engy"
+for record in ["vm", "spk"]:
     for spread_space in ["sect", "full"]:
         # for amp in ['gain', 'engy']:
-        fig = plot_all_cg_sorted_responses(
+        figure = plot_all_cg_sorted_responses(
             overlap=True,
             sort_all=True,
-            kind=kind,
-            amp=amp,
+            rec=record,
+            amp=amplitude,
             age="new",
             spread=spread_space,
         )
         if save:
-            file = kind + spread_space.title() + "_" + amp + ".pdf"
+            file = record + spread_space.title() + "_" + amplitude + ".pdf"
             filename = os.path.join(paths["save"], file)
-            fig.savefig(filename, format="pdf")
+            figure.savefig(filename, format="pdf")
             # current implementation
-            if kind == "vm" and spread_space == "sect":
+            if record == "vm" and spread_space == "sect":
                 folder = os.path.join(
                     paths["owncFig"], "pythonPreview", "current", "fig"
                 )
                 filename = os.path.join(folder, file)
-                fig.savefig(filename, format="pdf")
+                figure.savefig(filename, format="pdf")
 
 
 # =============================================================================
 # savePath = os.path.join(paths['cgFig'], 'pythonPreview', 'sorted', 'testAllSortingKeys')
 # for key in range(10):
-#     fig = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=key)
+#     figure = plot_sorted_responses_sup1(overlap=True, sort_all=False, key=key)
 #     filename = os.path.join(savePath, str(key) + '.png')
-#     fig.savefig(filename, format='png')
+#     figure.savefig(filename, format='png')
 
 # =============================================================================
 
@@ -321,15 +330,7 @@ def boxPlot(popdf, sigcells, sigonly=False):
         output:
             matplotlib.pyplot figure
     """
-    titles = {
-        "engy": r"$\Delta$ Response",
-        "time50": r"$\Delta$ Latency",
-        "gain50": "Amplitude Gain",
-        "sect": "Sector",
-        "spk": "Spikes",
-        "vm": "Vm",
-        "full": "Full",
-    }
+    titles = config.std_titles()
     df = popdf.copy()
     # pop <-> all the cells : update the sigcell dictionary
     if sigonly:
@@ -424,14 +425,14 @@ if not "pop_df" in dir():
 
 save = False
 for sig_only in [True, False]:
-    fig = boxPlot(pop_df, sig_cells, sigonly=sig_only)
+    figure = boxPlot(pop_df, sig_cells, sigonly=sig_only)
     if save:
         if sig_only:
             file = "boxplot_sigPop.pdf"
         else:
             file = "boxplot_pop.pdf"
         dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
-        fig.savefig(os.path.join(dirname, file))
+        figure.savefig(os.path.join(dirname, file))
 
 #%%
 plt.close("all")
@@ -447,8 +448,8 @@ def violin_plot(popdf, sigcells, sigonly=False):
             matplotlib.pyplot figure
     """
     titles = config.std_titles()
-
     df = popdf.copy()
+
     # update the (sig)cell dictionary
     if sigonly:
         selected_cells = sigcells.copy()
@@ -539,11 +540,11 @@ if not "pop_df" in dir():
 
 save = False
 for sig_only in [True, False]:
-    fig = violin_plot(pop_df, sig_cells, sigonly=sig_only)
+    figure = violin_plot(pop_df, sig_cells, sigonly=sig_only)
     if save:
         if sig_only:
             file = "violinplot_sigPop.pdf"
         else:
             file = "violinplot_pop.pdf"
         dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
-        fig.savefig(os.path.join(dirname, file))
+        figure.savefig(os.path.join(dirname, file))

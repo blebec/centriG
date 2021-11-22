@@ -22,7 +22,8 @@ import fig_proposal as figp
 import general_functions as gfunc
 import load.load_data as ldat
 import load.load_traces as ltra
-import old.old_figs as ofig
+
+# import old.old_figs as ofig
 
 # import itertools
 
@@ -551,7 +552,7 @@ if "fig2_df" not in globals():
 if "sig3_df" not in dir():
     sig3_df = get_sig3_df()
 
-fig = plot_cpIsoGain(
+figure = plot_cpIsoGain(
     datadf=fig2_df.copy(), sig3df=sig3_df, colsdict=fig2_cols, anot=anot, age=age
 )
 save = False
@@ -559,15 +560,15 @@ if save:
     name = "f8_cpIsoGain_alt"
     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
-        fig.savefig(os.path.join(paths["save"], (name + ext)))
+        figure.savefig(os.path.join(paths["save"], (name + ext)))
 
 # # other views
 # # plot all
-# fig = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
+# figure = ofig.plot_2_indMoySigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
 # # plot ind + pop
-# fig = ofig.plot_2_indMoy(fig2_df, fig2_cols, std_colors, anot)
+# figure = ofig.plot_2_indMoy(fig2_df, fig2_cols, std_colors, anot)
 # # sig Nsig
-# fig = ofig.plot_2_sigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
+# figure = ofig.plot_2_sigNsig(fig2_df, fig2_cols, std_colors, anot=anot)
 
 #%% NB the length of the sorted data are not the same compared to the other traces
 # filename = 'fig2cells.xlsx'
@@ -682,8 +683,8 @@ def plot_figure2B(stdcolors=std_colors, sig=True, anot=anot, age="new"):
     return fig
 
 
-fig1 = plot_figure2B(std_colors, anot=anot, age="new")
-fig2 = figp.plot_2B_bis(std_colors, anot=anot, age="new")
+figure1 = plot_figure2B(std_colors, anot=anot, age="new")
+figure2 = figp.plot_2B_bis(std_colors, anot=anot, age="new")
 
 #%% save data
 
@@ -1017,7 +1018,7 @@ save_fig11_data(True)
 
 
 def adjust_scale(figlist, lims):
-    for fig in [fig1, fig2]:
+    for fig in figlist:
         ax = fig.get_axes()[0]
         ax.set_xlim(lims)
         #        left = list(np.arange(lims[0], 0, 25))[1:]
@@ -1769,18 +1770,20 @@ def plot_sorted_responses(dico):
     axes = axes.flatten()
     x = range(1, len(df) + 1)
     # plot all traces
-    for i, name in enumerate(traces):
-        sig_name = name + "_sig"
+    for i, trace in enumerate(traces):
+        sig_trace = trace + "_sig"
         # color : white if non significant, edgecolor otherwise
         edge_color = colors[i]
         color_dic = {0: "w", 1: edge_color}
-        select = df[[name, sig_name]].sort_values(by=[name, sig_name], ascending=False)
-        bar_colors = [color_dic[x] for x in select[sig_name]]
+        select = df[[trace, sig_trace]].sort_values(
+            by=[trace, sig_trace], ascending=False
+        )
+        bar_colors = [color_dic[x] for x in select[sig_trace]]
         ax = axes[i]
-        ax.set_title(name)
+        ax.set_title(trace)
         ax.bar(
             x,
-            select[name],
+            select[trace],
             color=bar_colors,
             edgecolor=edge_color,
             alpha=0.8,
