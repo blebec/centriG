@@ -30,6 +30,7 @@ os.chdir(paths["pg"])
 
 #%% save data for fig7a
 def save7a(do_save=False):
+    """ save the data for the figure 7 """
     df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     cols = df.columns
 
@@ -85,15 +86,15 @@ def plot_all_cg_sorted_responses(
     # data (call)
     df = ldat.load_cell_contributions(rec=kind, amp=amp, age=age)
     # extract list of traces : sector vs full
-    traces = [item for item in df.columns if spread in item]
+    traces = [_ for _ in df.columns if spread in _]
     # remove the 'rdsect'
-    traces = [item for item in traces if "rdisosect" not in item]
+    traces = [_ for _ in traces if "rdisosect" not in _]
     # append full random
-    if not "rdisofull" in [item.split("_")[0] for item in traces]:
-        rdfull = [item for item in df.columns if "rdisofull" in item]
+    if not "rdisofull" in [_.split("_")[0] for _ in traces]:
+        rdfull = [_ for _ in df.columns if "rdisofull" in _]
         traces.extend(rdfull)
     # filter -> only significative cells
-    traces = [item for item in traces if not item.endswith("sig")]
+    traces = [_ for _ in traces if not _.endswith("sig")]
     # text labels
     title = "{} {}".format(titles.get(kind, ""), titles.get(spread, ""))
     anotx = "Cell Rank"
@@ -112,7 +113,6 @@ def plot_all_cg_sorted_responses(
     axes = axes.flatten()
     x = range(1, len(df) + 1)
     # use cpisotime for ref
-    name = traces[0]
     name = traces[key]
     sig_name = name + "_sig"
     df = df.sort_values(by=[name, sig_name], ascending=False)
@@ -178,7 +178,7 @@ def plot_all_cg_sorted_responses(
         custom_ticks = np.linspace(0, 0.5, 2)
         ax.set_yticks(custom_ticks)
     no_spines = True
-    if no_spines == True:
+    if no_spines is True:
         for ax in left_axes:
             limx = ax.get_xlim()
             ax.vlines(limx[0], 0, 10, color="k", linewidth=2)
@@ -288,6 +288,13 @@ plt.close("all")
 
 
 def load_pop():
+    """load the population data for statistical display
+        input:
+            empty
+        output:
+            popdf : pandasDataframe with time and engy values
+            sigdf : dictionary of the 3sig_cells for each condition
+    """
     popdf = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     # significative cells
     conds = list(dict.fromkeys([_.split("_")[0] for _ in popdf.columns]))
@@ -305,8 +312,15 @@ def load_pop():
     return popdf, sigcells
 
 
-def boxPlot(popdf, sigcells, pop=False):
-
+def boxPlot(popdf, sigcells, sigonly=False):
+    """draw a boxplot:
+        input:
+            popdf : pandasDataframe
+            sigcells : dictionary of the significant cells (list) per condition (key)
+            sigonly : boolean True <-> sigPopulation, False <-> all cells
+        output:
+            matplotlib.pyplot figure
+    """
     titles = {
         "engy": r"$\Delta$ Response",
         "time50": r"$\Delta$ Latency",
@@ -317,14 +331,12 @@ def boxPlot(popdf, sigcells, pop=False):
         "full": "Full",
     }
     df = popdf.copy()
-    scells = sigcells.copy()
-    if pop:
-        for k in scells:
-            scells[k] = popdf.index.to_list()
-
-    # fig, axes = plt.subplots(nrows=2, ncols=2)
-    # axes = axes.flatten('F')
-
+    # pop <-> all the cells : update the sigcell dictionary
+    if sigonly:
+        selected_cells = sigcells.copy()
+    else:
+        selected_cells = {k: popdf.index.to_list() for k, v in sigcells.items()}
+    # build canvas
     fig = plt.figure()
     axes = []
     ax0 = fig.add_subplot(221)
@@ -333,52 +345,43 @@ def boxPlot(popdf, sigcells, pop=False):
     ax1 = fig.add_subplot(222)
     axes.append(ax1)
     axes.append(fig.add_subplot(224, sharey=ax1))
-
     # select data
     colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue"]]
     measures = ["time50", "engy"]
     spreads = ["sect", "full"]
     keys = [(a, b) for a in measures for b in spreads]
-
+    # iterate on the plots
     for i, (mes, spread) in enumerate(keys):
         cols = [_ for _ in df.columns if mes in _ if spread in _ if "_sig" not in _]
-        toPlot = pd.DataFrame()
+        # extract data
+        to_plot = pd.DataFrame()
         for col in cols:
-            cells = scells[col.split("_")[0]]
+            cells = selected_cells[col.split("_")[0]]
             ser = pd.Series(name=col, data=df.loc[cells][col].values)
-            toPlot = pd.concat([toPlot, ser], ignore_index=True, axis=1)
-        toPlot.columns = cols
+            to_plot = pd.concat([to_plot, ser], ignore_index=True, axis=1)
+        to_plot.columns = cols
         # drop nan
-        data = toPlot.values
+        data = to_plot.values
         mask = ~np.isnan(data)
         filtered_data = [d[m] for d, m in zip(data.T, mask.T)]
-
+        # plot
         ax = axes[i]
         if i < 2:
             bp = ax.boxplot(
                 filtered_data,
                 notch=True,
                 vert=False,
-                # meanline=True,
-                # showmeans=True,
                 patch_artist=True,
                 showcaps=False,
                 widths=0.7,
             )
         else:
             bp = ax.boxplot(
-                filtered_data,
-                notch=True,
-                vert=True,
-                # meanline=True,
-                # showmeans=True,
-                patch_artist=True,
-                showcaps=False,
+                filtered_data, notch=True, vert=True, patch_artist=True, showcaps=False,
             )
 
         for j, patch in enumerate(bp["boxes"]):
             patch.set(facecolor=colors[j], alpha=0.3)
-        #    ax.set_xticklabels(toPlot.columns.to_list(), rotation=45, ha="right")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
 
@@ -406,10 +409,10 @@ def boxPlot(popdf, sigcells, pop=False):
             0.99, 0.01, "sorted.py:boxPlot", ha="right", va="bottom", alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
-        if pop:
-            fig.text(0.5, 0.01, "pop", ha="left", va="bottom", alpha=0.4)
-        else:
+        if sigonly:
             fig.text(0.5, 0.01, "sigPop", ha="left", va="bottom", alpha=0.4)
+        else:
+            fig.text(0.5, 0.01, "pop", ha="left", va="bottom", alpha=0.4)
 
     fig.tight_layout()
     return fig
@@ -420,13 +423,13 @@ if not "pop_df" in dir():
 
 
 save = False
-for pop in [True, False]:
-    fig = boxPlot(pop_df, sig_cells, pop=pop)
+for sig_only in [True, False]:
+    fig = boxPlot(pop_df, sig_cells, sigonly=sig_only)
     if save:
-        if pop:
-            file = "boxplot_pop.pdf"
-        else:
+        if sig_only:
             file = "boxplot_sigPop.pdf"
+        else:
+            file = "boxplot_pop.pdf"
         dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
         fig.savefig(os.path.join(dirname, file))
 
@@ -434,26 +437,24 @@ for pop in [True, False]:
 plt.close("all")
 
 
-def violinPlot(popdf, sigcells, pop=False):
+def violin_plot(popdf, sigcells, sigonly=False):
+    """draw a violin plot:
+        input:
+            popdf : pandasDataframe
+            sigcells : dictionary of the significant cells (list) per condition (key)
+            pop : boolean True <-> allPopulation, False <-> only significant cells
+        output:
+            matplotlib.pyplot figure
+    """
+    titles = config.std_titles()
 
-    titles = {
-        "engy": r"$\Delta$ Response",
-        "time50": r"$\Delta$ Latency",
-        "gain50": "Amplitude Gain",
-        "sect": "Sector",
-        "spk": "Spikes",
-        "vm": "Vm",
-        "full": "Full",
-    }
     df = popdf.copy()
-    scells = sigcells.copy()
-    if pop:
-        for k in scells:
-            scells[k] = popdf.index.to_list()
-
-    # fig, axes = plt.subplots(nrows=2, ncols=2)
-    # axes = axes.flatten('F')
-
+    # update the (sig)cell dictionary
+    if sigonly:
+        selected_cells = sigcells.copy()
+    else:
+        selected_cells = {k: popdf.index.to_list() for k, v in sigcells.items()}
+    # build canvas
     fig = plt.figure()
     axes = []
     ax0 = fig.add_subplot(221)
@@ -462,41 +463,30 @@ def violinPlot(popdf, sigcells, pop=False):
     ax1 = fig.add_subplot(222)
     axes.append(ax1)
     axes.append(fig.add_subplot(224, sharey=ax1))
-
     # select data
     colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue"]]
     measures = ["time50", "engy"]
     spreads = ["sect", "full"]
+    # iterate on the plots
     keys = [(a, b) for a in measures for b in spreads]
-    # pd dataframe -> array with different lengths (remove the nan values)
     for i, (mes, spread) in enumerate(keys):
         cols = [_ for _ in df.columns if mes in _ if spread in _ if "_sig" not in _]
-        toPlot = pd.DataFrame()
+        # build dataframe with values per condition
+        to_plot = pd.DataFrame()
         for col in cols:
-            cells = scells[col.split("_")[0]]
+            cells = selected_cells[col.split("_")[0]]
             ser = pd.Series(name=col, data=df.loc[cells][col].values)
-            toPlot = pd.concat([toPlot, ser], ignore_index=True, axis=1)
-        toPlot.columns = cols
+            to_plot = pd.concat([to_plot, ser], ignore_index=True, axis=1)
+        to_plot.columns = cols
         # drop nan
-        data = toPlot.values
+        data = to_plot.values
         mask = ~np.isnan(data)
         filtered_data = [d[m] for d, m in zip(data.T, mask.T)]
-        labels = [_.split("_")[0] for _ in cols]
-
         ax = axes[i]
         if i < 2:
             violin = ax.violinplot(
                 filtered_data, vert=False, widths=0.7, showmedians=True,
             )
-
-            # (showmeans=False,
-            #     showextrema=True,
-            #     quantiles=None,
-            #     points=100,
-            #     bw_method=None,
-            #     patch_artist=True
-            #     )
-
         else:
             violin = ax.violinplot(
                 filtered_data, vert=True, widths=0.5, showmedians=True,
@@ -505,8 +495,6 @@ def violinPlot(popdf, sigcells, pop=False):
             bd.set_facecolor(color)
             bd.set_edgecolor("k")
             bd.alpha = 0.5
-
-        #    ax.set_xticklabels(toPlot.columns.to_list(), rotation=45, ha="right")
         for spine in ["top", "right"]:
             ax.spines[spine].set_visible(False)
 
@@ -533,13 +521,13 @@ def violinPlot(popdf, sigcells, pop=False):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "sorted.py:violinPlot", ha="right", va="bottom", alpha=0.4,
+            0.99, 0.01, "sorted.py:violin_plot", ha="right", va="bottom", alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
-        if pop:
-            fig.text(0.5, 0.01, "pop", ha="left", va="bottom", alpha=0.4)
-        else:
+        if sigonly:
             fig.text(0.5, 0.01, "sigPop", ha="left", va="bottom", alpha=0.4)
+        else:
+            fig.text(0.5, 0.01, "pop", ha="left", va="bottom", alpha=0.4)
 
     fig.tight_layout()
     return fig
@@ -550,12 +538,12 @@ if not "pop_df" in dir():
 
 
 save = False
-for pop in [True, False]:
-    fig = violinPlot(pop_df, sig_cells, pop=pop)
+for sig_only in [True, False]:
+    fig = violin_plot(pop_df, sig_cells, sigonly=sig_only)
     if save:
-        if pop:
-            file = "violinplot_pop.pdf"
-        else:
+        if sig_only:
             file = "violinplot_sigPop.pdf"
+        else:
+            file = "violinplot_pop.pdf"
         dirname = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
         fig.savefig(os.path.join(dirname, file))
