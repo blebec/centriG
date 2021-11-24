@@ -145,7 +145,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     filling in example + pop
     """
     # boolean to add std
-    indi_std = False  # not used at the moment (no data available)
+    indi_std = True  # not used at the moment (no data available)
     pop_std = True
     # ## to build
     # inddata = indi_df
@@ -154,16 +154,25 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # anot=True
     # ##
     legend = False
+    # idf = inddata.copy()
+    # cols = [
+    #     "Center-Only",
+    #     "Surround-then-Center",
+    #     "Surround-Only",
+    #     "Static linear prediction",
+    # ]
+    # dico = dict(zip(idf.columns, cols))
+    # idf.rename(columns=dico, inplace=True)
+
+    # columns names
     idf = inddata.copy()
-    cols = [
-        "Center-Only",
-        "Surround-then-Center",
-        "Surround-Only",
-        "Static linear prediction",
-    ]
-    dico = dict(zip(idf.columns, cols))
-    idf.rename(columns=dico, inplace=True)
-    # color parameters
+    cols = ["_".join(_.split("_")[2:]).lower() for _ in idf.columns]
+    idf.columns = cols
+    idf = idf.loc[-120:200]
+    traces = cols[:4]
+    se_errors = ["seup", "sedw"]
+    conf_intervals = ["cirmin", "cirmax"]
+
     colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
     #    alphas = [0.5, 0.5, 0.8, 0.8]
     alphas = [0.8, 1, 1, 1]  # changed for homogeneity
@@ -189,31 +198,47 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # ax0 =============================== indi
     ax = axes[0]
     ax.set_title("Single Cell")
-    for i, col in enumerate(cols[:2]):
-        ax.plot(idf.loc[-120:200, [col]], color=colors[i], alpha=alphas[i], label=col)
+    for i, trace in enumerate(traces[:2]):
+        ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=trace)
+        if indi_std:
+            ax.fill_between(
+                idf[trace].index,
+                idf[trace + "_" + se_errors[0]],
+                idf[trace + "_" + se_errors[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
 
     # ax1 =============================== indi
     ax = axes[1]
-    for i, col in enumerate(cols):
+    for i, trace in enumerate(traces):
         if i == 3:  # dashed
             ax.plot(
-                idf.loc[-120:200, [col]],
+                idf[trace],
                 color=colors[i],
                 alpha=alphas[i],
-                label=col,
+                label=trace,
                 linestyle=lines[i],
                 linewidth=1.5,
             )
         else:
             ax.plot(
-                idf.loc[-120:200, [col]],
+                idf[trace],
                 color=colors[i],
                 alpha=alphas[i],
-                label=col,
+                label=trace,
                 linestyle=lines[i],
             )
+            if indi_std:
+                ax.fill_between(
+                    idf[trace].index,
+                    idf[trace + "_" + se_errors[0]],
+                    idf[trace + "_" + se_errors[1]],
+                    color=colors[i],
+                    alpha=0.3,
+                )
     ax.set_xlabel("Time (ms)")
 
     # stims locations (drawing at the end of the function)
@@ -446,12 +471,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99,
-            0.01,
-            "fill.py:plot_indFill_popPredict",
-            ha="right",
-            va="bottom",
-            alpha=0.4,
+            0.99, 0.01, "fig6_predictors", ha="right", va="bottom", alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         fig.text(0.5, 0.01, "predict", ha="left", va="bottom", alpha=0.4)
