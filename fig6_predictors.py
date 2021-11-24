@@ -37,7 +37,13 @@ paths["sup"] = os.path.join(
     paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
 )
 
-#%% figure 6
+
+# nb CIR columns are 10 time shorter (sauf linear predictor ou il a été corrigé)
+# nb interval de confiance = ± blank ou ± predicteur linéaire
+# présenter interval de confiance + trace (effectuer la calcul)
+
+# haut ci
+# bas se
 
 
 def build_fig6_predictors_datafile(write=False):
@@ -54,11 +60,24 @@ def build_fig6_predictors_datafile(write=False):
     # manage supplementary data (variability)
     supfile = "fig6_supData.xlsx"
     supfilename = os.path.join(paths["sup"], supfile)
-    supdf = pd.read_excel(supfilename)
-    # df = sup_df.copy()
+    # ci columns are shorter than se columns
+    supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
+    # separate the shorter waves
+    cirs = [_ for _ in supdf.columns if "CIR" in _]
+    cirs = [_ for _ in cirs if not "LPCIR" in _]
+    cir_df = supdf[cirs].copy()
+
+    # fill using a pad (not optimal)
+    cir_df = cir_df.dropna(axis=0, how="any")
+
+    supdf = supdf.drop(columns=cirs)
+    supdf.index = supdf.index / 10
+    supdf = supdf.join(cir_df)
+    supdf = supdf.fillna(method="pad", axis=0)
+    del cir_df
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
-    supdf.index = (supdf.index - middle) / 10
+    supdf.index = supdf.index - middle
     # limit the date time range
     supdf = supdf.loc[-200:200]
 
@@ -74,12 +93,15 @@ def build_fig6_predictors_datafile(write=False):
     indicols = [_.lower() for _ in indicols]
     indicols = [_.strip("s") for _ in indicols]
     indicols = [_.replace("cpiso", "cpiso_") for _ in indicols]
+    indicols = [_.replace("_slp", "_lp") for _ in indicols]
+    indicols = [_.replace("__", "_") for _ in indicols]
     indicols = [key + "_" + _ for _ in indicols]
     indidf.columns = indicols
 
     # join
     vardf = supdf[icols]
     vardf.columns = [_.replace("_ctr_stc_", "_ctr_") for _ in vardf.columns]
+    vardf.columns = [_.replace("_so_LP", "_lp_") for _ in vardf.columns]
     indidf = indidf.join(vardf)
 
     # pop_df
@@ -109,6 +131,7 @@ def build_fig6_predictors_datafile(write=False):
     varcols = vardf.columns
     varcols = [_.replace("pop_fillsig_", "popfill_Vm_s_") for _ in varcols]
     varcols = [_.replace("_s_ctr_stc_", "_ctr_") for _ in varcols]
+    varcols = [_.replace("_slp", "_lp") for _ in varcols]
     vardf.columns = varcols
     popdf = popdf.join(vardf)
 
@@ -120,8 +143,8 @@ def build_fig6_predictors_datafile(write=False):
     savefilename = os.path.join(savedirname, savefile)
     for key, df in zip(keys, dfs):
         print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
-        for item in df.columns:
-            print(item)
+        for column in sorted(df.columns):
+            print(column)
         print()
         if write:
             df.to_hdf(savefilename, key)
@@ -129,15 +152,28 @@ def build_fig6_predictors_datafile(write=False):
     return indidf, popdf
 
 
-def load_fig6_predictors_datafile():
+def load_fig6_predictors_datafile(display=True):
     """ load the indidf and popdf dataframe for fig 6 """
     loadfile = "fig6s.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
     indidf = pd.read_hdf(loadfilename, "indi")
     popdf = pd.read_hdf(loadfilename, "pop")
+    if display:
+        for key, df in zip(["indi", "pop"], [indidf, popdf]):
+            print("=" * 20, "{}({})".format("loaded", key))
+            for column in sorted(df.columns):
+                print(column)
+            print()
 
     return indidf, popdf
+
+
+# indi_df, pop_df = build_fig6_predictors_datafile(write=False)
+indi_df, pop_df = load_fig6_predictors_datafile()
+
+
+#%%
 
 
 def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
@@ -199,12 +235,12 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     ax = axes[0]
     ax.set_title("Single Cell")
     for i, trace in enumerate(traces[:2]):
-        ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=trace)
+        ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=trace + "(& ci)")
         if indi_std:
             ax.fill_between(
                 idf[trace].index,
-                idf[trace + "_" + se_errors[0]],
-                idf[trace + "_" + se_errors[1]],
+                idf[trace] + idf[trace + "_" + conf_intervals[0]],
+                idf[trace] + idf[trace + "_" + conf_intervals[1]],
                 color=colors[i],
                 alpha=0.3,
             )
@@ -214,31 +250,34 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # ax1 =============================== indi
     ax = axes[1]
     for i, trace in enumerate(traces):
+        ser = idf[trace]
         if i == 3:  # dashed
             ax.plot(
-                idf[trace],
+                ser,
                 color=colors[i],
                 alpha=alphas[i],
                 label=trace,
                 linestyle=lines[i],
                 linewidth=1.5,
             )
+            ax.fill_between(
+                ser.index,
+                ser + idf[trace + "_" + conf_intervals[0]],
+                ser + idf[trace + "_" + conf_intervals[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
         else:
             ax.plot(
-                idf[trace],
-                color=colors[i],
-                alpha=alphas[i],
-                label=trace,
-                linestyle=lines[i],
+                ser, color=colors[i], alpha=alphas[i], label=trace, linestyle=lines[i],
             )
-            if indi_std:
-                ax.fill_between(
-                    idf[trace].index,
-                    idf[trace + "_" + se_errors[0]],
-                    idf[trace + "_" + se_errors[1]],
-                    color=colors[i],
-                    alpha=0.3,
-                )
+            ax.fill_between(
+                ser.index,
+                idf[trace + "_" + se_errors[0]],
+                idf[trace + "_" + se_errors[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
     ax.set_xlabel("Time (ms)")
 
     # stims locations (drawing at the end of the function)
@@ -479,8 +518,6 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
 
 
 plt.close("all")
-# indi_df, pop_df = build_fig6_predictors_datafile(write=False)
-indi_df, pop_df = load_fig6_predictors_datafile()
 
 fig = plot_fig6_predictors(
     inddata=indi_df, popdata=pop_df, stdcolors=std_colors, anot=anot
