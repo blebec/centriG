@@ -39,9 +39,6 @@ paths["sup"] = os.path.join(
 os.chdir(paths["pg"])
 
 #%%
-# age = ["old", "new"][1]
-# if "fig2_df" not in globals():
-#     fig2_df, fig2_cols = ldat.load2(age)
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
@@ -122,6 +119,8 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
 
     scols = [_.replace("ctr_stc_", "ctr_") for _ in scols]
     scols = [_.replace("cpcross", "cpx") for _ in scols]
+
+    scols = [_.replace("pop_spk_ctr_stc", "pop_spk_ctr_sedw") for _ in scols]
 
     supdf.columns = scols
 
