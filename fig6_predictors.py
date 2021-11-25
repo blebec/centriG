@@ -133,6 +133,11 @@ def build_fig6_predictors_datafile(write=False):
     varcols = [_.replace("_s_ctr_stc_", "_ctr_") for _ in varcols]
     varcols = [_.replace("_slp", "_lp") for _ in varcols]
     vardf.columns = varcols
+    # check duplicate
+    for col in varcols:
+        if col.lower() in [_.lower() for _ in popcols]:
+            print("duplicated trace for {}".format(col))
+            vardf = vardf.drop(columns=[col])
     popdf = popdf.join(vardf)
 
     # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
@@ -160,6 +165,8 @@ def load_fig6_predictors_datafile(display=True):
     indidf = pd.read_hdf(loadfilename, "indi")
     popdf = pd.read_hdf(loadfilename, "pop")
     if display:
+        print("-" * 20)
+        print("loaded data for figure 6 predictors")
         for key, df in zip(["indi", "pop"], [indidf, popdf]):
             print("=" * 20, "{}({})".format("loaded", key))
             for column in sorted(df.columns):
@@ -169,7 +176,7 @@ def load_fig6_predictors_datafile(display=True):
     return indidf, popdf
 
 
-# indi_df, pop_df = build_fig6_predictors_datafile(write=False)
+# indi_df, pop_df = build_fig6_predictors_datafile(write=True)
 indi_df, pop_df = load_fig6_predictors_datafile()
 
 
@@ -189,7 +196,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # stdcolors=std_colors
     # anot=True
     # ##
-    legend = False
+    legend = True
     # idf = inddata.copy()
     # cols = [
     #     "Center-Only",
@@ -226,16 +233,12 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     ax1 = fig.add_subplot(224, sharex=ax)
     axes.append(ax1)
 
-    # for i, ax in enumerate(axes):
-    #     ax.set_title(str(i))
-
-    # fig.suptitle(os.path.basename(filename))
-    # traces
     # ax0 =============================== indi
     ax = axes[0]
     ax.set_title("Single Cell")
     for i, trace in enumerate(traces[:2]):
-        ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=trace + "(& ci)")
+        label = "{} & ci".format(trace)
+        ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=label)
         if indi_std:
             ax.fill_between(
                 idf[trace].index,
@@ -246,6 +249,8 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
             )
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
+    if legend:
+        ax.legend()
 
     # ax1 =============================== indi
     ax = axes[1]
@@ -256,7 +261,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
                 ser,
                 color=colors[i],
                 alpha=alphas[i],
-                label=trace,
+                label=trace + " & ci",
                 linestyle=lines[i],
                 linewidth=1.5,
             )
@@ -269,7 +274,11 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
             )
         else:
             ax.plot(
-                ser, color=colors[i], alpha=alphas[i], label=trace, linestyle=lines[i],
+                ser,
+                color=colors[i],
+                alpha=alphas[i],
+                label=trace + " & se",
+                linestyle=lines[i],
             )
             ax.fill_between(
                 ser.index,
@@ -279,6 +288,8 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
                 alpha=0.3,
             )
     ax.set_xlabel("Time (ms)")
+    if legend:
+        ax.legend()
 
     # stims locations (drawing at the end of the function)
     step = 21
@@ -287,22 +298,28 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     box_dico = dict(zip(names, hlocs))
 
     ################### right population part
-    lp = "minus"
+    lp = "minus"  # linear predictor measure
     popdf = popdata.copy()
-    cols = [
-        "centerOnly",
-        "surroundThenCenter",
-        "surroundOnly",
-        "sosdUp",
-        "sosdDown",
-        "solinearPrediction",
-        "stcsdUp",
-        "stcsdDown",
-        "stcLinearPreediction",
-    ]
-    popdf.drop(columns=[_ for _ in popdf.columns if "Spk" in _], inplace=True)
-    dico = dict(zip(popdf.columns, cols))
-    popdf.rename(columns=dico, inplace=True)
+    # remove spikes and format
+    popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_Spk_" in _])
+    popdf.columns = [_.replace("popfill_Vm_", "") for _ in popdf.columns]
+    popdf.columns = [_.lower() for _ in popdf.columns]
+
+    # cols = [
+    #     "centerOnly",
+    #     "surroundThenCenter",
+    #     "surroundOnly",
+    #     "sosdUp",
+    #     "sosdDown",
+    #     "solinearPrediction",
+    #     "stcsdUp",
+    #     "stcsdDown",
+    #     "stcLinearPrediction",
+    # ]
+    # popdf.drop(columns=[_ for _ in popdf.columns if "Spk" in _], inplace=True)
+    # dico = dict(zip(popdf.columns, cols))
+    # popdf.rename(columns=dico, inplace=True)
+
     cols = popdf.columns
     # colors = [stdcolors[st] for st in
     #           ['k', 'red', 'dark_green', 'blue_violet', 'blue_violet',
@@ -311,17 +328,13 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     alphas = [0.5, 0.5, 0.8, 0.5, 0.6, 0.5, 0.2, 0.2, 0.7]
     alphas = [0.8, 1, 1, 0.8]
 
-    # sharesY = dict(minus = False, plus = True)
-    # fig, axes = plt.subplots(nrows=2, ncols=1, sharex=True,
-    #                          sharey=sharesY[lp], figsize=(8.5, 8))
-    # axes = axes.flatten()
-
+    # se_errors = ["seup", "sedw"]
+    # conf_intervals = ["cirmin", "cirmax"]
     # ax2 ===============================
     ax = axes[2]
     ax.set_title("Population Average")
-    cols = popdf.columns[:3]
     linewidths = (1.5, 1.5, 1.5)
-    for i, col in enumerate(cols):
+    for i, col in enumerate(cols[:3]):
         ax.plot(
             popdf[col],
             color=colors[i],
@@ -332,22 +345,13 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
         )
         # std for pop
         if pop_std:
-            if i == 1:  # surround then center
-                ax.fill_between(
-                    popdf.index,
-                    popdf["stcsdUp"],
-                    popdf["stcsdDown"],
-                    color=colors[1],
-                    alpha=0.3,
-                )
-            if i == 2:  # surround only
-                ax.fill_between(
-                    popdf.index,
-                    popdf["sosdUp"],
-                    popdf["sosdDown"],
-                    color=colors[2],
-                    alpha=0.2,
-                )
+            ax.fill_between(
+                popdf.index,
+                popdf[col + "_" + se_errors[0]],
+                popdf[col + "_" + se_errors[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
     # response point
     x = 0
     y = popdf[popdf.columns[0]].loc[0]
