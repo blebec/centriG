@@ -55,12 +55,14 @@ os.chdir(paths["pg"])
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
+    """ load the initial xcel file that contains the traces for fig8 """
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
     inidf.index = (inidf.index - middle) / 10
     inidf = inidf.loc[-200:150]
+    # adapt names
     cols = inidf.columns
     cols = [_.casefold() for _ in cols]
     cols = [_.replace("vm", "_vm_") for _ in cols]
@@ -96,12 +98,14 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
 
 
 def load_fig8_cpIsoGain_sup(printTraces=False):
+    """ load the excel sup file that contains the variability"""
     supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = (supdf.index - middle) / 10
     supdf = supdf.loc[-200:150]
+    # adapt names
     scols = supdf.columns
     scols = [_.casefold() for _ in scols]
     scols = [_.replace("ind_cell_", "indi_") for _ in scols]
@@ -160,6 +164,11 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
         "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
     )
     sig3df = pd.read_excel(filename, engine="openpyxl")
+    # centering already done
+    middle = (sig3df.index.max() - sig3df.index.min()) / 2
+    sig3df.index = (sig3df.index - middle) / 10
+    sig3df = sig3df.loc[-200:150]
+    # adapt names
     cols = gfunc.new_columns_names(sig3df.columns)
     cols = [item.replace("sig_", "pop3sig_") for item in cols]
     cols = [item.replace("full_rd", "frnd") for item in cols]
@@ -171,9 +180,6 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     cols = [st.replace("__", "_") for st in cols]
     cols = [st.replace("_.1", "") for st in cols]
     sig3df.columns = cols
-    # adjust time scale
-    middle = (sig3df.index.max() - sig3df.index.min()) / 2
-    sig3df.index = (sig3df.index - middle) / 10
 
     print("fig8_cpIsoGain_pop3sig")
     if printTraces:
@@ -191,23 +197,79 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     return sig3df
 
 
+def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
+    """ takes teh initial data and sorted them for figure 8
+    input:
+        inidf, sig3df, supdf : pandas.Dataframe
+    output:
+        indidf, popdf, pop2sigdf, pop3sigdf
+        """
+    inicols = inidf.columns
+    sigcols = sig3df.columns
+    supcols = supdf.columns
+
+    # individual dataframe
+    pop1 = [_ for _ in inicols if _.startswith("indi")]
+    pop2 = [_ for _ in supcols if _.startswith("indi")]
+    # remove overlap
+    for col in list(set(pop1) & set(pop2)):
+        pop2.remove(col)
+    # individual df (spk and vm)
+    indidf = inidf[pop1].join(supdf[pop2])
+
+    # pop dataframe
+    pop1 = [_ for _ in inicols if _.startswith("pop_")]
+    pop2 = [_ for _ in supcols if _.startswith("pop_")]
+    # remove overlap
+    for col in list(set(pop1) & set(pop2)):
+        pop2.remove(col)
+    popdf = inidf[pop1].join(supdf[pop2])
+
+    # pop2sig dataframe
+    pop1 = [_ for _ in inicols if _.startswith("pop2sig_")]
+    pop2 = [_ for _ in supcols if _.startswith("pop2sig_")]
+    # remove overlap
+    for col in list(set(pop1) & set(pop2)):
+        pop2.remove(col)
+    pop2sigdf = inidf[pop1].join(supdf[pop2])
+
+    # pop3sig
+    pop1 = [_ for _ in sigcols if _.startswith("pop3sig_")]
+    pop2 = [_ for _ in supcols if _.startswith("pop3sig_")]
+    # remove overlap
+    for col in list(set(pop1) & set(pop2)):
+        pop2.remove(col)
+    pop3sigdf = sig3df[pop1].join(supdf[pop2])
+
+    return indidf, popdf, pop2sigdf, pop3sigdf
+
+
+def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
+    """ save as hdf files """
+    # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
+    savefile = "fig8s.hdf"
+    keys = ["indi", "pop", "pop2sig", "pop3sig"]
+    dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
+    savedirname = paths["figdata"]
+    savefilename = os.path.join(savedirname, savefile)
+    for key, df in zip(keys, dfs):
+        print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
+        for column in sorted(df.columns):
+            print(column)
+        print()
+        if write:
+            df.to_hdf(savefilename, key)
+
+
 ini_df = load_fig8_cpIsoGain_initial()
 sig3_df = load_fig8_cpIsoGain_pop3sig()
 sup_df = load_fig8_cpIsoGain_sup()
 
-cols = ini_df.columns
-inicols = ini_df.columns
-[_ for _ in inicols if _.startswith('indi')]
-df1 = ini_df[_ for _ in inicols if _.startswith('indi')]
-df1 = ini_df[[_ for _ in inicols if _.startswith('indi')]]
-sigcols = sig3_df.colums
-sigcols = sig3_df.columns
-[_ for _ in sigcols if _.startswith('indi')]
-supcols = sup_df.columns
-[_ for _ in supcols if _.startswith('indi')]
-df2 = sup_df[[_ for _ in supcols if _.startswith('indi')]]
+indi_df, pop_df, pop2sig_df, pop3sig_df = extract_fig8_cpIsoGain_dataframes(
+    ini_df, sig3_df, sup_df
+)
 
-
+save_f8_cpIsoGain_data(indi_df, pop_df, pop2sig_df, pop3sig_df, write=False)
 
 #%%
 plt.close("all")
