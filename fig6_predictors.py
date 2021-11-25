@@ -38,14 +38,6 @@ paths["sup"] = os.path.join(
 )
 
 
-# nb CIR columns are 10 time shorter (sauf linear predictor ou il a été corrigé)
-# nb interval de confiance = ± blank ou ± predicteur linéaire
-# présenter interval de confiance + trace (effectuer la calcul)
-
-# haut ci
-# bas se
-
-
 def build_fig6_predictors_datafile(write=False):
     """ combine the xcel files to build fig6 dataframes
         input:
@@ -341,7 +333,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
             alpha=alphas[i],
             linewidth=linewidths[i],
             linestyle=lines[i],
-            label=col,
+            label=col + " & se",
         )
         # std for pop
         if pop_std:
@@ -361,6 +353,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     lims = dict(minus=(-0.1, 1.1), plus=(-0.05, 1.2))
     ax.set_ylim(lims.get(lp))
     ax.set_xlim(-200, 200)
+    ax.legend()
 
     # ax3 ===============================
     # predictive magnification
@@ -373,19 +366,25 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     lines = [
         "--",
     ]
-    for i, col in enumerate(cols[:2]):
+    cols = ["s_cpiso_so", "s_cpiso_mdlp"]
+    for i, col in enumerate(cols):
         print(i, col)
         ax.plot(
             popdf[col],
             color=colors[i + 2],
             alpha=alphas[i + 2],
-            label=col,
+            label=col + " & se",
             linewidth=linewidths[i],
             linestyle="--",
         )
-    ax.fill_between(
-        popdf.index, popdf["sosdUp"], popdf["sosdDown"], color=colors[2], alpha=0.2
-    )
+        if i == 0:
+            ax.fill_between(
+                popdf.index,
+                popdf[col + "_" + se_errors[0]],
+                popdf[col + "_" + se_errors[1]],
+                color=colors[2],
+                alpha=0.2,
+            )
 
     for i, ax in enumerate(axes):
         for loc in ["top", "right"]:
@@ -397,7 +396,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
             ax.axvline(0, alpha=0.2, color="k")
             # response start
             x = 41
-            y = idf["Center-Only"].loc[x]
+            y = idf["ctr"].loc[x]
             ax.plot(x, y, "o", color="tab:blue", ms=10, alpha=0.8)
             ax.vlines(x, -1, 2, color="tab:blue", linestyle=":", alpha=0.8)
             for dloc in hlocs:
@@ -427,6 +426,8 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # align zero lines
     # gfunc.change_plot_trace_amplitude(ax, 0.9)
     gfunc.align_yaxis(axes[2], 0, axes[0], 0)
+    gfunc.align_yaxis(axes[1], 0, axes[3], 0)
+
     fig.tight_layout()
 
     # left axis_label
@@ -530,7 +531,7 @@ save = False
 if save:
     file = "fig6_predictors"
     # to update current
-    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
