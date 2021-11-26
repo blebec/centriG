@@ -43,11 +43,11 @@ def build_fig6_predictors_datafile(write=False):
         input:
             write : boolean to save the data
         output:
-            indidf = pd.dataframe for individual example
-            popdf = pd.dataframe for population
+            indifilldf = pd.dataframe for individual example
+            popfilldf = pd.dataframe for population
             """
-    indidf = ldat.load_filldata("indi")
-    popdf = ldat.load_filldata("pop")
+    indifilldf = ldat.load_filldata("indi")
+    popfilldf = ldat.load_filldata("pop")
 
     # manage supplementary data (variability)
     supfile = "fig6_supData.xlsx"
@@ -79,26 +79,26 @@ def build_fig6_predictors_datafile(write=False):
     # get cell name
     key = {"_".join(_.split("_")[:2]) for _ in icols}.pop()
 
-    # format indi_df
-    # indidf = indi_df.copy()
-    indicols = indidf.columns
+    # format indifill_df
+    # indifilldf = indifill_df.copy()
+    indicols = indifilldf.columns
     indicols = [_.lower() for _ in indicols]
     indicols = [_.strip("s") for _ in indicols]
     indicols = [_.replace("cpiso", "cpiso_") for _ in indicols]
     indicols = [_.replace("_slp", "_lp") for _ in indicols]
     indicols = [_.replace("__", "_") for _ in indicols]
     indicols = [key + "_" + _ for _ in indicols]
-    indidf.columns = indicols
+    indifilldf.columns = indicols
 
     # join
     vardf = supdf[icols]
     vardf.columns = [_.replace("_ctr_stc_", "_ctr_") for _ in vardf.columns]
     vardf.columns = [_.replace("_so_LP", "_lp_") for _ in vardf.columns]
-    indidf = indidf.join(vardf)
+    indifilldf = indifilldf.join(vardf)
 
-    # pop_df
-    # popdf = pop_df.copy()
-    popcols = popdf.columns
+    # popfill_df
+    # popfilldf = popfill_df.copy()
+    popcols = popfilldf.columns
     popcols = [_.replace("popfill", "popfill_") for _ in popcols]
     popcols = [_.replace("_Vm", "_Vm_") for _ in popcols]
     popcols = [_.replace("_Spk", "_Spk_") for _ in popcols]
@@ -116,7 +116,7 @@ def build_fig6_predictors_datafile(write=False):
     popcols = [_.replace("_So", "_so_") for _ in popcols]
     popcols = [_.replace("__", "_") for _ in popcols]
     popcols = [_.strip("_") for _ in popcols]
-    popdf.columns = popcols
+    popfilldf.columns = popcols
 
     # join
     vardf = supdf[pcols]
@@ -130,12 +130,12 @@ def build_fig6_predictors_datafile(write=False):
         if col.lower() in [_.lower() for _ in popcols]:
             print("duplicated trace for {}".format(col))
             vardf = vardf.drop(columns=[col])
-    popdf = popdf.join(vardf)
+    popfilldf = popfilldf.join(vardf)
 
     # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
     savefile = "fig6s.hdf"
     keys = ["indi", "pop"]
-    dfs = [indidf, popdf]
+    dfs = [indifilldf, popfilldf]
     savedirname = paths["figdata"]
     savefilename = os.path.join(savedirname, savefile)
     for key, df in zip(keys, dfs):
@@ -146,36 +146,36 @@ def build_fig6_predictors_datafile(write=False):
         if write:
             df.to_hdf(savefilename, key)
 
-    return indidf, popdf
+    return indifilldf, popfilldf
 
 
 def load_fig6_predictors_datafile(display=True):
-    """ load the indidf and popdf dataframe for fig 6 """
+    """ load the indifilldf and popfilldf dataframe for fig 6 """
     loadfile = "fig6s.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
-    indidf = pd.read_hdf(loadfilename, "indi")
-    popdf = pd.read_hdf(loadfilename, "pop")
+    indifilldf = pd.read_hdf(loadfilename, "indi")
+    popfilldf = pd.read_hdf(loadfilename, "pop")
     if display:
         print("-" * 20)
         print("loaded data for figure 6 predictors")
-        for key, df in zip(["indi", "pop"], [indidf, popdf]):
+        for key, df in zip(["indi", "pop"], [indifilldf, popfilldf]):
             print("=" * 20, "{}({})".format("loaded", key))
             for column in sorted(df.columns):
                 print(column)
             print()
 
-    return indidf, popdf
+    return indifilldf, popfilldf
 
 
-# indi_df, pop_df = build_fig6_predictors_datafile(write=True)
-indi_df, pop_df = load_fig6_predictors_datafile()
+# indifill_df, popfill_df = build_fig6_predictors_datafile(write=True)
+indifill_df, popfill_df = load_fig6_predictors_datafile()
 
 
 #%%
 
 
-def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
+def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=True):
     """
     filling in example + pop
     """
@@ -183,13 +183,13 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     indi_std = True  # not used at the moment (no data available)
     pop_std = True
     # ## to build
-    # inddata = indi_df
-    # popdata = pop_df
+    # indifilldata = indifill_df
+    # popfilldata = popfill_df
     # stdcolors=std_colors
     # anot=True
     # ##
     legend = True
-    # idf = inddata.copy()
+    # idf = indifilldata.copy()
     # cols = [
     #     "Center-Only",
     #     "Surround-then-Center",
@@ -200,7 +200,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
     # idf.rename(columns=dico, inplace=True)
 
     # columns names
-    idf = inddata.copy()
+    idf = indifilldata.copy()
     cols = ["_".join(_.split("_")[2:]).lower() for _ in idf.columns]
     idf.columns = cols
     idf = idf.loc[-120:200]
@@ -291,7 +291,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
 
     ################### right population part
     lp = "minus"  # linear predictor measure
-    popdf = popdata.copy()
+    popdf = popfilldata.copy()
     # remove spikes and format
     popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_Spk_" in _])
     popdf.columns = [_.replace("popfill_Vm_", "") for _ in popdf.columns]
@@ -525,7 +525,7 @@ def plot_fig6_predictors(inddata, popdata, stdcolors=std_colors, anot=True):
 plt.close("all")
 
 fig = plot_fig6_predictors(
-    inddata=indi_df, popdata=pop_df, stdcolors=std_colors, anot=anot
+    indifilldata=indifill_df, popfilldata=popfill_df, stdcolors=std_colors, anot=anot
 )
 save = False
 if save:
