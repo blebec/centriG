@@ -45,6 +45,10 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     """ load the initial xcel file that contains the traces for fig8 """
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
+    for col in inidf.columns:
+        if len(inidf[col].dropna()) == 0:
+            print("no data for {} deleted column".format(col))
+            inidf.drop(columns=[col], inplace=True)
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
     inidf.index = (inidf.index - middle) / 10
@@ -87,7 +91,12 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
 def load_fig8_cpIsoGain_sup(printTraces=False):
     """ load the excel sup file that contains the variability"""
     supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
-    supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
+    supdf = pd.read_excel(supfilename, engine="openpyxl")
+    # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
+    for col in supdf.columns:
+        if len(supdf[col].dropna()) == 0:
+            print("no data for {} deleted column".format(col))
+            supdf.drop(columns=[col], inplace=True)
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = (supdf.index - middle) / 10
@@ -124,8 +133,6 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
 
     supdf.columns = scols
 
-    print("beware : an unamed 38 column exists")
-
     print("fig8_cpIsoGain_sup")
     if printTraces:
         for col in supdf.columns:
@@ -153,6 +160,10 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
         "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
     )
     sig3df = pd.read_excel(filename, engine="openpyxl")
+    for col in sig3df.columns:
+        if len(sig3df[col].dropna()) == 0:
+            print("no data for {} deleted column".format(col))
+            sig3df.drop(columns=[col], inplace=True)
     # centering already done
     middle = (sig3df.index.max() - sig3df.index.min()) / 2
     sig3df.index = (sig3df.index - middle) / 10
@@ -161,7 +172,9 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     cols = gfunc.new_columns_names(sig3df.columns)
     cols = [item.replace("sig_", "pop3sig_") for item in cols]
     cols = [item.replace("full_rd", "frnd") for item in cols]
+    cols = [item.replace("frnd_iso", "frnd") for item in cols]
     cols = [item.replace("sect_rd", "srnd") for item in cols]
+    cols = [item.replace("srnd_iso", "srnd") for item in cols]
     cols = [st.replace("cp_iso", "cpiso") for st in cols]
     cols = [st.replace("cf_iso", "cfiso") for st in cols]
     cols = [st.replace("sect_cx", "cpx") for st in cols]
@@ -202,7 +215,7 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     pop2 = [_ for _ in supcols if _.startswith("indi")]
     # remove overlap
     for col in list(set(pop1) & set(pop2)):
-        pop2.remove(col)
+        pop1.remove(col)
     # individual df (spk and vm)
     indidf = inidf[pop1].join(supdf[pop2])
 
@@ -211,7 +224,7 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     pop2 = [_ for _ in supcols if _.startswith("pop_")]
     # remove overlap
     for col in list(set(pop1) & set(pop2)):
-        pop2.remove(col)
+        pop1.remove(col)
     popdf = inidf[pop1].join(supdf[pop2])
 
     # pop2sig dataframe
@@ -219,7 +232,7 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     pop2 = [_ for _ in supcols if _.startswith("pop2sig_")]
     # remove overlap
     for col in list(set(pop1) & set(pop2)):
-        pop2.remove(col)
+        pop1.remove(col)
     pop2sigdf = inidf[pop1].join(supdf[pop2])
 
     # pop3sig
@@ -227,7 +240,7 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     pop2 = [_ for _ in supcols if _.startswith("pop3sig_")]
     # remove overlap
     for col in list(set(pop1) & set(pop2)):
-        pop2.remove(col)
+        pop1.remove(col)
     pop3sigdf = sig3df[pop1].join(supdf[pop2])
 
     return indidf, popdf, pop2sigdf, pop3sigdf
@@ -249,6 +262,8 @@ def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
         if write:
             df.to_hdf(savefilename, key)
 
+
+#%%
 
 ini_df = load_fig8_cpIsoGain_initial()
 sig3_df = load_fig8_cpIsoGain_pop3sig()
