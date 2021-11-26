@@ -10,12 +10,9 @@ from datetime import datetime
 from importlib import reload
 
 import matplotlib.pyplot as plt
-from matplotlib import gridspec
-from matplotlib import patches
 from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
-from pandas.plotting import table
 
 import config
 import fig_proposal as figp
@@ -71,7 +68,6 @@ def load_f8_cpIsoGain_data(display=False):
             for column in sorted(df.columns):
                 print(column)
         print()
-
     return indidf, popdf, pop2sigdf, pop3sigdf
 
 
@@ -147,7 +143,6 @@ def plot_fig8_cpIsoGain(
         )
     # response point
     x = 43.5
-    # y = indidf[indidf.columns[0]].loc[x]
     y = indidf.loc[x, [indidf.columns[0]]]
     ax.plot(x, y, "o", color="tab:blue", ms=10, alpha=0.8)
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
@@ -180,7 +175,6 @@ def plot_fig8_cpIsoGain(
             color=colors[i],
             alpha=0.3,
         )
-
     ax.annotate(
         "n=37",
         xy=(0.9, 0.9),
@@ -236,12 +230,6 @@ def plot_fig8_cpIsoGain(
             color=colors[i],
             alpha=0.3,
         )
-    """
-    ['pop2sig_vm_ctr_seup',
-     'pop2sig_vm_ctr_sedw',
-     'pop2sig_vm_cpiso_stc_seup',
-     'pop2sig_vm_cpiso_stc_sedw']
-    """
     # response point
     x = 0
     y = pop2sigdf.loc[x, [cols[0]]]
@@ -262,8 +250,6 @@ def plot_fig8_cpIsoGain(
     ax = spkaxes[2]
     # traces
     for i, col in enumerate(cols[::-1]):
-        # ax.fill_between(df.index, df[col], color=inv_colors[i],
-        #                 alpha=inv_alphas[i]/2)
         ax.plot(
             pop2sigdf[col],
             color=colors[::-1][i],

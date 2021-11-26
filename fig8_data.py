@@ -39,16 +39,30 @@ paths["sup"] = os.path.join(
 os.chdir(paths["pg"])
 
 #%%
+def remove_empty_columns(df):
+    """ remove dataframe empty columns """
+    for col in df.columns:
+        if len(df[col].dropna()) == 0:
+            print("no data for {} deleted column".format(col))
+            df.drop(columns=[col], inplace=True)
+        return df
+
+
+def print_keys(df):
+    """ print the keys that are used in the column names (delimter = '_') """
+    aset = set()
+    for _ in df.columns:
+        l = _.split("_")
+        for w in l:
+            aset.add(w)
+    print("keys are : {}".format(sorted(aset)))
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
     """ load the initial xcel file that contains the traces for fig8 """
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
-    for col in inidf.columns:
-        if len(inidf[col].dropna()) == 0:
-            print("no data for {} deleted column".format(col))
-            inidf.drop(columns=[col], inplace=True)
+    inidf = remove_empty_columns(inidf)
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
     inidf.index = (inidf.index - middle) / 10
@@ -78,13 +92,7 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
         for col in inidf.columns:
             print(col)
         print()
-
-    aset = set()
-    for _ in cols:
-        l = _.split("_")
-        for w in l:
-            aset.add(w)
-    print("keys are : {}".format(aset))
+    print_keys(inidf)
     return inidf
 
 
@@ -93,10 +101,7 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
     supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
     supdf = pd.read_excel(supfilename, engine="openpyxl")
     # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
-    for col in supdf.columns:
-        if len(supdf[col].dropna()) == 0:
-            print("no data for {} deleted column".format(col))
-            supdf.drop(columns=[col], inplace=True)
+    supdf = remove_empty_columns(supdf)
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = (supdf.index - middle) / 10
@@ -138,14 +143,7 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
         for col in supdf.columns:
             print(col)
         print()
-
-    aset = set()
-    for _ in scols:
-        l = _.split("_")
-        for w in l:
-            aset.add(w)
-    print("keys are : {}".format(aset))
-
+    print_keys(supdf)
     return supdf
 
 
@@ -160,10 +158,7 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
         "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
     )
     sig3df = pd.read_excel(filename, engine="openpyxl")
-    for col in sig3df.columns:
-        if len(sig3df[col].dropna()) == 0:
-            print("no data for {} deleted column".format(col))
-            sig3df.drop(columns=[col], inplace=True)
+    sig3df = remove_empty_columns(sig3df)
     # centering already done
     middle = (sig3df.index.max() - sig3df.index.min()) / 2
     sig3df.index = (sig3df.index - middle) / 10
@@ -188,14 +183,7 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
         for col in sig3df.columns:
             print(col)
         print()
-
-    aset = set()
-    for _ in cols:
-        l = _.split("_")
-        for w in l:
-            aset.add(w)
-    print("keys are : {}".format(aset))
-
+    print_keys(sig3df)
     return sig3df
 
 
