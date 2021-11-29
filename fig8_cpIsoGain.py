@@ -63,7 +63,7 @@ def load_f8_cpIsoGain_data(display=False):
     keys = ["indi", "pop", "pop2sig", "pop3sig"]
     dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
     for key, df in zip(keys, dfs):
-        print("=" * 20, "loaded {}({})".format(file, key))
+        print("loaded {:=>15}({})".format(file, key))
         if display:
             for column in sorted(df.columns):
                 print(column)
@@ -223,6 +223,8 @@ def plot_fig8_cpIsoGain(
     # traces
     for i, col in enumerate(cols):
         ax.plot(pop2sigdf[col], color=colors[i], alpha=alphas[i], label=col)
+        if len(pop2sigdf.loc[pop2sigdf[col + "_" + seerrors[0]].notnull()]) < 1:
+            print("{} trace is empty".format(pop2sigdf[col + "_" + seerrors[0]]))
         ax.fill_between(
             pop2sigdf.index,
             pop2sigdf[col + "_" + seerrors[0]],

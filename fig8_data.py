@@ -39,13 +39,26 @@ paths["sup"] = os.path.join(
 os.chdir(paths["pg"])
 
 #%%
+def test_empty(dflist):
+    for df in dflist:
+        for col in df.columns:
+            if df[col].dropna().empty:
+                print("{} is empty".format(col))
+
+
 def remove_empty_columns(df):
     """ remove dataframe empty columns """
+    cols_toremove = []
     for col in df.columns:
-        if len(df[col].dropna()) == 0:
-            print("no data for {} deleted column".format(col))
-            df.drop(columns=[col], inplace=True)
-        return df
+        if df[col].dropna().empty:
+            # print("no data for {} deleted column".format(col))
+            cols_toremove.append(col)
+    if cols_toremove:
+        print("{:=<20} empty columns deleted:".format(df.name))
+        for col in cols_toremove:
+            print("{} ".format(col))
+    df.drop(columns=cols_toremove, inplace=True)
+    return df
 
 
 def print_keys(df):
@@ -62,6 +75,8 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     """ load the initial xcel file that contains the traces for fig8 """
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
+
+    inidf.name = "inidf"
     inidf = remove_empty_columns(inidf)
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
@@ -101,7 +116,10 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
     supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
     supdf = pd.read_excel(supfilename, engine="openpyxl")
     # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
+
+    supdf.name = "supdf"
     supdf = remove_empty_columns(supdf)
+
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = (supdf.index - middle) / 10
@@ -158,6 +176,8 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
         "data/averageTraces/controlsFig/union_idx_fill_sig_sector.xlsx",
     )
     sig3df = pd.read_excel(filename, engine="openpyxl")
+
+    sig3df.name = "sig3df"
     sig3df = remove_empty_columns(sig3df)
     # centering already done
     middle = (sig3df.index.max() - sig3df.index.min()) / 2
@@ -230,6 +250,11 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     for col in list(set(pop1) & set(pop2)):
         pop1.remove(col)
     pop3sigdf = sig3df[pop1].join(supdf[pop2])
+
+    indidf.name = "indidf"
+    popdf.name = "popdf"
+    pop2sigdf.name = "pop2df"
+    pop3sigdf.name = "pop3df"
 
     return indidf, popdf, pop2sigdf, pop3sigdf
 
