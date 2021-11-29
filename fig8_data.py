@@ -126,6 +126,7 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
     supdf = supdf.loc[-200:150]
     # adapt names
     scols = supdf.columns
+    scols = [_.replace("pop_22_ctr_stc_seDW", "pop_22_ctr_stc_spk_seDW") for _ in scols]
     scols = [_.casefold() for _ in scols]
     scols = [_.replace("ind_cell_", "indi_") for _ in scols]
     scols = [_.replace("indi_", "indivm_") if "_vm_" in _ else _ for _ in scols]
@@ -150,9 +151,9 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
     scols = [_.replace("spk_", "_spk_") for _ in scols]
 
     scols = [_.replace("ctr_stc_", "ctr_") for _ in scols]
-    scols = [_.replace("cpcross", "cpx") for _ in scols]
+    scols = [_.replace("_ctr_stc", "_ctr") for _ in scols]
 
-    scols = [_.replace("pop_spk_ctr_stc", "pop_spk_ctr_sedw") for _ in scols]
+    scols = [_.replace("cpcross", "cpx") for _ in scols]
 
     supdf.columns = scols
 
