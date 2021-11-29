@@ -40,35 +40,44 @@ os.chdir(paths["pg"])
 
 #%%
 def test_empty(dflist):
+    """ check column is empty (or nan) in a dataframe """
     for df in dflist:
         for col in df.columns:
             if df[col].dropna().empty:
                 print("{} is empty".format(col))
 
 
-def remove_empty_columns(df):
-    """ remove dataframe empty columns """
+def remove_empty_columns(df, name=""):
+    """ remove dataframe empty columns
+    input:
+        df : pandas.DataFrame
+        name: a given name for the dataframe variable
+    return:
+        df : pandas.DataFrame without the empty or nan columns
+        """
     cols_toremove = []
     for col in df.columns:
         if df[col].dropna().empty:
             # print("no data for {} deleted column".format(col))
             cols_toremove.append(col)
     if cols_toremove:
-        print("{:=<20} empty columns deleted:".format(df.name))
+        print("{:=>20} empty columns deleted:".format(" " + name))
         for col in cols_toremove:
             print("{} ".format(col))
     df.drop(columns=cols_toremove, inplace=True)
     return df
 
 
-def print_keys(df):
+def print_keys(df, name=""):
     """ print the keys that are used in the column names (delimter = '_') """
     aset = set()
     for _ in df.columns:
         l = _.split("_")
         for w in l:
             aset.add(w)
-    print("keys are : {}".format(sorted(aset)))
+    # print("{:>20}".format(name))
+    print("{} keys are : {}".format(name, sorted(aset)))
+    print()
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
@@ -76,8 +85,9 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
 
-    inidf.name = "inidf"
-    inidf = remove_empty_columns(inidf)
+    print("{:=>40}".format(" load_fig8_cpIsoGain_initial"))
+    dfname = "inidf"
+    inidf = remove_empty_columns(inidf, "inidf")
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
     inidf.index = (inidf.index - middle) / 10
@@ -102,12 +112,12 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     cols = [_.replace("_sig", "") for _ in cols]
     inidf.columns = cols
 
-    print("fig8_cpIsoGain_initial")
+    print(dfname)
     if printTraces:
         for col in inidf.columns:
             print(col)
         print()
-    print_keys(inidf)
+    print_keys(inidf, dfname)
     return inidf
 
 
@@ -117,8 +127,10 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
     supdf = pd.read_excel(supfilename, engine="openpyxl")
     # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
 
-    supdf.name = "supdf"
-    supdf = remove_empty_columns(supdf)
+    print("{:=>40}".format(" load_fig8_cpIsoGain_sup"))
+    dfname = "supdf"
+    print(dfname)
+    supdf = remove_empty_columns(supdf, dfname)
 
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
@@ -157,12 +169,11 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
 
     supdf.columns = scols
 
-    print("fig8_cpIsoGain_sup")
     if printTraces:
         for col in supdf.columns:
             print(col)
         print()
-    print_keys(supdf)
+    print_keys(supdf, dfname)
     return supdf
 
 
@@ -178,8 +189,11 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     )
     sig3df = pd.read_excel(filename, engine="openpyxl")
 
-    sig3df.name = "sig3df"
-    sig3df = remove_empty_columns(sig3df)
+    print("{:=>40}".format(" load_fig8_cpIsoGain_pop3sig"))
+    dfname = "sig3df"
+    print(dfname)
+    sig3df = remove_empty_columns(sig3df, "sig3df")
+
     # centering already done
     middle = (sig3df.index.max() - sig3df.index.min()) / 2
     sig3df.index = (sig3df.index - middle) / 10
@@ -199,12 +213,11 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     cols = [st.replace("_.1", "") for st in cols]
     sig3df.columns = cols
 
-    print("fig8_cpIsoGain_pop3sig")
     if printTraces:
         for col in sig3df.columns:
             print(col)
         print()
-    print_keys(sig3df)
+    print_keys(sig3df, dfname)
     return sig3df
 
 
@@ -251,11 +264,6 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     for col in list(set(pop1) & set(pop2)):
         pop1.remove(col)
     pop3sigdf = sig3df[pop1].join(supdf[pop2])
-
-    indidf.name = "indidf"
-    popdf.name = "popdf"
-    pop2sigdf.name = "pop2df"
-    pop3sigdf.name = "pop3df"
 
     return indidf, popdf, pop2sigdf, pop3sigdf
 
