@@ -33,12 +33,60 @@ paths["save"] = os.path.join(
     paths["owncFig"], "pythonPreview", "fillinIn", "indFill_popFill"
 )
 
+def load_fillingpop_datafile(display=True):
+    """ load the indifilldf and popfilldf dataframe (for fig 6) """
+    loadfile = "populationFillingSig.hdf"
+    loaddirname = paths["figdata"]
+    loadfilename = os.path.join(loaddirname, loadfile)
+    indifilldf = pd.read_hdf(loadfilename, "indifill")
+    popfilldf = pd.read_hdf(loadfilename, "popfill")
+    if display:
+        print("-" * 20)
+        print("loaded data for figure 6 predictors")
+        for key, df in zip(["indifill", "popfill"], [indifilldf, popfilldf]):
+            print("=" * 20, "{}({})".format("loaded", key))
+            for column in sorted(df.columns):
+                print(column)
+            print()
+
+    return indifilldf, popfilldf
+
+def load_popvalues_vmspk(display=False):
+    """ load pop, pop2sig and pop3sig hdf files
+    input:
+        display : boolean to list the files
+    return
+        popdf, pop2sigdf, pop3sigdf : pandas_Dataframes
+    """
+    file = "populations_traces.hdf"
+    loaddirname = paths["figdata"]
+    loadfilename = os.path.join(loaddirname, file)
+    popdf = pd.read_hdf(loadfilename, key="pop")
+    pop2sigdf = pd.read_hdf(loadfilename, key="pop2sig")
+    pop3sigdf = pd.read_hdf(loadfilename, key="pop3sig")
+
+    keys = ["pop", "pop2sig", "pop3sig"]
+    dfs = [popdf, pop2sigdf, pop3sigdf]
+    for key, df in zip(keys, dfs):
+        print("loaded {:=>15}({})".format(file, key))
+        if display:
+            for column in sorted(df.columns):
+                print(column)
+        print()
+    return popdf, pop2sigdf, pop3sigdf
+
+
+_, pop2sig_df, _ = load_popvalues_vmspk(display=True)
+
+_, popfill_df = load_fillingpop_datafile()
+
 
 #%%
 plt.close("all")
 
 
-def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
+def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
+# def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
 
     # to build
     pop2sigdf = pop2sig_df
@@ -59,8 +107,8 @@ def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
     # defined in dataframe columns (first column = ctr))
     kind, rec, spread, *_ = gen_df.columns.to_list()[1].split("_")
     # centering
- #   middle = (gen_df.index.max() - gen_df.index.min()) / 2
-  #  gen_df.index = (gen_df.index - middle) / 10
+    # middle = (gen_df.index.max() - gen_df.index.min()) / 2
+    # gen_df.index = (gen_df.index - middle) / 10
     # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
     # subtract the centerOnly response (ref = df['CENTER-ONLY'])
     ref = gen_df[gen_df.columns[0]]
