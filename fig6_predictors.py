@@ -295,12 +295,8 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     lp = "minus"  # linear predictor measure
     popdf = popfilldata.copy()
     # remove spikes and format
-    popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_Spk_" in _])
-    popdf.columns = [_.replace("popfill_Vm_", "") for _ in popdf.columns]
     popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_spk_" in _])
     popdf.columns = [_.replace("popfill_vm_", "") for _ in popdf.columns]
-    popdf.columns = [_.lower() for _ in popdf.columns]
-
     # cols = [
     #     "centerOnly",
     #     "surroundThenCenter",
@@ -325,7 +321,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     alphas = [0.8, 1, 1, 0.8]
 
     # se_errors = ["seup", "sedw"]
-    # conf_intervals = ["cirmin", "cirmax"]
+    # conf_intervals = ["cimin", "cimax"]
     # ax2 ===============================
     ax = axes[2]
     ax.set_title("Population Average")
@@ -370,7 +366,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     lines = [
         "--",
     ]
-    cols = ["s_cpiso_so", "s_cpiso_mdlp"]
+    cols = ["s_cpiso_so", "s_cpiso_m_lp"]
     for i, col in enumerate(cols):
         print(i, col)
         ax.plot(
@@ -389,6 +385,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 color=colors[2],
                 alpha=0.2,
             )
+    ax.legend()
 
     for i, ax in enumerate(axes):
         for loc in ["top", "right"]:

@@ -179,8 +179,8 @@ def build_pop_fill_data(write=False):
 
     # popfill_df
     popfilldf = inifilldf.copy()
-    popcols = popfilldf.columns
 
+    popcols = popfilldf.columns
     popcols = [_.replace("_sect_", "_s_") for _ in popcols]
     popcols = [_.replace("_full_", "_f_") for _ in popcols]
     popcols = [_.replace("_rd_", "_rnd_") for _ in popcols]
@@ -188,27 +188,9 @@ def build_pop_fill_data(write=False):
     popcols = [_.replace("_cp_iso", "_cpiso_") for _ in popcols]
     popcols = [_.replace("_cp_cx", "_cpcx_") for _ in popcols]
     popcols = [_.replace("_rnd_iso", "_rnd_") for _ in popcols]
+    popcols = [_.replace("_dlp", "_lp") for _ in popcols]
     popcols = [_.replace("__", "_") for _ in popcols]
     popcols = [_.strip("_") for _ in popcols]
-
-    # popcols = [_.replace("popfill", "popfill_") for _ in popcols]
-    # popcols = [_.replace("_Vm", "_Vm_") for _ in popcols]
-    # popcols = [_.replace("_Spk", "_Spk_") for _ in popcols]
-    # popcols = [_.replace("_scpIso", "_s_cpiso_") for _ in popcols]
-    # popcols = [_.replace("_scfIso", "_s_cfiso_") for _ in popcols]
-    # popcols = [_.replace("_frnd", "_f_rnd_") for _ in popcols]
-    # popcols = [_.replace("_srnd", "_s_rnd_") for _ in popcols]
-    # popcols = [_.replace("_scpCross", "s_cpcx_") for _ in popcols]
-    # popcols = [_.replace("_Vms", "_Vm_s") for _ in popcols]
-    # popcols = [_.replace("_Spks", "_Spk_S") for _ in popcols]
-    # popcols = [_.replace("_S_", "_s_") for _ in popcols]
-    # popcols = [_.replace("_Ctr", "_ctr") for _ in popcols]
-    # popcols = [_.replace("rnd_Iso", "rnd_") for _ in popcols]
-    # popcols = [_.replace("_Stc", "_stc_") for _ in popcols]
-    # popcols = [_.replace("_So", "_so_") for _ in popcols]
-    # popcols = [_.replace("__", "_") for _ in popcols]
-    # popcols = [_.strip("_") for _ in popcols]
-    # popcols = [_.lower() for _ in popcols]
     popfilldf.columns = popcols
 
     # join
@@ -237,5 +219,22 @@ def build_pop_fill_data(write=False):
     return popfilldf
 
 
-indifill_df = build_indi_fill_data(write=False)
-popfill_df = build_pop_fill_data(write=False)
+if not "indifill_df" in dir():
+    indifill_df = build_indi_fill_data(write=False)
+if not "popfill_df" in dir():
+    popfill_df = build_pop_fill_data(write=False)
+
+# save filling population data
+save = False
+savefile = "populationFillingSig.hdf"
+keys = ["indi", "popfill"]
+dfs = [indifill_df, popfill_df]
+savedirname = paths["figdata"]
+savefilename = os.path.join(savedirname, savefile)
+for key, df in zip(keys, dfs):
+    print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
+    for column in sorted(df.columns):
+        print(column)
+    print()
+    if save:
+        df.to_hdf(savefilename, key)
