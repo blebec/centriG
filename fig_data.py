@@ -41,15 +41,21 @@ paths["sup"] = os.path.join(
 
 
 def print_keys(alist):
-    print(alist)
+    """ separate the list in keys (sep = '_') and print keys"""
+    print("-" * 20)
+    for col in sorted(alist):
+        print(col)
+    print()
     keys = set()
     for it in alist:
         for _ in it.split("_"):
             keys.add(_)
     print(sorted(keys))
+    print()
 
 
 def test_empty_column(df):
+    """ test the presence of nan """
     emptyness = {}
     for col in df:
         ser = df.loc[df[col].isna(), [col]]
@@ -60,7 +66,6 @@ def test_empty_column(df):
         print("_" * 20)
         print("there are nan values")
         for k, v in emptyness.items():
-            # print("{} in ({}, {})".format(item, df.index.min(), df.index.max()))
             print(
                 "{} : nan in {}, ref is ({}, {})".format(
                     k, v, df.index.min(), df.index.max()
@@ -72,6 +77,7 @@ def test_empty_column(df):
 
 
 def center_scale_df(df, timerange=[-200, 200]):
+    """center the dataframe and rescale it """
     middle = (df.index.max() - df.index.min()) / 2
     df.index = (df.index - middle) / 10
     # limit the date time range
@@ -80,6 +86,7 @@ def center_scale_df(df, timerange=[-200, 200]):
 
 
 def build_indi_fill_data(write=False):
+    """build an unified version of individual datafill"""
     # initial filling in example
     indifilldf = pd.read_excel("data/data_to_use/indifill.xlsx", engine="openpyxl")
     indifilldf = center_scale_df(indifilldf)
@@ -115,20 +122,23 @@ def build_indi_fill_data(write=False):
     # indifilldf = indifill_df.copy()
     indicols = indifilldf.columns
     indicols = [_.strip("s") for _ in indicols]
-    indicols = [_.replace("cpiso", "cpiso_") for _ in indicols]
     indicols = [_.replace("cp_iso_", "cpiso_") for _ in indicols]
     indicols = [_.replace("_slp", "_lp") for _ in indicols]
-    indicols = [_.replace("__", "_") for _ in indicols]
     indicols = [key + "_" + _ for _ in indicols]
     indicols = [_.lower() for _ in indicols]
     indifilldf.columns = indicols
 
-    # join
-    vardf = supdf[icols]
-    vardf.columns = [_.replace("_ctr_stc_", "_ctr_") for _ in vardf.columns]
-    vardf.columns = [_.replace("_so_LP", "_lp_") for _ in vardf.columns]
-    vardf.columns = [_.lower() for _ in vardf.columns]
-    indifilldf = indifilldf.join(vardf)
+    # append to supdf
+    supcols = supdf.columns
+    supcols = [_.replace("_lp", "_lp_") for _ in supcols]
+    supcols = [_.replace("_cir", "_ci_") for _ in supcols]
+    supcols = [_.replace("_ctr_stc_", "_ctr_") for _ in supcols]
+    supcols = [_.replace("_ci_", "_ci") for _ in supcols]
+    supcols = [_.replace("_so_lp_", "_lp_") for _ in supcols]
+
+    supcols = [_.lower() for _ in supcols]
+    supdf.columns = supcols
+    indifilldf = indifilldf.join(supdf)
 
     savefile = "fillsig.hdf"
     savefilename = os.path.join(paths["figdata"], savefile)
@@ -153,7 +163,7 @@ def build_pop_fill_data(write=False):
     # initial filling in population
     inifilldf = pd.read_excel("data/data_to_use/popfill.xlsx", engine="openpyxl")
     # centering
-    inifilldf = center_df(inifilldf)
+    inifilldf = center_scale_df(inifilldf)
     inifilldf.columns = gfunc.new_columns_names(inifilldf.columns)
 
     # manage supplementary data (variability)
@@ -162,7 +172,7 @@ def build_pop_fill_data(write=False):
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
 
     # centering
-    supdf = center_df(supdf)
+    supdf = center_scale_df(supdf)
 
     # pop only
     pcols = [_ for _ in supdf.columns if not _[:4].isdigit()]

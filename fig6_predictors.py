@@ -210,7 +210,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     idf = idf.loc[-120:200]
     traces = cols[:4]
     se_errors = ["seup", "sedw"]
-    conf_intervals = ["cirmin", "cirmax"]
+    conf_intervals = ["cimin", "cimax"]
 
     colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
     #    alphas = [0.5, 0.5, 0.8, 0.8]
