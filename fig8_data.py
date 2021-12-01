@@ -285,6 +285,38 @@ def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
             df.to_hdf(savefilename, key)
 
 
+def save_example(indidf, write=False):
+    """ save as hdf files """
+    # TODO = change 'indi' by the cellname
+    savefile = "exampleTrace.hdf"
+    key = "indi"
+    savedirname = paths["figdata"]
+    savefilename = os.path.join(savedirname, savefile)
+    print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
+    for column in sorted(indidf.columns):
+        print(column)
+    print()
+    if write:
+        indidf.to_hdf(savefilename, key)
+
+
+def save_populations_traces(popdf, pop2sigdf, pop3sigdf, write=False):
+    """ save as hdf files """
+    # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
+    savefile = "populations_traces.hdf"
+    keys = ["pop", "pop2sig", "pop3sig"]
+    dfs = [popdf, pop2sigdf, pop3sigdf]
+    savedirname = paths["figdata"]
+    savefilename = os.path.join(savedirname, savefile)
+    for key, df in zip(keys, dfs):
+        print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
+        for column in sorted(df.columns):
+            print(column)
+        print()
+        if write:
+            df.to_hdf(savefilename, key)
+
+
 #%%
 
 ini_df = load_fig8_cpIsoGain_initial()
@@ -296,3 +328,7 @@ indi_df, pop_df, pop2sig_df, pop3sig_df = extract_fig8_cpIsoGain_dataframes(
 )
 
 save_f8_cpIsoGain_data(indi_df, pop_df, pop2sig_df, pop3sig_df, write=False)
+
+# population version
+save_example(indi_df, write=False)
+save_populations_traces(pop_df, pop2sig_df, pop3sig_df, write=False)
