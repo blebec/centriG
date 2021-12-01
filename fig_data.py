@@ -76,8 +76,10 @@ def test_empty_column(df):
     print()
 
 
-def center_scale_df(df, timerange=[-200, 200]):
+def center_scale_df(df, timerange=None):
     """center the dataframe and rescale it """
+    if timerange == None:
+        timerange = [-200, 200]
     middle = (df.index.max() - df.index.min()) / 2
     df.index = (df.index - middle) / 10
     # limit the date time range
@@ -227,7 +229,7 @@ if not "popfill_df" in dir():
 # save filling population data
 save = False
 savefile = "populationFillingSig.hdf"
-keys = ["indi", "popfill"]
+keys = ["indifill", "popfill"]
 dfs = [indifill_df, popfill_df]
 savedirname = paths["figdata"]
 savefilename = os.path.join(savedirname, savefile)

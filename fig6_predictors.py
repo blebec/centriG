@@ -38,132 +38,17 @@ paths["sup"] = os.path.join(
 )
 
 
-def build_fig6_predictors_datafile(write=False):
-    """ combine the xcel files to build fig6 dataframes
-        input:
-            write : boolean to save the data
-        output:
-            indifilldf = pd.dataframe for individual example
-            popfilldf = pd.dataframe for population
-            """
-    indifilldf = ldat.load_filldata("indi")
-    popfilldf = ldat.load_filldata("pop")
-
-    # manage supplementary data (variability)
-    supfile = "fig6_supData.xlsx"
-    supfilename = os.path.join(paths["sup"], supfile)
-    # ci columns are shorter than se columns
-    supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
-
-    # expand the shorter waves (due to computation of confidence interval)
-    cirs = [_ for _ in supdf.columns if "CIR" in _]
-    cirs = [_ for _ in cirs if not "LPCIR" in _]
-    cir_df = supdf[cirs].copy()
-    # fill using a pad (not optimal)
-    cir_df = cir_df.dropna(axis=0, how="any")
-    supdf = supdf.drop(columns=cirs)
-    supdf.index = supdf.index / 10
-    supdf = supdf.join(cir_df)
-    supdf = supdf.fillna(method="pad", axis=0)
-    del cir_df
-
-    # centering
-    middle = (supdf.index.max() - supdf.index.min()) / 2
-    supdf.index = supdf.index - middle
-    # limit the date time range
-    supdf = supdf.loc[-200:200]
-
-    # individual
-    icols = [_ for _ in supdf.columns if _[:4].isdigit()]
-    pcols = [_ for _ in supdf.columns if not _[:4].isdigit()]
-    # get cell name
-    key = {"_".join(_.split("_")[:2]) for _ in icols}.pop()
-
-    # format indifill_df
-    # indifilldf = indifill_df.copy()
-    indicols = indifilldf.columns
-    indicols = [_.lower() for _ in indicols]
-    indicols = [_.strip("s") for _ in indicols]
-    indicols = [_.replace("cpiso", "cpiso_") for _ in indicols]
-    indicols = [_.replace("_slp", "_lp") for _ in indicols]
-    indicols = [_.replace("__", "_") for _ in indicols]
-    indicols = [key + "_" + _ for _ in indicols]
-    indicols = [_.lower() for _ in indicols]
-    indifilldf.columns = indicols
-
-    # join
-    vardf = supdf[icols]
-    vardf.columns = [_.replace("_ctr_stc_", "_ctr_") for _ in vardf.columns]
-    vardf.columns = [_.replace("_so_LP", "_lp_") for _ in vardf.columns]
-    vardf.columns = [_.lower() for _ in vardf.columns]
-    indifilldf = indifilldf.join(vardf)
-
-    # popfill_df
-    # popfilldf = popfill_df.copy()
-    popcols = popfilldf.columns
-    popcols = [_.replace("popfill", "popfill_") for _ in popcols]
-    popcols = [_.replace("_Vm", "_Vm_") for _ in popcols]
-    popcols = [_.replace("_Spk", "_Spk_") for _ in popcols]
-    popcols = [_.replace("_scpIso", "_s_cpiso_") for _ in popcols]
-    popcols = [_.replace("_scfIso", "_s_cfiso_") for _ in popcols]
-    popcols = [_.replace("_frnd", "_f_rnd_") for _ in popcols]
-    popcols = [_.replace("_srnd", "_s_rnd_") for _ in popcols]
-    popcols = [_.replace("_scpCross", "s_cpcx_") for _ in popcols]
-    popcols = [_.replace("_Vms", "_Vm_s") for _ in popcols]
-    popcols = [_.replace("_Spks", "_Spk_S") for _ in popcols]
-    popcols = [_.replace("_S_", "_s_") for _ in popcols]
-    popcols = [_.replace("_Ctr", "_ctr") for _ in popcols]
-    popcols = [_.replace("rnd_Iso", "rnd_") for _ in popcols]
-    popcols = [_.replace("_Stc", "_stc_") for _ in popcols]
-    popcols = [_.replace("_So", "_so_") for _ in popcols]
-    popcols = [_.replace("__", "_") for _ in popcols]
-    popcols = [_.strip("_") for _ in popcols]
-    popcols = [_.lower() for _ in popcols]
-    popfilldf.columns = popcols
-
-    # join
-    vardf = supdf[pcols]
-    varcols = vardf.columns
-    varcols = [_.replace("pop_fillsig_", "popfill_Vm_s_") for _ in varcols]
-    varcols = [_.replace("_s_ctr_stc_", "_ctr_") for _ in varcols]
-    varcols = [_.replace("_slp", "_lp") for _ in varcols]
-    varcols = [_.lower() for _ in varcols]
-    vardf.columns = varcols
-    # check duplicate
-    for col in varcols:
-        if col.lower() in [_.lower() for _ in popcols]:
-            print("duplicated trace for {}".format(col))
-            vardf = vardf.drop(columns=[col])
-    popfilldf = popfilldf.join(vardf)
-
-    # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
-    savefile = "fig6s.hdf"
-    keys = ["indi", "pop"]
-    dfs = [indifilldf, popfilldf]
-    savedirname = paths["figdata"]
-    savefilename = os.path.join(savedirname, savefile)
-    for key, df in zip(keys, dfs):
-        print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
-        for column in sorted(df.columns):
-            print(column)
-        print()
-        if write:
-            df.to_hdf(savefilename, key)
-
-    return indifilldf, popfilldf
-
-
-def load_fig6_predictors_datafile(display=True):
-    """ load the indifilldf and popfilldf dataframe for fig 6 """
-    loadfile = "fig6s.hdf"
+def load_fillingpop_datafile(display=True):
+    """ load the indifilldf and popfilldf dataframe (for fig 6) """
+    loadfile = "populationFillingSig.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
-    indifilldf = pd.read_hdf(loadfilename, "indi")
-    popfilldf = pd.read_hdf(loadfilename, "pop")
+    indifilldf = pd.read_hdf(loadfilename, "indifill")
+    popfilldf = pd.read_hdf(loadfilename, "popfill")
     if display:
         print("-" * 20)
         print("loaded data for figure 6 predictors")
-        for key, df in zip(["indi", "pop"], [indifilldf, popfilldf]):
+        for key, df in zip(["indifill", "popfill"], [indifilldf, popfilldf]):
             print("=" * 20, "{}({})".format("loaded", key))
             for column in sorted(df.columns):
                 print(column)
@@ -172,8 +57,7 @@ def load_fig6_predictors_datafile(display=True):
     return indifilldf, popfilldf
 
 
-# indifill_df, popfill_df = build_fig6_predictors_datafile(write=False)
-indifill_df, popfill_df = load_fig6_predictors_datafile()
+indifill_df, popfill_df = load_fillingpop_datafile()
 
 
 #%%
