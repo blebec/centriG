@@ -54,19 +54,19 @@ def build_fig6_predictors_datafile(write=False):
     supfilename = os.path.join(paths["sup"], supfile)
     # ci columns are shorter than se columns
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
-    # separate the shorter waves
+
+    # expand the shorter waves (due to computation of confidence interval)
     cirs = [_ for _ in supdf.columns if "CIR" in _]
     cirs = [_ for _ in cirs if not "LPCIR" in _]
     cir_df = supdf[cirs].copy()
-
     # fill using a pad (not optimal)
     cir_df = cir_df.dropna(axis=0, how="any")
-
     supdf = supdf.drop(columns=cirs)
     supdf.index = supdf.index / 10
     supdf = supdf.join(cir_df)
     supdf = supdf.fillna(method="pad", axis=0)
     del cir_df
+
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = supdf.index - middle
@@ -88,12 +88,14 @@ def build_fig6_predictors_datafile(write=False):
     indicols = [_.replace("_slp", "_lp") for _ in indicols]
     indicols = [_.replace("__", "_") for _ in indicols]
     indicols = [key + "_" + _ for _ in indicols]
+    indicols = [_.lower() for _ in indicols]
     indifilldf.columns = indicols
 
     # join
     vardf = supdf[icols]
     vardf.columns = [_.replace("_ctr_stc_", "_ctr_") for _ in vardf.columns]
     vardf.columns = [_.replace("_so_LP", "_lp_") for _ in vardf.columns]
+    vardf.columns = [_.lower() for _ in vardf.columns]
     indifilldf = indifilldf.join(vardf)
 
     # popfill_df
@@ -116,6 +118,7 @@ def build_fig6_predictors_datafile(write=False):
     popcols = [_.replace("_So", "_so_") for _ in popcols]
     popcols = [_.replace("__", "_") for _ in popcols]
     popcols = [_.strip("_") for _ in popcols]
+    popcols = [_.lower() for _ in popcols]
     popfilldf.columns = popcols
 
     # join
@@ -124,6 +127,7 @@ def build_fig6_predictors_datafile(write=False):
     varcols = [_.replace("pop_fillsig_", "popfill_Vm_s_") for _ in varcols]
     varcols = [_.replace("_s_ctr_stc_", "_ctr_") for _ in varcols]
     varcols = [_.replace("_slp", "_lp") for _ in varcols]
+    varcols = [_.lower() for _ in varcols]
     vardf.columns = varcols
     # check duplicate
     for col in varcols:
@@ -168,7 +172,7 @@ def load_fig6_predictors_datafile(display=True):
     return indifilldf, popfilldf
 
 
-# indifill_df, popfill_df = build_fig6_predictors_datafile(write=True)
+# indifill_df, popfill_df = build_fig6_predictors_datafile(write=False)
 indifill_df, popfill_df = load_fig6_predictors_datafile()
 
 
@@ -232,12 +236,10 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
         label = "{} & ci".format(trace)
         ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=label)
         if indi_std:
+            tracesup = idf[trace] + idf["_".join([trace, conf_intervals[0]])]
+            traceinf = idf[trace] + idf["_".join([trace, conf_intervals[1]])]
             ax.fill_between(
-                idf[trace].index,
-                idf[trace] + idf[trace + "_" + conf_intervals[0]],
-                idf[trace] + idf[trace + "_" + conf_intervals[1]],
-                color=colors[i],
-                alpha=0.3,
+                idf[trace].index, tracesup, traceinf, color=colors[i], alpha=0.3,
             )
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
@@ -295,6 +297,8 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     # remove spikes and format
     popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_Spk_" in _])
     popdf.columns = [_.replace("popfill_Vm_", "") for _ in popdf.columns]
+    popdf = popdf.drop(columns=[_ for _ in popdf.columns if "_spk_" in _])
+    popdf.columns = [_.replace("popfill_vm_", "") for _ in popdf.columns]
     popdf.columns = [_.lower() for _ in popdf.columns]
 
     # cols = [

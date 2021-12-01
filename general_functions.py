@@ -119,5 +119,7 @@ def new_columns_names(cols):
         denergy="engy",
     )
     for key in chg_dct:
-        newcols = [item.replace(key, chg_dct[key]) for item in newcols]
+        newcols = [_.replace(key, chg_dct[key]) for _ in newcols]
+    newcols = [_.replace("__", "_") for _ in newcols]
+
     return newcols
