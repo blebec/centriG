@@ -305,7 +305,13 @@ def build_pop_fill_data(write=False):
 
     # call
     popfilldf = merge_popfil(popfilldf, fig9supdatadf)
-    # popfilldf = popfilldf.join(fig9supdatadf)
+    # remove _stc_ because not present in all files (basename vs +se one)
+    cols = popfilldf.columns
+    cols = [_.replace("_stc", "_") for _ in cols]
+    cols = [_.replace("__", "_") for _ in cols]
+    cols = [_.strip("_") for _ in cols]
+
+    popfilldf.columns = cols
 
     key = "fillsig"
     savefile = "populations_traces.hdf"
