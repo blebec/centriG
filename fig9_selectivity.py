@@ -34,53 +34,77 @@ paths["save"] = os.path.join(
 )
 
 
-def load_fillingpop_datafile(display=True):
-    """ load the indifilldf and popfilldf dataframe (for fig 6) """
-    loadfile = "populationFillingSig.hdf"
+# def load_fillingpop_datafile(display=True):
+#     """ load the indifilldf and popfilldf dataframe (for fig 6) """
+#     loadfile = "populationFillingSig.hdf"
+#     loaddirname = paths["figdata"]
+#     loadfilename = os.path.join(loaddirname, loadfile)
+#     indifilldf = pd.read_hdf(loadfilename, "indifill")
+#     popfilldf = pd.read_hdf(loadfilename, "popfill")
+#     if display:
+#         print("-" * 20)
+#         print("loaded data for figure 6 predictors")
+#         for key, df in zip(["indifill", "popfill"], [indifilldf, popfilldf]):
+#             print("=" * 20, "{}({})".format("loaded", key))
+#             for column in sorted(df.columns):
+#                 print(column)
+#             print()
+
+#     return indifilldf, popfilldf
+
+
+def load_pop_datafile(key="fillsig", display=True):
+    """ load the popfilldf dataframe (for fig 6 & 9) """
+    try:
+        key in ["pop", "pop2sig", "pop3sig", "fillsig"]
+    except NameError:
+        print("key shoud be in ['pop', 'pop2sig', 'pop3sig', 'fillsig']")
+        return pd.DataFrame()
+    loadfile = "populations_traces.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
-    indifilldf = pd.read_hdf(loadfilename, "indifill")
-    popfilldf = pd.read_hdf(loadfilename, "popfill")
+    df = pd.read_hdf(loadfilename, key)
+    print("-" * 20)
+    print("loaded {} population".format(key))
     if display:
-        print("-" * 20)
-        print("loaded data for figure 6 predictors")
-        for key, df in zip(["indifill", "popfill"], [indifilldf, popfilldf]):
-            print("=" * 20, "{}({})".format("loaded", key))
-            for column in sorted(df.columns):
-                print(column)
-            print()
-
-    return indifilldf, popfilldf
-
-
-def load_popvalues_vmspk(display=False):
-    """ load pop, pop2sig and pop3sig hdf files
-    input:
-        display : boolean to list the files
-    return
-        popdf, pop2sigdf, pop3sigdf : pandas_Dataframes
-    """
-    file = "populations_traces.hdf"
-    loaddirname = paths["figdata"]
-    loadfilename = os.path.join(loaddirname, file)
-    popdf = pd.read_hdf(loadfilename, key="pop")
-    pop2sigdf = pd.read_hdf(loadfilename, key="pop2sig")
-    pop3sigdf = pd.read_hdf(loadfilename, key="pop3sig")
-
-    keys = ["pop", "pop2sig", "pop3sig"]
-    dfs = [popdf, pop2sigdf, pop3sigdf]
-    for key, df in zip(keys, dfs):
-        print("loaded {:=>15}({})".format(file, key))
-        if display:
-            for column in sorted(df.columns):
-                print(column)
+        print("=" * 20, "{}({})".format(loadfile, key))
+        for column in sorted(df.columns):
+            print(column)
         print()
-    return popdf, pop2sigdf, pop3sigdf
+    return df
 
 
-_, pop2sig_df, _ = load_popvalues_vmspk(display=True)
+# def load_popvalues_vmspk(display=False):
+#     """ load pop, pop2sig and pop3sig hdf files
+#     input:
+#         display : boolean to list the files
+#     return
+#         popdf, pop2sigdf, pop3sigdf : pandas_Dataframes
+#     """
+#     file = "populations_traces.hdf"
+#     loaddirname = paths["figdata"]
+#     loadfilename = os.path.join(loaddirname, file)
+#     popdf = pd.read_hdf(loadfilename, key="pop")
+#     pop2sigdf = pd.read_hdf(loadfilename, key="pop2sig")
+#     pop3sigdf = pd.read_hdf(loadfilename, key="pop3sig")
 
-_, popfill_df = load_fillingpop_datafile(display=True)
+#     keys = ["pop", "pop2sig", "pop3sig"]
+#     dfs = [popdf, pop2sigdf, pop3sigdf]
+#     for key, df in zip(keys, dfs):
+#         print("loaded {:=>15}({})".format(file, key))
+#         if display:
+#             for column in sorted(df.columns):
+#                 print(column)
+#         print()
+#     return popdf, pop2sigdf, pop3sigdf
+
+
+# _, pop2sig_df, _ = load_popvalues_vmspk(display=True)
+
+# _, popfill_df = load_fillingpop_datafile(display=True)
+
+popfill_df = load_pop_datafile(key="fillsig", display=True)
+pop2sig_df = load_pop_datafile(key="pop2sig", display=True)
 
 
 #%%
@@ -117,17 +141,17 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     gen_df = gen_df.subtract(ref, axis=0)
     # remove rdsect
     cols = gen_df.columns.to_list()
-    while any(_ for _ in cols if "sect_rd" in _):
-        cols.remove(next(_ for _ in cols if "sect_rd" in _))
-    # buils labels
+    while any(_ for _ in cols if "s_rnd" in _):
+        cols.remove(next(_ for _ in cols if "s_rnd" in _))
+    # build labels
     labels = cols[:]
-    labels = [n.replace("full_rd_", "full_rdf_") for n in labels]
-    for i in range(3):
-        for item in labels:
-            if len(item.split("_")) < 6:
-                j = labels.index(item)
-                labels[j] = item + "_ctr"
-    labels = [st.split("_")[-3] for st in labels]
+    # labels = [n.replace("f_rd_", "full_rnd_") for n in labels]
+    # for i in range(3):
+    #     for item in labels:
+    #         if len(item.split("_")) < 6:
+    #             j = labels.index(item)
+    #             labels[j] = item + "_ctr"
+    # labels = [st.split("_")[-3] for st in labels]
 
     fig = plt.figure(figsize=(11.6, 8))
     axes = []
@@ -140,12 +164,12 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     ax1 = fig.add_subplot(224, sharex=ax, sharey=ax)
     axes.append(ax1)
 
-    df = popfill_df.copy()
+    # df = popfill_df.copy()
     # fill pop
     # spks = df.columns[13:18]
     # vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
 
-    cols = df.columns
+    cols = filldf.columns
     # only traces
     cols = [_ for _ in cols if "_se" not in _ and "_lp" not in _ and "_s_rnd" not in _]
     ses = ["_seup", "_sedw"]
@@ -157,23 +181,26 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     vms = [_ for _ in vms if "_so" not in _]
     for i, col in enumerate(vms):
         ax.plot(
-            df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
+            filldf[col],
+            color=colors[i],
+            alpha=alphas[i],
+            linewidth=1.5,
+            label=col.replace("_stc", ""),
         )
-        if add_std:
-            if i in [0, 1]:
-                ax.fill_between(
-                    df.index,
-                    df[col + ses[0]],
-                    df[col + ses[1]],
-                    color=colors[i],
-                    alpha=0.3,
-                )
+        if i in [0, 1]:
+            ax.fill_between(
+                filldf.index,
+                filldf[col + ses[0]],
+                filldf[col + ses[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
 
     ax.legend()
     ax.set_xlim(-20, 50)
     # response point
     x = 0
-    y = df[df.columns[0]].loc[0]
+    y = filldf[filldf.columns[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = 0.06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
@@ -195,13 +222,18 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     spks = [_ for _ in spks if "_so" not in _]
     for i, col in enumerate(spks):
         ax.plot(
-            df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
+            filldf[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
         )
-        if add_std:
-            # no std
-            pass
+        if i in [0, 1]:
+            ax.fill_between(
+                filldf.index,
+                filldf[col + ses[0]],
+                filldf[col + ses[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
     x = 0
-    y = df[spks[0]].loc[0]
+    y = filldf[spks[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     vspread = 0.06  # vertical spread for realign location
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
@@ -224,22 +256,21 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     ax = axes[2]
     vms = [_ for _ in cols if "_vm" in _]
     vms = [vms[0],] + [_ for _ in vms if "_so" in _]
-    # surround_cols = [df.columns[st] for st in (2, 19, 20, 21)]
-    # +1 because no black curve
+    # surround_cols = [filldf.columns[st] for st in (2, 19, 20, 21)]
     for i, col in enumerate(vms):
         # for i in (2,19,20,21):
-        ax.plot(df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col)
-        if i in [0, 1]:
+        ax.plot(filldf[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col)
+        if i in [0, 1, 2, 3, 4]:
             ax.fill_between(
-                df.index,
-                df[col + ses[0]],
-                df[col + ses[1]],
+                filldf.index,
+                filldf[col + ses[0]],
+                filldf[col + ses[1]],
                 color=colors[i],
                 alpha=0.3,
             )
     # response point
     x = 0
-    y = df[df.columns[0]].loc[0]
+    y = filldf[filldf.columns[0]].loc[0]
     # ax1.plot(x, y, 'o', color=std_colors['blue'])
     # vspread = .06  # vertical spread for realign location
     # ax1.vlines(x, y + vspread, y - vspread, linewidth=4, color='tab:gray')
@@ -339,10 +370,10 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
 
 plt.close("all")
 # general pop
-select = dict(age="new", rec="vm", kind="sig")
+# select = dict(age="new", rec="vm", kind="sig")
 # select['align'] = 'p2p'
 
-data_df, file = ltra.load_intra_mean_traces(paths, **select)
+# data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
 fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df)
 

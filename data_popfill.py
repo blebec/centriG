@@ -130,8 +130,10 @@ def test_empty_column(df):
     print()
 
 
-def merge_popfil(df0, df1):
+def merge_popfil(ddf0, ddf1):
     """ compare, remove duplicated columns and merge two dataframe """
+    df0 = ddf0.copy()
+    df1 = ddf1.copy()
     for df in [df0, df1]:
         df.columns = [_.lower() for _ in df.columns]
     # check overlap
@@ -141,7 +143,7 @@ def merge_popfil(df0, df1):
         for col in diff:
             change = (df0[col] - df1[col]).mean()
             print("mean difference for {} is {}".format(col, change))
-            if change == 0:
+            if change < 0.1:
                 print("suppressed {} in second".format(col))
                 df1.drop(columns=[col], inplace=True)
     df = df0.join(df1)
@@ -297,21 +299,27 @@ def build_pop_fill_data(write=False):
     cols = [_.replace("_c", "_s_c") for _ in cols]
     cols = [_.replace("_f", "_f_") for _ in cols]
     cols = [_.replace("_cpcross", "_cpcx") for _ in cols]
+    # >>>>>>>>>>>
+    cols = [_.replace("_s_ctr", "_ctr") for _ in cols]
+
+    # <<<<<<<<<<<<<<<
     fig9supdatadf.columns = cols
     # centering
     middle = (fig9supdatadf.index.max() - fig9supdatadf.index.min()) / 2
     fig9supdatadf.index = (fig9supdatadf.index - middle) / 10
     fig9supdatadf = fig9supdatadf.loc[-200:200]
 
-    # call
+    # merge (call)
     popfilldf = merge_popfil(popfilldf, fig9supdatadf)
     # remove _stc_ because not present in all files (basename vs +se one)
     cols = popfilldf.columns
     cols = [_.replace("_stc", "_") for _ in cols]
     cols = [_.replace("__", "_") for _ in cols]
     cols = [_.strip("_") for _ in cols]
-
     popfilldf.columns = cols
+
+    # remove duplicated
+    popfilldf = popfilldf.loc[:, ~popfilldf.columns.duplicated()]
 
     key = "fillsig"
     savefile = "populations_traces.hdf"
@@ -328,4 +336,4 @@ def build_pop_fill_data(write=False):
 if not "indifill_df" in dir():
     indifill_df = build_indi_fill_data(write=False)
 if not "popfill_df" in dir():
-    popfill_df = build_pop_fill_data(write=False)
+    popfill_df = build_pop_fill_data(write=True)
