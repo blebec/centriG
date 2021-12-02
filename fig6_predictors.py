@@ -38,26 +38,45 @@ paths["sup"] = os.path.join(
 )
 
 
-def load_fillingpop_datafile(display=True):
-    """ load the indifilldf and popfilldf dataframe (for fig 6) """
-    loadfile = "populationFillingSig.hdf"
+def load_indifill_datafile(key="indi", display=True):
+    """ load the indifilldf dataframe (for fig 6) """
+    loadfile = "individual_fillin.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
-    indifilldf = pd.read_hdf(loadfilename, "indifill")
-    popfilldf = pd.read_hdf(loadfilename, "popfill")
+    indifilldf = pd.read_hdf(loadfilename, "indi")
+    print("-" * 20)
+    print("loaded filling_sig_pop")
     if display:
-        print("-" * 20)
-        print("loaded data for figure 6 predictors")
-        for key, df in zip(["indifill", "popfill"], [indifilldf, popfilldf]):
-            print("=" * 20, "{}({})".format("loaded", key))
-            for column in sorted(df.columns):
-                print(column)
-            print()
-
-    return indifilldf, popfilldf
+        print("=" * 20, "{}({})".format(loadfile, "fillsig"))
+        for column in sorted(indifilldf.columns):
+            print(column)
+        print()
+    return indifilldf
 
 
-indifill_df, popfill_df = load_fillingpop_datafile()
+def load_pop_datafile(key="fillsig", display=True):
+    """ load the popfilldf dataframe (for fig 6 & 9) """
+    try:
+        key in ["pop", "pop2sig", "pop3sig", "fillsig"]
+    except NameError:
+        print("key shoud be in ['pop', 'pop2sig', 'pop3sig', 'fillsig']")
+        return pd.DataFrame()
+    loadfile = "populations_traces.hdf"
+    loaddirname = paths["figdata"]
+    loadfilename = os.path.join(loaddirname, loadfile)
+    popfilldf = pd.read_hdf(loadfilename, "fillsig")
+    print("-" * 20)
+    print("loaded filling_sig_pop")
+    if display:
+        print("=" * 20, "{}({})".format(loadfile, "fillsig"))
+        for column in sorted(popfilldf.columns):
+            print(column)
+        print()
+    return popfilldf
+
+
+popfill_df = load_pop_datafile(key="fillsig", display=False)
+indifill_df = load_indifill_datafile(key="indi", display=False)
 
 
 #%%

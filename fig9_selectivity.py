@@ -80,7 +80,7 @@ def load_popvalues_vmspk(display=False):
 
 _, pop2sig_df, _ = load_popvalues_vmspk(display=True)
 
-_, popfill_df = load_fillingpop_datafile()
+_, popfill_df = load_fillingpop_datafile(display=True)
 
 
 #%%

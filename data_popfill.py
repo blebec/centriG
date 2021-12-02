@@ -214,14 +214,15 @@ def build_indi_fill_data(write=False):
     supdf.columns = supcols
     indifilldf = indifilldf.join(supdf)
 
-    savefile = "fillsig.hdf"
+    key = "indi"
+    savefile = "individual_fillin.hdf"
     savefilename = os.path.join(paths["figdata"], savefile)
     print("=" * 20, "{}({})".format(os.path.basename(savefilename), "indi"))
     for column in sorted(indifilldf.columns):
         print(column)
     print()
     if write:
-        indifilldf.to_hdf(savefilename, "indi")
+        indifilldf.to_hdf(savefilename, key)
 
     return indifilldf
 
@@ -306,14 +307,15 @@ def build_pop_fill_data(write=False):
     popfilldf = merge_popfil(popfilldf, fig9supdatadf)
     # popfilldf = popfilldf.join(fig9supdatadf)
 
-    savefile = "fillsig.hdf"
+    key = "fillsig"
+    savefile = "populations_traces.hdf"
     savefilename = os.path.join(paths["figdata"], savefile)
-    print("=" * 20, "{}({})".format(os.path.basename(savefilename), "pop"))
+    print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
     for column in sorted(popfilldf.columns):
         print(column)
     print()
     if write:
-        popfilldf.to_hdf(savefilename, "indi")
+        popfilldf.to_hdf(savefilename, key)
     return popfilldf
 
 
@@ -321,18 +323,3 @@ if not "indifill_df" in dir():
     indifill_df = build_indi_fill_data(write=False)
 if not "popfill_df" in dir():
     popfill_df = build_pop_fill_data(write=False)
-
-# save filling population data
-save = False
-savefile = "populationFillingSig.hdf"
-keys = ["indifill", "popfill"]
-dfs = [indifill_df, popfill_df]
-savedirname = paths["figdata"]
-savefilename = os.path.join(savedirname, savefile)
-for key, df in zip(keys, dfs):
-    print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
-    for column in sorted(df.columns):
-        print(column)
-    print()
-    if save:
-        df.to_hdf(savefilename, key)
