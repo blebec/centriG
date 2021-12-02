@@ -196,7 +196,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
                 alpha=0.3,
             )
 
-    ax.legend()
+    # ax.legend()
     ax.set_xlim(-20, 50)
     # response point
     x = 0
@@ -251,7 +251,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
         ha="right",
         va="top",
     )
-    ax.legend()
+    # ax.legend()
     # surround only
     ax = axes[2]
     vms = [_ for _ in cols if "_vm" in _]
