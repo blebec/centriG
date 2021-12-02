@@ -78,7 +78,6 @@ def load_pop_datafile(key="fillsig", display=True):
 popfill_df = load_pop_datafile(key="fillsig", display=False)
 indifill_df = load_indifill_datafile(key="indi", display=False)
 
-
 #%%
 
 
@@ -139,8 +138,10 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
         label = "{} & ci".format(trace)
         ax.plot(idf[trace], color=colors[i], alpha=alphas[i], label=label)
         if indi_std:
-            tracesup = idf[trace] + idf["_".join([trace, conf_intervals[0]])]
-            traceinf = idf[trace] + idf["_".join([trace, conf_intervals[1]])]
+            tracesup = idf["_".join([trace, conf_intervals[0]])]
+            traceinf = idf["_".join([trace, conf_intervals[1]])]
+            # tracesup = idf[trace] + idf["_".join([trace, conf_intervals[0]])]
+            # traceinf = idf[trace] + idf["_".join([trace, conf_intervals[1]])]
             ax.fill_between(
                 idf[trace].index, tracesup, traceinf, color=colors[i], alpha=0.3,
             )
@@ -164,8 +165,8 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
             )
             ax.fill_between(
                 ser.index,
-                ser + idf[trace + "_" + conf_intervals[0]],
-                ser + idf[trace + "_" + conf_intervals[1]],
+                idf[trace + "_" + conf_intervals[0]],
+                idf[trace + "_" + conf_intervals[1]],
                 color=colors[i],
                 alpha=0.3,
             )
@@ -174,7 +175,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 ser,
                 color=colors[i],
                 alpha=alphas[i],
-                label=trace + " & se",
+                label=trace + " ± se",
                 linestyle=lines[i],
             )
             ax.fill_between(
@@ -236,7 +237,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
             alpha=alphas[i],
             linewidth=linewidths[i],
             linestyle=lines[i],
-            label=col + " & se",
+            label=col + " ± se",
         )
         # std for pop
         if pop_std:
@@ -276,7 +277,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
             popdf[col],
             color=colors[i + 2],
             alpha=alphas[i + 2],
-            label=col + " & se",
+            label=col + " ± se",
             linewidth=linewidths[i],
             linestyle="--",
         )
@@ -436,6 +437,6 @@ if save:
     file = "fig6_predictors"
     # to update current
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
-    for ext in [".png", ".pdf", ".svg"]:
+    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
