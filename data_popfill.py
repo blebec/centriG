@@ -40,6 +40,60 @@ paths["sup"] = os.path.join(
 )
 
 
+def compare_df(df1, df2):
+    """ compare the columns of the two dataframes
+    input:
+        df1, df2: pandas.DataFrame
+    output:
+        print columns differences
+        """
+    set1 = set(df1.columns)
+    set2 = set(df2.columns)
+    if set1 == set2:
+        print("-" * 30)
+        print("the two dataframes contains the same columns")
+    else:
+        if len(set1 - set2) > 0:
+            print("-" * 30)
+            print("only in first")
+            for col in set1 - set2:
+                print(col)
+        if len(set2 - set1) > 0:
+            print("-" * 30)
+            print("only in second")
+            for col in set2 - set1:
+                print(col)
+
+
+def compare_keys(df1, df2):
+    """ compare the keys in the columns
+    input:
+        df1, df2: pandas.DataFrame
+    output:
+        print keys differencies
+        """
+    set1 = set()
+    set2 = set()
+    for s, df in zip([set1, set2], [df1, df2]):
+        for col in df.columns:
+            for _ in col.split("_"):
+                s.add(_)
+    if set1 == set2:
+        print("-" * 30)
+        print("same keys in the two datasets")
+    else:
+        if len(set1 - set2) > 0:
+            print("-" * 30)
+            print("only in first")
+            for key in set1 - set2:
+                print(key)
+        if len(set2 - set1) > 0:
+            print("-" * 30)
+            print("only in second")
+            for key in set2 - set1:
+                print(key)
+
+
 def print_keys(alist):
     """ separate the list in keys (sep = '_') and print keys"""
     print("-" * 20)
@@ -74,6 +128,24 @@ def test_empty_column(df):
     else:
         print("no nan values")
     print()
+
+
+def merge_popfil(df0, df1):
+    """ compare, remove duplicated columns and merge two dataframe """
+    for df in [df0, df1]:
+        df.columns = [_.lower() for _ in df.columns]
+    # check overlap
+    diff = set(df0) & set(df1)
+    if len(diff) > 0:
+        print("the two dataframes have common columns")
+        for col in diff:
+            change = (df0[col] - df1[col]).mean()
+            print("mean difference for {} is {}".format(col, change))
+            if change == 0:
+                print("suppressed {} in second".format(col))
+                df1.drop(columns=[col], inplace=True)
+    df = df0.join(df1)
+    return df
 
 
 def center_scale_df(df, timerange=None):
@@ -172,7 +244,6 @@ def build_pop_fill_data(write=False):
     supfile = "fig6_supData.xlsx"
     supfilename = os.path.join(paths["sup"], supfile)
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
-
     # centering
     supdf = center_scale_df(supdf)
 
@@ -195,7 +266,7 @@ def build_pop_fill_data(write=False):
     popcols = [_.strip("_") for _ in popcols]
     popfilldf.columns = popcols
 
-    # join
+    # join fig6supdata
     vardf = supdf[pcols]
     varcols = vardf.columns
     varcols = [_.replace("pop_fillsig_", "popfill_Vm_s_") for _ in varcols]
@@ -209,6 +280,31 @@ def build_pop_fill_data(write=False):
             print("duplicated trace for {}".format(col))
             vardf = vardf.drop(columns=[col])
     popfilldf = popfilldf.join(vardf)
+
+    # load fig9supdata
+    filename = os.path.join(paths["sup"], "fig9_supData.xlsx")
+    fig9supdatadf = pd.read_excel(filename, engine="openpyxl")
+    # rename
+    cols = fig9supdatadf.columns
+    cols = [_.lower() for _ in cols]
+    cols = [_.replace("fig9_", "") for _ in cols]
+    res = []
+    for st in cols:
+        a, b, c, d = st.split("_")
+        res.append("_".join(["popfill", c, a, b, d]))
+    cols = res
+    cols = [_.replace("_c", "_s_c") for _ in cols]
+    cols = [_.replace("_f", "_f_") for _ in cols]
+    cols = [_.replace("_cpcross", "_cpcx") for _ in cols]
+    fig9supdatadf.columns = cols
+    # centering
+    middle = (fig9supdatadf.index.max() - fig9supdatadf.index.min()) / 2
+    fig9supdatadf.index = (fig9supdatadf.index - middle) / 10
+    fig9supdatadf = fig9supdatadf.loc[-200:200]
+
+    # call
+    popfilldf = merge_popfil(popfilldf, fig9supdatadf)
+    # popfilldf = popfilldf.join(fig9supdatadf)
 
     savefile = "fillsig.hdf"
     savefilename = os.path.join(paths["figdata"], savefile)
@@ -240,7 +336,3 @@ for key, df in zip(keys, dfs):
     print()
     if save:
         df.to_hdf(savefilename, key)
-
-
-# TODO : merge with supfill (see f9_selectivity_data.py)
-# most of the work should be done

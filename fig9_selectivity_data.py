@@ -55,7 +55,7 @@ os.chdir(paths["pg"])
 
 #%%
 # popfill
-def load_fig6_predictors_datafile(display=True):
+def _data(display=True):
     """ load the indidf and popdf dataframe for fig 6 """
     loadfile = "fig6s.hdf"
     loaddirname = paths["figdata"]
@@ -109,9 +109,9 @@ _, _, pop2sig_df, _ = load_f8_cpIsoGain_data()
 
 def load_fig9_supdata():
     filename = os.path.join(paths["sup"], "fig9_supData.xlsx")
-    blbdatadf = pd.read_excel(filename, engine="openpyxl")
+    fig9supdatadf = pd.read_excel(filename, engine="openpyxl")
     # rename
-    cols = blbdatadf.columns
+    cols = fig9supdatadf.columns
     cols = [_.lower() for _ in cols]
     cols = [_.replace("fig9_", "") for _ in cols]
     res = []
@@ -121,14 +121,16 @@ def load_fig9_supdata():
     cols = res
     cols = [_.replace("_c", "_s_c") for _ in cols]
     cols = [_.replace("_f", "_f_") for _ in cols]
-    blbdatadf.columns = cols
+    cols = [_.replace("_cpcross", "_cpcx") for _ in cols]
+
+    fig9supdatadf.columns = cols
 
     # centering
-    middle = (blbdatadf.index.max() - blbdatadf.index.min()) / 2
-    blbdatadf.index = (blbdatadf.index - middle) / 10
-    blbdatadf = blbdatadf.loc[-200:200]
+    middle = (fig9supdatadf.index.max() - fig9supdatadf.index.min()) / 2
+    fig9supdatadf.index = (fig9supdatadf.index - middle) / 10
+    fig9supdatadf = fig9supdatadf.loc[-200:200]
 
-    return blbdatadf
+    return fig9supdatadf
 
 
 def merge_popfil(df0, df1):
