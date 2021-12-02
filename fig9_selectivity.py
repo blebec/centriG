@@ -33,6 +33,7 @@ paths["save"] = os.path.join(
     paths["owncFig"], "pythonPreview", "fillinIn", "indFill_popFill"
 )
 
+
 def load_fillingpop_datafile(display=True):
     """ load the indifilldf and popfilldf dataframe (for fig 6) """
     loadfile = "populationFillingSig.hdf"
@@ -50,6 +51,7 @@ def load_fillingpop_datafile(display=True):
             print()
 
     return indifilldf, popfilldf
+
 
 def load_popvalues_vmspk(display=False):
     """ load pop, pop2sig and pop3sig hdf files
@@ -85,8 +87,8 @@ _, popfill_df = load_fillingpop_datafile()
 plt.close("all")
 
 
-def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
-# def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
+def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
+    # def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
 
     # to build
     pop2sigdf = pop2sig_df
@@ -116,7 +118,7 @@ def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
     # remove rdsect
     cols = gen_df.columns.to_list()
     while any(_ for _ in cols if "sect_rd" in _):
-        cols.remove(next(_ for _ in cols if "sect_rd" in _)
+        cols.remove(next(_ for _ in cols if "sect_rd" in _))
     # buils labels
     labels = cols[:]
     labels = [n.replace("full_rd_", "full_rdf_") for n in labels]
@@ -138,30 +140,36 @@ def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
     ax1 = fig.add_subplot(224, sharex=ax, sharey=ax)
     axes.append(ax1)
 
+    df = popfill_df.copy()
     # fill pop
-    spks = df.columns[13:18]
-    vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
+    # spks = df.columns[13:18]
+    # vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
+
+    cols = df.columns
+    # only traces
+    cols = [_ for _ in cols if "_se" not in _ and "_lp" not in _ and "_s_rnd" not in _]
+    ses = ["_seup", "_sedw"]
 
     # vm pop
+    # NB only se for ctr and
     ax = axes[0]
+    vms = [_ for _ in cols if "_vm" in _]
+    vms = [_ for _ in vms if "_so" not in _]
     for i, col in enumerate(vms):
         ax.plot(
-            df[col],
-            color=colors[i],
-            alpha=alphas[i],
-            linewidth=1.5,
-            label=df.columns[i],
+            df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
         )
         if add_std:
-            if col == "popfillVmscpIsoStc":
+            if i in [0, 1]:
                 ax.fill_between(
                     df.index,
-                    df.popfillVmscpIsoStcSeup,
-                    df.popfillVmscpIsoStcSedw,
+                    df[col + ses[0]],
+                    df[col + ses[1]],
                     color=colors[i],
                     alpha=0.3,
                 )
 
+    ax.legend()
     ax.set_xlim(-20, 50)
     # response point
     x = 0
@@ -183,15 +191,14 @@ def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
     )
     # spk pop
     ax = axes[1]
+    spks = [_ for _ in cols if "_spk" in _]
+    spks = [_ for _ in spks if "_so" not in _]
     for i, col in enumerate(spks):
         ax.plot(
-            df[col],
-            color=colors[i],
-            alpha=alphas[i],
-            linewidth=1.5,
-            label=df.columns[i],
+            df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
         )
         if add_std:
+            # no std
             pass
     x = 0
     y = df[spks[0]].loc[0]
@@ -212,25 +219,24 @@ def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
         ha="right",
         va="top",
     )
-
+    ax.legend()
     # surround only
     ax = axes[2]
-    surround_cols = [df.columns[st] for st in (2, 19, 20, 21)]
+    vms = [_ for _ in cols if "_vm" in _]
+    vms = [vms[0],] + [_ for _ in vms if "_so" in _]
+    # surround_cols = [df.columns[st] for st in (2, 19, 20, 21)]
     # +1 because no black curve
-    for i, col in enumerate(surround_cols):
+    for i, col in enumerate(vms):
         # for i in (2,19,20,21):
-        ax.plot(
-            df[col], color=colors[i + 1], alpha=alphas[i + 1], linewidth=1.5, label=col
-        )
-        if add_std:
-            if col == "popfillVmscpIsoSo":
-                ax.fill_between(
-                    df.index,
-                    df.popfillVmscpIsoSoSeup,
-                    df.popfillVmscpIsoSoSedw,
-                    color=colors[i + 1],
-                    alpha=0.3,
-                )
+        ax.plot(df[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col)
+        if i in [0, 1]:
+            ax.fill_between(
+                df.index,
+                df[col + ses[0]],
+                df[col + ses[1]],
+                color=colors[i],
+                alpha=0.3,
+            )
     # response point
     x = 0
     y = df[df.columns[0]].loc[0]
@@ -254,8 +260,9 @@ def plot_fill_combi(pop2sig_df, popfill_df, stdcolors=std_colors, anot=anot):
 
     # gen population
     ax = axes[3]
-    cols = gen_df.columns
-    for i, col in enumerate(cols[:-1]):
+    vms = [_ for _ in gen_df.columns if "_vm_" in _ and "_se" not in _]
+    # cols = gen_df.columns
+    for i, col in enumerate(vms):
         ax.plot(
             gen_df[col],
             color=colors[i],
@@ -337,7 +344,7 @@ select = dict(age="new", rec="vm", kind="sig")
 
 data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
-fig = plot_fill_combi(data_fill=pop_df, data_pop=data_df)
+fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df)
 
 save = False
 if save:
