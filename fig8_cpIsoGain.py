@@ -37,10 +37,7 @@ std_colors = config.std_colors()
 speed_colors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
-paths["sup"] = os.path.join(
-    paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
-)
-paths["figSup"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
+
 
 os.chdir(paths["pg"])
 

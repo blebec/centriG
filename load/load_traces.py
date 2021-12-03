@@ -27,8 +27,8 @@ paths = config.build_paths()
 
 def list_files(paths, age="new"):
     """
-    list the file sin the index folders    
-    
+    list the file sin the index folders
+
     """
     file_list = ""
     if age == "old":
@@ -60,10 +60,10 @@ def load_intra_mean_traces(paths, **kwargs):
     kind = kwargs.get("kind", "sig")
     # substract = kwargs.get('substract', False),
     # anot = kwargs.get('anot', True),
-    age = kwargs.get("age", "new")
-    rec = kwargs.get("rec", "vm")
-    spread = kwargs.get("spread", "sect")
-    align = kwargs.get("align", "normAlign")
+    age = kwargs.get("age", "new").lower()
+    rec = kwargs.get("rec", "vm").lower()
+    spread = kwargs.get("spread", "sect").lower()
+    align = kwargs.get("align", "normAlign").lower()
 
     file = ""
     file_list = ""
@@ -84,10 +84,6 @@ def load_intra_mean_traces(paths, **kwargs):
             paths["owncFig"], "data", "averageTraces", "controlsFig"
         )
         file_list = os.listdir(dir_name)
-        kind = kind.lower()
-        rec = rec.lower()
-        spread = spread.lower()
-        align = align.lower()
         if kind in ["pop", "sig", "nsig"]:
             file_list = [item for item in file_list if item.lower().startswith(kind)]
         else:

@@ -4,6 +4,15 @@
 Created on Thu Nov 25 11:21:38 2021
 
 @author: cdesbois
+
+extract the population traces (except filling-in significative sub_population)
+build
+- an individual example : indi_df
+- population selected data:
+    pop_df : all cells traces
+    pop2sig_df : index significant cells (time U reponse)
+    pop3sig_df : sigificant cells (time U reponse U filling-in)
+- export as .hdf
 """
 
 

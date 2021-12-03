@@ -33,10 +33,6 @@ paths["save"] = os.path.join(
     paths["owncFig"], "pythonPreview", "fillinIn", "indFill_popFill"
 )
 
-paths["sup"] = os.path.join(
-    paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
-)
-
 
 def load_indifill_datafile(key="indi", display=True):
     """ load the indifilldf dataframe (for fig 6) """

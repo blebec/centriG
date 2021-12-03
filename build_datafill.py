@@ -4,7 +4,14 @@
 Created on Mon Nov 29 15:30:40 2021
 
 @author: cdesbois
+extract filling-in significative cells data
+if not present in namespace:
+    build:
+        - indifill_df : individual example
+        - popfill_df : population data
+    the functions can be used to save the data in a .hdf format
 """
+
 
 import os
 from datetime import datetime

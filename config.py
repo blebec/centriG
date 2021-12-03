@@ -36,8 +36,15 @@ def build_paths():
     elif osname == "Darwin" and username == "cdesbois":
         paths["pg"] = os.path.expanduser("~/pg/chrisPg/centriG")
         paths["owncFig"] = os.path.expanduser("~/ownCloud/cgFigures")
+
     paths["figdata"] = os.path.join(
         paths["owncFig"], "pythonPreview", "current", "fig_data"
+    )
+    paths["sup"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
+    )
+    paths["figSup"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "figSup"
     )
     return paths
 
