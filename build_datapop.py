@@ -70,7 +70,7 @@ def remove_empty_columns(df, name=""):
             # print("no data for {} deleted column".format(col))
             cols_toremove.append(col)
     if cols_toremove:
-        print("{:=>20} empty columns deleted:".format(" " + name))
+        print("{:->20} empty columns deleted:".format(" " + name))
         for col in cols_toremove:
             print("{} ".format(col))
     df.drop(columns=cols_toremove, inplace=True)
@@ -90,7 +90,17 @@ def print_keys(df, name=""):
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
-    """ load the initial xcel file that contains the traces for fig8 """
+    """ load the initial xcel file that contains the traces for fig8
+    input:
+        printTraces: boolean (False) print the traces names
+    output:
+        inidf: pandas.DataFrame contraining the population traces (& seup and sedw),
+        keys of the dataframe:
+            indi <-> individual example,
+            pop <-> population data
+            pop2sig <-> cells significant for time U significant for response
+            popN2sig <-> cells notSignificant for time U notSignificant for response
+    """
     filename = os.path.join(paths["pg"], "data", "data_to_use", "fig2_2traces.xlsx")
     inidf = pd.read_excel(filename, engine="openpyxl")
 
@@ -130,13 +140,24 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     return inidf
 
 
-def load_fig8_cpIsoGain_sup(printTraces=False):
-    """ load the excel sup file that contains the variability"""
+def load_fig8_cpIsoGain_variability(printTraces=False):
+    """ load the additional xcel file that contains the Variability for fig8
+    NB additional traces are ['pop_spk_ctr', 'pop_spk_cpiso_stc']
+    input:
+        printTraces: boolean (False) print the traces names
+    output:
+        supdf: pandas.DataFrame contraining the population traces (& seup and sedw),
+        keys of the dataframe:
+            indi <-> individual example,
+            pop <-> population data
+            pop3sig <-> cells notSignificant for time U notSignificant for response
+    """
+
     supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
     supdf = pd.read_excel(supfilename, engine="openpyxl")
     # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
 
-    print("{:=>40}".format(" load_fig8_cpIsoGain_sup"))
+    print("{:=>40}".format(" load_fig8_cpIsoGain_variability"))
     dfname = "supdf"
     print(dfname)
     supdf = remove_empty_columns(supdf, dfname)
@@ -187,8 +208,14 @@ def load_fig8_cpIsoGain_sup(printTraces=False):
 
 
 def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
-    """ get sig amp U time U fill data aka sig3"""
-
+    """ load the xcel file that contains the traces for sig3
+    input:
+        key : 'sector' (other not implemented)
+        printTraces: boolean (False) print the traces names
+    output:
+        sig3df: pandas.DataFrame contraining the population traces
+        (no variability present)
+    """
     if key != "sector":
         print("{} should be implemented".format(key))
         return
@@ -231,7 +258,7 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
 
 
 def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
-    """ takes teh initial data and sorted them for figure 8
+    """ takes the initial data and sorted them for figure 8
     input:
         inidf, sig3df, supdf : pandas.Dataframe
     output:
@@ -330,7 +357,7 @@ def save_populations_traces(popdf, pop2sigdf, pop3sigdf, write=False):
 
 ini_df = load_fig8_cpIsoGain_initial()
 sig3_df = load_fig8_cpIsoGain_pop3sig()
-sup_df = load_fig8_cpIsoGain_sup()
+sup_df = load_fig8_cpIsoGain_variability()
 
 indi_df, pop_df, pop2sig_df, pop3sig_df = extract_fig8_cpIsoGain_dataframes(
     ini_df, sig3_df, sup_df
