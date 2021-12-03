@@ -47,13 +47,39 @@ paths["sup"] = os.path.join(
 
 os.chdir(paths["pg"])
 
-#%%
+# general
+
+
 def test_empty(dflist):
     """ check column is empty (or nan) in a dataframe """
     for df in dflist:
         for col in df.columns:
             if df[col].dropna().empty:
                 print("{} is empty".format(col))
+
+
+def center_scale_df(df, timerange=None, scale=None):
+    """center, rescale and limit slice a dataframe
+    input:
+        df: pd.DataFrame
+        scale: divider to rescale (default is 10)
+        timerange: a list [start, stop] to slice it
+    return:
+        df = pandas.DataFrame
+    """
+    if timerange is None:
+        timerange = [-200, 200]
+    if scale is None:
+        scale = 10
+    middle = (df.index.max() - df.index.min()) / 2
+    df.index = (df.index - middle) / scale
+    # limit the date time range
+    if timerange[0] in df.index and timerange[1] in df.index:
+        df = df.loc[timerange[0] : timerange[-1]]
+        print("-" * 12 + " rescaled (/{}) and sliced({})".format(scale, timerange))
+    else:
+        print("timerange {} not in the index, no slicing performed")
+    return df
 
 
 def remove_empty_columns(df, name=""):
@@ -73,12 +99,14 @@ def remove_empty_columns(df, name=""):
         print("{:->20} empty columns deleted:".format(" " + name))
         for col in cols_toremove:
             print("{} ".format(col))
-    df.drop(columns=cols_toremove, inplace=True)
+        df.drop(columns=cols_toremove, inplace=True)
+    else:
+        print("{:->20} no empty columns:".format(" " + name))
     return df
 
 
 def print_keys(df, name=""):
-    """ print the keys that are used in the column names (delimter = '_') """
+    """ print the keys that are used in the column names (delimiter = '_') """
     aset = set()
     for _ in df.columns:
         l = _.split("_")
@@ -110,7 +138,8 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
     # centering
     middle = (inidf.index.max() - inidf.index.min()) / 2
     inidf.index = (inidf.index - middle) / 10
-    inidf = inidf.loc[-200:150]
+    inidf = inidf.loc[-200:200]
+    # inidf = inidf.loc[-200:150]
     # adapt names
     cols = inidf.columns
     cols = [_.casefold() for _ in cols]
@@ -165,7 +194,8 @@ def load_fig8_cpIsoGain_variability(printTraces=False):
     # centering
     middle = (supdf.index.max() - supdf.index.min()) / 2
     supdf.index = (supdf.index - middle) / 10
-    supdf = supdf.loc[-200:150]
+    # supdf = supdf.loc[-200:150]
+    supdf = supdf.loc[-200:200]
     # adapt names
     scols = supdf.columns
     scols = [_.replace("pop_22_ctr_stc_seDW", "pop_22_ctr_stc_spk_seDW") for _ in scols]
@@ -233,20 +263,21 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     # centering already done
     middle = (sig3df.index.max() - sig3df.index.min()) / 2
     sig3df.index = (sig3df.index - middle) / 10
-    sig3df = sig3df.loc[-200:150]
+    sig3df = sig3df.loc[-200:200]
+    # sig3df = sig3df.loc[-200:150]
     # adapt names
     cols = gfunc.new_columns_names(sig3df.columns)
-    cols = [item.replace("sig_", "pop3sig_") for item in cols]
-    cols = [item.replace("full_rd", "frnd") for item in cols]
-    cols = [item.replace("frnd_iso", "frnd") for item in cols]
-    cols = [item.replace("sect_rd", "srnd") for item in cols]
-    cols = [item.replace("srnd_iso", "srnd") for item in cols]
-    cols = [st.replace("cp_iso", "cpiso") for st in cols]
-    cols = [st.replace("cf_iso", "cfiso") for st in cols]
-    cols = [st.replace("sect_cx", "cpx") for st in cols]
-    cols = [st.replace("_sect_", "_") for st in cols]
-    cols = [st.replace("__", "_") for st in cols]
-    cols = [st.replace("_.1", "") for st in cols]
+    cols = [_.replace("sig_", "pop3sig_") for _ in cols]
+    cols = [_.replace("full_rd", "frnd") for _ in cols]
+    cols = [_.replace("frnd_iso", "frnd") for _ in cols]
+    cols = [_.replace("sect_rd", "srnd") for _ in cols]
+    cols = [_.replace("srnd_iso", "srnd") for _ in cols]
+    cols = [_.replace("cp_iso", "cpiso") for _ in cols]
+    cols = [_.replace("cf_iso", "cfiso") for _ in cols]
+    cols = [_.replace("sect_cx", "cpx") for _ in cols]
+    cols = [_.replace("_sect_", "_") for _ in cols]
+    cols = [_.replace("__", "_") for _ in cols]
+    cols = [_.replace("_.1", "") for _ in cols]
     sig3df.columns = cols
 
     if printTraces:
@@ -257,16 +288,46 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
     return sig3df
 
 
-def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
+def load_other_sig2_data(path):
+    """ load extrafile builded to get all the sector traces for sig2 pop """
+    file = "sigVmSectNormAlign.xlsx"
+    dir_name = os.path.join(path["owncFig"], "data", "averageTraces", "controlsFig")
+    filename = os.path.join(dir_name, file)
+    osig2df = pd.read_excel(filename)
+    print("loading {:=>40}".format(file))
+    dfname = "osig2df"
+    print(dfname)
+    osig2df = remove_empty_columns(osig2df, "osig2df")
+    osig2df = center_scale_df(osig2df)
+    cols = gfunc.new_columns_names(osig2df.columns)
+    cols = [_.replace("pop_", "pop2sig_") for _ in cols]
+    cols = [_.replace("_cp_iso", "_cpiso_") for _ in cols]
+    cols = [_.replace("_cf_iso", "_cfiso_") for _ in cols]
+    cols = [_.replace("_full_rd_iso_", "_frnd_") for _ in cols]
+    cols = [_.replace("_sect_rd_iso_", "_srnd_") for _ in cols]
+    cols = [_.replace("_sect_", "_") for _ in cols]
+    cols = [_.replace("__", "_") for _ in cols]
+    osig2df.columns = cols
+    return osig2df
+
+
+def extract_pop_dataframes(inidf, sig3df, supdf, osig2df):
     """ takes the initial data and sorted them for figure 8
     input:
         inidf, sig3df, supdf : pandas.Dataframe
     output:
         indidf, popdf, pop2sigdf, pop3sigdf
         """
+    # to build
+    # inidf = ini_df
+    # sig3df = sig3_df
+    # supdf = sup_df
+    # osig2df = osig2_df
+
     inicols = inidf.columns
     sigcols = sig3df.columns
     supcols = supdf.columns
+    osig2cols = osig2df.columns
 
     # individual dataframe
     pop1 = [_ for _ in inicols if _.startswith("indi")]
@@ -288,10 +349,14 @@ def extract_fig8_cpIsoGain_dataframes(inidf, sig3df, supdf):
     # pop2sig dataframe
     pop1 = [_ for _ in inicols if _.startswith("pop2sig_")]
     pop2 = [_ for _ in supcols if _.startswith("pop2sig_")]
+    pop3 = list(osig2cols)
     # remove overlap
     for col in list(set(pop1) & set(pop2)):
         pop1.remove(col)
     pop2sigdf = inidf[pop1].join(supdf[pop2])
+    for col in list(set(pop2sigdf.columns) & set(pop3)):
+        pop3.remove(col)
+    pop2sigdf = pop2sigdf.join(osig2df[pop3])
 
     # pop3sig
     pop1 = [_ for _ in sigcols if _.startswith("pop3sig_")]
@@ -321,10 +386,10 @@ def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
             df.to_hdf(savefilename, key)
 
 
-def save_example(indidf, write=False):
+def save_example_ofpop(indidf, write=False):
     """ save as hdf files """
     # TODO = change 'indi' by the cellname
-    savefile = "exampleTrace.hdf"
+    savefile = "exampleOfpop_trace.hdf"
     key = "indi"
     savedirname = paths["figdata"]
     savefilename = os.path.join(savedirname, savefile)
@@ -358,13 +423,15 @@ def save_populations_traces(popdf, pop2sigdf, pop3sigdf, write=False):
 ini_df = load_fig8_cpIsoGain_initial()
 sig3_df = load_fig8_cpIsoGain_pop3sig()
 sup_df = load_fig8_cpIsoGain_variability()
+osig2_df = load_other_sig2_data(paths)
 
-indi_df, pop_df, pop2sig_df, pop3sig_df = extract_fig8_cpIsoGain_dataframes(
-    ini_df, sig3_df, sup_df
+indi_df, pop_df, pop2sig_df, pop3sig_df = extract_pop_dataframes(
+    ini_df, sig3_df, sup_df, osig2_df
 )
 
-save_f8_cpIsoGain_data(indi_df, pop_df, pop2sig_df, pop3sig_df, write=False)
+
+# save_f8_cpIsoGain_data(indi_df, pop_df, pop2sig_df, pop3sig_df, write=False)
 
 # population version
-save_example(indi_df, write=False)
+save_example_ofpop(indi_df, write=False)
 save_populations_traces(pop_df, pop2sig_df, pop3sig_df, write=False)
