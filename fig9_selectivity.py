@@ -111,16 +111,12 @@ pop2sig_df = load_pop_datafile(key="pop2sig", display=True)
 plt.close("all")
 
 
-def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
-    # def plot_fill_combi(data_fill, data_pop, stdcolors=std_colors, anot=anot):
+def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
 
     # to build
-    pop2sigdf = pop2sig_df
-    popfilldf = popfill_df
+    # pop2sigdf = pop2sig_df
+    # popfilldf = popfill_df
 
-    # data_fill = pop2sigdf
-
-    add_std = True
     stdcolors = config.std_colors()
     colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
     alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
@@ -157,7 +153,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
-    ax1 = fig.add_subplot(223, sharex=ax)
+    ax1 = fig.add_subplot(223, sharex=ax, sharey=ax)
     axes.append(ax1)
     ax = fig.add_subplot(222)
     axes.append(ax)
@@ -252,20 +248,23 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
         va="top",
     )
     # ax.legend()
+
     # surround only
     ax = axes[2]
     vms = [_ for _ in cols if "_vm" in _]
-    vms = [vms[0],] + [_ for _ in vms if "_so" in _]
-    # surround_cols = [filldf.columns[st] for st in (2, 19, 20, 21)]
+    vms = [_ for _ in vms if "_so" in _]
+    # surround_cols, no center (ctr) plotting
     for i, col in enumerate(vms):
         # for i in (2,19,20,21):
-        ax.plot(filldf[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col)
+        ax.plot(
+            filldf[col], color=colors[i + 1], alpha=alphas[i], linewidth=1.5, label=col
+        )
         if i in [0, 1, 2, 3, 4]:
             ax.fill_between(
                 filldf.index,
                 filldf[col + ses[0]],
                 filldf[col + ses[1]],
-                color=colors[i],
+                color=colors[i + 1],
                 alpha=0.3,
             )
     # response point
@@ -292,6 +291,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
     # gen population
     ax = axes[3]
     vms = [_ for _ in gen_df.columns if "_vm_" in _ and "_se" not in _]
+    vms = [_ for _ in vms if "_srnd" not in _]
     # cols = gen_df.columns
     for i, col in enumerate(vms):
         ax.plot(
@@ -338,33 +338,22 @@ def plot_fill_combi(popfilldf, pop2sigdf, stdcolors=std_colors, anot=anot):
         ax.set_xlim(-20, 60)
         custom_ticks = np.arange(-20, 60, 10)[1:]
         ax.set_xticks(custom_ticks)
-        if ax != axes[1]:
-            ax.set_ylim(-0.1, 1.4)
-            custom_ticks = np.arange(0, 1.1, 0.2)
-            ax.set_yticks(custom_ticks)
-        elif ax == axes[1]:
-            # ax.set_ylim(-.1, 1.4)
-            ax.set_ylim(-0.1, 1.1)
-            custom_ticks = np.arange(0, 1.1, 0.2)
-            ax.set_yticks(custom_ticks)
+        ax.set_ylim(-0.2, 1.25)
+        custom_ticks = np.arange(0, 1.1, 0.2)
+        ax.set_yticks(custom_ticks)
     for ax in axes[2:]:
         ax.set_xlim(-150, 150)
-        ax.set_ylim(-0.15, 0.4)
+        ax.set_ylim(-0.13, 0.4)
         ax.set_xticks(np.linspace(-150, 150, 7)[1:-1])
         ax.set_yticks(np.linspace(-0.1, 0.3, 5)[1:])
 
     gfunc.align_yaxis(axes[2], 0, axes[0], 0)
-    gfunc.align_yaxis(axes[3], 0, axes[1], 0)
     fig.tight_layout()
 
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        fig.text(
-            0.99, 0.01, "fill.py:plot_fill_combi", ha="right", va="bottom", alpha=0.4
-        )
+        fig.text(0.99, 0.01, "fig9_selectivity.py", ha="right", va="bottom", alpha=0.4)
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
-        fig.text(0.5, 0.01, "summary", ha="center", va="bottom", alpha=0.4)
-
     return fig
 
 
@@ -379,15 +368,13 @@ fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df)
 
 save = False
 if save:
-    folder = os.path.join(
-        paths["owncFig"], "pythonPreview", "fillingIn", "indFill_popFill"
-    )
-    file = "fill_combi"
-    filename = os.path.join(folder, (file + "png"))
+    folder = paths["figSup"]
+    file = "fig9_selectivity"
+    filename = os.path.join(folder, (file + "pdf"))
     fig.savefig(filename)
     # update current
-    file = "f9_" + file
-    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    for ext in [".png", ".pdf", ".svg"]:
-        filename = os.path.join(folder, (file + ext))
-        fig.savefig(filename)
+    # file = "f9_" + file
+    # folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    # for ext in [".png", ".pdf", ".svg"]:
+    #     filename = os.path.join(folder, (file + ext))
+    #     fig.savefig(filename)
