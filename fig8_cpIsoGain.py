@@ -152,7 +152,10 @@ def plot_fig8_cpIsoGain(
     pop3sigdf = pop3sigdf.loc[-20:60]
 
     colors = [stdcolors[_] for _ in "k red".split()]
-    alphas = (0.8, 0.8)
+    alphas = [0.8] * 4
+    alphas.insert(0, 0.6)  # black
+    alphafill = 0.4
+    linewidths = 1.5  # default for all traces
     vspread = 0.06  # vertical spread for realign location
 
     # build fig canvas
@@ -182,13 +185,13 @@ def plot_fig8_cpIsoGain(
     ax = vmaxes[0]
     for i, col in enumerate(cols):
         ser = indidf[col]
-        ax.plot(ser, color=colors[i], alpha=alphas[i], label=col)
+        ax.plot(ser, color=colors[i], alpha=alphas[i], label=col, linewidth=linewidths)
         ax.fill_between(
             ser.index,
             indidf[col + "_" + seerrors[0]],
             indidf[col + "_" + seerrors[1]],
             color=colors[i],
-            alpha=0.3,
+            alpha=alphafill,
         )
     # response point
     x = 43.5
@@ -204,8 +207,14 @@ def plot_fig8_cpIsoGain(
     rev_colors = colors[::-1]
     for i, col in enumerate(rev_cols):
         ser = indidf[col]
-        ax.plot(indidf[col], color=rev_colors[i], alpha=1, label=col, linewidth=1)
-        ax.fill_between(indidf.index, indidf[col], color=rev_colors[i], alpha=0.5)
+        ax.plot(
+            indidf[col],
+            color=rev_colors[i],
+            alpha=alphas[i],
+            label=col,
+            linewidth=linewidths,
+        )
+        ax.fill_between(indidf.index, indidf[col], color=rev_colors[i], alpha=alphafill)
     # response point
     x = 55.5
     y = indidf.loc[x, [cols[0]]]
@@ -213,16 +222,22 @@ def plot_fig8_cpIsoGain(
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
 
     # ___ pop vm
-    cols = [_ for _ in popdf.columns if "_vm_" in _][:2]
+    cols = [_ for _ in popdf.columns if "_vm_" in _ and "_se" not in _]
     ax = vmaxes[1]
     for i, col in enumerate(cols):
-        ax.plot(popdf[col], color=colors[i], alpha=alphas[i], label=col, linewidth=1.5)
+        ax.plot(
+            popdf[col],
+            color=colors[i],
+            alpha=alphas[i],
+            label=col,
+            linewidth=linewidths,
+        )
         ax.fill_between(
             popdf.index,
             popdf[col + "_" + seerrors[0]],
             popdf[col + "_" + seerrors[1]],
             color=colors[i],
-            alpha=0.3,
+            alpha=alphafill,
         )
     ax.annotate(
         "n=37",
@@ -243,13 +258,19 @@ def plot_fig8_cpIsoGain(
     cols = [_ for _ in popdf.columns if "_spk_" in _ and "_se" not in _]
     ax = spkaxes[1]
     for i, col in enumerate(cols[::-1]):
-        ax.plot(popdf[col], color=rev_colors[i], alpha=1, label=col, linewidth=1.5)
+        ax.plot(
+            popdf[col],
+            color=rev_colors[i],
+            alpha=[0.8, 0.6][i],
+            label=col,
+            linewidth=linewidths,
+        )
         ax.fill_between(
             popdf.index,
             popdf[col + "_" + seerrors[0]],
             popdf[col + "_" + seerrors[1]],
             color=rev_colors[i],
-            alpha=0.3,
+            alpha=alphafill,
         )
     ax.annotate(
         "n=22",
@@ -268,19 +289,32 @@ def plot_fig8_cpIsoGain(
 
     # popVm2Sig
     cols = [_ for _ in pop2sigdf.columns if "_vm" in _ and "_se" not in _]
+    cols = [_ for _ in cols if "_srnd" not in _]
     ax = vmaxes[2]
     # traces
-    for i, col in enumerate(cols):
-        ax.plot(pop2sigdf[col], color=colors[i], alpha=alphas[i], label=col)
-        if len(pop2sigdf.loc[pop2sigdf[col + "_" + seerrors[0]].notnull()]) < 1:
-            print("{} trace is empty".format(pop2sigdf[col + "_" + seerrors[0]]))
-        ax.fill_between(
-            pop2sigdf.index,
-            pop2sigdf[col + "_" + seerrors[0]],
-            pop2sigdf[col + "_" + seerrors[1]],
+    # >>>>>>>>>>
+    stdcolors = config.std_colors()
+    colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
+    # <<<<<<<<<<<<<
+
+    for i, col in enumerate(cols[:2]):
+        ax.plot(
+            pop2sigdf[col],
             color=colors[i],
-            alpha=0.3,
+            alpha=alphas[i],
+            label=col,
+            linewidth=linewidths,
         )
+        # if len(pop2sigdf.loc[pop2sigdf[col + "_" + seerrors[0]].notnull()]) < 1:
+        #     print("{} trace is empty".format(pop2sigdf[col + "_" + seerrors[0]]))
+        if i in [0, 1]:
+            ax.fill_between(
+                pop2sigdf.index,
+                pop2sigdf[col + "_" + seerrors[0]],
+                pop2sigdf[col + "_" + seerrors[1]],
+                color=colors[i],
+                alpha=alphafill,
+            )
     # response point
     x = 0
     y = pop2sigdf.loc[x, [cols[0]]]
@@ -298,26 +332,29 @@ def plot_fig8_cpIsoGain(
 
     # popSpk2Sig
     cols = [_ for _ in pop2sigdf.columns if "_spk" in _ and "_se" not in _]
+    # plot in reverse order
+    cols = cols[::-1]
+    colors = [stdcolors[_] for _ in "red k".split()]
     ax = spkaxes[2]
     # traces
-    for i, col in enumerate(cols[::-1]):
+    for col, color in zip(cols, colors):
         ax.plot(
             pop2sigdf[col],
-            color=colors[::-1][i],
-            alpha=alphas[::-1][i],
+            color=color,
+            alpha=[0.8, 0.6][i],
             label=col,
-            linewidth=2,
+            linewidth=linewidths,
         )
         ax.fill_between(
             pop2sigdf.index,
             pop2sigdf[col + "_" + seerrors[0]],
             pop2sigdf[col + "_" + seerrors[1]],
-            color=colors[::-1][i],
-            alpha=0.3,
+            color=color,
+            alpha=alphafill,
         )
     # response point
     x = 0
-    y = pop2sigdf.loc[x, [cols[0]]]
+    y = pop2sigdf.loc[x, [cols[-1]]]
     # ax.plot(x, y, 'o', color='tab:gray', ms=10, alpha=0.8)
     ax.vlines(x, y + vspread, y - vspread, linewidth=4, color="tab:gray")
     ax.axvline(x, linewidth=2, color="tab:blue", linestyle=":")
@@ -332,7 +369,6 @@ def plot_fig8_cpIsoGain(
 
     ######## 3SIG #######
     colors = [stdcolors[color] for color in "k red green yellow blue blue".split()]
-    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
 
     nbcells = dict(sect=[20, 10], full=[15, 7])  # [vm, spk]
 
@@ -373,7 +409,7 @@ def plot_fig8_cpIsoGain(
                 color=colors[j],
                 alpha=alphas[j],
                 label=labels[j],
-                linewidth=1.5,
+                linewidth=linewidths,
             )
             # [0, 1, 2, 3, 4]
             if j in [
@@ -385,7 +421,15 @@ def plot_fig8_cpIsoGain(
                     pop3sigdf[col + "_" + seerrors[0]],
                     pop3sigdf[col + "_" + seerrors[1]],
                     color=colors[j],
-                    alpha=0.3,
+                    alpha=alphafill,
+                )
+            else:  # no envelopp -> increase linewidth
+                ax.plot(
+                    df[col],
+                    color=colors[j],
+                    alpha=alphas[j],
+                    label=labels[j],
+                    linewidth=2,
                 )
         # bluePoint
         x = 0
@@ -508,7 +552,7 @@ figure = plot_fig8_cpIsoGain(
 )
 save = False
 if save:
-    name = "f8_cpIsoGain"
+    name = "fig8_cpIsoGain"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    for ext in [".png", ".pdf", ".svg"]:
+    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
         figure.savefig(os.path.join(paths["figSup"], (name + ext)))
