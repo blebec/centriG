@@ -36,12 +36,12 @@ paths["save"] = os.path.join(
 
 def load_indifill_datafile(key="indi", display=True):
     """ load the indifilldf dataframe (for fig 6) """
-    loadfile = "individual_fillin.hdf"
+    loadfile = "example_fillin.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
     indifilldf = pd.read_hdf(loadfilename, "indi")
     print("-" * 20)
-    print("loaded filling_sig_pop")
+    print("loaded filling_in example ({})".format(key))
     if display:
         print("=" * 20, "{}({})".format(loadfile, "fillsig"))
         for column in sorted(indifilldf.columns):
@@ -62,7 +62,7 @@ def load_pop_datafile(key="fillsig", display=True):
     loadfilename = os.path.join(loaddirname, loadfile)
     popfilldf = pd.read_hdf(loadfilename, "fillsig")
     print("-" * 20)
-    print("loaded filling_sig_pop")
+    print("loaded filling_in population ('{}')".format(key))
     if display:
         print("=" * 20, "{}({})".format(loadfile, "fillsig"))
         for column in sorted(popfilldf.columns):

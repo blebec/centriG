@@ -86,7 +86,7 @@ def export_examples_data(gabyexampledf, cgexampledf, do_save):
     df1 = df1.loc[-42.5:206]
     dfs = [df0, df1]
 
-    data_savename = os.path.join(paths["figdata"], "fig5.hdf")
+    # data_savename = os.path.join(paths["figdata"], "fig5.hdf")
     data_savename = os.path.join(paths["figdata"], "example_cardVsRadial.hdf")
     for key, df in zip(["card", "rad"], dfs):
         print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))

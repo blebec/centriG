@@ -224,7 +224,7 @@ def build_indi_fill_data(write=False):
     indifilldf = indifilldf.join(supdf)
 
     key = "indi"
-    savefile = "individual_fillin.hdf"
+    savefile = "example_fillin.hdf"
     savefilename = os.path.join(paths["figdata"], savefile)
     print("=" * 20, "{}({})".format(os.path.basename(savefilename), "indi"))
     for column in sorted(indifilldf.columns):
@@ -343,4 +343,4 @@ def build_pop_fill_data(write=False):
 if not "indifill_df" in dir():
     indifill_df = build_indi_fill_data(write=False)
 if not "popfill_df" in dir():
-    popfill_df = build_pop_fill_data(write=True)
+    popfill_df = build_pop_fill_data(write=False)
