@@ -69,7 +69,7 @@ def build_pop_speed_data(do_save=False):
     # cols = [_.strip("_") for _ in cols]
     # df.columns = cols
 
-    data_savename = os.path.join(paths["figdata"], "population_traces")
+    data_savename = os.path.join(paths["figdata"], "populations_traces.hdf")
     print("=" * 20, "{}({})".format(os.path.basename(data_savename), "speed"))
     for item in sorted(cols):
         print(item)
