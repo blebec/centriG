@@ -35,58 +35,32 @@ file_name = os.path.join(dirname, "test.svg")
 #%% load data gaby extracted from svg
 
 
-def load_gaby_data(extract=False, do_save=False):
-    """ load the data extracter from the gaby plots """
-    directory = os.path.join(paths["owncFig"], "data", "gabyToCg")
-    filename = os.path.join(directory, "gabydf.csv")
-    if extract:
-        os.chdir(os.path.join(directory, "numGaby"))
-        files = [_ for _ in os.listdir() if os.path.isfile(_)]
-        files = [_ for _ in files if _.endswith("csv")]
-        x = np.arange(-40, 200, 0.1)
-        datadf = pd.DataFrame(index=x)
-        for file in files:
-            name = file.split(".")[0]
-            df = pd.read_csv(
-                file, sep=";", decimal=",", dtype="float", names=["x", "y"]
-            )
-            df = df.sort_values(by="x")
-            f = interp1d(df.x, df.y, kind="linear")
-            datadf[name] = f(x)
-            datadf[name] = (
-                datadf[name].rolling(11, win_type="triang", center=True).mean()
-            )
-        if do_save:
-            datadf.to_csv(filename)
-            print("saved {}".format(filename))
-    else:
-        datadf = pd.read_csv(filename)
-        datadf = pd.DataFrame(datadf)
-        datadf = datadf.set_index(datadf.columns[0])
-    return datadf
+def load_examples(display=False):
+    file = "example_cardVsRadial.hdf"
+    data_loadname = os.path.join(paths["figdata"], file)
+    gabyexampledf = pd.read_hdf(data_loadname, key="card")
+    print("loaded {} ({}) ".format(file, "card"))
+    cgexampledf = pd.read_hdf(data_loadname, key="rad")
+    print("loaded {} ({}) ".format(file, "rad"))
+    if display:
+        for key, df in zip(
+            ["cardinal_data", "radial_data"], [gabyexampledf, cgexampledf]
+        ):
+            print("=" * 20, "{}".format(key))
+            for col in df.columns:
+                print(col)
+            print()
+    return gabyexampledf, cgexampledf
 
 
-def test_plot(df):
-    fig = plt.figure()
-    ax = fig.add_subplot(111)
-    for col in df.columns:
-        ax.plot(df[col], label=col)
-        # ax.plot(df[col].rolling(i, win_type='triang', center=True).mean(), label=col+ 'F')
-    ax.set_xlim(-40, 200)
-    for spine in ["top", "right"]:
-        ax.spines[spine].set_visible(False)
-    ax.legend()
-    return ax
-
-
-gaby_example_df = load_gaby_data(extract=False, do_save=False)
-ax = test_plot(gaby_example_df)
-
-#%%
-def plot_cgGabyVersion(gabydf, datadf):
+def plot_cgGabyVersion(gabydf, cgdf):
     """
     two cells examples to explain the change in protocols
     """
+
+    # # to build
+    # gabydf = gaby_example_df
+    # cgdf = cg_example_df
 
     fig, axes = plt.subplots(
         figsize=(8.6, 4), nrows=1, ncols=2, sharex=True, sharey=True
@@ -109,20 +83,15 @@ def plot_cgGabyVersion(gabydf, datadf):
             Rectangle(xy, w, h, fill=False, edgecolor="tab:grey", lw=2, ls=":")
         )
     # data
-    df0 = gabydf.copy()
-    df1 = datadf.copy()
-    middle = (df1.index.max() - df1.index.min()) / 2
-    df1.index = (df1.index - middle) / 10
-    # cells = list(set([_.split("_")[0] for _ in df1.columns]))
+    df0 = gabydf.loc[-40:199].copy()
+    df1 = cgdf.loc[-40:199].copy()
     cells = list({_.split("_")[0] for _ in df1.columns})
     # limit the date time range
-    # df = df.loc[-200:200]
-    df1 = df1.loc[-42.5:206]
     dfs = [df0, df1]
 
     colors = [config.std_colors()[_] for _ in "red red yellow yellow k".split()]
     style = ["-", ":", "-", ":", "-"]
-    linewidth = [2, 3, 2, 3, 2]
+    linewidth = [2, 2, 1.5, 2, 1.5]
     alpha = [0.8, 0.8, 1, 1, 0.7]
 
     # plot
@@ -202,13 +171,9 @@ def plot_cgGabyVersion(gabydf, datadf):
 
 
 plt.close("all")
-anot = True
 
-if not "cg_example_df" in dir():
-    # centrigabor (cardinal) example data
-    file = "cg_specificity.xlsx"
-    file_name = os.path.join(dirname, "sources", file)
-    cg_example_df = pd.read_excel(file_name)
+if "gaby_example_df" not in dir() or "cg_example_df" not in dir():
+    gaby_example_df, cg_example_df = load_examples(display=False)
 
 fig = plot_cgGabyVersion(gaby_example_df, cg_example_df)
 
@@ -224,35 +189,3 @@ if save:
         fig.savefig(os.path.join(paths["save"], (name + ext)))
 
 #%% save data
-
-
-def saveData(gabyexampledf, cgexampledf, do_save):
-    """save the data used to build the figure to an hdf file"""
-    df0 = gabyexampledf.copy()
-    df1 = cgexampledf.copy()
-
-    middle = (df1.index.max() - df1.index.min()) / 2
-    df1.index = (df1.index - middle) / 10
-    # cells = list(set([_.split("_")[0] for _ in df1.columns]))
-    # cells = list({_.split("_")[0] for _ in df1.columns})
-    # limit the date time range
-    # df = df.loc[-200:200]
-    df1 = df1.loc[-42.5:206]
-    dfs = [df0, df1]
-
-    data_savename = os.path.join(paths["figdata"], "fig5.hdf")
-    if do_save:
-        for key, df in zip(["card", "rad"], dfs):
-            df.to_hdf(data_savename, key)
-            print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
-            for item in df.columns:
-                print(item)
-            print()
-
-    # pdframes = {}
-    # for key in ['card', 'rad']:
-    #     pdframes[key] = pd.read_hdf(data_savename, key=key)
-
-
-save = True
-saveData(gaby_example_df, cg_example_df, save)
