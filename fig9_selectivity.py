@@ -119,7 +119,9 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
 
     stdcolors = config.std_colors()
     colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
-    alphas = [0.8, 1, 0.8, 0.8, 0.8, 0.8]
+    alphas = [1,] * 5
+    alphas.insert(0, 0.8)  # black curve
+    alphafill = 0.3
 
     # fill pop
     filldf = popfilldf.copy()
@@ -128,10 +130,6 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
     gen_df = pop2sigdf.copy()
     # defined in dataframe columns (first column = ctr))
     kind, rec, spread, *_ = gen_df.columns.to_list()[1].split("_")
-    # centering
-    # middle = (gen_df.index.max() - gen_df.index.min()) / 2
-    # gen_df.index = (gen_df.index - middle) / 10
-    # cols = ['CENTER-ONLY', 'CP-ISO', 'CF-ISO', 'CP-CROSS', 'RND-ISO']
     # subtract the centerOnly response (ref = df['CENTER-ONLY'])
     ref = gen_df[gen_df.columns[0]]
     gen_df = gen_df.subtract(ref, axis=0)
@@ -141,13 +139,6 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
         cols.remove(next(_ for _ in cols if "s_rnd" in _))
     # build labels
     labels = cols[:]
-    # labels = [n.replace("f_rd_", "full_rnd_") for n in labels]
-    # for i in range(3):
-    #     for item in labels:
-    #         if len(item.split("_")) < 6:
-    #             j = labels.index(item)
-    #             labels[j] = item + "_ctr"
-    # labels = [st.split("_")[-3] for st in labels]
 
     fig = plt.figure(figsize=(11.6, 8))
     axes = []
@@ -159,11 +150,6 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
     axes.append(ax)
     ax1 = fig.add_subplot(224, sharex=ax, sharey=ax)
     axes.append(ax1)
-
-    # df = popfill_df.copy()
-    # fill pop
-    # spks = df.columns[13:18]
-    # vms = [df.columns[i] for i in [0, 1, 9, 10, 11]]
 
     cols = filldf.columns
     # only traces
@@ -189,7 +175,15 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[0]],
                 filldf[col + ses[1]],
                 color=colors[i],
-                alpha=0.3,
+                alpha=alphafill,
+            )
+        else:  # no envelopp -> increased linewidth
+            ax.plot(
+                filldf[col],
+                color=colors[i],
+                alpha=alphas[i],
+                linewidth=2,
+                label=col.replace("_stc", ""),
             )
 
     # ax.legend()
@@ -226,7 +220,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[0]],
                 filldf[col + ses[1]],
                 color=colors[i],
-                alpha=0.3,
+                alpha=alphafill,
             )
     x = 0
     y = filldf[spks[0]].loc[0]
@@ -255,7 +249,6 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
     vms = [_ for _ in vms if "_so" in _]
     # surround_cols, no center (ctr) plotting
     for i, col in enumerate(vms):
-        # for i in (2,19,20,21):
         ax.plot(
             filldf[col], color=colors[i + 1], alpha=alphas[i], linewidth=1.5, label=col
         )
@@ -265,7 +258,15 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[0]],
                 filldf[col + ses[1]],
                 color=colors[i + 1],
-                alpha=0.3,
+                alpha=alphafill,
+            )
+        else:
+            ax.plot(
+                filldf[col],
+                color=colors[i + 1],
+                alpha=alphas[i],
+                linewidth=2,
+                label=col,
             )
     # response point
     x = 0
