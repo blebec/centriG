@@ -111,8 +111,10 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     conf_intervals = ["cimin", "cimax"]
 
     colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
-    #    alphas = [0.5, 0.5, 0.8, 0.8]
-    alphas = [0.8, 1, 1, 1]  # changed for homogeneity
+    alphas = [1,] * 5
+    alphas.insert(0, 0.8)  # black curve
+    alphafill = 0.3
+    linewidths = 1.5
     lines = ["-", "-", "--", "--"]
 
     # plotting canvas
@@ -157,14 +159,14 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 alpha=alphas[i],
                 label=trace + " & ci",
                 linestyle=lines[i],
-                linewidth=1.5,
+                linewidth=linewidths,
             )
             ax.fill_between(
                 ser.index,
                 idf[trace + "_" + conf_intervals[0]],
                 idf[trace + "_" + conf_intervals[1]],
                 color=colors[i],
-                alpha=0.3,
+                alpha=alphafill,
             )
         else:
             ax.plot(
@@ -242,7 +244,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 popdf[col + "_" + se_errors[0]],
                 popdf[col + "_" + se_errors[1]],
                 color=colors[i],
-                alpha=0.3,
+                alpha=alphafill,
             )
     # response point
     x = 0
@@ -283,7 +285,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 popdf[col + "_" + se_errors[0]],
                 popdf[col + "_" + se_errors[1]],
                 color=colors[2],
-                alpha=0.2,
+                alpha=alphafill,
             )
     ax.legend()
 
