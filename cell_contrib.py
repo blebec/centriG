@@ -450,7 +450,8 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
     ]
     heights.insert(1, height)
 
-    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(18, 3.75))
+    # fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(18, 3.75))
+    fig, axes = plt.subplots(nrows=3, ncols=1, sharey=True, figsize=(5, 12.5))
     axes = axes.flatten()
     titles_here = [titles["time"], "Both", titles["engy"]]
     labels = [relabel[st] for st in pop_dico]
