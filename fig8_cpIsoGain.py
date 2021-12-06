@@ -152,9 +152,9 @@ def plot_fig8_cpIsoGain(
     pop3sigdf = pop3sigdf.loc[-20:60]
 
     colors = [stdcolors[_] for _ in "k red".split()]
-    alphas = [0.8] * 4
-    alphas.insert(0, 0.6)  # black
-    alphafill = 0.4
+    alphas = [1,] * 4
+    alphas.insert(0, 0.8)  # black
+    alphafill = 0.3
     linewidths = 1.5  # default for all traces
     vspread = 0.06  # vertical spread for realign location
 
@@ -292,11 +292,8 @@ def plot_fig8_cpIsoGain(
     cols = [_ for _ in cols if "_srnd" not in _]
     ax = vmaxes[2]
     # traces
-    # >>>>>>>>>>
     stdcolors = config.std_colors()
     colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
-    # <<<<<<<<<<<<<
-
     for i, col in enumerate(cols[:2]):
         ax.plot(
             pop2sigdf[col],
@@ -341,7 +338,7 @@ def plot_fig8_cpIsoGain(
         ax.plot(
             pop2sigdf[col],
             color=color,
-            alpha=[0.8, 0.6][i],
+            alpha=[1, 0.8][i],
             label=col,
             linewidth=linewidths,
         )
