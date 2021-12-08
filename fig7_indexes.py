@@ -46,6 +46,13 @@ def load_measures(display=False):
     return df
 
 
+if "stat_df" not in dir():
+    stat_df = ldat.build_pop_statdf()
+if "stat_df_sig" not in dir():
+    stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
+if "indexed_df" not in dir():
+    indexed_df = load_measures()
+
 #%%
 def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     #     overlap=True, sort_all=True, key=0, spread="sect", rec="vm", age="new", amp="engy"
@@ -223,7 +230,174 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     return fig
 
 
-indexed_df = load_measures()
+# indexed_df = load_measures()
 fig = plot_all_cg_sorted_responses(indexed_df)
 
 #%%
+def plot_composite_stat_3x1(
+    statdf, statdfsig, sigcells,
+):
+    """
+    plot the stats
+    input : statdf, kind in ['mean', 'med'], loc in ['50', 'peak', 'energy']
+    output : matplotlib figure
+    here combined top = full pop, bottom : significative pop
+    """
+
+    # to build
+    statdf = stat_df
+    statdfsig = stat_df_sig
+    sigcells = sig_cells
+
+    kind = "mean"
+    amp = "engy"
+    mes = "vm"
+    legend = False
+    share = True
+    digit = True
+
+    kinds = {"mean": ["_mean", "_sem"], "med": ["_med", "_mad"]}
+    stat = kinds.get(kind, None)
+    titles = config.std_titles()
+    colors = [std_colors[_] for _ in ["red", "green", "yellow", "dark_blue", "blue"]]
+    # colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue", "dark_blue"]]
+
+    # share scales high and low
+    # fig, axes = plt.subplots(
+    #     nrows=1, ncols=3, figsize=(16, 5), sharex=True, sharey=True
+    # )
+    fig, axes = plt.subplots(
+        nrows=3, ncols=1, figsize=(5, 16), sharex=True, sharey=True
+    )
+    axes = axes.flatten()
+    title = stat[0][1:] + "   (" + stat[1][1:] + ")"
+    fig.suptitle(title)
+    # conds = [(x, y) for x in [mes, mes] for y in ["sect", "full"]]
+    conds = [("vm", "sect"), ("vm", "sect"), ("vm", "full")]
+    for i, cond in enumerate(conds):
+        if i >= 1:
+            df = statdfsig
+            pop = "sig_pop"
+        else:
+            df = statdf
+            pop = "pop"
+        ax = axes[i]
+        rec = cond[0]
+        spread = cond[1]
+        ax_title = "{} ({} {})".format(pop, rec, spread)
+        ax.set_title(ax_title)
+        # select spread (sect, full)
+        rows = [_ for _ in df.index.tolist() if spread in _]
+        # append random full if sector
+        if spread == "sect":
+            rows.extend([_ for _ in stat_df.index if _.startswith("rdisofull")])
+        # df indexes (for x and y)
+        time_rows = [_ for _ in rows if "time50" in _]
+        y_rows = [_ for _ in rows if amp in _]
+        # y_rows = [st for st in rows if 'engy' in st]
+        cols = [_ for _ in df.columns if _.startswith(rec)]
+        cols = [_ for _ in cols if stat[0] in _ or stat[1] in _]
+        # labels
+        labels = [_.split("_")[0] for _ in y_rows]
+        # values (for x an y)
+        x = df.loc[time_rows, cols][rec + stat[0]].values
+        xerr = df.loc[time_rows, cols][rec + stat[1]].values
+        y = df.loc[y_rows, cols][rec + stat[0]].values
+        yerr = df.loc[y_rows, cols][rec + stat[1]].values
+        # plot
+        if not digit:
+            # marker in the middle
+            for xi, yi, xe, ye, ci, lbi in zip(x, y, xerr, yerr, colors, labels):
+                ax.errorbar(xi, yi, xerr=xe, yerr=ye, fmt="s", color=ci, label=lbi)
+        else:
+            # nb of cells in the middle
+            # extract nb of cells
+            key = "_".join([rec, "count"])
+            cell_nb = [int(df.loc[item, [key]][0]) for item in y_rows]
+            for xi, yi, xe, ye, ci, lbi, nbi in zip(
+                x, y, xerr, yerr, colors, labels, cell_nb
+            ):
+                ax.errorbar(
+                    xi,
+                    yi,
+                    xerr=xe,
+                    yerr=ye,
+                    # fmt="s",
+                    color=ci,
+                    label=lbi,
+                    marker="s",
+                    ms=16,
+                    mec="w",
+                    mfc="w",
+                )
+                # marker='$'+ str(nbi) + '$', ms=24, mec='w', mfc=ci)
+                ax.text(
+                    xi,
+                    yi,
+                    str(nbi),
+                    color=ci,
+                    fontsize=14,
+                    horizontalalignment="center",
+                    verticalalignment="center",
+                )
+        if legend:
+            ax.legend()
+    # adjust
+    for i, ax in enumerate(axes):
+        ax.axvline(0, linestyle="-", alpha=0.4, color="k")
+        ax.axhline(0, linestyle="-", alpha=0.4, color="k")
+        for spine in ["top", "right"]:
+            ax.spines[spine].set_visible(False)
+            # # horizontal
+            #     if i == 0:
+            #         ax.set_ylabel(titles.get(amp, "not defined"))
+            #     else:
+            #         ax.spines["left"].set_visible(False)
+            #         ax.yaxis.set_visible(False)
+            #     ax.set_xlabel(titles["time50"])
+            # vertical
+            ax.set_ylabel(titles.get(amp, "not defined"))
+            if i == 2:
+                ax.set_xlabel(titles["time50"])
+    #          else:
+    #               ax.spines["left"].set_visible(False)
+    #                ax.yaxis.set_visible(False)
+
+    fig.tight_layout()
+    # fig.subplots_adjust(hspace=0.02)
+    # fig.subplots_adjust(wspace=0.02)
+    if anot:
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            0.99,
+            0.01,
+            "fig7_indexes.py:plot_composite_stat_3x1",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+    return fig
+
+
+plt.close("all")
+shared = False
+# measure = ["vm", "spk"][0]
+# amplitude = ["gain", "engy"][1]
+# kind_display = ["mean", "med"][0]
+# stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
+# stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
+fig1 = plot_composite_stat_3x1(stat_df, stat_df_sig, sig_cells)
+
+save = False
+if save:
+    if shared:
+        filename = os.path.join(
+            paths["save"], "engy" + amplitude.title() + "_composite_meanSem.png"
+        )
+    else:
+        filename = os.path.join(
+            paths["save"],
+            "nshared_" + "engy" + amplitude.title() + "_composite_meanSem.png",
+        )
+    fig1.savefig(filename)

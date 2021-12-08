@@ -23,6 +23,12 @@ plt.rcParams.update(config.rc_params())
 plt.rcParams["axes.xmargin"] = 0.05
 plt.rcParams["axes.ymargin"] = 0.05
 
+if "stat_df" not in dir():
+    stat_df = ldat.build_pop_statdf()
+if "stat_df_sig" not in dir():
+    stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
+
+
 #%% ALL
 
 
@@ -141,8 +147,6 @@ def plot_stat(statdf, kind="mean", legend=False, digit=False):
 
 plt.close("all")
 
-stat_df = ldat.build_pop_statdf()
-stat_df_sig, sig_cells = ldat.build_sigpop_statdf()
 fig1 = plot_stat(stat_df, kind="mean", digit=False, legend=True)
 # fig2 = plot_stat(stat_df, kind='med')
 fig3 = plot_stat(stat_df_sig, kind="mean", digit=False, legend=True)
