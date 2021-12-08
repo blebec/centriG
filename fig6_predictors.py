@@ -90,7 +90,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     # stdcolors=std_colors
     # anot=True
     # ##
-    legend = True
+    legend = False
     # idf = indifilldata.copy()
     # cols = [
     #     "Center-Only",
@@ -255,7 +255,8 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     lims = dict(minus=(-0.1, 1.1), plus=(-0.05, 1.2))
     ax.set_ylim(lims.get(lp))
     ax.set_xlim(-200, 200)
-    ax.legend()
+    if legend:
+        ax.legend()
 
     # ax3 ===============================
     # predictive magnification
@@ -287,7 +288,8 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 color=colors[2],
                 alpha=alphafill,
             )
-    ax.legend()
+        if legend:
+            ax.legend()
 
     for i, ax in enumerate(axes):
         for loc in ["top", "right"]:
@@ -435,6 +437,6 @@ if save:
     file = "fig6_predictors"
     # to update current
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
-    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
+    for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)

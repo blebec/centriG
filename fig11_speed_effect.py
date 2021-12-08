@@ -170,7 +170,7 @@ plt.close("all")
 if "popspeed_df" not in dir():
     popspeed_df = load_pop_datafile(key="speed", display=True)
 
-fig = plot_speed(popspeed_df, substract=False, spread=[])
+fig = plot_speed(popspeed_df, substract=False, spread=[0, 1])
 
 save = False
 if save:
