@@ -12,6 +12,7 @@ from datetime import datetime
 from importlib import reload
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 
@@ -231,7 +232,14 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
 
 
 # indexed_df = load_measures()
-fig = plot_all_cg_sorted_responses(indexed_df)
+figure = plot_all_cg_sorted_responses(indexed_df)
+
+save = False
+if save:
+    name = "fig7_sorted"
+    # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
+        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
 
 #%%
 def plot_composite_stat_3x1(
@@ -259,8 +267,8 @@ def plot_composite_stat_3x1(
     kinds = {"mean": ["_mean", "_sem"], "med": ["_med", "_mad"]}
     stat = kinds.get(kind, None)
     titles = config.std_titles()
-    colors = [std_colors[_] for _ in ["red", "green", "yellow", "dark_blue", "blue"]]
-    # colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue", "dark_blue"]]
+    # colors = [std_colors[_] for _ in ["red", "green", "yellow", "dark_blue", "blue"]]
+    colors = [std_colors[_] for _ in ["red", "green", "yellow", "blue", "dark_blue"]]
 
     # share scales high and low
     # fig, axes = plt.subplots(
@@ -282,15 +290,20 @@ def plot_composite_stat_3x1(
             df = statdf
             pop = "pop"
         ax = axes[i]
-        rec = cond[0]
-        spread = cond[1]
+        rec, spread = cond
         ax_title = "{} ({} {})".format(pop, rec, spread)
         ax.set_title(ax_title)
         # select spread (sect, full)
         rows = [_ for _ in df.index.tolist() if spread in _]
         # append random full if sector
         if spread == "sect":
-            rows.extend([_ for _ in stat_df.index if _.startswith("rdisofull")])
+            # rows.extend([_ for _ in stat_df.index if _.startswith("rdisofull")])
+            # insert full stim before sectstim
+            fulls = [_ for _ in stat_df.index if _.startswith("rdisofull")]
+            if fulls:
+                sec_pos = rows.index([_ for _ in rows if "rd" in _][0])
+                for j, full in enumerate(fulls):
+                    rows.insert(sec_pos + j, full)
         # df indexes (for x and y)
         time_rows = [_ for _ in rows if "time50" in _]
         y_rows = [_ for _ in rows if amp in _]
@@ -381,23 +394,228 @@ def plot_composite_stat_3x1(
 
 
 plt.close("all")
-shared = False
-# measure = ["vm", "spk"][0]
-# amplitude = ["gain", "engy"][1]
-# kind_display = ["mean", "med"][0]
 # stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
 # stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
-fig1 = plot_composite_stat_3x1(stat_df, stat_df_sig, sig_cells)
+figure = plot_composite_stat_3x1(stat_df, stat_df_sig, sig_cells)
 
 save = False
 if save:
-    if shared:
-        filename = os.path.join(
-            paths["save"], "engy" + amplitude.title() + "_composite_meanSem.png"
-        )
+    name = "fig7_stats"
+    # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
+        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
+
+#%%
+def extract_values(df, stim="sect", param="time", replaceFull=True):
+    """ extract pop and response dico:
+        input :
+            dataframe
+            stim in [sect, full]
+            param in [timme, gain, engy]
+        return:
+            pop_dico -> per condition [popNb, siginNb, %]
+            resp_dico -> per condition [moy, moy+sem, moy-sem]
+    """
+    adf = df.copy()
+    if "fill" in param:
+        fills = [item for item in adf.columns if "fill" in item]
+        # create zero padded value columns
+        while fills:
+            fill = fills.pop()
+            col = "_".join(fill.split("_")[:-1])
+            if col not in adf.columns:
+                adf[col] = data[fill]
+                adf[col] = 0
+    restricted_list = [st for st in adf.columns if stim in st and param in st]
+    if replaceFull:
+        # replace rdisosect by rdisofull
+        if "rdisosect" in set(item.split("_")[0] for item in restricted_list):
+            restricted_list = [
+                st for st in restricted_list if "rdisosect" not in st.split("_")[0]
+            ]
+            restricted_list.extend(
+                [st for st in adf.columns if "rdisofull" in st and param in st]
+            )
     else:
-        filename = os.path.join(
-            paths["save"],
-            "nshared_" + "engy" + amplitude.title() + "_composite_meanSem.png",
+        # append full:
+        if "rdisosect" in {item.split("_")[0] for item in restricted_list}:
+            restricted_list.extend(
+                [st for st in adf.columns if "rdisofull" in st and param in st]
+            )
+
+    adf = adf[restricted_list]
+    # compute values
+    # records = [item for item in restricted_list if 'sig' not in item]
+    # to maintain the order
+    records = [item.replace("_sig", "") for item in restricted_list if "sig" in item]
+
+    pop_dico = {}
+    resp_dico = {}
+    for cond in records:
+        signi = cond + "_sig"
+        pop_num = len(adf)
+        # significant
+        extract = adf.loc[adf[signi] > 0, cond].copy()
+        # on ly positive measures
+        extract = extract[extract >= 0]
+        signi_num = len(extract)
+        percent = round((signi_num / pop_num) * 100)
+        leg_cond = cond.split("_")[0]
+        pop_dico[leg_cond] = [pop_num, signi_num, percent]
+        # descr
+        moy = extract.mean()
+        sem = extract.sem()
+        resp_dico[leg_cond] = [moy, moy + sem, moy - sem]
+    return pop_dico, resp_dico
+
+
+def autolabel(ax, rects, sup=False):
+    """
+    attach the text labels to the rectangles
+    """
+    for rect in rects:
+        x = rect.get_x() + rect.get_width() / 2
+        height = rect.get_height()
+        y = height - 1
+        if y < 3 or sup:
+            y = height + 1
+            ax.text(x, y, "%d" % int(height) + "%", ha="center", va="bottom")
+        else:
+            ax.text(x, y, "%d" % int(height) + "%", ha="center", va="top")
+
+
+def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
+    """
+    cell contribution, to go to the bottom of the preceding stat description
+    """
+    titles = dict(
+        time=r"$\Delta$ Latency",
+        engy=r"$\Delta$ Response",
+        sect="Sector",
+        full="Full",
+        vm="Vm",
+        spk="Spikes",
+    )
+    colors = [
+        std_colors[item] for item in ["red", "green", "yellow", "blue", "dark_blue"]
+    ]
+    relabel = dict(
+        cpisosect="CP-ISO",
+        cfisosect="CF-ISO",
+        cpcxsect="CP-CROSS",
+        rdisosect="RND",
+        cpisofull="CP-ISO",
+        cfisofull="CF-ISO",
+        cpcxfull="CP-CROSS",
+        rdisofull="RND",
+    )
+    # compute values ([time values], [amp values])
+    params = ["time", amp]
+    heights = []
+    for param in params:
+        pop_dico, _ = extract_values(df, spread, param)
+        height = [pop_dico[key][-1] for key in pop_dico]
+        heights.append(height)
+    # insert union % sig cells for time and amp
+    height = [
+        round(len(sigcells[mes][st]) / len(df) * 100) for st in list(pop_dico.keys())
+    ]
+    heights.insert(1, height)
+
+    # fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(18, 3.75))
+    fig, axes = plt.subplots(nrows=3, ncols=1, sharey=True, figsize=(5, 12.5))
+    axes = axes.flatten()
+    titles_here = [titles["time"], "Both", titles["engy"]]
+    labels = [relabel[st] for st in pop_dico]
+
+    for i, ax in enumerate(axes):
+        ax.axhline(0, color="k")
+        for spine in ["left", "top", "right", "bottom"]:
+            ax.spines[spine].set_visible(False)
+            # ax.tick_params(axis='x', labelrotation=45)
+            ax.yaxis.set_ticklabels([])
+            ax.tick_params(axis="y", length=0)
+        ax.set_title(str(i))
+        param = params[0]
+        # for param in params
+        ax.set_title(titles_here[i], pad=0)
+
+        x = np.arange(len(heights[i]))
+        width = 0.95
+        if i in [0, 2]:
+            bars = ax.bar(
+                x, heights[i], color=colors, width=width, alpha=0.6, edgecolor="k"
+            )
+            # edgecolor=colors)
+        else:
+            bars = ax.bar(
+                x,
+                heights[i],
+                color=colors,
+                width=width,
+                alpha=0.9,
+                edgecolor="k",
+                label=labels,
+            )
+        autolabel(ax, bars)  # call
+        # labels = list(pop_dico.keys())
+        ax.set_xticks([])
+        ax.set_xticklabels([])
+    axes[0].set_ylabel(r"% of significant cells")
+    # for ax in axes[:2]:
+    #     ax.xaxis.set_visible(False)
+    # fig.legend(handles=bars, labels=labels, loc='upper right')
+    # rectangle
+    box = True
+    if box:
+        ax = axes[1]
+        x, x1 = ax.get_xlim()
+        step = (x1 - x) * 0.4
+        x1 -= x
+        y, y1 = ax.get_ylim()
+        y1 -= y
+        y = 0 - step
+        rect = Rectangle(
+            xy=(x, y),
+            width=x1,
+            height=y1 + step,
+            fill=False,
+            alpha=0.6,
+            edgecolor="k",
+            linewidth=6,
         )
-    fig1.savefig(filename)
+        ax.add_patch(rect)
+        ax.set_ylim(y, y1)
+    if anot:
+        date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        fig.text(
+            1,
+            0.01,
+            "cellContribution:plot_cell_selection",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
+        )
+        fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
+        txt = "select      {} {} ({} cells) ".format(mes, spread, len(data))
+        fig.text(0.5, 0.01, txt, ha="center", va="bottom", fontsize=14, alpha=0.4)
+
+    fig.tight_layout(w_pad=4)
+    return fig
+
+
+plt.close("all")
+save = False
+amp = ["gain", "engy"][1]
+stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
+mes = ["vm", "spk"][0]
+data = ldat.load_cell_contributions(mes, age="new", amp=amp)
+spread = ["sect", "full"][0]
+figure = plot_cell_selection(data, sig_cells, spread=spread, mes=mes, amp=amp)
+
+save = False
+if save:
+    name = "fig7_contrib"
+    # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
+        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
