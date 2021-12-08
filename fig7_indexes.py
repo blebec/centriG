@@ -33,6 +33,7 @@ os.chdir(paths["pg"])
 
 
 def load_measures(display=False):
+    """ load from hdf file the measure ie index data """
     key = "indexes"
     data_loadname = os.path.join(paths["figdata"], "measures.hdf")
     df = pd.read_hdf(data_loadname, key=key)
@@ -41,8 +42,9 @@ def load_measures(display=False):
     for cond in conds:
         dico[cond] = ["_".join(_.split("_")[1:]) for _ in df.columns if cond in _]
     print("=" * 20, "{}(key={})".format(os.path.basename(data_loadname), key))
-    for k, v in dico.items():
-        print(k, v)
+    if display:
+        for k, v in dico.items():
+            print(k, v)
     print()
     return df
 
