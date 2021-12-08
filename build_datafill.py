@@ -4,29 +4,25 @@
 Created on Mon Nov 29 15:30:40 2021
 
 @author: cdesbois
+
 extract filling-in significative cells data
-if not present in namespace:
-    build:
-        - indifill_df : individual example
-        - popfill_df : population data
-    the functions can be used to save the data in a .hdf format
+
+return: (if not present in namespace)
+    indifill_df : pd.DataFrame of individual example
+    popfill_df : pd.DataFrame of population data
+export as .hdf:
+    example_fillin.hdf (key = 'indi')
+    (in) populations_traces.hdf (key = 'fillsig')
 """
 
 
 import os
-from datetime import datetime
 
-from importlib import reload
-from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 import config
-import fig_proposal as figp
 import general_functions as gfunc
-import load.load_data as ldat
-import load.load_traces as ltra
 
 anot = True  # to draw the date and name on the bottom of the plot
 std_colors = config.std_colors()

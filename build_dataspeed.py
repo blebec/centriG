@@ -4,7 +4,14 @@
 Created on Mon Dec  6 10:58:31 2021
 
 @author: cdesbois
+
+extract the 'speed' population traces
+return:
+    popspeed_df : pandas.DataFrame
+export as .hdf:
+    (in) populations_traces.hdf (keys = "speed")
 """
+
 
 import os
 
@@ -80,4 +87,4 @@ def build_pop_speed_data(do_save=False):
     return popspeeddf
 
 
-build_pop_speed_data(do_save=False)
+popspeed_df = build_pop_speed_data(do_save=False)

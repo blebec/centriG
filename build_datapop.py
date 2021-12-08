@@ -12,7 +12,9 @@ build
     pop_df : all cells traces
     pop2sig_df : index significant cells (time U reponse)
     pop3sig_df : sigificant cells (time U reponse U filling-in)
-- export as .hdf
+- export as .hdf:
+    example_traces_vmSpk.hdf (key = "indi")
+    populations_traces.hdf (keys = "pop", "pop2sig", "pop3sig")
 """
 
 
@@ -369,27 +371,29 @@ def extract_pop_dataframes(inidf, sig3df, supdf, osig2df):
     return indidf, popdf, pop2sigdf, pop3sigdf
 
 
-def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
-    """ save as hdf files """
-    # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
-    savefile = "fig8s.hdf"
-    keys = ["indi", "pop", "pop2sig", "pop3sig"]
-    dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
-    savedirname = paths["figdata"]
-    savefilename = os.path.join(savedirname, savefile)
-    for key, df in zip(keys, dfs):
-        print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
-        for column in sorted(df.columns):
-            print(column)
-        print()
-        if write:
-            df.to_hdf(savefilename, key)
+# =============================================================================
+# def save_f8_cpIsoGain_data(indidf, popdf, pop2sigdf, pop3sigdf, write=False):
+#     """ save as hdf files """
+#     # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
+#     savefile = "fig8s.hdf"
+#     keys = ["indi", "pop", "pop2sig", "pop3sig"]
+#     dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
+#     savedirname = paths["figdata"]
+#     savefilename = os.path.join(savedirname, savefile)
+#     for key, df in zip(keys, dfs):
+#         print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
+#         for column in sorted(df.columns):
+#             print(column)
+#         print()
+#         if write:
+#             df.to_hdf(savefilename, key)
+# =============================================================================
 
 
 def save_example_ofpop(indidf, write=False):
     """ save as hdf files """
     # TODO = change 'indi' by the cellname
-    savefile = "exampleOfpop_trace.hdf"
+    savefile = "example_traces_vmSpk.hdf"
     key = "indi"
     savedirname = paths["figdata"]
     savefilename = os.path.join(savedirname, savefile)

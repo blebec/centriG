@@ -42,36 +42,6 @@ paths = config.build_paths()
 os.chdir(paths["pg"])
 
 
-# =============================================================================
-# def load_f8_cpIsoGain_data(display=False):
-#     """ load fig8_cpsisogain hdf files
-#     input:
-#         display : boolean to list the files
-#     return
-#         indidf, popdf, pop2sigdf, pop3sigdf : pandas_Dataframes
-#     """
-#     file = "fig8s.hdf"
-#     loaddirname = paths["figdata"]
-#     loadfilename = os.path.join(loaddirname, file)
-#     indidf = pd.read_hdf(loadfilename, key="indi")
-#     popdf = pd.read_hdf(loadfilename, key="pop")
-#     pop2sigdf = pd.read_hdf(loadfilename, key="pop2sig")
-#     pop3sigdf = pd.read_hdf(loadfilename, key="pop3sig")
-#
-#     keys = ["indi", "pop", "pop2sig", "pop3sig"]
-#     dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
-#     for key, df in zip(keys, dfs):
-#         print("loaded {:=>15}({})".format(file, key))
-#         if display:
-#             for column in sorted(df.columns):
-#                 print(column)
-#         print()
-#     return indidf, popdf, pop2sigdf, pop3sigdf
-#
-#
-# indi_df, pop_df, pop2sig_df, pop3sig_df = load_f8_cpIsoGain_data()
-# =============================================================================
-
 #%% population version
 
 
@@ -82,7 +52,7 @@ def load_example_vmspk(display=False):
     return
         indidf : pandas_Dataframes
     """
-    file = "exampleTrace.hdf"
+    file = "example_traces_vmSpk.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, file)
     indidf = pd.read_hdf(loadfilename, key="indi")
@@ -95,7 +65,7 @@ def load_example_vmspk(display=False):
     return indidf
 
 
-def load_popvalues_vmspk(display=False):
+def load_popvalues(display=False):
     """ load pop, pop2sig and pop3sig hdf files
     input:
         display : boolean to list the files
@@ -121,7 +91,7 @@ def load_popvalues_vmspk(display=False):
 
 
 indi_df = load_example_vmspk(display=True)
-pop_df, pop2sig_df, pop3sig_df = load_popvalues_vmspk(display=True)
+pop_df, pop2sig_df, pop3sig_df = load_popvalues(display=True)
 #%%
 plt.close("all")
 

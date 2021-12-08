@@ -4,12 +4,20 @@
 Created on Mon Dec  6 14:20:23 2021
 
 @author: cdesbois
+
+load the two example used to compare the cardinal and radial protocol
+
+return: (if not present in namespace)
+    gaby_example_df : pandas.DataFrame of cardinal protocol
+    cg_example_df : pandas.DataFrame of radial protocol
+export as .hdf:
+    example_cardVsRadial.hdf" (keys = 'card', 'rad')
 """
+
 import os
 
 # from bs4 import BeautifulSoup
 import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 import numpy as np
 import pandas as pd
 from scipy.interpolate import interp1d
@@ -65,8 +73,8 @@ def load_gaby_example(extract=False, do_save=False):
 def load_cg_example():
     """ load cg (radial) data example to compare with gaby (cardinal) example """
     file = "cg_specificity.xlsx"
-    file_name = os.path.join(dirname, "sources", file)
-    cgexampledf = pd.read_excel(file_name)
+    filename = os.path.join(dirname, "sources", file)
+    cgexampledf = pd.read_excel(filename)
 
     return cgexampledf
 

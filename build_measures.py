@@ -4,18 +4,23 @@
 Created on Mon Dec  6 15:36:27 2021
 
 @author: cdesbois
+
+extract the 'indexes' population traces
+
+return:
+    indexes_df : pandas.DataFrame
+export as .hdf:
+    measures.hdf (keys = "indexes")
 """
 
 import os
-from datetime import datetime
-from importlib import reload
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 
 import config
-import general_functions as gfunc
+
+# import general_functions as gfunc
 import load.load_data as ldat
 
 # ===========================
@@ -46,7 +51,8 @@ def export_measures(do_save=False):
         df.to_hdf(data_savename, key=key)
 
 
-def load_measures(display=False):
+def load_measures(display=True):
+    """ load the xcel file that contains the indexes values """
     key = "indexes"
     data_loadname = os.path.join(paths["figdata"], "measures.hdf")
     df = pd.read_hdf(data_loadname, key=key)
@@ -55,8 +61,9 @@ def load_measures(display=False):
     for cond in conds:
         dico[cond] = ["_".join(_.split("_")[1:]) for _ in df.columns if cond in _]
     print("=" * 20, "{}(key={})".format(os.path.basename(data_loadname), key))
-    for k, v in dico.items():
-        print(k, v)
+    if display:
+        for k, v in dico.items():
+            print(k, v)
     print()
     return df
 
