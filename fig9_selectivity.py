@@ -371,7 +371,7 @@ save = False
 if save:
     folder = paths["figSup"]
     file = "f9_selectivity"
-    for ext in [".pdf", ".png", ".svg"]:
+    for ext in [".pdf"]:
         filename = os.path.join(folder, file + ext)
         fig.savefig(filename)
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")

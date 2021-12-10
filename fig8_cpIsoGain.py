@@ -524,7 +524,7 @@ if save:
     file = "f8_cpIsoGain"
     folder = paths["figSup"]
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    for ext in [".png", ".pdf", ".svg"]:
+    for ext in [".pdf"]:
         figure.savefig(os.path.join(folder, (file + ext)))
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:

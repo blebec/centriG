@@ -444,7 +444,7 @@ if save:
     file = "f6_predictors"
     # to update current
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
-    for ext in [".png", ".pdf", ".svg"]:
+    for ext in [".pdf"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
