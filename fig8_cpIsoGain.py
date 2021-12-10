@@ -515,13 +515,18 @@ def plot_fig8_cpIsoGain(
 
 plt.close("all")
 
-# anot = False
+anot = True
 figure = plot_fig8_cpIsoGain(
     indidf=indi_df, popdf=pop_df, pop2sigdf=pop2sig_df, pop3sigdf=pop3sig_df, anot=anot,
 )
 save = False
 if save:
-    name = "fig8_cpIsoGain"
+    file = "f8_cpIsoGain"
+    folder = paths["figSup"]
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
+        figure.savefig(os.path.join(folder, (file + ext)))
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        figure.savefig(filename)

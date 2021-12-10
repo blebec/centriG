@@ -170,8 +170,8 @@ plt.close("all")
 
 if "popspeed_df" not in dir():
     popspeed_df = load_pop_datafile(key="speed", display=True)
-
-fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=False)
+anot = True
+fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=True)
 
 # save = False
 # if save:
@@ -183,7 +183,11 @@ fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=False)
 save = False
 if save:
     folder = paths["figSup"]
-    file = "f10_speed"
+    file = "f11_speed"
     for ext in [".pdf", ".png", ".svg"]:
         filename = os.path.join(folder, file + ext)
+        fig.savefig(filename)
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)

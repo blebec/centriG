@@ -370,13 +370,11 @@ fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df, anot=True)
 save = False
 if save:
     folder = paths["figSup"]
-    file = "fig9_selectivity"
+    file = "f9_selectivity"
     for ext in [".pdf", ".png", ".svg"]:
         filename = os.path.join(folder, file + ext)
         fig.savefig(filename)
-    # update current
-    # file = "f9_" + file
-    # folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    # for ext in [".png", ".pdf", ".svg"]:
-    #     filename = os.path.join(folder, (file + ext))
-    #     fig.savefig(filename)
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        fig.savefig(filename)

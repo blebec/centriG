@@ -433,7 +433,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
 
 
 plt.close("all")
-
+anot = True
 fig = plot_fig6_predictors(
     indifilldata=indifill_df, popfilldata=popfill_df, stdcolors=std_colors, anot=anot
 )
@@ -441,9 +441,13 @@ save = False
 if save:
     # fig.set_size_inches(gfunc.to_inches(size))
     # fig.set_dpi(600)
-    file = "fig6_predictors"
+    file = "f6_predictors"
     # to update current
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        fig.savefig(filename)
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
