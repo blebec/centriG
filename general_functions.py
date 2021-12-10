@@ -57,6 +57,13 @@ def fig_properties(afig):
         properties(ax)
 
 
+def to_inches(tup):
+    """ return (inch, inch) tuple of the (mm, mm) tuple provided """
+    a, b = tup
+    res = (a / 25.4, b / 25.4)
+    return res
+
+
 def inch_to_cm(value):
     return value / 2.54
 

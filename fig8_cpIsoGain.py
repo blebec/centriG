@@ -129,7 +129,8 @@ def plot_fig8_cpIsoGain(
     vspread = 0.06  # vertical spread for realign location
 
     # build fig canvas
-    fig = plt.figure(figsize=(18, 16))
+    size = (19, 8.7)
+    fig = plt.figure(figsize=size)
     axes = []
     ax0 = fig.add_subplot(241)
     ax1 = fig.add_subplot(242)
@@ -514,6 +515,7 @@ def plot_fig8_cpIsoGain(
 
 plt.close("all")
 
+# anot = False
 figure = plot_fig8_cpIsoGain(
     indidf=indi_df, popdf=pop_df, pop2sigdf=pop2sig_df, pop3sigdf=pop3sig_df, anot=anot,
 )
@@ -521,5 +523,5 @@ save = False
 if save:
     name = "fig8_cpIsoGain"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
+    for ext in [".png", ".pdf", ".svg"]:
         figure.savefig(os.path.join(paths["figSup"], (name + ext)))

@@ -139,8 +139,8 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
         cols.remove(next(_ for _ in cols if "s_rnd" in _))
     # build labels
     labels = cols[:]
-
-    fig = plt.figure(figsize=(11.6, 8))
+    size = (12, 8.5)
+    fig = plt.figure(figsize=size)
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
@@ -365,14 +365,15 @@ plt.close("all")
 
 # data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
-fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df)
+fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df, anot=True)
 
 save = False
 if save:
     folder = paths["figSup"]
     file = "fig9_selectivity"
-    filename = os.path.join(folder, (file + "pdf"))
-    fig.savefig(filename)
+    for ext in [".pdf", ".png", ".svg"]:
+        filename = os.path.join(folder, file + ext)
+        fig.savefig(filename)
     # update current
     # file = "f9_" + file
     # folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")

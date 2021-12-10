@@ -118,7 +118,9 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     lines = ["-", "-", "--", "--"]
 
     # plotting canvas
-    fig = plt.figure(figsize=(180, 10))
+    # fig = plt.figure(figsize=gfunc.to_inches(size))
+    size = (12, 8.2)
+    fig = plt.figure(figsize=size)
     axes = []
     ax = fig.add_subplot(221)
     axes.append(ax)
@@ -128,6 +130,9 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     axes.append(ax)
     ax1 = fig.add_subplot(224, sharex=ax)
     axes.append(ax1)
+
+    # fig.set_dpi(600)
+    # fig.set_size_inches(gfunc.to_inches(size))
 
     # ax0 =============================== indi
     ax = axes[0]
@@ -434,6 +439,8 @@ fig = plot_fig6_predictors(
 )
 save = False
 if save:
+    # fig.set_size_inches(gfunc.to_inches(size))
+    # fig.set_dpi(600)
     file = "fig6_predictors"
     # to update current
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")

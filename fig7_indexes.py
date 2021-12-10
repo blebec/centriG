@@ -122,8 +122,9 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
         anoty = [titles["time50"], titles.get(amp, "")]
 
     # plot
+    size = (13, 10.6)
     fig, axes = plt.subplots(
-        4, 2, figsize=(12.5, 18), sharex=True, sharey="col", squeeze=False
+        4, 2, figsize=(13, 10.6), sharex=True, sharey="col", squeeze=False
     )  # •sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)

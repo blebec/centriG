@@ -57,7 +57,7 @@ def load_pop_datafile(key="fillsig", display=True):
     return df
 
 
-def plot_speed(popspeeddf, substract=False, spread=[0, 1]):
+def plot_speed(popspeeddf, substract=False, spread=[0, 1], anot=True):
     """ ex fig 4 """
 
     # to build
@@ -82,7 +82,8 @@ def plot_speed(popspeeddf, substract=False, spread=[0, 1]):
         # for i, col in enumerate(df.columns[:-5:-1]):
         #     df[col] += i / 10 * 2
         #     stack.append(i / 10 * 2)
-    fig = plt.figure(figsize=(8.5, 5.5))
+    size = (8, 5)
+    fig = plt.figure(figsize=size)
     # fig.suptitle(os.path.basename(filename))
     ax = fig.add_subplot(111)
     se = False  # increase linewith only if one se is diplayed
@@ -170,12 +171,19 @@ plt.close("all")
 if "popspeed_df" not in dir():
     popspeed_df = load_pop_datafile(key="speed", display=True)
 
-fig = plot_speed(popspeed_df, substract=False, spread=[0, 1])
+fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=False)
 
+# save = False
+# if save:
+#     file = "f10_speed"
+#     paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+#     for ext in [".png", ".pdf", ".svg"]:
+#         file_name = os.path.join(paths["save"], (file + ext))
+#         fig.savefig(file_name)
 save = False
 if save:
+    folder = paths["figSup"]
     file = "f10_speed"
-    paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
-    for ext in [".png", ".pdf", ".svg"]:
-        file_name = os.path.join(paths["save"], (file + ext))
-        fig.savefig(file_name)
+    for ext in [".pdf", ".png", ".svg"]:
+        filename = os.path.join(folder, file + ext)
+        fig.savefig(filename)
