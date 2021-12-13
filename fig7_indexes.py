@@ -33,7 +33,7 @@ os.chdir(paths["pg"])
 
 
 def load_measures(display=False):
-    """ load from hdf file the measure ie index data """
+    """load from hdf file the measure ie index data"""
     key = "indexes"
     data_loadname = os.path.join(paths["figdata"], "measures.hdf")
     df = pd.read_hdf(data_loadname, key=key)
@@ -57,6 +57,10 @@ if "indexed_df" not in dir():
     indexed_df = load_measures()
 
 #%%
+
+plt.close("all")
+
+
 def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     #     overlap=True, sort_all=True, key=0, spread="sect", rec="vm", age="new", amp="engy"
     # ):
@@ -85,7 +89,7 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     stdcolors = config.std_colors()
 
     def set_ticks_both(axis):
-        """ set ticks and ticks labels on both sides """
+        """set ticks and ticks labels on both sides"""
         ticks = list(axis.majorTicks)  # a copy
         ticks.extend(axis.minorTicks)
         for t in ticks:
@@ -239,14 +243,20 @@ figure = plot_all_cg_sorted_responses(indexed_df)
 
 save = False
 if save:
-    name = "fig7_sorted"
+    file = "f7_sorted"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
+        figure.savefig(os.path.join(paths["figSup"], (file + ext)))
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        figure.savefig(filename)
 
 #%%
-def plot_composite_stat_3x1(
-    statdf, statdfsig, sigcells,
+def plot_composite_stat(
+    statdf,
+    statdfsig,
+    sigcells,
 ):
     """
     plot the stats
@@ -278,13 +288,14 @@ def plot_composite_stat_3x1(
     #     nrows=1, ncols=3, figsize=(16, 5), sharex=True, sharey=True
     # )
     fig, axes = plt.subplots(
-        nrows=3, ncols=1, figsize=(5, 16), sharex=True, sharey=True
+        nrows=1, ncols=2, figsize=(12, 5), sharex=True, sharey=True
     )
     axes = axes.flatten()
     title = stat[0][1:] + "   (" + stat[1][1:] + ")"
     fig.suptitle(title)
     # conds = [(x, y) for x in [mes, mes] for y in ["sect", "full"]]
     conds = [("vm", "sect"), ("vm", "sect"), ("vm", "full")]
+    conds = conds[:2]
     for i, cond in enumerate(conds):
         if i >= 1:
             df = statdfsig
@@ -372,9 +383,9 @@ def plot_composite_stat_3x1(
             #         ax.yaxis.set_visible(False)
             #     ax.set_xlabel(titles["time50"])
             # vertical
-            ax.set_ylabel(titles.get(amp, "not defined"))
-            if i == 2:
-                ax.set_xlabel(titles["time50"])
+            ax.set_xlabel(titles["time50"])
+            if i == 0:
+                ax.set_ylabel(titles.get(amp, "not defined"))
     #          else:
     #               ax.spines["left"].set_visible(False)
     #                ax.yaxis.set_visible(False)
@@ -399,25 +410,31 @@ def plot_composite_stat_3x1(
 plt.close("all")
 # stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
 # stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
-figure = plot_composite_stat_3x1(stat_df, stat_df_sig, sig_cells)
+figure = plot_composite_stat(stat_df, stat_df_sig, sig_cells)
 
 save = False
 if save:
-    name = "fig7_stats"
+    file = "f7_stats"
+    folder = paths["figSup"]
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
+        figure.savefig(os.path.join(folder, (file + ext)))
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        figure.savefig(filename)
+
 
 #%%
 def extract_values(df, stim="sect", param="time", replaceFull=True):
-    """ extract pop and response dico:
-        input :
-            dataframe
-            stim in [sect, full]
-            param in [timme, gain, engy]
-        return:
-            pop_dico -> per condition [popNb, siginNb, %]
-            resp_dico -> per condition [moy, moy+sem, moy-sem]
+    """extract pop and response dico:
+    input :
+        dataframe
+        stim in [sect, full]
+        param in [timme, gain, engy]
+    return:
+        pop_dico -> per condition [popNb, siginNb, %]
+        resp_dico -> per condition [moy, moy+sem, moy-sem]
     """
     adf = df.copy()
     if "fill" in param:
@@ -491,6 +508,14 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
+
+    # to build
+    df = data
+    sigcells = sig_cells
+    spread = "sect"
+    mes = "vm"
+    amp = "engy"
+
     titles = dict(
         time=r"$\Delta$ Latency",
         engy=r"$\Delta$ Response",
@@ -499,9 +524,7 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
         vm="Vm",
         spk="Spikes",
     )
-    colors = [
-        std_colors[item] for item in ["red", "green", "yellow", "blue", "dark_blue"]
-    ]
+    colors = [std_colors[item] for item in "red green yellow blue dark_blue".split()]
     relabel = dict(
         cpisosect="CP-ISO",
         cfisosect="CF-ISO",
@@ -564,7 +587,8 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
         # labels = list(pop_dico.keys())
         ax.set_xticks([])
         ax.set_xticklabels([])
-    axes[0].set_ylabel(r"% of significant cells")
+    for ax in axes:
+        ax.set_ylabel(r"% of significant cells")
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     # fig.legend(handles=bars, labels=labels, loc='upper right')
@@ -618,7 +642,11 @@ figure = plot_cell_selection(data, sig_cells, spread=spread, mes=mes, amp=amp)
 
 save = False
 if save:
-    name = "fig7_contrib"
+    file = "f7_contrib"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (name + ext)))
+        figure.savefig(os.path.join(paths["figSup"], (file + ext)))
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
+    for ext in [".png", ".pdf", ".svg"]:
+        filename = os.path.join(folder, (file + ext))
+        figure.savefig(filename)
