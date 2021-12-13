@@ -76,7 +76,7 @@ def plot_sorted_responses(
     """
 
     def set_ticks_both(axis):
-        """ set ticks and ticks labels on both sides """
+        """set ticks and ticks labels on both sides"""
         ticks = list(axis.majorTicks)  # a copy
         ticks.extend(axis.minorTicks)
         for t in ticks:

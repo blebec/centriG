@@ -36,12 +36,10 @@ os.chdir(paths["pg"])
 
 #%% save data for fig7a
 def export_measures(do_save=False):
-    """ save the data for the figure 7 """
+    """save the data for the figure 7"""
     df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     cols = df.columns
-
-    data_savename = os.path.join(paths["figdata"], "fig7.hdf")
-    data_savename = os.path.join(paths["figdata"], "measures.hdf")
+    data_savename = os.path.join(paths["hdf"], "measures.hdf")
     key = "indexes"
     print("=" * 20, "{}(key={})".format(os.path.basename(data_savename), key))
     for item in cols:
@@ -52,9 +50,9 @@ def export_measures(do_save=False):
 
 
 def load_measures(display=True):
-    """ load the xcel file that contains the indexes values """
+    """load the xcel file that contains the indexes values"""
     key = "indexes"
-    data_loadname = os.path.join(paths["figdata"], "measures.hdf")
+    data_loadname = os.path.join(paths["hdf"], "measures.hdf")
     df = pd.read_hdf(data_loadname, key=key)
     conds = {_.split("_")[0] for _ in df.columns}
     dico = {}

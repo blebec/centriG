@@ -66,7 +66,7 @@ def load_all_traces(info_df, folder="vm_all"):
 
 
 def normalize(dico):
-    """ divide by centerOnly"""
+    """divide by centerOnly"""
     # build list
     res = dico.copy()
     conds = list(dico.keys())
@@ -83,7 +83,7 @@ def normalize(dico):
 
 
 def align_traces(vm_dico, info_df):
-    """" align traces on center only response"""
+    """ " align traces on center only response"""
     ser = info_df.set_index("Neuron")["time3stddev"]
     out_dico = {}
     for cond in vm_dico.keys():
@@ -248,9 +248,7 @@ def extract_cell_data(cell, cond="rndisofull"):
 
 
 def simple_plot(cond, cell_list, df_list, lag_list, traces=True):
-    """
-
-    """
+    """ """
     # std_colors = {'red' : [x/256 for x in [229, 51, 51]],
     #               'green' : [x/256 for x in [127, 204, 56]],
     #               'blue' :	[x/256 for x in [0, 125, 218]],

@@ -54,8 +54,7 @@ def load_traces(pathsdico, kind="vm", spread="sect", num=2):
 
 
 def plot_align_normalize(label, data, substract=False):
-    """
-    """
+    """ """
 
     def select_pop(df, filt="pop"):
         cols = df.columns

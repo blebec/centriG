@@ -111,7 +111,7 @@ plt.close("all")
 
 
 def plot_histo(df, num=8, kind="x"):
-    """ display histogramme of advance or latency for all kind of stimulations """
+    """display histogramme of advance or latency for all kind of stimulations"""
     # colors = {"rndiso": "b", "cpcross": "gold", "cpiso": "r", "cfiso": "g"}
     stdcolors = config.std_colors()
     colors = {
@@ -315,7 +315,7 @@ fig = plot_rank(latency_gain_df, kind="_y")
 
 #%% full vs sector
 def list_stim(df):
-    """ return a list of the kinds of stimulation based one df.columns names"""
+    """return a list of the kinds of stimulation based one df.columns names"""
     kinds = []
     for item in [item.split("_")[0] for item in df.columns]:
         if item not in kinds:
@@ -324,14 +324,14 @@ def list_stim(df):
 
 
 def full_sec(alist):
-    """ return a dico {'sect', 'full'} of all the stimulations """
+    """return a dico {'sect', 'full'} of all the stimulations"""
     sect = sorted([item for item in alist if "Sector" in item])
     full = sorted([item for item in alist if "Full" in item])
     return {"sec": sect, "full": full}
 
 
 def build_median_df(stim_dico, df):
-    """ construct a dataframe containing the median values for all conditions"""
+    """construct a dataframe containing the median values for all conditions"""
     # build dataFrame
     cols = [item.replace("Sector", "") for item in stim_dico["sec"]]
     colus = [item + "_x" for item in cols]
@@ -463,7 +463,7 @@ from sklearn import linear_model
 
 
 def regress(df, out=False):
-    """ compute the correlation between conditions """
+    """compute the correlation between conditions"""
     stat_df = pd.DataFrame(
         index=["slope", "intercept", "r_value", "p_value", "std_err"]
     )

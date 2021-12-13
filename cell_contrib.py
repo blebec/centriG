@@ -29,14 +29,14 @@ plt.rcParams["axes.ymargin"] = 0.05
 
 
 def extract_values(df, stim="sect", param="time", replaceFull=True):
-    """ extract pop and response dico:
-        input :
-            dataframe
-            stim in [sect, full]
-            param in [timme, gain, engy]
-        return:
-            pop_dico -> per condition [popNb, siginNb, %]
-            resp_dico -> per condition [moy, moy+sem, moy-sem]
+    """extract pop and response dico:
+    input :
+        dataframe
+        stim in [sect, full]
+        param in [timme, gain, engy]
+    return:
+        pop_dico -> per condition [popNb, siginNb, %]
+        resp_dico -> per condition [moy, moy+sem, moy-sem]
     """
     adf = df.copy()
     if "fill" in param:

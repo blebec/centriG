@@ -31,7 +31,7 @@ def align_yaxis(ax1, v1, ax2, v2):
 
 def change_plot_trace_amplitude(ax, gain=1):
     """change the amplitude of the plot,
-    doesn't change the zero location """
+    doesn't change the zero location"""
     lims = ax.get_ylim()
     new_lims = (lims[0] / gain, lims[1] / gain)
     ax.set_ylim(new_lims)
@@ -58,7 +58,7 @@ def fig_properties(afig):
 
 
 def to_inches(tup):
-    """ return (inch, inch) tuple of the (mm, mm) tuple provided """
+    """return (inch, inch) tuple of the (mm, mm) tuple provided"""
     a, b = tup
     res = (a / 25.4, b / 25.4)
     return res
@@ -69,8 +69,8 @@ def inch_to_cm(value):
 
 
 def axis_data_coords_sys_transform(axis_obj_in, xin, yin, inverse=False):
-    """ inverse = False : Axis => Data
-                = True  : Data => Axis
+    """inverse = False : Axis => Data
+    = True  : Data => Axis
     """
     xlim = axis_obj_in.get_xlim()
     ylim = axis_obj_in.get_ylim()
@@ -96,7 +96,7 @@ def new_columns_names(cols):
     """
 
     def convert_to_snake(camel_str):
-        """ camel case to snake case """
+        """camel case to snake case"""
         temp_list = []
         for letter in camel_str:
             if letter.islower():

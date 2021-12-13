@@ -54,7 +54,7 @@ plt.rcParams.update(
 
 
 def load_gmercier2():
-    " second file containing the numerial latency values"
+    "second file containing the numerial latency values"
     file = "gmercier2.csv"
     filename = os.path.join(paths["data"], file)
     df = pd.read_csv(filename, sep="\t", decimal=",")
@@ -248,7 +248,7 @@ tempdf
 
 #%%
 def diff_scatter_gm2(datadf, vsmean=True):
-    """ scatter plot  """
+    """scatter plot"""
     fig, axes = plt.subplots(
         nrows=2, ncols=1, figsize=(5, 10), sharex=True, sharey=True
     )
@@ -382,7 +382,7 @@ if save:
 
 
 def hist_diff_gm(datadf):
-    """ hitogramm of latency distribution """
+    """hitogramm of latency distribution"""
     fig, axes = plt.subplots(
         ncols=1, nrows=2, figsize=(5, 10), sharex=True, sharey=True
     )

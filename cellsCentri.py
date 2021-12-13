@@ -39,7 +39,7 @@ os.chdir(paths["pg"])
 
 
 def extract_cg_values():
-    """ basic stat extraction """
+    """basic stat extraction"""
     latEngy50_v_df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     latEngy50_s_df = ldat.load_cell_contributions(rec="spk", amp="engy", age="new")
 

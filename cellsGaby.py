@@ -203,7 +203,7 @@ gaby_df = load_gaby()
 
 
 def list_group_keys(df):
-    """ extract the global 'group' keys of gaby file """
+    """extract the global 'group' keys of gaby file"""
     keys = {_.split("_")[0] for _ in df.columns}
     coord_loc = []
     for key in keys:
@@ -399,7 +399,7 @@ for key in keys:
 
 
 def load_baudot_meta():
-    """ load baudot meta """
+    """load baudot meta"""
     file = "baudot_meta.xlsx"
     filename = os.path.join(dirname, file)
     df = pd.read_excel(filename)
@@ -454,7 +454,7 @@ check_in_gaby(baudot_df, gaby_df)
 
 
 def get_location(baudotdf, gabydf):
-    """ get the baudot cell location in the gaby file """
+    """get the baudot cell location in the gaby file"""
     ingaby = {}
     not_ingaby = []
     for cell in baudotdf.cell:

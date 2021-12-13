@@ -48,7 +48,7 @@ os.chdir(paths["pg"])
 
 
 def get_sig3_df(key="sector"):
-    """ get sig amp U time U fill data """
+    """get sig amp U time U fill data"""
 
     if key != "sector":
         print("{} should be implemented".format(key))
@@ -441,7 +441,11 @@ def plot_cpIsoGain(
     ax = spkaxes[0]
     for key, val in dico.items():
         ax.annotate(
-            key, xy=(val + step / 2, -5), alpha=0.6, ha="center", fontsize="x-small",
+            key,
+            xy=(val + step / 2, -5),
+            alpha=0.6,
+            ha="center",
+            fontsize="x-small",
         )
         # stim
         rect = Rectangle(
@@ -690,7 +694,7 @@ figure2 = figp.plot_2B_bis(std_colors, anot=anot, age="new")
 
 
 def save_fig8_data(fig2df, sig3df, do_save=False):
-    """ export the data to an hdf file"""
+    """export the data to an hdf file"""
     conds, key_dico = config.std_names()
 
     cols = fig2df.columns
@@ -883,7 +887,7 @@ plt.close("all")
 
 
 def plot_speed(substract=False):
-    """ ex fig 4 """
+    """ex fig 4"""
     filename = "data/data_to_use/fig4.xlsx"
     df = pd.read_excel(filename, engine="openpyxl")
     # centering
@@ -1376,7 +1380,7 @@ def plot_figSup4(kind, overlap=True):
     """
 
     def set_ticks_both(axis):
-        """ set ticks and ticks labels on both sides """
+        """set ticks and ticks labels on both sides"""
         ticks = list(axis.majorTicks)  # a copy
         ticks.extend(axis.minorTicks)
         for t in ticks:
@@ -1954,7 +1958,7 @@ fig = plot_speed_multigraph(df, speed_colors)
 
 
 def plot_speeddiff():
-    """ speed diff """
+    """speed diff"""
     colors = [speed_colors[item] for item in "k red dark_orange orange yellow".split()]
     alphas = [0.5, 1, 0.8, 0.8, 1]
 

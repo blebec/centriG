@@ -37,14 +37,17 @@ def build_paths():
         paths["pg"] = os.path.expanduser("~/pg/chrisPg/centriG")
         paths["owncFig"] = os.path.expanduser("~/ownCloud/cgFigures")
 
-    paths["figdata"] = os.path.join(
-        paths["owncFig"], "pythonPreview", "current", "fig_data"
+    # paths["xls"] = os.path.join(
+    #     paths["owncFig"], "pythonPreview", "current", "xls_sup"
+    # )
+    paths["xlssup"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "xls_data_sup"
     )
-    paths["sup"] = os.path.join(
-        paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
+    paths["figsup"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "fig_sup"
     )
-    paths["figSup"] = os.path.join(
-        paths["owncFig"], "pythonPreview", "current", "figSup"
+    paths["hdf"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "hdf_data"
     )
     return paths
 
@@ -71,7 +74,7 @@ def rc_params(font_size="medium"):  # large, medium
 
 
 def std_colors():
-    """ colors choosed for centrigabor figures"""
+    """colors choosed for centrigabor figures"""
     colors = {
         "red": tuple([_ / 256 for _ in [229, 51, 51]]),
         "green": tuple([_ / 256 for _ in [127, 204, 56]]),
@@ -92,7 +95,7 @@ def std_colors():
 
 
 def speed_colors():
-    """ just for speed coding """
+    """just for speed coding"""
     colors = {
         "yellow": [_ / 256 for _ in [253, 174, 74]],
         "orange": [_ / 256 for _ in [245, 124, 67]],
@@ -104,7 +107,7 @@ def speed_colors():
 
 
 def profile(fnc):
-    """ a decorator that uses cProfile to profile a function """
+    """a decorator that uses cProfile to profile a function"""
 
     def inner(*args, **kwargs):
         pr = cProfile.Profile()
@@ -122,7 +125,7 @@ def profile(fnc):
 
 
 def std_legends():
-    """ define a standard name for legends """
+    """define a standard name for legends"""
     dico = dict(
         cpiso="cp-iso",
         cfiso="cf-iso",
@@ -139,7 +142,7 @@ def std_names():
     returns:
         conds = list of tuples to separate conditions
         keydico = dico to name the conditions
-        """
+    """
     conds = [
         ("_pop", "_pop_"),
         ("_fill", "_fill_"),
@@ -177,7 +180,7 @@ def std_titles():
     """define a standard name for titles
     returns:
         a dico of names
-        """
+    """
     stdtitles = {
         "engy": r"$\Delta$ Response",
         "time50": r"$\Delta$ Latency",

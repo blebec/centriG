@@ -35,7 +35,7 @@ paths["save"] = os.path.join(
 
 
 def load_indifill_datafile(key="indi", display=True):
-    """ load the indifilldf dataframe (for fig 6) """
+    """load the indifilldf dataframe (for fig 6)"""
     loadfile = "example_fillin.hdf"
     loaddirname = paths["figdata"]
     loadfilename = os.path.join(loaddirname, loadfile)
@@ -51,7 +51,7 @@ def load_indifill_datafile(key="indi", display=True):
 
 
 def load_pop_datafile(key="fillsig", display=True):
-    """ load the popfilldf dataframe (for fig 6 & 9) """
+    """load the popfilldf dataframe (for fig 6 & 9)"""
     try:
         key in ["pop", "pop2sig", "pop3sig", "fillsig"]
     except NameError:
@@ -111,7 +111,9 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     conf_intervals = ["cimin", "cimax"]
 
     colors = [stdcolors[st] for st in ["k", "red", "red", "dark_green"]]
-    alphas = [1,] * 5
+    alphas = [
+        1,
+    ] * 5
     alphas.insert(0, 0.8)  # black curve
     alphafill = 0.3
     linewidths = 1.5
@@ -146,7 +148,11 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
             # tracesup = idf[trace] + idf["_".join([trace, conf_intervals[0]])]
             # traceinf = idf[trace] + idf["_".join([trace, conf_intervals[1]])]
             ax.fill_between(
-                idf[trace].index, tracesup, traceinf, color=colors[i], alpha=0.3,
+                idf[trace].index,
+                tracesup,
+                traceinf,
+                color=colors[i],
+                alpha=0.3,
             )
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
@@ -425,7 +431,12 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "fig6_predictors", ha="right", va="bottom", alpha=0.4,
+            0.99,
+            0.01,
+            "fig6_predictors",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         fig.text(0.5, 0.01, "predict", ha="left", va="bottom", alpha=0.4)

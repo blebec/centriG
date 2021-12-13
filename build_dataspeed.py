@@ -37,7 +37,7 @@ paths["save"] = os.path.join(
 
 
 def build_pop_speed_data(do_save=False):
-    """ load xcel and export hdf population speed data """
+    """load xcel and export hdf population speed data"""
 
     # conds, key_dico = config.std_names()
 
@@ -53,7 +53,7 @@ def build_pop_speed_data(do_save=False):
     # cols = df.columns
 
     supfile = "fig_speed_sup.xlsx"
-    sup_filename = os.path.join(paths["sup"], supfile)
+    sup_filename = os.path.join(paths["xlssup"], supfile)
     popspeeddf = pd.read_excel(sup_filename)
     popspeeddf.columns = gfunc.new_columns_names(popspeeddf.columns)
     cols = popspeeddf.columns
@@ -76,7 +76,7 @@ def build_pop_speed_data(do_save=False):
     # cols = [_.strip("_") for _ in cols]
     # df.columns = cols
 
-    data_savename = os.path.join(paths["figdata"], "populations_traces.hdf")
+    data_savename = os.path.join(paths["hdf"], "populations_traces.hdf")
     print("=" * 20, "{}({})".format(os.path.basename(data_savename), "speed"))
     for item in sorted(cols):
         print(item)

@@ -322,7 +322,7 @@ def clean_df(datadf, mult=3):
 
 
 def print_global_stats(statsdf, statssigdf):
-    """ ^print description """
+    """^print description"""
     for col in stats_df.columns:
         print(
             "mean {:.2f} ±({:.2f})\t sig {:.2f} ±({:.2f}) \t {}".format(

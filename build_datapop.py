@@ -43,9 +43,9 @@ std_colors = config.std_colors()
 speed_colors = config.speed_colors()
 plt.rcParams.update(config.rc_params())
 paths = config.build_paths()
-paths["sup"] = os.path.join(
-    paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
-)
+# paths["sup"] = os.path.join(
+#     paths["owncFig"], "pythonPreview", "current", "xls_data_sup"
+# )
 
 os.chdir(paths["pg"])
 
@@ -53,7 +53,7 @@ os.chdir(paths["pg"])
 
 
 def test_empty(dflist):
-    """ check column is empty (or nan) in a dataframe """
+    """check column is empty (or nan) in a dataframe"""
     for df in dflist:
         for col in df.columns:
             if df[col].dropna().empty:
@@ -85,13 +85,13 @@ def center_scale_df(df, timerange=None, scale=None):
 
 
 def remove_empty_columns(df, name=""):
-    """ remove dataframe empty columns
+    """remove dataframe empty columns
     input:
         df : pandas.DataFrame
         name: a given name for the dataframe variable
     return:
         df : pandas.DataFrame without the empty or nan columns
-        """
+    """
     cols_toremove = []
     for col in df.columns:
         if df[col].dropna().empty:
@@ -108,7 +108,7 @@ def remove_empty_columns(df, name=""):
 
 
 def print_keys(df, name=""):
-    """ print the keys that are used in the column names (delimiter = '_') """
+    """print the keys that are used in the column names (delimiter = '_')"""
     aset = set()
     for _ in df.columns:
         l = _.split("_")
@@ -120,7 +120,7 @@ def print_keys(df, name=""):
 
 
 def load_fig8_cpIsoGain_initial(printTraces=False):
-    """ load the initial xcel file that contains the traces for fig8
+    """load the initial xcel file that contains the traces for fig8
     input:
         printTraces: boolean (False) print the traces names
     output:
@@ -172,7 +172,7 @@ def load_fig8_cpIsoGain_initial(printTraces=False):
 
 
 def load_fig8_cpIsoGain_variability(printTraces=False):
-    """ load the additional xcel file that contains the Variability for fig8
+    """load the additional xcel file that contains the Variability for fig8
     NB additional traces are ['pop_spk_ctr', 'pop_spk_cpiso_stc']
     input:
         printTraces: boolean (False) print the traces names
@@ -184,7 +184,7 @@ def load_fig8_cpIsoGain_variability(printTraces=False):
             pop3sig <-> cells notSignificant for time U notSignificant for response
     """
 
-    supfilename = os.path.join(paths["sup"], "fig8_supdata.xlsx")
+    supfilename = os.path.join(paths["xlssup"], "fig8_supdata.xlsx")
     supdf = pd.read_excel(supfilename, engine="openpyxl")
     # supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
 
@@ -240,7 +240,7 @@ def load_fig8_cpIsoGain_variability(printTraces=False):
 
 
 def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
-    """ load the xcel file that contains the traces for sig3
+    """load the xcel file that contains the traces for sig3
     input:
         key : 'sector' (other not implemented)
         printTraces: boolean (False) print the traces names
@@ -291,7 +291,7 @@ def load_fig8_cpIsoGain_pop3sig(key="sector", printTraces=False):
 
 
 def load_other_sig2_data(path):
-    """ load extrafile builded to get all the sector traces for sig2 pop """
+    """load extrafile builded to get all the sector traces for sig2 pop"""
     file = "sigVmSectNormAlign.xlsx"
     dir_name = os.path.join(path["owncFig"], "data", "averageTraces", "controlsFig")
     filename = os.path.join(dir_name, file)
@@ -314,12 +314,12 @@ def load_other_sig2_data(path):
 
 
 def extract_pop_dataframes(inidf, sig3df, supdf, osig2df):
-    """ takes the initial data and sorted them for figure 8
+    """takes the initial data and sorted them for figure 8
     input:
         inidf, sig3df, supdf : pandas.Dataframe
     output:
         indidf, popdf, pop2sigdf, pop3sigdf
-        """
+    """
     # to build
     # inidf = ini_df
     # sig3df = sig3_df
@@ -378,7 +378,7 @@ def extract_pop_dataframes(inidf, sig3df, supdf, osig2df):
 #     savefile = "fig8s.hdf"
 #     keys = ["indi", "pop", "pop2sig", "pop3sig"]
 #     dfs = [indidf, popdf, pop2sigdf, pop3sigdf]
-#     savedirname = paths["figdata"]
+#     savedirname = paths["hdf_data"]
 #     savefilename = os.path.join(savedirname, savefile)
 #     for key, df in zip(keys, dfs):
 #         print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
@@ -391,11 +391,11 @@ def extract_pop_dataframes(inidf, sig3df, supdf, osig2df):
 
 
 def save_example_ofpop(indidf, write=False):
-    """ save as hdf files """
+    """save as hdf files"""
     # TODO = change 'indi' by the cellname
     savefile = "example_traces_vmSpk.hdf"
     key = "indi"
-    savedirname = paths["figdata"]
+    savedirname = paths["hdf"]
     savefilename = os.path.join(savedirname, savefile)
     print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
     for column in sorted(indidf.columns):
@@ -406,12 +406,11 @@ def save_example_ofpop(indidf, write=False):
 
 
 def save_populations_traces(popdf, pop2sigdf, pop3sigdf, write=False):
-    """ save as hdf files """
-    # datasavename = os.path.join(paths["sup"], "fig6s.hdf")
+    """save as hdf files"""
+    dfs = [popdf, pop2sigdf, pop3sigdf]
     savefile = "populations_traces.hdf"
     keys = ["pop", "pop2sig", "pop3sig"]
-    dfs = [popdf, pop2sigdf, pop3sigdf]
-    savedirname = paths["figdata"]
+    savedirname = paths["hdf"]
     savefilename = os.path.join(savedirname, savefile)
     for key, df in zip(keys, dfs):
         print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))

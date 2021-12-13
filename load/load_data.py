@@ -210,7 +210,7 @@ def build_sigpop_statdf(amp="engy", with_fill=False):
     """
     load the indices and extract descriptive statistics per condition
     NB sig cell = individual sig for latency OR energy
-    input : 
+    input :
         amp in [gain, engy]
         with_fill : boolean to append the filling_in significant cells
     output:

@@ -40,7 +40,7 @@ file_name = os.path.join(dirname, "test.svg")
 
 
 def load_gaby_example(extract=False, do_save=False):
-    """ load the data extracter from the gaby plots """
+    """load the data extracter from the gaby plots"""
     directory = os.path.join(paths["owncFig"], "data", "gabyToCg")
     filename = os.path.join(directory, "gabydf.csv")
     if extract:
@@ -71,8 +71,9 @@ def load_gaby_example(extract=False, do_save=False):
 
 
 def load_cg_example():
-    """ load cg (radial) data example to compare with gaby (cardinal) example """
+    """load cg (radial) data example to compare with gaby (cardinal) example"""
     file = "cg_specificity.xlsx"
+    dirname = os.path.join(paths["owncFig"], "data", "gabyToCg")
     filename = os.path.join(dirname, "sources", file)
     cgexampledf = pd.read_excel(filename)
 
@@ -95,7 +96,7 @@ def export_examples_data(gabyexampledf, cgexampledf, do_save):
     dfs = [df0, df1]
 
     # data_savename = os.path.join(paths["figdata"], "fig5.hdf")
-    data_savename = os.path.join(paths["figdata"], "example_cardVsRadial.hdf")
+    data_savename = os.path.join(paths["hdf"], "example_cardVsRadial.hdf")
     for key, df in zip(["card", "rad"], dfs):
         print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
         for item in df.columns:

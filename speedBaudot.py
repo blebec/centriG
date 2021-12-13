@@ -230,7 +230,7 @@ print(
 
 
 def stats_brdf(brdf):
-    """ perfoem a weighted stat from histogram data """
+    """perfoem a weighted stat from histogram data"""
     pd.set_option("display.float_format", lambda x: "%.2f" % x)
 
     df = brdf.copy()
@@ -558,7 +558,7 @@ def plot_both(gdf=bined_df):
 
 
 def save_fig10_data_histo(do_save=False):
-    """ save the data used to build the figure """
+    """save the data used to build the figure"""
 
     data_savename = os.path.join(paths["figdata"], "fig10.hdf")
     # histogram

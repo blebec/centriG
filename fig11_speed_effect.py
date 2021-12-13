@@ -37,7 +37,7 @@ paths["save"] = os.path.join(
 
 
 def load_pop_datafile(key="fillsig", display=True):
-    """ load the popfilldf dataframe (for fig 6 & 9) """
+    """load the popfilldf dataframe (for fig 6 & 9)"""
     try:
         key in ["pop", "pop2sig", "pop3sig", "fillsig", "speed"]
     except NameError:
@@ -58,7 +58,7 @@ def load_pop_datafile(key="fillsig", display=True):
 
 
 def plot_speed(popspeeddf, substract=False, spread=[0, 1], anot=True):
-    """ ex fig 4 """
+    """ex fig 4"""
 
     # to build
     popspeeddf = popspeed_df.copy()

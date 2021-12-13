@@ -46,7 +46,7 @@ os.chdir(paths["pg"])
 
 
 def load_example_vmspk(display=False):
-    """ load vmspk hdf files
+    """load vmspk hdf files
     input:
         display : boolean to list the files
     return
@@ -66,7 +66,7 @@ def load_example_vmspk(display=False):
 
 
 def load_popvalues(display=False):
-    """ load pop, pop2sig and pop3sig hdf files
+    """load pop, pop2sig and pop3sig hdf files
     input:
         display : boolean to list the files
     return
@@ -122,7 +122,9 @@ def plot_fig8_cpIsoGain(
     pop3sigdf = pop3sigdf.loc[-20:60]
 
     colors = [stdcolors[_] for _ in "k red".split()]
-    alphas = [1,] * 4
+    alphas = [
+        1,
+    ] * 4
     alphas.insert(0, 0.8)  # black
     alphafill = 0.3
     linewidths = 1.5  # default for all traces
@@ -443,7 +445,11 @@ def plot_fig8_cpIsoGain(
     ax = spkaxes[0]
     for key, val in dico.items():
         ax.annotate(
-            key, xy=(val + step / 2, -5), alpha=0.6, ha="center", fontsize="x-small",
+            key,
+            xy=(val + step / 2, -5),
+            alpha=0.6,
+            ha="center",
+            fontsize="x-small",
         )
         # stim
         rect = Rectangle(
@@ -506,7 +512,12 @@ def plot_fig8_cpIsoGain(
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "fig8_cpIsoGain", ha="right", va="bottom", alpha=0.4,
+            0.99,
+            0.01,
+            "fig8_cpIsoGain",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         # fig.text(0.5, 0.01, 'fig2', ha='center', va='bottom', alpha=0.4)
@@ -517,7 +528,11 @@ plt.close("all")
 
 anot = True
 figure = plot_fig8_cpIsoGain(
-    indidf=indi_df, popdf=pop_df, pop2sigdf=pop2sig_df, pop3sigdf=pop3sig_df, anot=anot,
+    indidf=indi_df,
+    popdf=pop_df,
+    pop2sigdf=pop2sig_df,
+    pop3sigdf=pop3sig_df,
+    anot=anot,
 )
 save = False
 if save:

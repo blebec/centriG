@@ -138,7 +138,7 @@ print(len(data[12][63][29]))
 
 
 def extract_name(alist):
-    """ return elts = name elements """
+    """return elts = name elements"""
     # built container
     elts = []
     for i in range(7):
@@ -183,7 +183,7 @@ surroundThenCenter_hs = [key for key in keys if key.split("_")[2] == "19"]
 
 
 def build_a_df_of_stims(keys):
-    """ describe the names """
+    """describe the names"""
     df = pd.DataFrame(keys)
     df["stim"] = df[df.columns[0]].apply(lambda x: int(x.split("_")[2]))
     df["elect"] = df[df.columns[0]].apply(lambda x: int(x.split("_")[4]))

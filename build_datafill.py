@@ -38,18 +38,14 @@ paths["save"] = os.path.join(
     paths["owncFig"], "pythonPreview", "fillinIn", "indFill_popFill"
 )
 
-paths["sup"] = os.path.join(
-    paths["owncFig"], "pythonPreview", "current", "fig_data_sup"
-)
-
 
 def compare_df(df1, df2):
-    """ compare the columns of the two dataframes
+    """compare the columns of the two dataframes
     input:
         df1, df2: pandas.DataFrame
     output:
         print columns differences
-        """
+    """
     set1 = set(df1.columns)
     set2 = set(df2.columns)
     if set1 == set2:
@@ -69,12 +65,12 @@ def compare_df(df1, df2):
 
 
 def compare_keys(df1, df2):
-    """ compare the keys in the columns
+    """compare the keys in the columns
     input:
         df1, df2: pandas.DataFrame
     output:
         print keys differencies
-        """
+    """
     set1 = set()
     set2 = set()
     for s, df in zip([set1, set2], [df1, df2]):
@@ -98,7 +94,7 @@ def compare_keys(df1, df2):
 
 
 def print_keys(alist):
-    """ separate the list in keys (sep = '_') and print keys"""
+    """separate the list in keys (sep = '_') and print keys"""
     print("-" * 20)
     for col in sorted(alist):
         print(col)
@@ -112,7 +108,7 @@ def print_keys(alist):
 
 
 def test_empty_column(df):
-    """ test the presence of nan """
+    """test the presence of nan"""
     emptyness = {}
     for col in df:
         ser = df.loc[df[col].isna(), [col]]
@@ -134,7 +130,7 @@ def test_empty_column(df):
 
 
 def merge_popfil(ddf0, ddf1):
-    """ compare, remove duplicated columns and merge two dataframe """
+    """compare, remove duplicated columns and merge two dataframe"""
     df0 = ddf0.copy()
     df1 = ddf1.copy()
     for df in [df0, df1]:
@@ -154,7 +150,7 @@ def merge_popfil(ddf0, ddf1):
 
 
 def center_scale_df(df, timerange=None):
-    """center the dataframe and rescale it """
+    """center the dataframe and rescale it"""
     if timerange == None:
         timerange = [-200, 200]
     middle = (df.index.max() - df.index.min()) / 2
@@ -173,7 +169,7 @@ def build_indi_fill_data(write=False):
 
     # manage supplementary data (variability)
     supfile = "fig6_supData.xlsx"
-    supfilename = os.path.join(paths["sup"], supfile)
+    supfilename = os.path.join(paths["xlssup"], supfile)
     # ci columns are shorter than se columns
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
     supdf.columns = [_.lower() for _ in supdf.columns]
@@ -221,7 +217,7 @@ def build_indi_fill_data(write=False):
 
     key = "indi"
     savefile = "example_fillin.hdf"
-    savefilename = os.path.join(paths["figdata"], savefile)
+    savefilename = os.path.join(paths["hdf"], savefile)
     print("=" * 20, "{}({})".format(os.path.basename(savefilename), "indi"))
     for column in sorted(indifilldf.columns):
         print(column)
@@ -233,13 +229,13 @@ def build_indi_fill_data(write=False):
 
 
 def build_pop_fill_data(write=False):
-    """ combine the xcel files to build fig6 dataframes
-        input:
-            write : boolean to save the data
-        output:
-            indifilldf = pd.dataframe for individual example
-            popfilldf = pd.dataframe for population
-            """
+    """combine the xcel files to build fig6 dataframes
+    input:
+        write : boolean to save the data
+    output:
+        indifilldf = pd.dataframe for individual example
+        popfilldf = pd.dataframe for population
+    """
     # initial filling in population
     inifilldf = pd.read_excel("data/data_to_use/popfill.xlsx", engine="openpyxl")
     # centering
@@ -248,7 +244,7 @@ def build_pop_fill_data(write=False):
 
     # manage supplementary data (variability)
     supfile = "fig6_supData.xlsx"
-    supfilename = os.path.join(paths["sup"], supfile)
+    supfilename = os.path.join(paths["xlssup"], supfile)
     supdf = pd.read_excel(supfilename, keep_default_na=True, na_values="")
     # centering
     supdf = center_scale_df(supdf)
@@ -288,7 +284,7 @@ def build_pop_fill_data(write=False):
     popfilldf = popfilldf.join(vardf)
 
     # load fig9supdata
-    filename = os.path.join(paths["sup"], "fig9_supData.xlsx")
+    filename = os.path.join(paths["xlssup"], "fig9_supData.xlsx")
     fig9supdatadf = pd.read_excel(filename, engine="openpyxl")
     # rename
     cols = fig9supdatadf.columns
@@ -326,7 +322,7 @@ def build_pop_fill_data(write=False):
 
     key = "fillsig"
     savefile = "populations_traces.hdf"
-    savefilename = os.path.join(paths["figdata"], savefile)
+    savefilename = os.path.join(paths["hdf"], savefile)
     print("=" * 20, "{}({})".format(os.path.basename(savefilename), key))
     for column in sorted(popfilldf.columns):
         print(column)

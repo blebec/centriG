@@ -38,7 +38,7 @@ pop_df = ldat.load_filldata("pop")
 
 #%% save the data
 def print_content():
-    """ print the content of the loaded data"""
+    """print the content of the loaded data"""
     indi_content = ["_".join(_.split("Iso")) for _ in indi_df.columns]
     print("individual content = {}".format(indi_content))
 

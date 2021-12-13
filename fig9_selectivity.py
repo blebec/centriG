@@ -54,7 +54,7 @@ paths["save"] = os.path.join(
 
 
 def load_pop_datafile(key="fillsig", display=True):
-    """ load the popfilldf dataframe (for fig 6 & 9) """
+    """load the popfilldf dataframe (for fig 6 & 9)"""
     try:
         key in ["pop", "pop2sig", "pop3sig", "fillsig"]
     except NameError:
@@ -119,7 +119,9 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
 
     stdcolors = config.std_colors()
     colors = [stdcolors[st] for st in ["k", "red", "green", "yellow", "blue", "blue"]]
-    alphas = [1,] * 5
+    alphas = [
+        1,
+    ] * 5
     alphas.insert(0, 0.8)  # black curve
     alphafill = 0.3
 
@@ -212,7 +214,11 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
     spks = [_ for _ in spks if "_so" not in _]
     for i, col in enumerate(spks):
         ax.plot(
-            filldf[col], color=colors[i], alpha=alphas[i], linewidth=1.5, label=col,
+            filldf[col],
+            color=colors[i],
+            alpha=alphas[i],
+            linewidth=1.5,
+            label=col,
         )
         if i in [0, 1]:
             ax.fill_between(

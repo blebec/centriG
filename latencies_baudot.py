@@ -564,7 +564,7 @@ if save:
 
 
 def save_fig10_data_scatter(do_save=False):
-    """ save the data used to build the figure """
+    """save the data used to build the figure"""
 
     data_savename = os.path.join(paths["figdata"], "fig10.hdf")
     # histogram

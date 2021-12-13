@@ -30,7 +30,7 @@ os.chdir(paths["pg"])
 
 #%% save data for fig7a
 def save7a(do_save=False):
-    """ save the data for the figure 7 """
+    """save the data for the figure 7"""
     df = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     cols = df.columns
 
@@ -80,7 +80,7 @@ def plot_all_cg_sorted_responses(**kwargs):
     stdcolors = config.std_colors()
 
     def set_ticks_both(axis):
-        """ set ticks and ticks labels on both sides """
+        """set ticks and ticks labels on both sides"""
         ticks = list(axis.majorTicks)  # a copy
         ticks.extend(axis.minorTicks)
         for t in ticks:
@@ -298,11 +298,11 @@ plt.close("all")
 
 def load_pop():
     """load the population data for statistical display
-        input:
-            empty
-        output:
-            popdf : pandasDataframe with time and engy values
-            sigdf : dictionary of the 3sig_cells for each condition
+    input:
+        empty
+    output:
+        popdf : pandasDataframe with time and engy values
+        sigdf : dictionary of the 3sig_cells for each condition
     """
     popdf = ldat.load_cell_contributions(rec="vm", amp="engy", age="new")
     # significative cells
@@ -323,12 +323,12 @@ def load_pop():
 
 def boxPlot(popdf, sigcells, sigonly=False):
     """draw a boxplot:
-        input:
-            popdf : pandasDataframe
-            sigcells : dictionary of the significant cells (list) per condition (key)
-            sigonly : boolean True <-> sigPopulation, False <-> all cells
-        output:
-            matplotlib.pyplot figure
+    input:
+        popdf : pandasDataframe
+        sigcells : dictionary of the significant cells (list) per condition (key)
+        sigonly : boolean True <-> sigPopulation, False <-> all cells
+    output:
+        matplotlib.pyplot figure
     """
     titles = config.std_titles()
     df = popdf.copy()
@@ -378,7 +378,11 @@ def boxPlot(popdf, sigcells, sigonly=False):
             )
         else:
             bp = ax.boxplot(
-                filtered_data, notch=True, vert=True, patch_artist=True, showcaps=False,
+                filtered_data,
+                notch=True,
+                vert=True,
+                patch_artist=True,
+                showcaps=False,
             )
 
         for j, patch in enumerate(bp["boxes"]):
@@ -407,7 +411,12 @@ def boxPlot(popdf, sigcells, sigonly=False):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "sorted.py:boxPlot", ha="right", va="bottom", alpha=0.4,
+            0.99,
+            0.01,
+            "sorted.py:boxPlot",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         if sigonly:
@@ -440,12 +449,12 @@ plt.close("all")
 
 def violin_plot(popdf, sigcells, sigonly=False):
     """draw a violin plot:
-        input:
-            popdf : pandasDataframe
-            sigcells : dictionary of the significant cells (list) per condition (key)
-            pop : boolean True <-> allPopulation, False <-> only significant cells
-        output:
-            matplotlib.pyplot figure
+    input:
+        popdf : pandasDataframe
+        sigcells : dictionary of the significant cells (list) per condition (key)
+        pop : boolean True <-> allPopulation, False <-> only significant cells
+    output:
+        matplotlib.pyplot figure
     """
     titles = config.std_titles()
     df = popdf.copy()
@@ -486,11 +495,17 @@ def violin_plot(popdf, sigcells, sigonly=False):
         ax = axes[i]
         if i < 2:
             violin = ax.violinplot(
-                filtered_data, vert=False, widths=0.7, showmedians=True,
+                filtered_data,
+                vert=False,
+                widths=0.7,
+                showmedians=True,
             )
         else:
             violin = ax.violinplot(
-                filtered_data, vert=True, widths=0.5, showmedians=True,
+                filtered_data,
+                vert=True,
+                widths=0.5,
+                showmedians=True,
             )
         for bd, color in zip(violin["bodies"], colors):
             bd.set_facecolor(color)
@@ -522,7 +537,12 @@ def violin_plot(popdf, sigcells, sigonly=False):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "sorted.py:violin_plot", ha="right", va="bottom", alpha=0.4,
+            0.99,
+            0.01,
+            "sorted.py:violin_plot",
+            ha="right",
+            va="bottom",
+            alpha=0.4,
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         if sigonly:
