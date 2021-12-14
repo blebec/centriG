@@ -35,7 +35,7 @@ os.chdir(paths["pg"])
 def load_measures(display=False):
     """load from hdf file the measure ie index data"""
     key = "indexes"
-    data_loadname = os.path.join(paths["figdata"], "measures.hdf")
+    data_loadname = os.path.join(paths["hdf"], "measures.hdf")
     df = pd.read_hdf(data_loadname, key=key)
     conds = {_.split("_")[0] for _ in df.columns}
     dico = {}
@@ -288,7 +288,7 @@ def plot_composite_stat(
     #     nrows=1, ncols=3, figsize=(16, 5), sharex=True, sharey=True
     # )
     fig, axes = plt.subplots(
-        nrows=1, ncols=2, figsize=(12, 5), sharex=True, sharey=True
+        nrows=2, ncols=1, figsize=(5, 12), sharex=True, sharey=True
     )
     axes = axes.flatten()
     title = stat[0][1:] + "   (" + stat[1][1:] + ")"
@@ -383,9 +383,9 @@ def plot_composite_stat(
             #         ax.yaxis.set_visible(False)
             #     ax.set_xlabel(titles["time50"])
             # vertical
-            ax.set_xlabel(titles["time50"])
+            ax.set_ylabel(titles.get(amp, "not defined"))
             if i == 0:
-                ax.set_ylabel(titles.get(amp, "not defined"))
+                ax.set_xlabel(titles["time50"])
     #          else:
     #               ax.spines["left"].set_visible(False)
     #                ax.yaxis.set_visible(False)
@@ -415,7 +415,7 @@ figure = plot_composite_stat(stat_df, stat_df_sig, sig_cells)
 save = False
 if save:
     file = "f7_stats"
-    folder = paths["figSup"]
+    folder = paths["figsup"]
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
         figure.savefig(os.path.join(folder, (file + ext)))
