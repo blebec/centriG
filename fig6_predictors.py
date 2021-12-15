@@ -37,7 +37,7 @@ paths["save"] = os.path.join(
 def load_indifill_datafile(key="indi", display=True):
     """load the indifilldf dataframe (for fig 6)"""
     loadfile = "example_fillin.hdf"
-    loaddirname = paths["figdata"]
+    loaddirname = paths["hdf"]
     loadfilename = os.path.join(loaddirname, loadfile)
     indifilldf = pd.read_hdf(loadfilename, "indi")
     print("-" * 20)
@@ -58,7 +58,7 @@ def load_pop_datafile(key="fillsig", display=True):
         print("key shoud be in ['pop', 'pop2sig', 'pop3sig', 'fillsig']")
         return pd.DataFrame()
     loadfile = "populations_traces.hdf"
-    loaddirname = paths["figdata"]
+    loaddirname = paths["hdf"]
     loadfilename = os.path.join(loaddirname, loadfile)
     popfilldf = pd.read_hdf(loadfilename, "fillsig")
     print("-" * 20)

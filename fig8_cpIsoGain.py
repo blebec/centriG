@@ -53,7 +53,7 @@ def load_example_vmspk(display=False):
         indidf : pandas_Dataframes
     """
     file = "example_traces_vmSpk.hdf"
-    loaddirname = paths["figdata"]
+    loaddirname = paths["hdf"]
     loadfilename = os.path.join(loaddirname, file)
     indidf = pd.read_hdf(loadfilename, key="indi")
     print("-" * 20)
@@ -73,7 +73,7 @@ def load_popvalues(display=False):
         popdf, pop2sigdf, pop3sigdf : pandas_Dataframes
     """
     file = "populations_traces.hdf"
-    loaddirname = paths["figdata"]
+    loaddirname = paths["hdf"]
     loadfilename = os.path.join(loaddirname, file)
     popdf = pd.read_hdf(loadfilename, key="pop")
     pop2sigdf = pd.read_hdf(loadfilename, key="pop2sig")

@@ -61,7 +61,7 @@ def load_pop_datafile(key="fillsig", display=True):
         print("key shoud be in ['pop', 'pop2sig', 'pop3sig', 'fillsig']")
         return pd.DataFrame()
     loadfile = "populations_traces.hdf"
-    loaddirname = paths["figdata"]
+    loaddirname = paths["hdf"]
     loadfilename = os.path.join(loaddirname, loadfile)
     df = pd.read_hdf(loadfilename, key)
     print("-" * 20)

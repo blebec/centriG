@@ -37,7 +37,7 @@ file_name = os.path.join(dirname, "test.svg")
 
 def load_examples(display=False):
     file = "example_cardVsRadial.hdf"
-    data_loadname = os.path.join(paths["figdata"], file)
+    data_loadname = os.path.join(paths["hdf"], file)
     gabyexampledf = pd.read_hdf(data_loadname, key="card")
     print("loaded {} ({}) ".format(file, "card"))
     cgexampledf = pd.read_hdf(data_loadname, key="rad")
