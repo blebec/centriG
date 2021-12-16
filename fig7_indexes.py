@@ -84,6 +84,7 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     rec = kwargs.get("rec", "vm")
     age = kwargs.get("age", "new")
     amp = kwargs.get("amp", "engy")
+    anot = kwargs.get("anot", True)
 
     titles = config.std_titles()
     stdcolors = config.std_colors()
@@ -126,7 +127,7 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
         anoty = [titles["time50"], titles.get(amp, "")]
 
     # plot
-    size = (13, 10.6)
+    size = (12, 10)
     fig, axes = plt.subplots(
         4, 2, figsize=(13, 10.6), sharex=True, sharey="col", squeeze=False
     )  # •sharey=True,
@@ -239,14 +240,14 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
 
 
 # indexed_df = load_measures()
-figure = plot_all_cg_sorted_responses(indexed_df)
+figure = plot_all_cg_sorted_responses(indexed_df, anot=True)
 
 save = False
 if save:
     file = "f7_sorted"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (file + ext)))
+        figure.savefig(os.path.join(paths["figsup"], (file + ext)))
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
@@ -257,6 +258,7 @@ def plot_composite_stat(
     statdf,
     statdfsig,
     sigcells,
+    **kwargs,
 ):
     """
     plot the stats
@@ -264,18 +266,18 @@ def plot_composite_stat(
     output : matplotlib figure
     here combined top = full pop, bottom : significative pop
     """
+    # # to build
+    # statdf = stat_df
+    # statdfsig = stat_df_sig
+    # sigcells = sig_cells
 
-    # to build
-    statdf = stat_df
-    statdfsig = stat_df_sig
-    sigcells = sig_cells
-
-    kind = "mean"
-    amp = "engy"
-    mes = "vm"
-    legend = False
-    share = True
-    digit = True
+    kind = kwargs.get("kind", "mean")
+    amp = kwargs.get("amp", "engy")
+    mes = kwargs.get("mes", "vm")
+    legend = kwargs.get("legend", False)
+    share = kwargs.get("share", True)
+    digit = kwargs.get("digit", True)
+    anot = kwargs.get("anot", True)
 
     kinds = {"mean": ["_mean", "_sem"], "med": ["_med", "_mad"]}
     stat = kinds.get(kind, None)
@@ -288,7 +290,7 @@ def plot_composite_stat(
     #     nrows=1, ncols=3, figsize=(16, 5), sharex=True, sharey=True
     # )
     fig, axes = plt.subplots(
-        nrows=2, ncols=1, figsize=(5, 12), sharex=True, sharey=True
+        nrows=2, ncols=1, figsize=(7, 12), sharex=True, sharey=True
     )
     axes = axes.flatten()
     title = stat[0][1:] + "   (" + stat[1][1:] + ")"
@@ -410,7 +412,7 @@ def plot_composite_stat(
 plt.close("all")
 # stat_df = ldat.build_pop_statdf(amp=amplitude)  # append gain to load
 # stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amplitude)  # append gain to load
-figure = plot_composite_stat(stat_df, stat_df_sig, sig_cells)
+figure = plot_composite_stat(stat_df, stat_df_sig, sig_cells, anot=True)
 
 save = False
 if save:
@@ -504,17 +506,17 @@ def autolabel(ax, rects, sup=False):
             ax.text(x, y, "%d" % int(height) + "%", ha="center", va="top")
 
 
-def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
+def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy", anot=True):
     """
     cell contribution, to go to the bottom of the preceding stat description
     """
 
     # to build
-    df = data
-    sigcells = sig_cells
-    spread = "sect"
-    mes = "vm"
-    amp = "engy"
+    # df = data
+    # sigcells = sig_cells
+    # spread = "sect"
+    # mes = "vm"
+    # amp = "engy"
 
     titles = dict(
         time=r"$\Delta$ Latency",
@@ -549,7 +551,7 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
     heights.insert(1, height)
 
     # fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(18, 3.75))
-    fig, axes = plt.subplots(nrows=3, ncols=1, sharey=True, figsize=(5, 12.5))
+    fig, axes = plt.subplots(nrows=1, ncols=3, sharey=True, figsize=(12, 2))
     axes = axes.flatten()
     titles_here = [titles["time"], "Both", titles["engy"]]
     labels = [relabel[st] for st in pop_dico]
@@ -587,8 +589,7 @@ def plot_cell_selection(df, sigcells, spread="sect", mes="vm", amp="engy"):
         # labels = list(pop_dico.keys())
         ax.set_xticks([])
         ax.set_xticklabels([])
-    for ax in axes:
-        ax.set_ylabel(r"% of significant cells")
+    axes[0].set_ylabel("significant cells")
     # for ax in axes[:2]:
     #     ax.xaxis.set_visible(False)
     # fig.legend(handles=bars, labels=labels, loc='upper right')
@@ -638,14 +639,16 @@ stat_df_sig, sig_cells = ldat.build_sigpop_statdf(amp=amp)
 mes = ["vm", "spk"][0]
 data = ldat.load_cell_contributions(mes, age="new", amp=amp)
 spread = ["sect", "full"][0]
-figure = plot_cell_selection(data, sig_cells, spread=spread, mes=mes, amp=amp)
+figure = plot_cell_selection(
+    data, sig_cells, spread=spread, mes=mes, amp=amp, anot=True
+)
 
 save = False
 if save:
     file = "f7_contrib"
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:  # [".png", ".pdf", ".svg"]:
-        figure.savefig(os.path.join(paths["figSup"], (file + ext)))
+        figure.savefig(os.path.join(paths["figsup"], (file + ext)))
     folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".png", ".pdf", ".svg"]:
         filename = os.path.join(folder, (file + ext))
