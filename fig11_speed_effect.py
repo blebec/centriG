@@ -103,6 +103,7 @@ def plot_speed(popspeeddf, substract=False, spread=[0, 1], anot=True):
                 df[trace + "_sedw"],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
         else:
             if se:
@@ -171,7 +172,7 @@ plt.close("all")
 if "popspeed_df" not in dir():
     popspeed_df = load_pop_datafile(key="speed", display=True)
 anot = True
-fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=True)
+fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=False)
 
 # save = False
 # if save:
@@ -182,7 +183,7 @@ fig = plot_speed(popspeed_df, substract=False, spread=[0, 1], anot=True)
 #         fig.savefig(file_name)
 save = False
 if save:
-    folder = paths["figSup"]
+    folder = paths["figsup"]
     file = "f11_speed"
     for ext in [".pdf"]:
         filename = os.path.join(folder, file + ext)

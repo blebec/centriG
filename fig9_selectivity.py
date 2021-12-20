@@ -178,6 +178,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[1]],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
         else:  # no envelopp -> increased linewidth
             ax.plot(
@@ -227,6 +228,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[1]],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
     x = 0
     y = filldf[spks[0]].loc[0]
@@ -265,6 +267,7 @@ def plot_fill_combi(popfilldf, pop2sigdf, anot=anot):
                 filldf[col + ses[1]],
                 color=colors[i + 1],
                 alpha=alphafill,
+                edgecolor=None,
             )
         else:
             ax.plot(
@@ -371,11 +374,11 @@ plt.close("all")
 
 # data_df, file = ltra.load_intra_mean_traces(paths, **select)
 
-fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df, anot=True)
+fig = plot_fill_combi(popfilldf=popfill_df, pop2sigdf=pop2sig_df, anot=False)
 
 save = False
 if save:
-    folder = paths["figSup"]
+    folder = paths["figsup"]
     file = "f9_selectivity"
     for ext in [".pdf"]:
         filename = os.path.join(folder, file + ext)

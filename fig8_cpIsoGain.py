@@ -165,6 +165,7 @@ def plot_fig8_cpIsoGain(
             indidf[col + "_" + seerrors[1]],
             color=colors[i],
             alpha=alphafill,
+            edgecolor=None,
         )
     # response point
     x = 43.5
@@ -187,7 +188,13 @@ def plot_fig8_cpIsoGain(
             label=col,
             linewidth=linewidths,
         )
-        ax.fill_between(indidf.index, indidf[col], color=rev_colors[i], alpha=alphafill)
+        ax.fill_between(
+            indidf.index,
+            indidf[col],
+            color=rev_colors[i],
+            alpha=alphafill,
+            edgecolor=None,
+        )
     # response point
     x = 55.5
     y = indidf.loc[x, [cols[0]]]
@@ -211,6 +218,7 @@ def plot_fig8_cpIsoGain(
             popdf[col + "_" + seerrors[1]],
             color=colors[i],
             alpha=alphafill,
+            edgecolor=None,
         )
     ax.annotate(
         "n=37",
@@ -244,6 +252,7 @@ def plot_fig8_cpIsoGain(
             popdf[col + "_" + seerrors[1]],
             color=rev_colors[i],
             alpha=alphafill,
+            edgecolor=None,
         )
     ax.annotate(
         "n=22",
@@ -284,6 +293,7 @@ def plot_fig8_cpIsoGain(
                 pop2sigdf[col + "_" + seerrors[1]],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
     # response point
     x = 0
@@ -321,6 +331,7 @@ def plot_fig8_cpIsoGain(
             pop2sigdf[col + "_" + seerrors[1]],
             color=color,
             alpha=alphafill,
+            edgecolor=None,
         )
     # response point
     x = 0
@@ -392,6 +403,7 @@ def plot_fig8_cpIsoGain(
                     pop3sigdf[col + "_" + seerrors[1]],
                     color=colors[j],
                     alpha=alphafill,
+                    edgecolor=None,
                 )
             else:  # no envelopp -> increase linewidth
                 ax.plot(
@@ -526,7 +538,7 @@ def plot_fig8_cpIsoGain(
 
 plt.close("all")
 
-anot = True
+anot = False
 figure = plot_fig8_cpIsoGain(
     indidf=indi_df,
     popdf=pop_df,
@@ -537,7 +549,7 @@ figure = plot_fig8_cpIsoGain(
 save = False
 if save:
     file = "f8_cpIsoGain"
-    folder = paths["figSup"]
+    folder = paths["figsup"]
     # paths["save"] = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig")
     for ext in [".pdf"]:
         figure.savefig(os.path.join(folder, (file + ext)))

@@ -153,6 +153,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 traceinf,
                 color=colors[i],
                 alpha=0.3,
+                edgecolor=None,
             )
     ax.spines["bottom"].set_visible(False)
     ax.axes.get_xaxis().set_visible(False)
@@ -178,6 +179,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 idf[trace + "_" + conf_intervals[1]],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
         else:
             ax.plot(
@@ -193,6 +195,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 idf[trace + "_" + se_errors[1]],
                 color=colors[i],
                 alpha=0.3,
+                edgecolor=None,
             )
     ax.set_xlabel("Time (ms)")
     if legend:
@@ -256,6 +259,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 popdf[col + "_" + se_errors[1]],
                 color=colors[i],
                 alpha=alphafill,
+                edgecolor=None,
             )
     # response point
     x = 0
@@ -298,6 +302,7 @@ def plot_fig6_predictors(indifilldata, popfilldata, stdcolors=std_colors, anot=T
                 popdf[col + "_" + se_errors[1]],
                 color=colors[2],
                 alpha=alphafill,
+                edgecolor=None,
             )
         if legend:
             ax.legend()
@@ -454,7 +459,7 @@ if save:
     # fig.set_dpi(600)
     file = "f6_predictors"
     # to update current
-    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "figSup")
+    folder = os.path.join(paths["owncFig"], "pythonPreview", "current", "fig_sup")
     for ext in [".pdf"]:
         filename = os.path.join(folder, (file + ext))
         fig.savefig(filename)
