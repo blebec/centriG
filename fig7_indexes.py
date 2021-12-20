@@ -129,7 +129,7 @@ def plot_all_cg_sorted_responses(indexeddf=None, **kwargs):
     # plot
     size = (12, 10)
     fig, axes = plt.subplots(
-        4, 2, figsize=(13, 10.6), sharex=True, sharey="col", squeeze=False
+        4, 2, figsize=size, sharex=True, sharey="col", squeeze=False
     )  # •sharey=True,
     if anot:
         fig.suptitle(title, alpha=0.4)
