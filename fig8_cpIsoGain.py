@@ -424,7 +424,7 @@ def plot_fig8_cpIsoGain(
     # labels
     ylabels_vm = ["Membrane Potential (mV)", "Normalized Vm", "", ""]
 
-    ylabels_spk = ["Firing Rate (Spk/s)", "Normalized Spk/s", "", ""]
+    ylabels_spk = ["Firing Rate (Spk/s)", "Normalized Firing Rate", "", ""]
     ylabels = ylabels_vm + ylabels_spk
     axes = fig.get_axes()
     for i, ax in enumerate(axes):
@@ -436,6 +436,7 @@ def plot_fig8_cpIsoGain(
             ax.spines["bottom"].set_visible(False)
         else:
             ax.set_xlabel("Time (ms)")
+    axes[0].set_ylim(-5, 14)
     axes[1].set_ylim(-0.10, 1.1)
     for ax in axes[5:]:
         ax.set_xlabel("Relative Time (ms)")
@@ -451,7 +452,7 @@ def plot_fig8_cpIsoGain(
         for dloc in xlocs:
             ax.axvline(dloc, linestyle=":", alpha=0.4, color="k")
     # fit individual example
-    vmaxes[0].set_ylim(-3.5, 12)
+    vmaxes[0].set_ylim(-4, 13)
     spkaxes[0].set_ylim(-10, 35)
     # stim location
     ax = spkaxes[0]
