@@ -482,7 +482,7 @@ def regress(df, out=False):
             print("=========================")
             print(item)
             print("slope: %f    intercept: %f" % (slope, intercept))
-            print("r-squared: %f" % r_value ** 2)
+            print("r-squared: %f" % r_value**2)
             print(p_value)
             print()
     return stat_df
@@ -604,7 +604,7 @@ def compute_regress_through_scipy(df):
         print("==================")
         print(protoc)
         print("slope: %1.2f    intercept: %1.2f" % (slope, intercept))
-        print("r-squared: %2.1f" % r_value ** 2)
+        print("r-squared: %2.1f" % r_value**2)
         print("p_value : %2.2f" % p_value)
     return resdf
 
@@ -640,7 +640,7 @@ plt.legend()
 #%%
 slope, intercept, r_value, p_value, std_err = stats.linregress(cpisofullX, cpisofullY)
 print("slope: %f    intercept: %f" % (slope, intercept))
-print("r-squared: %f" % r_value ** 2)
+print("r-squared: %f" % r_value**2)
 
 fig2 = plt.figure(figsize=(12, 12))
 plt.plot(
@@ -677,7 +677,7 @@ cpisofull2Y = cpisoFull2_y[i]
 #%%
 slope, intercept, r_value, p_value, std_err = stats.linregress(cpisofull2X, cpisofull2Y)
 print("slope: %f    intercept: %f" % (slope, intercept))
-print("r-squared: %f" % r_value ** 2)
+print("r-squared: %f" % r_value**2)
 
 fig2 = plt.figure(figsize=(12, 12))
 plt.plot(

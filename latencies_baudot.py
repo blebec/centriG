@@ -69,7 +69,7 @@ file_name = "/Users/cdesbois/ownCloud/cgFigures/data/baudot/scatterData/scatLat.
 # df = data_dict['LATENCE PIERO S-C']
 
 
-def load_onsets():
+def load_onsets() -> pd.DataFrame:
     """
     load the excel data and format it
 
@@ -142,7 +142,7 @@ data_df = load_onsets()
 #%%
 
 
-def printLenOfRecording(df):
+def printLenOfRecording(df: pd.DataFrame):
     names = [_ for _ in df.name.unique() if _[:3].isdigit()]
     cells = {_[:5] for _ in names}
 
@@ -157,13 +157,91 @@ def printLenOfRecording(df):
 printLenOfRecording(data_df)
 
 #%%
-def get_switch(datadf, plot=False):
+
+
+def get_RMSE(
+    inputdf: pd.DataFrame, imini: int = None, printsummary: bool = False
+) -> float:
+    """
+    analyse the quality of the bilinear fit
+
+    Parameters
+    ----------
+    inputdf : pd.DataFrame
+        the data.
+    imini : int, optional (default is None)
+        the index value for left and right linear fit
+    plot : bool, optional
+        DESCRIPTION. The default is False.
+
+    Returns
+    -------
+    None.
+
+    """
+    if imini is None:
+        imini = 32
+
+    datadf = inputdf.copy()
+    # datadf = data_df.copy()
+    xy = ["lat_vm_c-p", "lat_spk_seq-c"]
+    df = datadf[xy].copy()
+    # to get advance <-> positive value
+    df[xy[1]] = df[xy[1]] * (-1)
+    # remove outliers
+    xmin = -55
+    xmax = 30
+    xscales = [xmin, xmax]
+    ymin = -20
+    ymax = +30
+    df = df.dropna().sort_values(by=df.columns[0]).reset_index(drop=True)
+    # left and right OLS:
+    data_left = df.iloc[:imini]
+    # data = df.iloc[:i].copy()
+    X = data_left[xy[0]]
+    Y = data_left[xy[1]]
+    # X = sm.add_constant(X)  # add a constant
+    X = pd.DataFrame(X).assign(Intercept=1)
+
+    model_left = sm.OLS(Y, X).fit()
+    if printsummary:
+        print(f"{'-' * 20} model_left")
+        print(model_left.summary())
+
+    data_right = df.iloc[imini:]
+    # data = df.iloc[:i].copy()
+    X = data_right[xy[0]]
+    Y = data_right[xy[1]]
+    # X = sm.add_constant(X)  # add a constant
+    X = pd.DataFrame(X).assign(Intercept=1)
+    model_right = sm.OLS(Y, X).fit()
+    if printsummary:
+        print(f"{'-' * 20} model_right")
+        print(model_right.summary())
+
+    residuals = pd.concat([model_left.resid, model_right.resid])
+    RMSE = np.sqrt((residuals**2).mean())
+    print(f"{RMSE=:.1f}")
+    return RMSE
+
+
+def get_switch(datadf: pd.DataFrame, plot: bool = False) -> (float, float):
     """
     find the switch point for bilinear fit
-    (minimal x value of the squared residuals)
-    input : pandas dataframe with two columns
-    return x switch value
+    Parameters
+    ----------
+    datadf : pd.DataFrame
+        dataframe containing y ans x axis.
+    plot : bool, optional (default is False)
+        plot the results
+
+    Returns
+    -------
+    float i switch value
+    float x switch value.
+
     """
+
     # see https://datatofish.com/statsmodels-linear-regression/
 
     df = datadf.copy()
@@ -188,13 +266,14 @@ def get_switch(datadf, plot=False):
         Y = data[cols[1]]
         X = sm.add_constant(X)  # add a constant
         model = sm.OLS(Y, X).fit()
-        # append sauared right linear fit residuals
+        # append squared right linear fit residuals
         res += np.sum(np.array(model.resid) ** 2)
         # print(res)
         LR.append(res)
     # find minimum residuals location
     i_mini = np.argsort(LR)[0]  # index value
     x_miniLoc = df.loc[i_mini, ["lat_vm_c-p"]][0]  # x value
+
     if plot:
         fig = plt.figure()
         fig.suptitle("residuals for a double linear fit")
@@ -208,12 +287,37 @@ def get_switch(datadf, plot=False):
         for spine in ("top", "right"):
             ax.spines[spine].set_visible(False)
         fig.tight_layout()
-    return x_miniLoc
+    return i_mini, x_miniLoc
 
 
-def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
+def treat_data_latencies(inputdf: pd.DataFrame) -> pd.DataFrame:
+    df = inputdf.copy()
+    # to get advance <-> positive value
+    df[cols[1]] = df[cols[1]] * (-1)
+
+    return df
+
+
+def plot_phaseEffect(
+    inputdf: pd.DataFrame, corner: bool = False, show_residuals: bool = False
+) -> (plt.Figure, pd.DataFrame):
     """
     plot the vm -> time onset transfert function
+
+    Parameters
+    ----------
+    inputdf : pd.DataFrame
+        the data.
+    corner : bool, optional (default is False)
+        display in the corner
+    show_residuals : bool, optional (default is False)
+        plot the residuals
+
+    Returns
+    -------
+    plt.figure
+    pd.DataFrame
+
     """
     datadf = inputdf.copy()
     # to remove cf_para
@@ -222,7 +326,6 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     # only sig cells
     # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
     stims = datadf.stim.unique()[::-1]
-    markers = {"cf": "o", "cp": "v"}
     markers = {"cf_iso": "d", "cf_para": "p", "cp_iso": "P", "cp_para": "X"}
     legends = dict(
         zip(
@@ -247,9 +350,8 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     ymin = -20
     ymax = +30
 
-    # to get advance <-> positive value
-    # datadf[cols[0]] = datadf[cols[0]] * (-1)
-    datadf[cols[1]] = datadf[cols[1]] * (-1)
+    # # to get advance <-> positive value
+    # datadf[cols[1]] = datadf[cols[1]] * (-1)
 
     # plotting
     fig = plt.figure(figsize=(11.6, 8))
@@ -275,14 +377,15 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     # revert the axis
     # df = df * (-1)
     # switch = minimal residual for a bilinear fit
-    switch = get_switch(df, plot=show_residuals)
+    # CALL
+    _, xswitch = get_switch(df, plot=show_residuals)
     temp = df[df[df.columns[0]] <= switch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x, y)
     f1 = lambda x: slope1 * x + inter1
 
-    temp = df[df[df.columns[0]] >= switch]
+    temp = df[df[df.columns[0]] >= xswitch]
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope2, inter2, r2, p2, _ = stats.linregress(x, y)
@@ -304,7 +407,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
     #     alpha=0.3,
     # )
     print("{:=^20}".format(" fit "))
-    txt = "min residual loc {}".format(switch)
+    txt = "min residual loc {}".format(xswitch)
     print(txt)
     txt = "slope={:.2f} inter={:.0f}".format(slope1, inter1)
     print(txt)
@@ -361,7 +464,7 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
                 stim, len(x), r2, lregr.stderr
             )
         )
-        r2 = lregr.rvalue ** 2
+        r2 = lregr.rvalue**2
         # label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
         label = "{}".format(legends[stim])
         ax0.scatter(
@@ -547,6 +650,8 @@ def plot_phaseEffect(inputdf, corner=False, show_residuals=False):
 
 
 plt.close("all")
+iswitch, xswitch = get_switch(data_df, plot=True)
+rmse = get_RMSE(data_df, iswitch)
 figure, stat_df = plot_phaseEffect(data_df, corner=False)
 print(stat_df.round(1))
 
@@ -563,8 +668,8 @@ if save:
         figure.savefig(os.path.join(paths["save"], (name + ext)))
 
 
-def save_fig10_data_scatter(do_save=False):
-    """save the data used to build the figure"""
+def save_fig10_data_scatter(do_save: bool = False):
+    """save to hdf the data used to build the figure"""
 
     data_savename = os.path.join(paths["figdata"], "fig10.hdf")
     # histogram
@@ -583,7 +688,7 @@ save_fig10_data_scatter(do_save=False)
 
 
 #%%
-def plot_onsetTransfertFunc(inputdf):
+def plot_onsetTransfertFunc(inputdf: pd.DataFrame) -> plt.Figure:
     """
     plot the vm -> time onset transfert function
     """
@@ -629,7 +734,7 @@ def plot_onsetTransfertFunc(inputdf):
         # corr
         # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         lregr = stats.linregress(x, y)
-        r2 = lregr.rvalue ** 2
+        r2 = lregr.rvalue**2
         print("{} \t r2= {:.3f} \t stdErrFit= {:.3f}".format(stim, r2, lregr.stderr))
         label = "{} {}  r2={:.2f}".format(len(df), stim, r2)
         # label = '{} cells, {}'.format(len(df), stim)
@@ -731,7 +836,9 @@ if save:
 # plt.close('all')
 
 
-def histo_inAndOut(inputdf, removeOutliers=True, onlyCouple=True):
+def histo_inAndOut(
+    inputdf: pd.DataFrame, removeOutliers: bool = True, onlyCouple: bool = True
+) -> plt.Figure:
 
     datadf = inputdf.copy()
 
@@ -841,7 +948,9 @@ if save:
 plt.close("all")
 
 
-def plot_diffMean(inputdf, removeOutliers=True, refMean=True):
+def plot_diffMean(
+    inputdf: pd.DataFrame, removeOutliers: bool = True, refMean: bool = True
+) -> plt.Figure:
     # datadf = data_df.copy()
     datadf = inputdf.copy()
     #    cols = ['moy_c-p', 'psth_seq-c']
@@ -953,7 +1062,7 @@ recs = ["vm", "spk"]
 amps = ["gain", "engy"]
 
 
-def load_cg_vmSpk(param="time"):
+def load_cg_vmSpk(param: str = "time") -> plt.Figure:
     """
     load latencies values for vm and spikes from centrigabor protocols
     return:
@@ -996,7 +1105,7 @@ def load_cg_vmSpk(param="time"):
     return df
 
 
-def plot_cg_onsetTransfertFunc(param="time"):
+def plot_cg_onsetTransfertFunc(param: str = "time") -> plt.Figure:
     """
     plot the vm -> time onset transfert function
     """
@@ -1050,7 +1159,7 @@ def plot_cg_onsetTransfertFunc(param="time"):
         # corr
         # r2 = stats.pearsonr(x.flatten(),y.flatten())[0]**2
         lregr = stats.linregress(x, y)
-        r2 = lregr.rvalue ** 2
+        r2 = lregr.rvalue**2
         st = "_".join([stim[:2], stim[2:]])
         print("{} \t r2= {:.3f} \t stdErrFit= {:.3f}".format(st, r2, lregr.stderr))
         label = "{} {}  r2={:.2f}".format(len(df), st, r2)
@@ -1160,7 +1269,7 @@ if save:
 #%%
 
 
-def hist_diff_lat(datadf):
+def hist_diff_lat(datadf: pd.DataFrame) -> plt.Figure:
     cp_iso = datadf.loc[
         datadf.stim == "cp_iso", ["name", "lat_sig_vm_s-c.1"]
     ].set_index("name")
