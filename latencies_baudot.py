@@ -19,6 +19,7 @@ from scipy import stats
 import statsmodels.api as sm
 from sklearn import linear_model
 
+from typing import Tuple, Union
 
 import config
 
@@ -171,18 +172,16 @@ printLenOfRecording(data_df)
 #%%
 
 
-def get_RMSE(
-    inputdf: pd.DataFrame, imini: int = None, printsummary: bool = False
-) -> float:
+def get_RMSE(inputdf: pd.DataFrame, params: dict, printsummary: bool = False) -> float:
     """
     analyse the quality of the bilinear fit
 
     Parameters
     ----------
     inputdf : pd.DataFrame
-        the data.
-    imini : int, optional (default is None)
-        the index value for left and right linear fit
+        the data with only two numerical columns
+    params : dict
+        should contain iswitch
     plot : bool, optional
         DESCRIPTION. The default is False.
 
@@ -191,40 +190,23 @@ def get_RMSE(
     None.
 
     """
-    if imini is None:
-        imini = 32
-
-    datadf = inputdf.copy()
-    # datadf = data_df.copy()
-    xy = ["lat_vm_c-p", "lat_spk_seq-c"]
-    df = datadf[xy].copy()
-    # to get advance <-> positive value
-    df[xy[1]] = df[xy[1]] * (-1)
-    # remove outliers
-    xmin = -55
-    xmax = 30
-    xscales = [xmin, xmax]
-    ymin = -20
-    ymax = +30
-    df = df.dropna().sort_values(by=df.columns[0]).reset_index(drop=True)
+    iswitch = params.get("iswitch")
+    df = inputdf.copy().dropna()
+    # df = data_df.select_dtypes("number")
+    cols = df.columns
     # left and right OLS:
-    data_left = df.iloc[:imini]
+    data_left = df.iloc[:iswitch]
     # data = df.iloc[:i].copy()
-    X = data_left[xy[0]]
-    Y = data_left[xy[1]]
-    # X = sm.add_constant(X)  # add a constant
+    X = data_left[cols[0]]
+    Y = data_left[cols[1]]
     X = pd.DataFrame(X).assign(Intercept=1)
-
     model_left = sm.OLS(Y, X).fit()
     if printsummary:
         print(f"{'-' * 20} model_left")
         print(model_left.summary())
-
-    data_right = df.iloc[imini:]
-    # data = df.iloc[:i].copy()
-    X = data_right[xy[0]]
-    Y = data_right[xy[1]]
-    # X = sm.add_constant(X)  # add a constant
+    data_right = df.iloc[iswitch:]
+    X = data_right[cols[0]]
+    Y = data_right[cols[1]]
     X = pd.DataFrame(X).assign(Intercept=1)
     model_right = sm.OLS(Y, X).fit()
     if printsummary:
@@ -251,7 +233,7 @@ def filter_data(df: pd.DataFrame, params):
     return df
 
 
-def get_switch(df: pd.DataFrame, plot: bool = False) -> (float, float):
+def get_switch(df: pd.DataFrame, plot: bool = False):
     """
     find the switch point for bilinear fit
     Parameters
@@ -310,7 +292,7 @@ data_df2 = filter_data(data_df, parameters)
 parameters["iswitch"], parameters["xswitch"] = get_switch(
     data_df.select_dtypes("number"), plot=True
 )
-rmse = get_RMSE(data_df, iswitch)
+rmse = get_RMSE(data_df.select_dtypes("number"), parameters)
 
 
 #%%
@@ -318,7 +300,7 @@ rmse = get_RMSE(data_df, iswitch)
 
 def plot_phaseEffect(
     inputdf: pd.DataFrame, params, corner: bool = False
-) -> (plt.Figure, pd.DataFrame):
+) -> Union[plt.Figure, pd.DataFrame]:
     """
     plot the vm -> time onset transfert function
 
