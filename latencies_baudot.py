@@ -201,6 +201,8 @@ def get_RMSE(inputdf: pd.DataFrame, params: dict, printsummary: bool = False) ->
     Y = data_left[cols[1]]
     X = pd.DataFrame(X).assign(Intercept=1)
     model_left = sm.OLS(Y, X).fit()
+    # Total Sum of Squares
+    TSS = (np.square(Y - Y.mean())).sum()
     if printsummary:
         print(f"{'-' * 20} model_left")
         print(model_left.summary())
@@ -209,14 +211,26 @@ def get_RMSE(inputdf: pd.DataFrame, params: dict, printsummary: bool = False) ->
     Y = data_right[cols[1]]
     X = pd.DataFrame(X).assign(Intercept=1)
     model_right = sm.OLS(Y, X).fit()
+
+    TSS += (np.square(Y - Y.mean())).sum()
     if printsummary:
         print(f"{'-' * 20} model_right")
         print(model_right.summary())
 
+    # Sum of Squarred Residuals
+    SSE = model_left.ssr + model_right.ssr
+    # R2 = 1 - SSE/TSS
+    R2 = 1 - (SSE / TSS)
+
+    # residual = model_left.resid + model_right.resid
+    # nbObservations = model_left.nobs + model_right.nobs
+
     residuals = pd.concat([model_left.resid, model_right.resid])
     RMSE = np.sqrt((residuals**2).mean())
     print(f"{RMSE=:.1f}")
-    return RMSE
+    print(f"{R2 = :.2f}")
+
+    return RMSE, R2
 
 
 def filter_data(df: pd.DataFrame, params):
@@ -292,7 +306,7 @@ data_df2 = filter_data(data_df, parameters)
 parameters["iswitch"], parameters["xswitch"] = get_switch(
     data_df.select_dtypes("number"), plot=True
 )
-rmse = get_RMSE(data_df.select_dtypes("number"), parameters)
+rmse, r2 = get_RMSE(data_df.select_dtypes("number"), parameters)
 
 
 #%%
