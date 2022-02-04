@@ -242,8 +242,8 @@ def get_RMSE(
 
 
 def filter_data(df: pd.DataFrame, params):
-    xscales = params.get("xscales", [df[df.columns[0]].min(), df[df.columns[1]].max()])
     cols = [_ for _ in df.columns if df[_].dtypes == float]
+    xscales = params.get("xscales", [df[cols[0]].min(), df[cols[0]].max()])
     # remove ouliers
     df.loc[df[cols[0]] < xscales[0]] = np.nan
     df.loc[df[cols[0]] > xscales[1]] = np.nan
@@ -341,12 +341,7 @@ def plot_phaseEffect(
 
     """
     datadf = inputdf.copy()
-    # to remove cf_para
-    # datadf = inputdf[inputdf.stim != 'cf_para']
-    cols = ["lat_vm_c-p", "lat_spk_seq-c"]
-    # only sig cells
-    # cols = ['lat_sig_vm_s-c.1', 'lat_spk_seq-c']
-    stims = datadf.stim.unique()[::-1]
+    stims = datadf.stim.dropna().unique()[::-1]
     markers = {"cf_iso": "d", "cf_para": "p", "cp_iso": "P", "cp_para": "X"}
     legends = dict(
         zip(
@@ -359,12 +354,16 @@ def plot_phaseEffect(
     # convert (center minus periphery) to (periphery minus center)
     # fig = plt.figure(figsize=(8, 6))
 
-    # xscales
-    xmin = -55
-    xmax = 30
-    xscales = [xmin, xmax]
-    ymin = -20
-    ymax = +30
+    # # xscales
+    # xmin = -55
+    # xmax = 30
+    # xscales = [xmin, xmax]
+    # ymin = -20
+    # ymax = +30
+
+    xscales = params.get("xscales")
+    yscales = params.get("yscales")
+    xswitch = params.get("xswitch", None)
 
     # # to get advance <-> positive value
     # datadf[cols[1]] = datadf[cols[1]] * (-1)
@@ -396,20 +395,30 @@ def plot_phaseEffect(
     #     # switch = minimal residual for a bilinear fit
     #     # CALL
     #     _, xswitch = get_switch(df, plot=show_residuals)
-    #     temp = df[df[df.columns[0]] <= switch]
+    #
     # =============================================================================
-    x = temp[cols[0]]
-    y = temp[cols[1]]
+    # plot regress
+    cols = [_ for _ in datadf.columns if datadf[_].dtypes == float]
+    numdf = datadf[cols]
+    # temp = df[df[df.columns[0]] <= switch]
+    df = numdf[numdf[numdf.columns[0]] < xswitch].dropna()
+    x = df[df.columns[0]]
+    y = df[df.columns[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x, y)
     f1 = lambda x: slope1 * x + inter1
 
-    temp = df[df[df.columns[0]] >= xswitch]
-    x = temp[cols[0]]
-    y = temp[cols[1]]
+    # temp = df[df[df.columns[0]] >= xswitch]
+    df = numdf[datadf[numdf.columns[0]] >= xswitch].dropna()
+    x = df[df.columns[0]]
+    y = df[df.columns[1]]
     slope2, inter2, r2, p2, _ = stats.linregress(x, y)
     f2 = lambda x: slope2 * x + inter2
 
     x_intersect = (inter2 - inter1) / (slope1 - slope2)
+    xmin = xscales[0]
+    xmax = xscales[1]
+    ymin = yscales[0]
+    ymax = yscales[1]
     ax0.plot(
         [xmin, x_intersect, xmax],
         [f1(xmin), f1(x_intersect), f2(xmax)],
@@ -668,9 +677,9 @@ def plot_phaseEffect(
 
 
 plt.close("all")
-iswitch, xswitch = get_switch(data_df, plot=True)
+iswitch, xswitch = get_switch(data_df.select_dtypes("number"), plot=True)
 rmse = get_RMSE(data_df, iswitch)
-figure, stat_df = plot_phaseEffect(data_df, corner=False)
+figure, stat_df = plot_phaseEffect(data_df, parameters, corner=False)
 print(stat_df.round(1))
 
 save = False
