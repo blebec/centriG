@@ -140,12 +140,6 @@ def load_onsets() -> pd.DataFrame:
     return df
 
 
-data_df = load_onsets()
-# df = data_df.copy()
-
-#%%
-
-
 def printLenOfRecording(df: pd.DataFrame):
     """
     print the content of the dataframe : names and cells
@@ -169,6 +163,8 @@ def printLenOfRecording(df: pd.DataFrame):
     print(f"{'-' * 20} {len(cells)} of unique numId {'-' * 20}")
     print(cells)
 
+
+data_df = load_onsets()
 
 printLenOfRecording(data_df)
 
@@ -249,7 +245,7 @@ def filter_data(df: pd.DataFrame, params):
     df.loc[df[cols[0]] > xscales[1]] = np.nan
     # df = df.sort_values(by=df[cols[0]]).dropna()
     # revert the axis
-    # df = df * (-1)
+    df[cols[1]] = df[cols[1]] * (-1)
     # switch = minimal residual for a bilinear fit
     # CALL
     return df
@@ -278,7 +274,7 @@ def get_switch(df: pd.DataFrame, plot: bool = False) -> (float, float):
     # perform left and right linear fit
     for i in range(2, len(df) - 1):
         residuals = []
-        for j, data in enumerate([df.iloc[:i], df.iloc[i:]]):
+        for data in [df.iloc[:i], df.iloc[i:]]:
             X = data[cols[0]]
             Y = data[cols[1]]
             X = pd.DataFrame(X).assign(Intercept=1)
@@ -314,13 +310,14 @@ data_df2 = filter_data(data_df, parameters)
 parameters["iswitch"], parameters["xswitch"] = get_switch(
     data_df.select_dtypes("number"), plot=True
 )
+rmse = get_RMSE(data_df, iswitch)
 
 
 #%%
 
 
 def plot_phaseEffect(
-    inputdf: pd.DataFrame, params, corner: bool = False, show_residuals: bool = False
+    inputdf: pd.DataFrame, params, corner: bool = False
 ) -> (plt.Figure, pd.DataFrame):
     """
     plot the vm -> time onset transfert function
@@ -340,6 +337,14 @@ def plot_phaseEffect(
     pd.DataFrame
 
     """
+    xscales = params.get("xscales")
+    yscales = params.get("yscales")
+    xmin = xscales[0]
+    xmax = xscales[1]
+    ymin = yscales[0]
+    ymax = yscales[1]
+    xswitch = params.get("xswitch", None)
+
     datadf = inputdf.copy()
     stims = datadf.stim.dropna().unique()[::-1]
     markers = {"cf_iso": "d", "cf_para": "p", "cp_iso": "P", "cp_para": "X"}
@@ -351,74 +356,37 @@ def plot_phaseEffect(
     )
     colors = [std_colors[_] for _ in "red yellow green brown".split()]
 
-    # convert (center minus periphery) to (periphery minus center)
-    # fig = plt.figure(figsize=(8, 6))
-
-    # # xscales
-    # xmin = -55
-    # xmax = 30
-    # xscales = [xmin, xmax]
-    # ymin = -20
-    # ymax = +30
-
-    xscales = params.get("xscales")
-    yscales = params.get("yscales")
-    xswitch = params.get("xswitch", None)
-
-    # # to get advance <-> positive value
-    # datadf[cols[1]] = datadf[cols[1]] * (-1)
-
     # plotting
     fig = plt.figure(figsize=(11.6, 8))
     fig.suptitle("Impact of the Phase between FF/Horizontal Inputs")
     gs = GridSpec(4, 5)
-    # vertical histogram/kde
-    v0 = fig.add_subplot(gs[0, :4])
-    # scatter plot
-    ax0 = fig.add_subplot(gs[1:, :4], sharex=v0)
-    # horizontal histogram
-    h0 = fig.add_subplot(gs[1:, 4], sharey=ax0)
+
+    v0 = fig.add_subplot(gs[0, :4])  # vertical histogram/kde
+    ax0 = fig.add_subplot(gs[1:, :4], sharex=v0)  # scatter plot
+    h0 = fig.add_subplot(gs[1:, 4], sharey=ax0)  # horizontal histogram
     if corner:
         c0 = fig.add_subplot((gs[0, 4]), sharex=ax0, sharey=ax0)
 
     ax0.axhline(0, color="tab:blue", linewidth=2, alpha=0.7)
     ax0.axvline(0, color="tab:blue", linewidth=2, alpha=0.7)
 
-    # =============================================================================
-    #     # add global fit
-    #     df = datadf[cols].copy()  # revert the axis
-    #     df.loc[df[cols[0]] < xscales[0]] = np.nan
-    #     df.loc[df[cols[0]] > xscales[1]] = np.nan
-    #     df = df.sort_values(by=df.columns[0]).dropna()
-    #     # revert the axis
-    #     # df = df * (-1)
-    #     # switch = minimal residual for a bilinear fit
-    #     # CALL
-    #     _, xswitch = get_switch(df, plot=show_residuals)
-    #
-    # =============================================================================
     # plot regress
     cols = [_ for _ in datadf.columns if datadf[_].dtypes == float]
     numdf = datadf[cols]
-    # temp = df[df[df.columns[0]] <= switch]
+    # left part
     df = numdf[numdf[numdf.columns[0]] < xswitch].dropna()
     x = df[df.columns[0]]
     y = df[df.columns[1]]
-    slope1, inter1, r1, p1, _ = stats.linregress(x, y)
+    slope1, inter1, *_ = stats.linregress(x, y)
     f1 = lambda x: slope1 * x + inter1
-
-    # temp = df[df[df.columns[0]] >= xswitch]
+    # right part
     df = numdf[datadf[numdf.columns[0]] >= xswitch].dropna()
     x = df[df.columns[0]]
     y = df[df.columns[1]]
-    slope2, inter2, r2, p2, _ = stats.linregress(x, y)
+    slope2, inter2, *_ = stats.linregress(x, y)
     f2 = lambda x: slope2 * x + inter2
-
+    # plot
     x_intersect = (inter2 - inter1) / (slope1 - slope2)
-    xmin = xscales[0]
-    xmax = xscales[1]
-    ymin = yscales[0]
-    ymax = yscales[1]
     ax0.plot(
         [xmin, x_intersect, xmax],
         [f1(xmin), f1(x_intersect), f2(xmax)],
@@ -426,25 +394,11 @@ def plot_phaseEffect(
         color="tab:grey",
         alpha=0.3,
     )
-    # ax0.plot(
-    #     [xmin * (-1), x_intersect, xmax * (-1)],
-    #     [f1(xmin * (-1)), f1(x_intersect), f2(xmax * (-1))],
-    #     linewidth=10,
-    #     color="tab:grey",
-    #     alpha=0.3,
-    # )
-    print("{:=^20}".format(" fit "))
-    txt = "min residual loc {}".format(xswitch)
-    print(txt)
-    txt = "slope={:.2f} inter={:.0f}".format(slope1, inter1)
-    print(txt)
-    txt = "slope={:.2f} inter={:.0f}".format(slope2, inter2)
-    print(txt)
-    # stims : 'cf_para', 'cf_iso', 'cp_para', 'cp_iso'
-    # colors = colors[]
-    # for i, stim in enumerate(stims):
-    # plot in revers order
-    print("{:=^20}".format(" scatter "))
+    print(f"{'  fit  ':-^30}")
+    print(f"min residual loc {xswitch}")
+    print(f"slope={slope1:.2f} inter={inter1:.0f}")
+    print(f"slope={slope2:.2f} inter={inter2:.0f}")
+    print(f"{' scatter ':-^30}".format(" scatter "))
     statdf = pd.DataFrame()
     removed = pd.DataFrame()
     for j, stim in enumerate(stims[::-1]):
@@ -468,17 +422,12 @@ def plot_phaseEffect(
         out["stim"] = stim
         removed = removed.append(out)
         df.loc[df[cols[0]] > xscales[1]] = np.nan
-        # df = df * (-1)
         # res
         num = len(df)
         navm = len(df.loc[df[cols[0]].isna()])
         naspk = len(df.loc[df[cols[1]].isna()])
         bothna = len(df.loc[df[df.columns[:2]].isnull().all(1)])
-        print(
-            "{}   n={} vmNaN={} spkNaN={} bothNaN={}".format(
-                stim, num, navm, naspk, bothna
-            )
-        )
+        print(f"{stim}   n={num} vmNaN={navm} spkNaN={naspk} bothNaN={bothna}")
         # cuse
         df = df.dropna()
         x = df[cols[0]].values.astype(float)
@@ -493,7 +442,7 @@ def plot_phaseEffect(
         )
         r2 = lregr.rvalue**2
         # label = '{} {}  r2={:.2f}'.format(len(df), stim, r2)
-        label = "{}".format(legends[stim])
+        label = f"{legends[stim]}"
         ax0.scatter(
             x,
             y,
@@ -548,7 +497,6 @@ def plot_phaseEffect(
 
             qy = np.quantile(y, q=[0.25, 0.5, 0.75])
             h0.axhline(qy[1], color=colors[i], alpha=1)
-            # h0.axhspan(q[0], q[-1], xmin=i*.3, xmax=(i+1)*.3, color=colors[i], alpha=0.3)
             if corner:
                 txt = "{}c{}r".format(len(df.name.unique()), len(df))
                 c0.plot(
@@ -575,13 +523,10 @@ def plot_phaseEffect(
         # if r2 > 0.01:
         #     ax0.plot(x, regr.predict(x), color=colors[i], linestyle= ':',
         #              linewidth=3, alpha=0.5)
-    print("{:=^20}".format(" removed "))
+    print(f"{' removed : ':-^20}")
     print(removed)
-    print("{:=^20}".format(""))
+    print(f"{' removed  ':-^20}")
 
-    # mini = min(ax.get_xlim()[0], ax.get_ylim()[0])
-    # maxi = min(ax.get_xlim()[1], ax.get_ylim()[1])
-    # ax.plot([maxi, mini], [mini, maxi], '-', color='tab:grey', alpha=0.5)
     ax0.legend(loc="upper left")
 
     # ax.set_ylabel('spikes onset relative latency (msec)')
@@ -677,9 +622,7 @@ def plot_phaseEffect(
 
 
 plt.close("all")
-iswitch, xswitch = get_switch(data_df.select_dtypes("number"), plot=True)
-rmse = get_RMSE(data_df, iswitch)
-figure, stat_df = plot_phaseEffect(data_df, parameters, corner=False)
+figure, stat_df = plot_phaseEffect(data_df2, parameters, corner=False)
 print(stat_df.round(1))
 
 save = False
