@@ -241,7 +241,7 @@ def get_RMSE(
     return RMSE
 
 
-def get_switch(datadf: pd.DataFrame, plot: bool = False) -> (float, float):
+def get_switch(df: pd.DataFrame, plot: bool = False) -> (float, float):
     """
     find the switch point for bilinear fit
     Parameters
@@ -258,60 +258,46 @@ def get_switch(datadf: pd.DataFrame, plot: bool = False) -> (float, float):
 
     """
 
-    # see https://datatofish.com/statsmodels-linear-regression/
-
-    df = datadf.copy()
     df = df.dropna().sort_values(by=df.columns[0]).reset_index(drop=True)
     cols = df.columns
-    LR = []  # sum of squared residuals
+    residuals_list = []  # sum of squared residuals
     # perform left and right linear fit
     for i in range(2, len(df) - 1):
-        # left
-        data = df.iloc[:i]
-        # data = df.iloc[:i].copy()
-        X = data[cols[0]]
-        Y = data[cols[1]]
-        X = sm.add_constant(X)  # add a constant
-        model = sm.OLS(Y, X).fit()
-        # squared left linear fit residuals
-        res = np.sum(np.array(model.resid) ** 2)
-        # right
-        data = df.iloc[i:]
-        # data = df.iloc[i:].copy()
-        X = data[cols[0]]
-        Y = data[cols[1]]
-        X = sm.add_constant(X)  # add a constant
-        model = sm.OLS(Y, X).fit()
-        # append squared right linear fit residuals
-        res += np.sum(np.array(model.resid) ** 2)
-        # print(res)
-        LR.append(res)
+        residuals = []
+        for j, data in enumerate([df.iloc[:i], df.iloc[i:]]):
+            X = data[cols[0]]
+            Y = data[cols[1]]
+            X = pd.DataFrame(X).assign(Intercept=1)
+            model = sm.OLS(Y, X).fit()
+            # squared left linear fit residuals
+            residuals.append(np.sum(np.array(model.resid) ** 2))
+
+        residuals_list.append(sum(residuals))
     # find minimum residuals location
-    i_mini = np.argsort(LR)[0]  # index value
-    x_miniLoc = df.loc[i_mini, ["lat_vm_c-p"]][0]  # x value
+    i_mini = np.argsort(residuals_list)[0]  # index value
+    x_mini = df.loc[i_mini, ["lat_vm_c-p"]][0]  # x value
+    print(f"for minimal residuals location {i_mini=} {x_mini= :.1f}")
 
     if plot:
         fig = plt.figure()
         fig.suptitle("residuals for a double linear fit")
         ax = fig.add_subplot(111)
-        ax.plot(LR)
+        ax.plot(residuals_list)
         ax.axvline(i_mini)
-        txt = "i= {} \nx= {}".format(i_mini, x_miniLoc)
+        txt = f"i= {i_mini} \nx= {x_mini}"
         ax.text(x=i_mini + 1, y=ax.get_ylim()[1], s=txt, va="top", ha="left")
         ax.set_ylabel("squared sum of minimals")
         ax.set_xlabel("split index location")
         for spine in ("top", "right"):
             ax.spines[spine].set_visible(False)
         fig.tight_layout()
-    return i_mini, x_miniLoc
+    return i_mini, x_mini
 
 
-def treat_data_latencies(inputdf: pd.DataFrame) -> pd.DataFrame:
-    df = inputdf.copy()
-    # to get advance <-> positive value
-    df[cols[1]] = df[cols[1]] * (-1)
+iswitch, xswitch = get_switch(data_df.select_dtypes("number"), plot=True)
 
-    return df
+
+#%%
 
 
 def plot_phaseEffect(
