@@ -97,11 +97,15 @@ def load_onsets() -> pd.DataFrame:
 
     # manage columns names
     cols = [st.lower() for st in df.columns]
-    cols = [_.replace("correlation", "corr") for _ in cols]
-    cols = [_.replace("airsign", "sig") for _ in cols]
-    cols = [_.replace("psth", "spk") for _ in cols]
-    cols = [_.replace("moy", "vm") for _ in cols]
-    cols = [_.replace("nom", "name") for _ in cols]
+    tochange = {
+        "correlation": "corr",
+        "airsign": "sig",
+        "psth": "spk",
+        "moy": "vm",
+        "nom": "name",
+    }
+    for k, v in tochange.items():
+        cols = [_.replace(k, v) for _ in cols]
     cols = ["_".join(_.split(" ")) for _ in cols]
 
     cols[-4] = cols[-4].replace("lat_sig_", "lat_").split(".")[0]
@@ -123,13 +127,13 @@ def load_onsets() -> pd.DataFrame:
     # remove col 17
     df = df.drop(labels="unnamed:_17", axis=1)
 
-    # convet dtypes
-    cols = []
+    # convert dtypes
     for col in df.columns:
         try:
             df[col] = df[col].astype(float)
-        except:
-            cols.append(col)
+        except ValueError:
+            pass
+            # print(f"can not convert to float '{col}'")
     # limit only to required
     cols = ["stim", "name", "lat_vm_c-p", "lat_spk_seq-c"]
     df = df[cols]
@@ -247,7 +251,7 @@ def get_switch(datadf: pd.DataFrame, plot: bool = False) -> (float, float):
     df = datadf.copy()
     df = df.dropna().sort_values(by=df.columns[0]).reset_index(drop=True)
     cols = df.columns
-    LR = []  ## sum of squared residuals
+    LR = []  # sum of squared residuals
     # perform left and right linear fit
     for i in range(2, len(df) - 1):
         # left
