@@ -147,14 +147,26 @@ data_df = load_onsets()
 
 
 def printLenOfRecording(df: pd.DataFrame):
+    """
+    print the content of the dataframe : names and cells
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
     names = [_ for _ in df.name.unique() if _[:3].isdigit()]
     cells = {_[:5] for _ in names}
 
-    print("=" * 15)
-    print("nb of recordings for latencies = {}".format(len(names)))
+    print(f"{'-' * 20} {len(names)} recordings for latency {'-' * 20}")
     print(names)
-    print("=" * 15)
-    print("nb of unique numId = {}".format(len(cells)))
+    print()
+    print(f"{'-' * 20} {len(cells)} of unique numId {'-' * 20}")
     print(cells)
 
 
