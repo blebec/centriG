@@ -241,6 +241,20 @@ def get_RMSE(
     return RMSE
 
 
+def filter_data(df: pd.DataFrame, params):
+    xscales = params.get("xscales", [df[df.columns[0]].min(), df[df.columns[1]].max()])
+    cols = [_ for _ in df.columns if df[_].dtypes == float]
+    # remove ouliers
+    df.loc[df[cols[0]] < xscales[0]] = np.nan
+    df.loc[df[cols[0]] > xscales[1]] = np.nan
+    # df = df.sort_values(by=df[cols[0]]).dropna()
+    # revert the axis
+    # df = df * (-1)
+    # switch = minimal residual for a bilinear fit
+    # CALL
+    return df
+
+
 def get_switch(df: pd.DataFrame, plot: bool = False) -> (float, float):
     """
     find the switch point for bilinear fit
@@ -294,14 +308,19 @@ def get_switch(df: pd.DataFrame, plot: bool = False) -> (float, float):
     return i_mini, x_mini
 
 
-iswitch, xswitch = get_switch(data_df.select_dtypes("number"), plot=True)
+parameters = {"xscales": [-55, 30], "yscales": [-20, 30]}
+data_df2 = filter_data(data_df, parameters)
+
+parameters["iswitch"], parameters["xswitch"] = get_switch(
+    data_df.select_dtypes("number"), plot=True
+)
 
 
 #%%
 
 
 def plot_phaseEffect(
-    inputdf: pd.DataFrame, corner: bool = False, show_residuals: bool = False
+    inputdf: pd.DataFrame, params, corner: bool = False, show_residuals: bool = False
 ) -> (plt.Figure, pd.DataFrame):
     """
     plot the vm -> time onset transfert function
@@ -341,11 +360,6 @@ def plot_phaseEffect(
     # fig = plt.figure(figsize=(8, 6))
 
     # xscales
-    xmin = -30
-    xmax = 55
-    xscales = [xmin, xmax]
-    ymin = -30
-
     xmin = -55
     xmax = 30
     xscales = [xmin, xmax]
@@ -371,17 +385,19 @@ def plot_phaseEffect(
     ax0.axhline(0, color="tab:blue", linewidth=2, alpha=0.7)
     ax0.axvline(0, color="tab:blue", linewidth=2, alpha=0.7)
 
-    # add global fit
-    df = datadf[cols].copy()  # revert the axis
-    df.loc[df[cols[0]] < xscales[0]] = np.nan
-    df.loc[df[cols[0]] > xscales[1]] = np.nan
-    df = df.sort_values(by=df.columns[0]).dropna()
-    # revert the axis
-    # df = df * (-1)
-    # switch = minimal residual for a bilinear fit
-    # CALL
-    _, xswitch = get_switch(df, plot=show_residuals)
-    temp = df[df[df.columns[0]] <= switch]
+    # =============================================================================
+    #     # add global fit
+    #     df = datadf[cols].copy()  # revert the axis
+    #     df.loc[df[cols[0]] < xscales[0]] = np.nan
+    #     df.loc[df[cols[0]] > xscales[1]] = np.nan
+    #     df = df.sort_values(by=df.columns[0]).dropna()
+    #     # revert the axis
+    #     # df = df * (-1)
+    #     # switch = minimal residual for a bilinear fit
+    #     # CALL
+    #     _, xswitch = get_switch(df, plot=show_residuals)
+    #     temp = df[df[df.columns[0]] <= switch]
+    # =============================================================================
     x = temp[cols[0]]
     y = temp[cols[1]]
     slope1, inter1, r1, p1, _ = stats.linregress(x, y)
