@@ -11,14 +11,13 @@ import os
 from datetime import datetime
 from importlib import reload
 from bisect import bisect
-from typing import Union
 
 # from itertools import zip_longest
 
 import matplotlib.pyplot as plt
+import matplotlib.ticker as mticker
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 import config
 
@@ -181,8 +180,8 @@ def load_gmercier2() -> pd.DataFrame:
 
 
 # speed and baudot
-bd_df, sp_df = load_speed_data()
-summary_df = build_summary(bd_df, sp_df)
+bd_df, speed_df = load_speed_data()
+summary_df = build_summary(bd_df, speed_df)
 # replaced cgdf by spdf (speeddf)
 
 # gmercier
@@ -198,7 +197,7 @@ pop_df = load_cgpopdf()
 
 def samebin(
     popdf: pd.DataFrame = pop_df,
-    spdf: pd.DataFrame = sp_df,
+    spdf: pd.DataFrame = speed_df,
     bddf: pd.DataFrame = bd_df,
     gmdf: pd.DataFrame = gm_df,
     brdf: pd.DataFrame = br_df,
@@ -288,11 +287,9 @@ def weighted_avg_and_std(values: pd.Series, weights: pd.Series):
 
 
 w_mean, w_std = weighted_avg_and_std(br_df.speed_lower + 0.025, br_df.impulse)
-print("weighted mean = {:.3f}, weighted std = {:.3f} for impulse".format(w_mean, w_std))
+print(f"impulse : {w_mean:.2f} ± {w_std:.2f} (weighted mean ± std) ")
 w_mean, w_std = weighted_avg_and_std(br_df.speed_lower + 0.025, br_df.long_bar)
-print(
-    "weighted mean = {:.3f}, weighted std = {:.3f} for long_bar".format(w_mean, w_std)
-)
+print(f"long_bar : {w_mean:.2f} ± {w_std:.2f} (weighted mean ± std)")
 
 #%%
 
@@ -314,7 +311,7 @@ def stats_brdf(brdf: pd.DataFrame):
                 expansion.extend(temp)
         expansion = pd.Series(expansion)
         res = expansion.aggregate(["mean", "std", "median", "mad"])
-        print("f{col:-^20}")
+        print(f"{col:-^20}")
         print(res, "\n")
 
 
@@ -360,11 +357,11 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
         alpha=0.6,
         label="baudot",
     )
-    txt = f"n = {df.popcg.sum():.0f} cells"
+    txt = f"n= {df.popcg.sum():.0f} cells"
     ax.text(
         x=0.8, y=0.6, s=txt, color="k", va="bottom", ha="left", transform=ax.transAxes
     )
-    txt = "n = {df.bd.sum():.0f} cells"
+    txt = f"n= {df.bd.sum():.0f} cells"
     ax.text(
         x=0.8,
         y=0.5,
@@ -374,7 +371,7 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
         ha="left",
         transform=ax.transAxes,
     )
-    ax.set_xlabel(f"{'optimal apparent speed'.title()} (°/sec)")
+    ax.set_xlabel("optimal apparent speed ".title() + "(°/sec)")
     ax.set_ylabel("nb of Cells")
     ax.legend()
 
@@ -399,7 +396,7 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
 plt.close("all")
 anot = True
 
-fig = plot_optimal_speed(summary_df)
+fig = plot_optimal_speed(bd_df)
 save = False
 if save:
     file = "optSpeed.pdf"
@@ -512,35 +509,30 @@ if save:
         fig.savefig(file_name)
 
 #%%
-# def plot_both(df0, df1, df2, df3):
-def plot_both(gdf: pd.DataFrame = bined_df):
+def plot_both(bineddf: pd.DataFrame = bined_df):
+    """
+    plot both histo (up and down)
 
-    # fig = plt.figure(figsize=(4.3, 8))
-    # axes = []
-    # ax = fig.add_subplot(211)
-    # axes.append(ax)
-    # ax = fig.add_subplot(212, sharex=ax, sharey=ax)
-    # axes.append(ax)
+    Parameters
+    ----------
+    bineddf : pd.DataFrame, bined_df.
 
-    # fig, ax = plt.subplots(figsize=(4.3, 8))
+    Returns
+    -------
+    fig : plt.figure
+
+    """
+
     fig, ax = plt.subplots(figsize=(4.3, 16))
     # gerenal features
-    x = gdf.index
+    x = bineddf.index
     width = (max(x) - min(x)) / (len(x) - 1) * 0.98
     align = "edge"
 
-    # top
-    # ax = axes[0]
-
-    # plot grey +
-    # ax.bar(x, height=gdf.br_impulse + gdf.br_long_bar, width=width,
-    #         align=align,  color='w', alpha=0.7,
-    #         edgecolor='tab:grey')
-
-    # plor mirror low
+    # plot mirror low
     ax.bar(
         x,
-        height=(gdf.br_long_bar * -1),
+        height=(bineddf.br_long_bar * -1),
         width=width,
         align=align,
         alpha=0.3,
@@ -549,8 +541,8 @@ def plot_both(gdf: pd.DataFrame = bined_df):
     )
     ax.bar(
         x,
-        height=(gdf.br_impulse * -1),
-        bottom=(gdf.br_long_bar * -1),
+        height=(bineddf.br_impulse * -1),
+        bottom=(bineddf.br_long_bar * -1),
         width=width,
         align=align,
         alpha=0.3,
@@ -558,12 +550,12 @@ def plot_both(gdf: pd.DataFrame = bined_df):
         edgecolor="tab:grey",
     )
 
-    gdf["pool"] = 0
-    txt = f"Radial n={gdf.cgpop.sum():.0f}"
+    bineddf["pool"] = 0  # ref
+    txt = f"Radial n={bineddf.cgpop.sum():.0f}"
     ax.bar(
         x,
-        gdf.cgpop,
-        bottom=gdf.pool,
+        bineddf.cgpop,
+        bottom=bineddf.pool,
         width=width,
         align=align,
         color=speed_colors["red"],
@@ -571,12 +563,12 @@ def plot_both(gdf: pd.DataFrame = bined_df):
         edgecolor="k",
         label=txt,
     )
-    gdf.pool += gdf.cgpop
-    txt = f"Cardinal n={gdf.bd.sum():.0f}"
+    bineddf.pool += bineddf.cgpop
+    txt = f"Cardinal n={bineddf.bd.sum():.0f}"
     ax.bar(
         x,
-        gdf.bd,
-        bottom=gdf.pool,
+        bineddf.bd,
+        bottom=bineddf.pool,
         width=width,
         align=align,
         color=speed_colors["yellow"],
@@ -584,12 +576,12 @@ def plot_both(gdf: pd.DataFrame = bined_df):
         edgecolor="k",
         label=txt,
     )
-    gdf.pool += gdf.bd
-    txt = f"2-stroke n={gdf.gm.sum():.0f}"
+    bineddf.pool += bineddf.bd
+    txt = f"2-stroke n={bineddf.gm.sum():.0f}"
     ax.bar(
         x,
-        gdf.gm,
-        bottom=gdf.pool,
+        bineddf.gm,
+        bottom=bineddf.pool,
         width=width,
         align=align,
         color=speed_colors["orange"],
@@ -597,23 +589,26 @@ def plot_both(gdf: pd.DataFrame = bined_df):
         edgecolor="k",
         label=txt,
     )
-    gdf.pool += gdf.gm
+    bineddf.pool += bineddf.gm
 
     txt = "Inferred Cortical Speed (mm/ms)"
     ax.set_xlabel(txt)
     ax.set_ylabel("Nb of cells")
     ax.legend()
     # set the number off (all) cells in positive
-    ax.set_yticklabels([str(int(abs(_))) for _ in ax.get_yticks()])
+    ax.yaxis.set_major_locator(mticker.MaxNLocator(7))
+    ticks_loc = ax.get_yticks().tolist()
+    ax.yaxis.set_major_locator(mticker.FixedLocator(ticks_loc[1:-1]))
+    ax.set_yticklabels([abs(int(_)) for _ in ticks_loc[1:-1]])
 
     # # bottom
     # ax = axes[1]
-    # txt = 'Bar n={:.0f}'.format(gdf.br_long_bar.sum())
-    # ax.bar(x, height=gdf.br_long_bar, width=width, align=align, alpha=0.8,
+    # txt = 'Bar n={:.0f}'.format(bineddf.br_long_bar.sum())
+    # ax.bar(x, height=bineddf.br_long_bar, width=width, align=align, alpha=0.8,
     #        color=std_colors['blue'], edgecolor='k',
     #        label=txt)
-    # txt = 'SN n={:.0f}'.format(gdf.br_impulse.sum())
-    # ax.bar(x, height=gdf.br_impulse, bottom=gdf.br_long_bar, width=width,
+    # txt = 'SN n={:.0f}'.format(bineddf.br_impulse.sum())
+    # ax.bar(x, height=bineddf.br_impulse, bottom=bineddf.br_long_bar, width=width,
     #        align=align, color=std_colors['green'],
     #        edgecolor='k', alpha=0.8, label=txt)
     # # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
@@ -656,7 +651,7 @@ def save_fig10_data_histo(do_save: bool = False):
     cols = [_.replace("gm", "twoStrokes") for _ in cols]
     cols = [_.replace("br", "bringuier") for _ in cols]
     df.columns = cols
-    print("=" * 20, f"{os.path.basename(data_savename)}({key})")
+    print("-" * 20, f"{os.path.basename(data_savename)}({key})")
     for item in cols:
         print(item)
     print()
@@ -687,16 +682,30 @@ save_fig10_data_histo(False)
 
 
 def hist_summary(
-    brdf: pd.DataFrame,
-    summary_df: pd.DataFrame,
-    cgdf: pd.DataFrame,
-    df: pd.DataFrame,
-    gmdf: pd.DataFrame,
+    brdf: pd.DataFrame = br_df,
+    summarydf: pd.DataFrame = summary_df,
+    cgdf: pd.DataFrame = speed_df,
+    df: pd.DataFrame = pop_df,
+    gmdf: pd.DataFrame = gm_df,
     maxx=1,
-):
+) -> plt.Figure:
     """
-    histogramme distribution of the main results from the lab
+    histogramme distribution of the main results from the lab (is one hist by experiment)
 
+    Parameters
+    ----------
+    brdf : pd.DataFrame <-> bringuier
+    summarydf : pd.DataFrame <-> summary
+    cgdf : pd.DataFrame <-> centrigabor
+    df : pd.DataFrame
+    gmdf : pd.DataFrame <-> gerard mercier
+    maxx : int (default is 1)
+
+    >>>> call = br_df, summary_df, speed_df, pop_df, gm_df
+
+    Returns
+    -------
+    plt.Figure
     """
 
     def compute_speed_histo(speeds, bins=40):
@@ -768,7 +777,7 @@ def hist_summary(
     txt = "n = 27 \n ({} measures)".format(brdf.long_bar.sum())
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (brdf.long_bar * (brdf.speed_lower + 0.025)[:-1]).sum() / brdf.long_bar.sum()
-    txt = "mean ~ {:.2f}".format(moy)
+    txt = "mean ~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -783,8 +792,8 @@ def hist_summary(
 
     # baudot
     ax = axes[2]
-    x = summary_df.index / 1000
-    height = summary_df.bd_cells / summary_df.bd_cells.sum()
+    x = summarydf.index / 1000
+    height = summarydf.bd_cells / summarydf.bd_cells.sum()
     width = (max(x) - min(x)) / (len(x) - 1)
     # width = 0.02
     ax.bar(
@@ -796,10 +805,10 @@ def hist_summary(
         alpha=0.8,
         label="baudot",
     )
-    txt = "n = {}".format(int(summary_df.bd_cells.sum()))
+    txt = f"n= {int(summarydf.bd_cells.sum())}"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
-    moy = (summary_df.bd_cells * x).sum() / summary_df.bd_cells.sum()
-    txt = "mean ~ {:.2f}".format(moy)
+    moy = (summarydf.bd_cells * x).sum() / summarydf.bd_cells.sum()
+    txt = "mean ~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -827,7 +836,7 @@ def hist_summary(
         alpha=0.8,
         label="gmercier",
     )
-    txt = "n = {}".format(gmdf.cells.sum())
+    txt = f"n= {gmdf.cells.sum()}"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (gmdf.cells * x).sum() / gmdf.cells.sum()
     txt = "mean ~ {:.2f}".format(moy)
@@ -923,8 +932,8 @@ def hist_summary(
 
 plt.close("all")
 
-fig1 = hist_summary(br_df, summary_df, sp_df, pop_df, gm_df)
-fig2 = hist_summary(br_df, summary_df, sp_df, pop_df, gm_df, maxx=0.5)
+fig1 = hist_summary(br_df, summary_df, speed_df, pop_df, gm_df)
+fig2 = hist_summary(br_df, summary_df, speed_df, pop_df, gm_df, maxx=0.5)
 save = False
 if save:
     file = "hist_summary.pdf"
@@ -1015,63 +1024,3 @@ if save:
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
     fig.savefig(file_name)
-
-
-#%% for histo
-plt.close("all")
-from scipy.optimize import leastsq
-
-
-gdf = bined_df.copy()
-fig, ax = plt.subplots(figsize=(7, 6))
-axT = ax.twinx()
-txt = "Bar n={:.0f}".format(gdf.br_long_bar.sum())
-x = gdf.index
-width = (max(x) - min(x)) / (len(x) - 1) * 0.98
-align = "edge"
-
-ax.bar(
-    x,
-    height=gdf.br_long_bar,
-    width=width,
-    align=align,
-    alpha=0.8,
-    color=std_colors["blue"],
-    edgecolor="k",
-    label=txt,
-)
-txt = "SN n={:.0f}".format(gdf.br_impulse.sum())
-ax.bar(
-    x,
-    height=gdf.br_impulse,
-    bottom=gdf.br_long_bar,
-    width=width,
-    align=align,
-    color=std_colors["green"],
-    edgecolor="k",
-    alpha=0.8,
-    label=txt,
-)
-# txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
-txt = "Propagation Speed (mm/ms)"
-ax.set_xlabel(txt)
-ax.set_ylabel("Nb of measures")
-ax.legend()
-# bottom kde
-kde = stats.gaussian_kde(gdf.br_impulse)
-xmin, xmax = ax.get_xlim()
-x_kde = np.arange(xmin, xmax, 0.05)
-axT.plot(
-    x_kde, kde(x_kde), color=std_colors["green"], alpha=1, linewidth=2, linestyle="-"
-)
-
-fitfunc = lambda p, x: p[0] * np.exp(-0.5 * ((x - p[1]) / p[2]) ** 2) + p[3]
-errfunc = lambda p, x, y: (y - fitfunc(p, x))
-
-init = [1.0, 0.5, 0.5, 0.5]
-
-x_data = gdf.index.values
-y_data = gdf.br_impulse
-
-out = leastsq(errfunc, init, args=(x_data, y_data))
-c = out[0]

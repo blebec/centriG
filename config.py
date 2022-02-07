@@ -49,6 +49,10 @@ def build_paths():
     paths["hdf"] = os.path.join(
         paths["owncFig"], "pythonPreview", "current", "hdf_data"
     )
+    paths["figdata"] = os.path.join(
+        paths["owncFig"], "pythonPreview", "current", "figdata"
+    )
+
     return paths
 
 
