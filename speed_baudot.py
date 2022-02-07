@@ -684,8 +684,8 @@ save_fig10_data_histo(False)
 def hist_summary(
     brdf: pd.DataFrame = br_df,
     summarydf: pd.DataFrame = summary_df,
-    cgdf: pd.DataFrame = speed_df,
-    df: pd.DataFrame = pop_df,
+    speeddf: pd.DataFrame = speed_df,
+    popdf: pd.DataFrame = pop_df,
     gmdf: pd.DataFrame = gm_df,
     maxx=1,
 ) -> plt.Figure:
@@ -699,7 +699,7 @@ def hist_summary(
     cgdf : pd.DataFrame <-> centrigabor
     df : pd.DataFrame
     gmdf : pd.DataFrame <-> gerard mercier
-    maxx : int (default is 1)
+    maxx : float (default is 1) <-> max speed to display (xscale)
 
     >>>> call = br_df, summary_df, speed_df, pop_df, gm_df
 
@@ -719,7 +719,6 @@ def hist_summary(
     fig, axes = plt.subplots(
         figsize=(8.6, 12), nrows=2, ncols=3, sharey=True, sharex=True
     )
-    # ax.bar(x[:-1], height, width=width, color='tab:red', alpha=0.6)
     axes = axes.flatten()
 
     # bringuier flash
@@ -740,10 +739,10 @@ def hist_summary(
         edgecolor="k",
         label="impulse bringuier",
     )
-    txt = "n = 37 \n ({} measures)".format(brdf.impulse.sum())
+    txt = f"n = 37 \n ({int(brdf.impulse.sum())} measures)"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (brdf.impulse * (brdf.speed_lower + 0.025))[:-1].sum() / brdf.impulse.sum()
-    txt = "mean ~ {:.2f}".format(moy)
+    txt = f"mean ~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -774,10 +773,10 @@ def hist_summary(
         edgecolor="k",
         label="bar bringuier",
     )
-    txt = "n = 27 \n ({} measures)".format(brdf.long_bar.sum())
+    txt = f"n = 27 \n ({int(brdf.long_bar.sum())} measures)"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (brdf.long_bar * (brdf.speed_lower + 0.025)[:-1]).sum() / brdf.long_bar.sum()
-    txt = "mean ~ {moy:.2f}"
+    txt = f"mean ~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -808,7 +807,7 @@ def hist_summary(
     txt = f"n= {int(summarydf.bd_cells.sum())}"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (summarydf.bd_cells * x).sum() / summarydf.bd_cells.sum()
-    txt = "mean ~ {moy:.2f}"
+    txt = f"mean~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -855,17 +854,17 @@ def hist_summary(
     # centripop
     ax = axes[4]
     ax.bar(
-        *compute_speed_histo(df.speed / 1000),
+        *compute_speed_histo(popdf.speed / 1000),
         color="tab:red",
         edgecolor="k",
         alpha=0.8,
-        label="centrigabor population",
+        label="cg population",
     )
-    txt = "n = {}".format(len(df))
+    txt = "n = {}".format(len(popdf))
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
 
     txt = "mean ± std : \n {:.2f} ± {:.2f}".format(
-        (df.speed / 1000).mean(), (df.speed / 1000).std()
+        (popdf.speed / 1000).mean(), (popdf.speed / 1000).std()
     )
     ax.text(
         x=0.7,
@@ -876,22 +875,22 @@ def hist_summary(
         color="tab:red",
         transform=ax.transAxes,
     )
-    ax.axvline((df.speed / 1000).mean(), color="tab:red")
+    ax.axvline((popdf.speed / 1000).mean(), color="tab:red")
     ax.legend()
 
     # speed pop
     ax = axes[5]
     ax.bar(
-        *compute_speed_histo(cgdf.speed_isi0 / 1000),
+        *compute_speed_histo(speeddf.speed_isi0 / 1000),
         color="tab:orange",
         edgecolor="k",
         alpha=0.8,
         label="speed population",
     )
-    txt = "n = {}".format(len(cgdf))
+    txt = "n = {}".format(len(speeddf))
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     txt = "mean ± std : \n {:.2f} ± {:.2f}".format(
-        (cgdf.speed_isi0 / 1000).mean(), (cgdf.speed_isi0 / 1000).std()
+        (speeddf.speed_isi0 / 1000).mean(), (speeddf.speed_isi0 / 1000).std()
     )
     ax.text(
         x=0.7,
@@ -902,7 +901,7 @@ def hist_summary(
         color="tab:orange",
         transform=ax.transAxes,
     )
-    ax.axvline((cgdf.speed_isi0 / 1000).mean(), color="tab:orange")
+    ax.axvline((speeddf.speed_isi0 / 1000).mean(), color="tab:orange")
     ax.legend()
 
     fig.suptitle("summary for speed")
@@ -932,8 +931,8 @@ def hist_summary(
 
 plt.close("all")
 
-fig1 = hist_summary(br_df, summary_df, speed_df, pop_df, gm_df)
-fig2 = hist_summary(br_df, summary_df, speed_df, pop_df, gm_df, maxx=0.5)
+fig1 = hist_summary()
+fig2 = hist_summary(maxx=0.5)
 save = False
 if save:
     file = "hist_summary.pdf"
