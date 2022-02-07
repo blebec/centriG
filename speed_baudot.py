@@ -11,13 +11,14 @@ import os
 from datetime import datetime
 from importlib import reload
 from bisect import bisect
+from typing import Union
 
 # from itertools import zip_longest
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import scipy.stats as stats
+from scipy import stats
 
 import config
 
@@ -44,6 +45,17 @@ paths["data"] = os.path.join(paths.get("owncFig"), "data")
 
 
 def load_speed_data():
+    """
+    load the data files
+
+    Returns
+    -------
+    bddf : pd.DataFrame
+        baudot data
+    cgdf : pd.DataFrame
+        centrigabor data.
+
+    """
     file = "baudot.csv"
     filename = os.path.join(paths.get("data"), file)
     bddf = pd.read_csv(filename)
@@ -62,11 +74,22 @@ def load_speed_data():
     return bddf, cgdf
 
 
-def build_summary(bddf, cgdf):
+def build_summary(bddf: pd.DataFrame, cgdf: pd.DataFrame) -> pd.DataFrame:
     """
     class the number of cells
-    input = baudot dataframe & centrigabor dataframe
-    output = summary dataframe (nb of cells, upper interval spped limit)
+
+    Parameters
+    ----------
+    bddf : pd.DataFrame
+        baudot data.
+    cgdf : pd.DataFrame
+        centrigabor data.
+
+    Returns
+    -------
+    pd.DataFrame
+        summary dataframe (nb of cells, upper interval spped limit).
+
     """
     # count number of cells
     def class_speed(s):
@@ -79,16 +102,16 @@ def build_summary(bddf, cgdf):
     cgNumb = dict(cgdf.optiMax.value_counts())
     bdNumb = dict(bddf.set_index("optiMax"))
 
-    summary_df = pd.DataFrame(index=range(50, 525, 25))
-    summary_df = summary_df.join(pd.DataFrame(bdNumb))
-    summary_df.columns = ["bd_cells"]
-    summary_df["cg_cells"] = pd.Series(cgNumb)
-    summary_df = summary_df.fillna(0)
-    summary_df = summary_df.astype(int)
-    return summary_df
+    summarydf = pd.DataFrame(index=range(50, 525, 25))
+    summarydf = summarydf.join(pd.DataFrame(bdNumb))
+    summarydf.columns = ["bd_cells"]
+    summarydf["cg_cells"] = pd.Series(cgNumb)
+    summarydf = summarydf.fillna(0)
+    summarydf = summarydf.astype(int)
+    return summarydf
 
 
-def load_cgpopdf():
+def load_cgpopdf() -> pd.DataFrame:
     """
     load the whole centrigabor population  (n=37)
 
@@ -104,10 +127,18 @@ def load_cgpopdf():
     return df
 
 
-def load_bringuier():
+def load_bringuier() -> pd.DataFrame:
+    """
+    load the bringuier data
+
+    Returns
+    -------
+    brdf : pd.DataFrame
+    """
     filename = os.path.join(paths.get("data"), "bringuier.csv")
     brdf = pd.read_csv(filename, sep="\t", decimal=",")
-    brdf.speed_upper = brdf.speed_upper  ## * 1000  # 1mm / visual°
+    brdf = pd.DataFrame(brdf)
+    # brdf.speed_upper = brdf.speed_upper  ## * 1000  # 1mm / visual°
     # unstack
     temp = brdf.impulse.fillna(0) - brdf.long_bar.fillna(0)
     temp = temp.apply(lambda x: x if x >= 0 else 0)
@@ -117,7 +148,14 @@ def load_bringuier():
     return brdf
 
 
-def load_gmercier():
+def load_gmercier() -> pd.DataFrame:
+    """
+    load the gerardmercier (hexagabor) data
+
+    Returns
+    -------
+    df : pd.DataFrame
+    """
     file = "gmercier.csv"
     filename = os.path.join(paths.get("data"), file)
     df = pd.read_csv(filename, sep="\t")
@@ -125,7 +163,14 @@ def load_gmercier():
     return df
 
 
-def load_gmercier2():
+def load_gmercier2() -> pd.DataFrame:
+    """
+    load the gerardmercier (hexagabor) data
+
+    Returns
+    -------
+    df : pd.DataFrame
+    """
     file = "gmercier2.csv"
     filename = os.path.join(paths.get("data"), file)
     df = pd.read_csv(filename, sep="\t", decimal=",")
@@ -136,23 +181,46 @@ def load_gmercier2():
 
 
 # speed and baudot
-bddf, spdf = load_speed_data()
-summary_df = build_summary(bddf, spdf)
+bd_df, sp_df = load_speed_data()
+summary_df = build_summary(bd_df, sp_df)
 # replaced cgdf by spdf (speeddf)
 
 # gmercier
-gmdf = load_gmercier()
-gmdf2 = load_gmercier2()
+gm_df = load_gmercier()
+gm_df2 = load_gmercier2()
 
 # binguier
-brdf = load_bringuier()
+br_df = load_bringuier()
 
 # cg population
-popdf = load_cgpopdf()
+pop_df = load_cgpopdf()
 
-#%
-def samebin(popdf=popdf, spdf=spdf, bddf=bddf, gmdf=gmdf, brdf=brdf):
-    def compute_speed_histo(speeds, bins=40):
+
+def samebin(
+    popdf: pd.DataFrame = pop_df,
+    spdf: pd.DataFrame = sp_df,
+    bddf: pd.DataFrame = bd_df,
+    gmdf: pd.DataFrame = gm_df,
+    brdf: pd.DataFrame = br_df,
+) -> pd.DataFrame:
+    """
+    resample and group the data to have all using the same bin
+
+    Parameters
+    ----------
+    popdf : pd.DataFrame <-> centrigabor population data
+    spdf : pd.DataFrame <-> centrigabor speed data
+    bddf : pd.DataFrame <-> baudot data
+    gmdf : pd.DataFrame <-> gérard mercier data
+    brdf : pd.DataFrame <-> bringuier data
+
+    Returns
+    -------
+    pd.DataFrame <-> data with the same bin
+
+    """
+
+    def compute_speed_histo(speeds: pd.Series, bins: int = 40):
         # speeds = df.speed/1000
         height, x = np.histogram(speeds, bins=bins, range=(0, 1))
         # normalize
@@ -207,7 +275,7 @@ bined_df = samebin()
 # brdf['long_bar_contr'] = (brdf.speed_lower + 0.025) * brdf['long_bar']
 # np.average(values=brdf.speed_lower + 0.025, weights=brdf.impulse)
 # np.average(brdf.speed_lower + 0.025, weights=brdf.impulse)
-def weighted_avg_and_std(values, weights):
+def weighted_avg_and_std(values: pd.Series, weights: pd.Series):
     """
     Return the weighted average and standard deviation.
 
@@ -219,9 +287,9 @@ def weighted_avg_and_std(values, weights):
     return (average, np.sqrt(variance))
 
 
-w_mean, w_std = weighted_avg_and_std(brdf.speed_lower + 0.025, brdf.impulse)
+w_mean, w_std = weighted_avg_and_std(br_df.speed_lower + 0.025, br_df.impulse)
 print("weighted mean = {:.3f}, weighted std = {:.3f} for impulse".format(w_mean, w_std))
-w_mean, w_std = weighted_avg_and_std(brdf.speed_lower + 0.025, brdf.long_bar)
+w_mean, w_std = weighted_avg_and_std(br_df.speed_lower + 0.025, br_df.long_bar)
 print(
     "weighted mean = {:.3f}, weighted std = {:.3f} for long_bar".format(w_mean, w_std)
 )
@@ -229,7 +297,7 @@ print(
 #%%
 
 
-def stats_brdf(brdf):
+def stats_brdf(brdf: pd.DataFrame):
     """perfoem a weighted stat from histogram data"""
     pd.set_option("display.float_format", lambda x: "%.2f" % x)
 
@@ -246,17 +314,17 @@ def stats_brdf(brdf):
                 expansion.extend(temp)
         expansion = pd.Series(expansion)
         res = expansion.aggregate(["mean", "std", "median", "mad"])
-        print("{:-^20}".format(col))
+        print("f{col:-^20}")
         print(res, "\n")
 
 
-stats_brdf(brdf)
+stats_brdf(br_df)
 
 #%%
 
 
-def plot_optimal_speed(df):
-
+def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df):
+    """plot speed"""
     # prepare data
     height_cg, x = np.histogram(popdf.speed, bins=18, range=(50, 500))
     x = x[:-1]
@@ -292,11 +360,11 @@ def plot_optimal_speed(df):
         alpha=0.6,
         label="baudot",
     )
-    txt = "n = {:.0f} cells".format(df.popcg.sum())
+    txt = f"n = {df.popcg.sum():.0f} cells"
     ax.text(
         x=0.8, y=0.6, s=txt, color="k", va="bottom", ha="left", transform=ax.transAxes
     )
-    txt = "n = {:.0f} cells".format(df.bd.sum())
+    txt = "n = {df.bd.sum():.0f} cells"
     ax.text(
         x=0.8,
         y=0.5,
@@ -306,7 +374,7 @@ def plot_optimal_speed(df):
         ha="left",
         transform=ax.transAxes,
     )
-    ax.set_xlabel("{} (°/sec)".format("optimal apparent speed".title()))
+    ax.set_xlabel(f"{'optimal apparent speed'.title()} (°/sec)")
     ax.set_ylabel("nb of Cells")
     ax.legend()
 
@@ -319,7 +387,7 @@ def plot_optimal_speed(df):
         fig.text(
             0.99,
             0.01,
-            "speedBaudot.py:plot_optimal_speed",
+            "speed_baudot.py:plot_optimal_speed",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -336,14 +404,14 @@ save = False
 if save:
     file = "optSpeed.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig.savefig(file_name)
 
 #%%
 plt.close("all")
 
 
-def plot_optimal_bringuier(gdf=bined_df):
+def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
     """
     plot an histogram of the optimal cortical horizontal speed
     Parameters
@@ -360,7 +428,7 @@ def plot_optimal_bringuier(gdf=bined_df):
     width = (max(x) - min(x)) / (len(x) - 1) * 0.98
     align = "edge"
 
-    txt = "Bar n={:.0f}".format(gdf.br_long_bar.sum())
+    txt = f"Bar n={gdf.br_long_bar.sum():.0f}"
     ax.bar(
         x,
         height=gdf.br_long_bar,
@@ -371,11 +439,12 @@ def plot_optimal_bringuier(gdf=bined_df):
         edgecolor="k",
         label=txt,
     )
-    txt = "SN n={:.0f}".format(gdf.br_impulse.sum())
+    gdf["pool"] = gdf.br_long_bar
+    txt = f"SN n={gdf.br_impulse.sum():.0f}"
     ax.bar(
         x,
         height=gdf.br_impulse,
-        bottom=gdf.br_long_bar,
+        bottom=gdf.pool,
         width=width,
         align=align,
         color=std_colors["green"],
@@ -383,6 +452,22 @@ def plot_optimal_bringuier(gdf=bined_df):
         alpha=0.8,
         label=txt,
     )
+    # >>>>>>>>>>>>  added 21 strokes
+    gdf.pool += gdf.br_impulse
+    txt = f"2-stroke n={gdf.gm.sum():.0f}"
+    ax.bar(
+        x,
+        gdf.gm,
+        bottom=gdf.pool,
+        width=width,
+        align=align,
+        color=speed_colors["orange"],
+        alpha=0.6,
+        edgecolor="k",
+        label=txt,
+    )
+    # <<<<<<<<<<<<<<
+
     # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
     txt = "Propagation Speed (mm/ms)"
     ax.set_xlabel(txt)
@@ -401,7 +486,7 @@ def plot_optimal_bringuier(gdf=bined_df):
         fig.text(
             0.99,
             0.01,
-            "speedBaudot.py:plot_optimal_bringuier",
+            "speed_baudot.py:plot_optimal_bringuier",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -417,18 +502,18 @@ save = False
 if save:
     file = "optSpreedBringuier.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig.savefig(file_name)
     # update current
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
     file = "o1_optSpeedBringuier"
     for ext in [".png", ".pdf", ".svg"]:
-        filename = os.path.join(dirname, (file + ext))
-        fig.savefig(filename)
+        file_name = os.path.join(dirname, (file + ext))
+        fig.savefig(file_name)
 
 #%%
 # def plot_both(df0, df1, df2, df3):
-def plot_both(gdf=bined_df):
+def plot_both(gdf: pd.DataFrame = bined_df):
 
     # fig = plt.figure(figsize=(4.3, 8))
     # axes = []
@@ -474,7 +559,7 @@ def plot_both(gdf=bined_df):
     )
 
     gdf["pool"] = 0
-    txt = "Radial n={:.0f}".format(gdf.cgpop.sum())
+    txt = f"Radial n={gdf.cgpop.sum():.0f}"
     ax.bar(
         x,
         gdf.cgpop,
@@ -487,7 +572,7 @@ def plot_both(gdf=bined_df):
         label=txt,
     )
     gdf.pool += gdf.cgpop
-    txt = "Cardinal n={:.0f}".format(gdf.bd.sum())
+    txt = f"Cardinal n={gdf.bd.sum():.0f}"
     ax.bar(
         x,
         gdf.bd,
@@ -500,7 +585,7 @@ def plot_both(gdf=bined_df):
         label=txt,
     )
     gdf.pool += gdf.bd
-    txt = "2-stroke n={:.0f}".format(gdf.gm.sum())
+    txt = f"2-stroke n={gdf.gm.sum():.0f}"
     ax.bar(
         x,
         gdf.gm,
@@ -549,7 +634,7 @@ def plot_both(gdf=bined_df):
     if anot:
         date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         fig.text(
-            0.99, 0.01, "speedBaudot.py:plot_both", ha="right", va="bottom", alpha=0.4
+            0.99, 0.01, "speed_baudot.py:plot_both", ha="right", va="bottom", alpha=0.4
         )
         fig.text(0.01, 0.01, date, ha="left", va="bottom", alpha=0.4)
         # fig.text(0.5, 0.01, 'cortical speed',
@@ -557,7 +642,7 @@ def plot_both(gdf=bined_df):
     return fig
 
 
-def save_fig10_data_histo(do_save=False):
+def save_fig10_data_histo(do_save: bool = False):
     """save the data used to build the figure"""
 
     data_savename = os.path.join(paths["figdata"], "fig10.hdf")
@@ -571,7 +656,7 @@ def save_fig10_data_histo(do_save=False):
     cols = [_.replace("gm", "twoStrokes") for _ in cols]
     cols = [_.replace("br", "bringuier") for _ in cols]
     df.columns = cols
-    print("=" * 20, "{}({})".format(os.path.basename(data_savename), key))
+    print("=" * 20, f"{os.path.basename(data_savename)}({key})")
     for item in cols:
         print(item)
     print()
@@ -585,14 +670,14 @@ save = False
 if save:
     file = "optSpreedBoth.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig.savefig(file_name)
     # update current
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
     file = "f9_optSpreedBoth"
     for ext in [".png", ".pdf", ".svg"]:
-        filename = os.path.join(dirname, (file + ext))
-        fig.savefig(filename)
+        file_name = os.path.join(dirname, (file + ext))
+        fig.savefig(file_name)
 
 save_fig10_data_histo(False)
 
@@ -601,7 +686,14 @@ save_fig10_data_histo(False)
 # targetbins = [round(_, 2) for _ in targetbins]
 
 
-def hist_summary(brdf, summary_df, cgdf, df, gmdf, maxx=1):
+def hist_summary(
+    brdf: pd.DataFrame,
+    summary_df: pd.DataFrame,
+    cgdf: pd.DataFrame,
+    df: pd.DataFrame,
+    gmdf: pd.DataFrame,
+    maxx=1,
+):
     """
     histogramme distribution of the main results from the lab
 
@@ -758,7 +850,7 @@ def hist_summary(brdf, summary_df, cgdf, df, gmdf, maxx=1):
         color="tab:red",
         edgecolor="k",
         alpha=0.8,
-        label="centrigabor population"
+        label="centrigabor population",
     )
     txt = "n = {}".format(len(df))
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
@@ -785,7 +877,7 @@ def hist_summary(brdf, summary_df, cgdf, df, gmdf, maxx=1):
         color="tab:orange",
         edgecolor="k",
         alpha=0.8,
-        label="speed population"
+        label="speed population",
     )
     txt = "n = {}".format(len(cgdf))
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
@@ -818,7 +910,7 @@ def hist_summary(brdf, summary_df, cgdf, df, gmdf, maxx=1):
         fig.text(
             0.99,
             0.01,
-            "speedBaudot.py:hist_summary",
+            "speed_baudot.py:hist_summary",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -831,18 +923,18 @@ def hist_summary(brdf, summary_df, cgdf, df, gmdf, maxx=1):
 
 plt.close("all")
 
-fig1 = hist_summary(brdf, summary_df, spdf, popdf, gmdf)
-fig2 = hist_summary(brdf, summary_df, spdf, popdf, gmdf, maxx=0.5)
+fig1 = hist_summary(br_df, summary_df, sp_df, pop_df, gm_df)
+fig2 = hist_summary(br_df, summary_df, sp_df, pop_df, gm_df, maxx=0.5)
 save = False
 if save:
     file = "hist_summary.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig1.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig1.savefig(file_name)
     file = "hist_summary05.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig2.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig2.savefig(file_name)
 
 
 #%% summary dot plots
@@ -852,7 +944,7 @@ plt.rcParams["axes.ymargin"] = 0.05
 plt.close("all")
 
 
-def dotPlotLatency(df):
+def dotPlotLatency(df: pd.DataFrame) -> plt.Figure:
     fig = plt.figure(figsize=(6, 8))
     ax = fig.add_subplot(111)
     # y = df.index.tolist()
@@ -906,7 +998,7 @@ def dotPlotLatency(df):
         fig.text(
             0.99,
             0.01,
-            "speedBaudot.py:dotplotLatency",
+            "speed_baudot.py:dotplotLatency",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -921,11 +1013,11 @@ save = False
 if save:
     file = "dotplotLatency.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
-    filename = os.path.join(dirname, file)
-    fig.savefig(filename)
+    file_name = os.path.join(dirname, file)
+    fig.savefig(file_name)
 
 
-#%% fir histo
+#%% for histo
 plt.close("all")
 from scipy.optimize import leastsq
 
