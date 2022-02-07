@@ -55,8 +55,8 @@ def load_speed_data():
         centrigabor data.
 
     """
-    file = "baudot.csv"
-    filename = os.path.join(paths.get("data"), file)
+    name = "baudot.csv"
+    filename = os.path.join(paths.get("data"), name)
     bddf = pd.read_csv(filename)
     bddf.columns = [_.strip() for _ in bddf.columns]
     # to have the lower interval limit
@@ -91,20 +91,20 @@ def build_summary(bddf: pd.DataFrame, cgdf: pd.DataFrame) -> pd.DataFrame:
 
     """
     # count number of cells
-    def class_speed(s):
+    def class_speed(speed):
         "return lower limit in class"
         lims = range(100, 500, 25)
-        i = bisect(lims, s)
+        i = bisect(lims, speed)
         return lims[i - 1]
 
     cgdf["optiMax"] = cgdf.speed_isi0.apply(lambda x: class_speed(x))
-    cgNumb = dict(cgdf.optiMax.value_counts())
-    bdNumb = dict(bddf.set_index("optiMax"))
+    cgnum = dict(cgdf.optiMax.value_counts())
+    bdnum = dict(bddf.set_index("optiMax"))
 
     summarydf = pd.DataFrame(index=range(50, 525, 25))
-    summarydf = summarydf.join(pd.DataFrame(bdNumb))
+    summarydf = summarydf.join(pd.DataFrame(bdnum))
     summarydf.columns = ["bd_cells"]
-    summarydf["cg_cells"] = pd.Series(cgNumb)
+    summarydf["cg_cells"] = pd.Series(cgnum)
     summarydf = summarydf.fillna(0)
     summarydf = summarydf.astype(int)
     return summarydf
@@ -118,12 +118,12 @@ def load_cgpopdf() -> pd.DataFrame:
     -------
     pandas dataframe
     """
-    file = "centrigabor_pop_db.xlsx"
+    name = "centrigabor_pop_db.xlsx"
 
-    filename = os.path.join(paths.get("data"), "averageTraces", file)
-    df = pd.read_excel(filename)
-    df.columns = [col.lower().strip() for col in df.columns]
-    return df
+    filename = os.path.join(paths.get("data"), "averageTraces", name)
+    popdf = pd.read_excel(filename)
+    popdf.columns = [col.lower().strip() for col in popdf.columns]
+    return popdf
 
 
 def load_bringuier() -> pd.DataFrame:
@@ -157,9 +157,9 @@ def load_gmercier() -> pd.DataFrame:
     """
     file = "gmercier.csv"
     filename = os.path.join(paths.get("data"), file)
-    df = pd.read_csv(filename, sep="\t")
-    del df["speed_high"]
-    return df
+    gmdf = pd.read_csv(filename, sep="\t")
+    del gmdf["speed_high"]
+    return gmdf
 
 
 def load_gmercier2() -> pd.DataFrame:
@@ -172,11 +172,11 @@ def load_gmercier2() -> pd.DataFrame:
     """
     file = "gmercier2.csv"
     filename = os.path.join(paths.get("data"), file)
-    df = pd.read_csv(filename, sep="\t", decimal=",")
-    df = df.set_index("cell")
+    gmdf2 = pd.read_csv(filename, sep="\t", decimal=",")
+    gmdf2 = gmdf2.set_index("cell")
     # remove empty lines
-    df = df.dropna(how="all")
-    return df
+    gmdf2 = gmdf2.dropna(how="all")
+    return gmdf2
 
 
 # speed and baudot
@@ -221,47 +221,47 @@ def samebin(
 
     def compute_speed_histo(speeds: pd.Series, bins: int = 40):
         # speeds = df.speed/1000
-        height, x = np.histogram(speeds, bins=bins, range=(0, 1))
+        heights, xvals = np.histogram(speeds, bins=bins, range=(0, 1))
         # normalize
         # height = height/np.sum(height)
-        width = (max(x) - min(x)) / (len(x) - 1)
-        return x[:-1], height, width
+        width = (max(xvals) - min(xvals)) / (len(xvals) - 1)
+        return xvals[:-1], heights, width
 
     # res dataframe 20 bins 0 to 1 range
-    df = pd.DataFrame(index=[_ / 20 for _ in range(0, 20, 1)])
+    bineddf = pd.DataFrame(index=[_ / 20 for _ in range(0, 20, 1)])
     # centrigabor population
-    x, height_cgpop, width = compute_speed_histo(popdf.speed / 1000, bins=20)
-    df["cgpop"] = height_cgpop
+    _, heights_cgpop, _ = compute_speed_histo(popdf.speed / 1000, bins=20)
+    bineddf["cgpop"] = heights_cgpop
     # speed centrigabor pop
-    _, height_cgspeed, _ = compute_speed_histo(spdf.speed_isi0 / 1000, bins=20)
-    df["cgspeed"] = height_cgspeed
+    _, heights_cgspeed, _ = compute_speed_histo(spdf.speed_isi0 / 1000, bins=20)
+    bineddf["cgspeed"] = heights_cgspeed
     # baudot -> resample to double bin width
-    temp = bddf.copy()
-    temp.loc[-1] = [150, 0]  # append row to match the future scale
-    temp.index = temp.index + 1
-    temp = temp.sort_index()
-    temp = temp.set_index("optiMax")
-    temp.index = temp.index / 1000
-    temp["cells"] = temp.nbCell.shift(-1).fillna(0)
-    temp.cells += temp.nbCell
-    temp = temp.drop(temp.index[1::2])
-    temp = temp.drop(columns=["nbCell"])
-    df["bd"] = temp
+    bdfcop = bddf.copy()
+    bdfcop.loc[-1] = [150, 0]  # append row to match the future scale
+    bdfcop.index = bdfcop.index + 1
+    bdfcop = bdfcop.sort_index()
+    bdfcop = bdfcop.set_index("optiMax")
+    bdfcop.index = bdfcop.index / 1000
+    bdfcop["cells"] = bdfcop.nbCell.shift(-1).fillna(0)
+    bdfcop.cells += bdfcop.nbCell
+    bdfcop = bdfcop.drop(bdfcop.index[1::2])
+    bdfcop = bdfcop.drop(columns=["nbCell"])
+    bineddf["bd"] = bdfcop
     # gmercier
     temp = gmdf.set_index("speed_low")
     temp.index = temp.index / 1000
-    df["gm"] = temp
+    bineddf["gm"] = temp
     # bringuier
     temp = brdf.set_index("speed_lower")
     # remove upper limit
     temp = temp.drop(index=[100])
     # rename columns
     cols = ["br_" + st for st in temp.columns]
-    df[cols[0]] = temp[temp.columns[0]]
-    df[cols[1]] = temp[temp.columns[1]]
+    bineddf[cols[0]] = temp[temp.columns[0]]
+    bineddf[cols[1]] = temp[temp.columns[1]]
     # fill and convert to integer
-    df = df.fillna(0).astype("int")
-    return df
+    bineddf = bineddf.fillna(0).astype("int")
+    return bineddf
 
 
 bined_df = samebin()
@@ -274,6 +274,8 @@ bined_df = samebin()
 # brdf['long_bar_contr'] = (brdf.speed_lower + 0.025) * brdf['long_bar']
 # np.average(values=brdf.speed_lower + 0.025, weights=brdf.impulse)
 # np.average(brdf.speed_lower + 0.025, weights=brdf.impulse)
+
+
 def weighted_avg_and_std(values: pd.Series, weights: pd.Series):
     """
     Return the weighted average and standard deviation.
@@ -298,14 +300,14 @@ def stats_brdf(brdf: pd.DataFrame):
     """perfoem a weighted stat from histogram data"""
     pd.set_option("display.float_format", lambda x: "%.2f" % x)
 
-    df = brdf.copy()
-    df = df.drop(df.index[-1], axis=0)
-    df.speed_lower += 0.025
-    df.impulse = df.impulse.astype(int)
+    brdfcop = brdf.copy()
+    brdfcop = brdfcop.drop(brdfcop.index[-1], axis=0)
+    brdfcop.speed_lower += 0.025
+    brdfcop.impulse = brdfcop.impulse.astype(int)
 
-    for col in df.columns[1:]:
+    for col in brdfcop.columns[1:]:
         expansion = []
-        for item in df.iterrows():
+        for item in brdfcop.iterrows():
             temp = [item[1].speed_lower] * int(item[1][col])
             if len(temp) > 0:
                 expansion.extend(temp)
@@ -325,20 +327,20 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
     # prepare data
     height_cg, x = np.histogram(popdf.speed, bins=18, range=(50, 500))
     x = x[:-1]
-    df = pd.DataFrame(index=range(50, 525, 25))
-    df["popcg"] = pd.Series(data=height_cg, index=x)
-    df["bd"] = bddf.set_index("optiMax")
-    df = df.fillna(0)
+    toplotdf = pd.DataFrame(index=range(50, 525, 25))
+    toplotdf["popcg"] = pd.Series(data=height_cg, index=x)
+    toplotdf["bd"] = bddf.set_index("optiMax")
+    toplotdf = toplotdf.fillna(0)
     align = "edge"  # ie right edge
-    width = (df.index.max() - df.index.min()) / (len(df) - 1)
+    width = (toplotdf.index.max() - toplotdf.index.min()) / (len(toplotdf) - 1)
 
     # plot
     fig = plt.figure(figsize=(11.6, 5))
     ax = fig.add_subplot(111)
     # NB ax.bar, x value = lower
     ax.bar(
-        df.index,
-        height=df.popcg,
+        toplotdf.index,
+        height=toplotdf.popcg,
         width=width,
         align=align,
         color="w",
@@ -347,9 +349,9 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
         label="cengrigabor",
     )
     ax.bar(
-        df.index,
-        height=df.bd,
-        bottom=df.popcg,
+        toplotdf.index,
+        height=toplotdf.bd,
+        bottom=toplotdf.popcg,
         width=width,
         align=align,
         color="tab:gray",
@@ -357,11 +359,11 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
         alpha=0.6,
         label="baudot",
     )
-    txt = f"n= {df.popcg.sum():.0f} cells"
+    txt = f"n= {toplotdf.popcg.sum():.0f} cells"
     ax.text(
         x=0.8, y=0.6, s=txt, color="k", va="bottom", ha="left", transform=ax.transAxes
     )
-    txt = f"n= {df.bd.sum():.0f} cells"
+    txt = f"n= {toplotdf.bd.sum():.0f} cells"
     ax.text(
         x=0.8,
         y=0.5,
@@ -637,26 +639,26 @@ def plot_both(bineddf: pd.DataFrame = bined_df):
     return fig
 
 
-def save_fig10_data_histo(do_save: bool = False):
+def save_fig10_data_histo(bineddf: pd.DataFrame = bined_df, do_save: bool = False):
     """save the data used to build the figure"""
 
     data_savename = os.path.join(paths["figdata"], "fig10.hdf")
     # histogram
     key = "histo"
-    df = bined_df.copy()
-    df = df.drop(axis=1, columns=["cgspeed", "pool"])
-    cols = df.columns
+    copydf = bineddf.copy()
+    copydf = copydf.drop(axis=1, columns=["cgspeed", "pool"])
+    cols = copydf.columns
     cols = [_.replace("cgpop", "radial") for _ in cols]
     cols = [_.replace("bd", "cardinal") for _ in cols]
     cols = [_.replace("gm", "twoStrokes") for _ in cols]
     cols = [_.replace("br", "bringuier") for _ in cols]
-    df.columns = cols
+    copydf.columns = cols
     print("-" * 20, f"{os.path.basename(data_savename)}({key})")
     for item in cols:
         print(item)
     print()
     if do_save:
-        df.to_hdf(data_savename, "histo")
+        copydf.to_hdf(data_savename, "histo")
 
 
 plt.close("all")
@@ -860,12 +862,11 @@ def hist_summary(
         alpha=0.8,
         label="cg population",
     )
-    txt = "n = {}".format(len(popdf))
+    txt = f"n= {len(popdf)}"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
 
-    txt = "mean ± std : \n {:.2f} ± {:.2f}".format(
-        (popdf.speed / 1000).mean(), (popdf.speed / 1000).std()
-    )
+    txt = f"mean ± std : \n {(popdf.speed / 1000).mean():.2f} \
+        ± {(popdf.speed / 1000).std():.2f}"
     ax.text(
         x=0.7,
         y=0.7,
@@ -889,9 +890,8 @@ def hist_summary(
     )
     txt = "n = {}".format(len(speeddf))
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
-    txt = "mean ± std : \n {:.2f} ± {:.2f}".format(
-        (speeddf.speed_isi0 / 1000).mean(), (speeddf.speed_isi0 / 1000).std()
-    )
+    txt = "mean ± std : \n {(speeddf.speed_isi0 / 1000).mean():.2f} \
+        ± {(speeddf.speed_isi0 / 1000).std():.2f}"
     ax.text(
         x=0.7,
         y=0.7,
@@ -952,13 +952,27 @@ plt.rcParams["axes.ymargin"] = 0.05
 plt.close("all")
 
 
-def dotPlotLatency(df: pd.DataFrame) -> plt.Figure:
+def dotPlotLatency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
+    """
+    dot plot of the latencies for all experiments
+
+    Parameters
+    ----------
+    bineddf : pd.DataFrame
+        the equaly binned data
+
+    Returns
+    -------
+    fig : TYPE
+        dot_plot.
+
+    """
     fig = plt.figure(figsize=(6, 8))
     ax = fig.add_subplot(111)
     # y = df.index.tolist()
     y = (bined_df.index + 0.025).tolist()
     populations = ["br_long_bar", "br_impulse", "bd", "gm", "cgpop", "cgspeed"]
-    popSigni = [
+    popsig = [
         "bringuier_bars",
         "bringuier_impulses",
         "baudot",
@@ -966,7 +980,7 @@ def dotPlotLatency(df: pd.DataFrame) -> plt.Figure:
         "centrigabor_pop",
         "centrigabor_speedPop",
     ]
-    labels = dict(zip(populations, popSigni))
+    labels = dict(zip(populations, popsig))
     colors = [
         "tab:green",
         "tab:blue",
@@ -976,7 +990,7 @@ def dotPlotLatency(df: pd.DataFrame) -> plt.Figure:
         "tab:orange",
     ]
     for i, pop in enumerate(populations):
-        x = (df[pop] / df[pop].sum()).tolist()
+        x = (bineddf[pop] / bineddf[pop].sum()).tolist()
         x = list(map(lambda x: x if x > 0 else np.nan, x))
         ax.plot(
             x,
