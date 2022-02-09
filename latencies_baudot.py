@@ -173,7 +173,9 @@ printLenOfRecording(data_df)
 #%%
 
 
-def get_RMSE(inputdf: pd.DataFrame, params: dict, printsummary: bool = False) -> float:
+def get_RMSE(
+    inputdf: pd.DataFrame, params: dict, printsummary: bool = False
+) -> Tuple[float, float]:
     """
     analyse the quality of the bilinear fit
 
