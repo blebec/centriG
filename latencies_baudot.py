@@ -137,8 +137,9 @@ def load_onsets() -> pd.DataFrame:
             # print(f"can not convert to float '{col}'")
     # limit only to required
     cols = ["stim", "name", "lat_vm_c-p", "lat_spk_seq-c"]
+    df0 = df.copy()
     df = df[cols]
-    return df
+    return df, df0
 
 
 def printLenOfRecording(df: pd.DataFrame):
@@ -165,7 +166,7 @@ def printLenOfRecording(df: pd.DataFrame):
     print(cells)
 
 
-data_df = load_onsets()
+data_df, data_df0 = load_onsets()
 
 printLenOfRecording(data_df)
 
@@ -758,7 +759,7 @@ def histo_inAndOut(
 
 
 plt.close("all")
-figure = histo_inAndOut(data_df, removeOutliers=True, onlyCouple=True)
+figure = histo_inAndOut(data_df0, removeOutliers=True, onlyCouple=True)
 save = False
 if save:
     file = "histo_inAndOut.png"
@@ -868,7 +869,7 @@ def plot_diffMean(
 
 plt.close("all")
 ref_mean = True
-figure = plot_diffMean(data_df, refMean=ref_mean)
+figure = plot_diffMean(data_df0, refMean=ref_mean)
 save = False
 if save:
     file = "diffMean.png"
@@ -1153,7 +1154,7 @@ def hist_diff_lat(datadf: pd.DataFrame) -> plt.Figure:
 
 
 plt.close("all")
-fig = hist_diff_lat(data_df)
+fig = hist_diff_lat(data_df0)
 save = False
 if save:
     file = "histDiffLat.pdf"
