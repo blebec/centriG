@@ -62,8 +62,8 @@ def load_speed_data():
     # to have the lower interval limit
     bddf.optiMax = bddf.optiMax - 25
 
-    file = "neuron_props_speed.xlsx"
-    filename = os.path.join(paths.get("data"), "averageTraces", file)
+    name = "neuron_props_speed.xlsx"
+    filename = os.path.join(paths.get("data"), "averageTraces", name)
     cgdf = pd.read_excel(filename)
     cols = [st.strip() for st in cgdf.columns]
     cols = [st.lower() for st in cols]
@@ -73,7 +73,7 @@ def load_speed_data():
     return bddf, cgdf
 
 
-def build_summary(bddf: pd.DataFrame, cgdf: pd.DataFrame) -> pd.DataFrame:
+def build_summary(bddf: pd.DataFrame, speeddf: pd.DataFrame) -> pd.DataFrame:
     """
     class the number of cells
 
@@ -97,14 +97,14 @@ def build_summary(bddf: pd.DataFrame, cgdf: pd.DataFrame) -> pd.DataFrame:
         i = bisect(lims, speed)
         return lims[i - 1]
 
-    cgdf["optiMax"] = cgdf.speed_isi0.apply(lambda x: class_speed(x))
-    cgnum = dict(cgdf.optiMax.value_counts())
+    speeddf["optiMax"] = speeddf.speed_isi0.apply(lambda x: class_speed(x))
+    speednum = dict(speeddf.optiMax.value_counts())
     bdnum = dict(bddf.set_index("optiMax"))
 
     summarydf = pd.DataFrame(index=range(50, 525, 25))
     summarydf = summarydf.join(pd.DataFrame(bdnum))
     summarydf.columns = ["bd_cells"]
-    summarydf["cg_cells"] = pd.Series(cgnum)
+    summarydf["cg_cells"] = pd.Series(speednum)
     summarydf = summarydf.fillna(0)
     summarydf = summarydf.astype(int)
     return summarydf
@@ -155,8 +155,8 @@ def load_gmercier() -> pd.DataFrame:
     -------
     df : pd.DataFrame
     """
-    file = "gmercier.csv"
-    filename = os.path.join(paths.get("data"), file)
+    name = "gmercier.csv"
+    filename = os.path.join(paths.get("data"), name)
     gmdf = pd.read_csv(filename, sep="\t")
     del gmdf["speed_high"]
     return gmdf
@@ -170,8 +170,8 @@ def load_gmercier2() -> pd.DataFrame:
     -------
     df : pd.DataFrame
     """
-    file = "gmercier2.csv"
-    filename = os.path.join(paths.get("data"), file)
+    name = "gmercier2.csv"
+    filename = os.path.join(paths.get("data"), name)
     gmdf2 = pd.read_csv(filename, sep="\t", decimal=",")
     gmdf2 = gmdf2.set_index("cell")
     # remove empty lines
@@ -398,13 +398,13 @@ def plot_optimal_speed(bddf: pd.DataFrame = bd_df, popdf: pd.DataFrame = pop_df)
 plt.close("all")
 anot = True
 
-fig = plot_optimal_speed(bd_df)
+figure = plot_optimal_speed(bd_df)
 save = False
 if save:
     file = "optSpeed.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
-    fig.savefig(file_name)
+    figure.savefig(file_name)
 
 #%%
 plt.close("all")
@@ -492,20 +492,20 @@ def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
 
 
 plt.close("all")
-fig = plot_optimal_bringuier(bined_df)
+figure = plot_optimal_bringuier(bined_df)
 
 save = False
 if save:
     file = "optSpreedBringuier.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
-    fig.savefig(file_name)
+    figure.savefig(file_name)
     # update current
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
     file = "o1_optSpeedBringuier"
     for ext in [".png", ".pdf", ".svg"]:
         file_name = os.path.join(dirname, (file + ext))
-        fig.savefig(file_name)
+        figure.savefig(file_name)
 
 #%%
 def plot_both(bineddf: pd.DataFrame = bined_df):
@@ -676,19 +676,19 @@ def save_fig10_data_histo(bineddf: pd.DataFrame = bined_df, do_save: bool = Fals
 
 
 plt.close("all")
-fig = plot_both(bined_df)
+figure = plot_both(bined_df)
 save = False
 if save:
     file = "optSpreedBoth.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
-    fig.savefig(file_name)
+    figure.savefig(file_name)
     # update current
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "current", "fig")
-    file = "f9_optSpreedBoth"
+    file = "f10_optSpreedBoth"
     for ext in [".png", ".pdf", ".svg"]:
         file_name = os.path.join(dirname, (file + ext))
-        fig.savefig(file_name)
+        figure.savefig(file_name)
 
 save_fig10_data_histo(bined_df, False)
 
@@ -1044,10 +1044,10 @@ def dotPlotLatency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
     return fig
 
 
-fig = dotPlotLatency(bined_df)
+figure = dotPlotLatency(bined_df)
 save = False
 if save:
     file = "dotplotLatency.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
-    fig.savefig(file_name)
+    figure.savefig(file_name)
