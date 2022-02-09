@@ -451,9 +451,8 @@ def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
         alpha=0.8,
         label=txt,
     )
-    # >>>>>>>>>>>>  added 21 strokes
     gdf.pool += gdf.br_impulse
-    txt = f"2-stroke n={gdf.gm.sum():.0f}"
+    txt = f"Gabor n={gdf.gm.sum():.0f}"
     ax.bar(
         x,
         gdf.gm,
@@ -465,8 +464,6 @@ def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
         edgecolor="k",
         label=txt,
     )
-    # <<<<<<<<<<<<<<
-
     # txt = 'Apparent Speed of Horizontal Propagation (ASHP) m/s'
     txt = "Propagation Speed (mm/ms)"
     ax.set_xlabel(txt)
