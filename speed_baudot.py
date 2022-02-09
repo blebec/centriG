@@ -446,7 +446,7 @@ def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
         bottom=gdf.pool,
         width=width,
         align=align,
-        color=std_colors["green"],
+        color=std_colors["dark_green"],
         edgecolor="k",
         alpha=0.8,
         label=txt,
@@ -459,8 +459,8 @@ def plot_optimal_bringuier(gdf: pd.DataFrame = bined_df) -> plt.Figure:
         bottom=gdf.pool,
         width=width,
         align=align,
-        color=speed_colors["orange"],
-        alpha=0.6,
+        color=std_colors["green"],
+        alpha=0.7,
         edgecolor="k",
         label=txt,
     )
@@ -528,6 +528,7 @@ def plot_both(bineddf: pd.DataFrame = bined_df):
     width = (max(x) - min(x)) / (len(x) - 1) * 0.98
     align = "edge"
 
+    bineddf["minuspool"] = 0  # ref
     # plot mirror low
     ax.bar(
         x,
@@ -538,16 +539,32 @@ def plot_both(bineddf: pd.DataFrame = bined_df):
         color=std_colors["blue"],
         edgecolor="tab:grey",
     )
+    bineddf["minuspool"] += bineddf.br_long_bar * -1  # ref
     ax.bar(
         x,
         height=(bineddf.br_impulse * -1),
-        bottom=(bineddf.br_long_bar * -1),
+        bottom=bineddf.minuspool,
+        # bottom=(bineddf.br_long_bar * -1),
         width=width,
         align=align,
         alpha=0.3,
-        color=std_colors["green"],
+        color=std_colors["dark_green"],
         edgecolor="tab:grey",
     )
+    bineddf["minuspool"] += bineddf.br_impulse * -1  # ref
+    txt = f"Gabor n={bineddf.gm.sum():.0f}"
+    ax.bar(
+        x,
+        height=(bineddf.gm * -1),
+        bottom=bineddf.minuspool,
+        width=width,
+        align=align,
+        color=std_colors["green"],
+        alpha=0.3,
+        edgecolor="tab:grey",
+        # label=txt,
+    )
+    bineddf.pool += bineddf.gm * -1
 
     bineddf["pool"] = 0  # ref
     txt = f"Radial n={bineddf.cgpop.sum():.0f}"
@@ -576,19 +593,19 @@ def plot_both(bineddf: pd.DataFrame = bined_df):
         label=txt,
     )
     bineddf.pool += bineddf.bd
-    txt = f"2-stroke n={bineddf.gm.sum():.0f}"
-    ax.bar(
-        x,
-        bineddf.gm,
-        bottom=bineddf.pool,
-        width=width,
-        align=align,
-        color=speed_colors["orange"],
-        alpha=0.6,
-        edgecolor="k",
-        label=txt,
-    )
-    bineddf.pool += bineddf.gm
+    # txt = f"Gabor n={bineddf.gm.sum():.0f}"
+    # ax.bar(
+    #     x,
+    #     bineddf.gm,
+    #     bottom=bineddf.pool,
+    #     width=width,
+    #     align=align,
+    #     color=speed_colors["orange"],
+    #     alpha=0.6,
+    #     edgecolor="k",
+    #     label=txt,
+    # )
+    # bineddf.pool += bineddf.gm
 
     txt = "Inferred Cortical Speed (mm/ms)"
     ax.set_xlabel(txt)
@@ -673,7 +690,7 @@ if save:
         file_name = os.path.join(dirname, (file + ext))
         fig.savefig(file_name)
 
-save_fig10_data_histo(False)
+save_fig10_data_histo(bined_df, False)
 
 #%%
 # targetbins = list(np.linspace(0, 1, 21))
