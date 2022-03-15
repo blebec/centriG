@@ -317,7 +317,42 @@ def stats_brdf(brdf: pd.DataFrame):
         print(res, "\n")
 
 
-stats_brdf(br_df)
+# stats_brdf(br_df)
+
+
+def stats_bineddf(bineddf=bined_df):
+    """
+        compute the statistical description related to the the histogrammes
+
+        Parameters
+        ----------
+        bineddf : pd.DataFrame, optional (default is bined_df)
+
+        Returns
+    cd     -------
+        None.
+
+    """
+    bineddf = bineddf.copy()
+    bineddf["sum_down"] = bineddf["br_long_bar"] + bineddf["br_impulse"] + bineddf["gm"]
+    bineddf["sum_up"] = bineddf["cgpop"] + bineddf["bd"]
+    down = ["br_long_bar", "br_impulse", "gm"]
+    up = ["cgpop", "bd"]
+
+    for loc in up + down + ["sum_up", "sum_down"]:
+        pop = []
+        for i, k in bineddf[loc].iteritems():
+            for _ in range(k):
+                pop.append(i + 0.025)
+        ser = pd.Series(pop)
+        print(f"{'-'*5} {loc} {'-'*5}")
+        print(f"mode={ser.mode()[0]}")
+        print(ser.agg(["count", "mean", "std", "median", "mad"]))
+        print()
+
+
+stats_bineddf()
+
 
 #%%
 
@@ -1051,3 +1086,11 @@ if save:
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
+
+#%%
+# get an estimate of the distribution
+bined_df["sum_up"] = bined_df["br_long_bar"] + bined_df["br_impulse"] + bined_df["gm"]
+bined_df["est_mean"] = bined_df.index
+bined_df.est_mean += 0.025
+bined_df.est_mean *= bined_df.sum_up
+(bined_df.est_mean / bined_df.sum_up).describe()
