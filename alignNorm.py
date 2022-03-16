@@ -48,7 +48,7 @@ def load_traces(pathsdico, kind="vm", spread="sect", num=2):
     cols = [item[:-3] + ("_").join(item[-3:].split("n")) for item in cols]
     df.columns = cols
 
-    nb_cells = list(set([item.split("_")[1] for item in df.columns]))
+    # nb_cells = list({item.split("_")[1] for item in df.columns})
 
     return label, df
 
