@@ -298,7 +298,7 @@ print(f"long_bar : {w_mean:.2f} ± {w_std:.2f} (weighted mean ± std)")
 
 def stats_brdf(brdf: pd.DataFrame):
     """perfoem a weighted stat from histogram data"""
-    pd.set_option("display.float_format", lambda x: "%.2f" % x)
+    pd.set_option("display.float_format", lambda x: f"{x:.2f}")
 
     brdfcop = brdf.copy()
     brdfcop = brdfcop.drop(brdfcop.index[-1], axis=0)
@@ -336,10 +336,10 @@ def stats_bineddf(bineddf=bined_df):
     bineddf = bineddf.copy()
     bineddf["sum_down"] = bineddf["br_long_bar"] + bineddf["br_impulse"] + bineddf["gm"]
     bineddf["sum_up"] = bineddf["cgpop"] + bineddf["bd"]
-    down = ["br_long_bar", "br_impulse", "gm"]
-    up = ["cgpop", "bd"]
+    downs = ["br_long_bar", "br_impulse", "gm"]
+    ups = ["cgpop", "bd"]
 
-    for loc in up + down + ["sum_up", "sum_down"]:
+    for loc in ups + downs + ["sum_up", "sum_down"]:
         pop = []
         for i, k in bineddf[loc].iteritems():
             for _ in range(k):
@@ -889,7 +889,7 @@ def hist_summary(
     txt = f"n= {gmdf.cells.sum()}"
     ax.text(x=0.6, y=0.8, s=txt, va="top", ha="left", transform=ax.transAxes)
     moy = (gmdf.cells * x).sum() / gmdf.cells.sum()
-    txt = "mean ~ {:.2f}".format(moy)
+    txt = f"mean ~ {moy:.2f}"
     ax.text(
         x=0.7,
         y=0.6,
@@ -1001,7 +1001,7 @@ plt.rcParams["axes.ymargin"] = 0.05
 plt.close("all")
 
 
-def dotPlotLatency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
+def dotplot_latency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
     """
     dot plot of the latencies for all experiments
 
@@ -1069,7 +1069,7 @@ def dotPlotLatency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
         fig.text(
             0.99,
             0.01,
-            "speed_baudot.py:dotplotLatency",
+            "speed_baudot.py:dotplot_latency",
             ha="right",
             va="bottom",
             alpha=0.4,
@@ -1079,10 +1079,10 @@ def dotPlotLatency(bineddf: pd.DataFrame = bined_df) -> plt.Figure:
     return fig
 
 
-figure = dotPlotLatency(bined_df)
+figure = dotplot_latency(bined_df)
 save = False
 if save:
-    file = "dotplotLatency.pdf"
+    file = "dotplot_latency.pdf"
     dirname = os.path.join(paths.get("owncFig"), "pythonPreview", "baudot")
     file_name = os.path.join(dirname, file)
     figure.savefig(file_name)
